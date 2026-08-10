@@ -143,6 +143,16 @@ dibatasi hanya untuk repositori portal.
 
 ---
 
+## Installer Windows
+
+Installer siap dibagikan tersedia di
+[`release/Polyta-Portal-Setup.exe`](release/Polyta-Portal-Setup.exe). Penerima cukup
+menjalankan berkas tersebut untuk membuat pintasan portal di Desktop dan Start Menu,
+tanpa perlu mengetik URL. Petunjuk build dan catatan distribusi tersedia di
+[`installer/README.md`](installer/README.md).
+
+---
+
 ## Publikasi ke GitHub
 
 > 📘 Panduan lengkap beserta pemecahan masalah tersedia di

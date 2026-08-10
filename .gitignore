@@ -15,5 +15,6 @@ $RECYCLE.BIN/
 # Build & dependensi (jika kelak dipakai)
 node_modules/
 dist/
+installer/.build/
 .cache/
 *.log

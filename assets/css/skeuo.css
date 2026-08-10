@@ -743,6 +743,9 @@ main { padding-bottom: 3.5rem; }
   --dept-hi: var(--accent-hi);
   --dept-lo: var(--accent-lo);
   --dept-rgb: var(--accent-rgb);
+  --dept-ink: var(--dept-accent);
+  --dept-badge-ink: #fff;
+  --dept-badge-shadow: 0 1px 1px rgba(20,4,8,.75);
   position: relative;
   display: flex; flex-direction: column;
   min-height: 250px;
@@ -795,9 +798,9 @@ main { padding-bottom: 3.5rem; }
   width: 54px; height: 54px; border-radius: 16px;
   display: grid; place-items: center;
   font-family: var(--font-dis); font-weight: 800; font-size: .92rem; letter-spacing: .04em;
-  color: #fff;
+  color: var(--dept-badge-ink);
   background: linear-gradient(160deg, var(--dept-hi), var(--dept-accent) 48%, var(--dept-lo));
-  text-shadow: 0 1px 1px rgba(70,4,12,.75);
+  text-shadow: var(--dept-badge-shadow);
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.75),
     inset 0 -3px 6px rgba(70,4,12,.6),
@@ -823,7 +826,7 @@ main { padding-bottom: 3.5rem; }
   align-self: flex-start;
   display: inline-flex; align-items: center; gap: .45rem;
   font-size: .7rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase;
-  color: var(--dept-accent);
+  color: var(--dept-ink);
   border: 1px solid rgba(var(--dept-rgb), .26);
   border-radius: 999px;
   background: rgba(var(--dept-rgb), .08);
@@ -832,17 +835,31 @@ main { padding-bottom: 3.5rem; }
 .dept__go svg { width: 14px; height: 14px; transition: transform var(--motion-ui) var(--ease-spring); }
 .dept:hover .dept__go { background: rgba(var(--dept-rgb), .14); border-color: rgba(var(--dept-rgb), .42); transform: translateX(2px); }
 .dept:hover .dept__go svg { transform: translateX(4px); }
-.dept--marketing  { --dept-accent: #d43a72; --dept-hi: #f07aa4; --dept-lo: #86163f; --dept-rgb: 212, 58, 114; }
-.dept--ppic       { --dept-accent: #2479c7; --dept-hi: #70bfff; --dept-lo: #104678; --dept-rgb: 36, 121, 199; }
-.dept--purchasing { --dept-accent: #d07018; --dept-hi: #ffb267; --dept-lo: #7d3908; --dept-rgb: 208, 112, 24; }
-.dept--produksi   { --dept-accent: #188653; --dept-hi: #63d79c; --dept-lo: #0b4d2d; --dept-rgb: 24, 134, 83; }
-.dept--finance    { --dept-accent: #7d4db6; --dept-hi: #c096f3; --dept-lo: #482773; --dept-rgb: 125, 77, 182; }
-.dept--bantuan    { --dept-accent: #168c9b; --dept-hi: #69d9e5; --dept-lo: #07525c; --dept-rgb: 22, 140, 155; }
+.dept--marketing  { --dept-accent: #c8102e; --dept-hi: #ef7183; --dept-lo: #7d0a17; --dept-rgb: 200, 16, 46; }
+.dept--ppic       { --dept-accent: #36363e; --dept-hi: #73737f; --dept-lo: #111116; --dept-rgb: 54, 54, 62; }
+.dept--purchasing { --dept-accent: #72727e; --dept-hi: #f7f7fa; --dept-lo: #50505a; --dept-rgb: 114, 114, 126; --dept-ink: #5e5e69; --dept-badge-ink: #17171c; --dept-badge-shadow: 0 1px 0 rgba(255,255,255,.85); }
+.dept--produksi   { --dept-accent: #8f1027; --dept-hi: #d9576c; --dept-lo: #4f0713; --dept-rgb: 143, 16, 39; }
+.dept--finance    { --dept-accent: #24242a; --dept-hi: #62626d; --dept-lo: #09090c; --dept-rgb: 36, 36, 42; }
+.dept--bantuan    { --dept-accent: #8b8b96; --dept-hi: #ffffff; --dept-lo: #62626e; --dept-rgb: 139, 139, 150; --dept-ink: #666671; --dept-badge-ink: #17171c; --dept-badge-shadow: 0 1px 0 rgba(255,255,255,.9); }
+:root[data-theme="dark"] .dept--marketing,
+:root[data-theme="dark"] .dept--produksi { --dept-ink: #ff697a; }
+:root[data-theme="dark"] .dept--ppic,
+:root[data-theme="dark"] .dept--finance,
+:root[data-theme="dark"] .dept--purchasing,
+:root[data-theme="dark"] .dept--bantuan { --dept-ink: #d4d4dc; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .dept--marketing,
+  :root:not([data-theme="light"]) .dept--produksi { --dept-ink: #ff697a; }
+  :root:not([data-theme="light"]) .dept--ppic,
+  :root:not([data-theme="light"]) .dept--finance,
+  :root:not([data-theme="light"]) .dept--purchasing,
+  :root:not([data-theme="light"]) .dept--bantuan { --dept-ink: #d4d4dc; }
+}
 .dept__count {
   position: absolute; top: 1.4rem; right: 1.3rem;
   font-family: var(--font-mono); font-size: .66rem;
   padding: .2rem .55rem; border-radius: 999px;
-  color: var(--dept-accent); font-weight: 700;
+  color: var(--dept-ink); font-weight: 700;
   border: 1px solid rgba(var(--dept-rgb), .26);
   background: linear-gradient(180deg, rgba(255,255,255,.45), rgba(var(--dept-rgb), .08));
   box-shadow: var(--sh-sunken);

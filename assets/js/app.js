@@ -110,7 +110,10 @@
       '<path d="M4 7h16M4 12h16M4 17h16"/></svg>',
     top:
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' +
-      '<path d="M12 19V6M6 12l6-6 6 6"/></svg>'
+      '<path d="M12 19V6M6 12l6-6 6 6"/></svg>',
+    close:
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">' +
+      '<path d="M6 6l12 12M18 6L6 18"/></svg>'
   };
 
   var TYPE_LABEL = {
@@ -265,50 +268,75 @@
     return f;
   }
 
-  /* ------------------------------------------------------------ Hero */
-  function buildHero(pageId) {
+  /* --------------------------------------------------- Kepala halaman
+     Ringkas dan langsung di atas substrat — remah jejak, judul, dan
+     keping angka dalam satu baris. Menggantikan panel hero besar yang
+     mendorong konten jauh ke bawah di setiap halaman. */
+  function buildPageHead(pageId) {
     var p = SITE.pages[pageId];
     var isHome = pageId === "beranda";
     var items = isHome ? allItems() : pageItems(pageId);
     var secCount = isHome ? SITE.pages.beranda.departments.length : (p.sections ? p.sections.length : 0);
-    var ready = items.filter(function (r) { return r.item.url; }).length;
 
-    var sec = el("section", "hero");
-    var wrap = el("div", "wrap");
-    var plate = el("div", "plate reveal");
-    plate.innerHTML =
-      '<i class="screw screw--tl"></i><i class="screw screw--tr"></i>' +
-      '<i class="screw screw--bl"></i><i class="screw screw--br"></i>' +
-      '<div class="hero__in">' +
-        "<div>" +
-          '<span class="eyebrow"><i class="dot-led"></i>Sistem Aktif</span>' +
-          "<h1>" +
-            (isHome ? '<span class="thin">' + raw(SITE.name) + "</span>" : '<span class="thin">' + raw(p.title) + "</span>") +
-            '<span class="engrave">' + raw(p.heading) + "</span>" +
-          "</h1>" +
-          '<p class="hero__lead">' + raw(isHome ? p.lead : SITE.notice) + "</p>" +
-          (isHome
-            ? '<div class="notice">' + ICON.warn.replace("<svg", '<svg class="notice__icon"') +
-              "<span>" + raw(SITE.notice) + "</span></div>"
-            : "") +
-        "</div>" +
-        '<div class="gauge">' +
-          '<div class="gauge__grid">' +
-            statBox(isHome ? secCount : secCount, isHome ? "Departemen" : "Seksi") +
-            statBox(items.length, isHome ? "Total Tautan" : "Tautan") +
-            statBox(ready, "Aktif") +
-            statBox(pins().length, "Disematkan") +
-          "</div>" +
-        "</div>" +
+    var crumb =
+      '<nav class="crumb" aria-label="Remah jejak"><i class="dot-led"></i>' +
+      (isHome
+        ? '<span class="crumb__now">' + raw(SITE.name) + "</span>"
+        : '<a href="' + link("") + '">Beranda</a>' +
+          '<span class="crumb__sep">/</span>' +
+          '<span class="crumb__now">' + raw(p.title) + "</span>") +
+      "</nav>";
+
+    var chips =
+      '<div class="chips">' +
+        chip(secCount, isHome ? "Departemen" : "Seksi") +
+        chip(items.length, "Tautan") +
+        chip(pins().length, "Disematkan") +
       "</div>";
-    wrap.appendChild(plate);
+
+    var sec = el("section", "pagehead");
+    var wrap = el("div", "wrap");
+    var head = el("div", "pagehead__in reveal");
+    head.innerHTML =
+      '<div class="pagehead__id">' +
+        crumb +
+        '<h1 class="pagehead__title engrave">' + raw(p.heading) + "</h1>" +
+        (isHome ? '<p class="pagehead__sub">' + raw(p.lead) + "</p>" : "") +
+      "</div>" +
+      chips;
+    wrap.appendChild(head);
     sec.appendChild(wrap);
     return sec;
   }
 
-  function statBox(num, label) {
-    return '<div class="stat"><div class="stat__num">' + String(num).padStart(2, "0") +
-      '</div><div class="stat__lbl">' + esc(label) + "</div></div>";
+  function chip(num, label) {
+    return '<span class="chip"><b>' + String(num).padStart(2, "0") + "</b>" + esc(label) + "</span>";
+  }
+
+  /* ---------------------------------------- Strip peringatan (tertutup) */
+  var NOTICE_KEY = "pgm:notice-hidden";
+
+  function buildNotice() {
+    if (store.get(NOTICE_KEY, false)) return null;
+
+    var wrap = el("div", "wrap");
+    var box = el("div", "notice reveal");
+    box.innerHTML =
+      ICON.warn.replace("<svg", '<svg class="notice__icon"') +
+      '<span class="notice__txt">' + raw(SITE.notice) + "</span>";
+
+    var close = el("button", "notice__close", ICON.close);
+    close.type = "button";
+    close.setAttribute("aria-label", "Tutup pemberitahuan");
+    close.addEventListener("click", function () {
+      store.set(NOTICE_KEY, true);
+      box.parentNode.removeChild(box);
+      toast("Pemberitahuan disembunyikan di perangkat ini");
+    });
+    box.appendChild(close);
+
+    wrap.appendChild(box);
+    return wrap;
   }
 
   /* ---------------------------------------------------- Konsol cari */
@@ -379,10 +407,9 @@
   }
 
   function syncPinnedStat() {
-    var boxes = $$(".stat");
-    boxes.forEach(function (b) {
-      if ($(".stat__lbl", b).textContent.trim() === "Disematkan") {
-        $(".stat__num", b).textContent = String(pins().length).padStart(2, "0");
+    $$(".chip").forEach(function (c) {
+      if (c.textContent.indexOf("Disematkan") !== -1) {
+        $("b", c).textContent = String(pins().length).padStart(2, "0");
       }
     });
   }
@@ -611,7 +638,11 @@
 
     var main = $("main") || document.body.appendChild(el("main"));
     main.innerHTML = "";
-    main.insertAdjacentElement("beforebegin", buildHero(pageId));
+    main.insertAdjacentElement("beforebegin", buildPageHead(pageId));
+
+    var notice = buildNotice();
+    if (notice) main.appendChild(notice);
+
     main.appendChild(buildConsole(pageId === "beranda" ? "seluruh tautan" : String(page.title).toLowerCase()));
 
     if (pageId === "beranda") {

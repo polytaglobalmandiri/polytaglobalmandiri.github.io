@@ -36,9 +36,8 @@ const SITE = {
       title: "BERANDA",
       heading: "Pusat Akses Terpadu",
       lead:
-        "Akses terhadap folder cloud dibatasi berdasarkan peran masing-masing pengguna. " +
-        "Pengguna hanya diperkenankan mengakses data yang telah diberikan izin. " +
-        "Untuk permintaan akses tambahan atau perubahan perizinan, harap menghubungi administrator.",
+        "Pusat tautan menuju folder dan berkas cloud seluruh departemen. " +
+        "Akses dibatasi berdasarkan peran masing-masing pengguna.",
       departments: [
         { id: "marketing",  code: "MKT",  label: "MARKETING",  path: "marketing/",  desc: "Folder tim, laporan, dan tautan operasional pemasaran." },
         { id: "ppic",       code: "PPIC", label: "PPIC",       path: "ppic/",       desc: "Manajemen SPK, database OTS, back-up produksi, dashboard." },

@@ -365,8 +365,67 @@ body::after {
 
 .nav-toggle { display: none; }
 
-/* ---------------------------------------------------------- 6. HERO */
-.hero { padding-block: 2.4rem 1.4rem; }
+/* --------------------------------------------- 6. KEPALA HALAMAN RINGKAS
+   Menggantikan panel hero besar. Duduk langsung di atas substrat tanpa
+   kotak, sehingga tinggi chrome turun drastis dan konten segera terlihat. */
+.pagehead { padding-block: 1.5rem .9rem; }
+.pagehead__in {
+  display: flex; align-items: flex-end; gap: 1.2rem; flex-wrap: wrap;
+  padding-bottom: .95rem;
+  border-bottom: 1px solid var(--panel-edge);
+  box-shadow: 0 1px 0 var(--hi-strong);
+}
+.pagehead__id { min-width: 0; flex: 1 1 300px; }
+
+/* Remah jejak */
+.crumb {
+  display: flex; align-items: center; gap: .45rem; flex-wrap: wrap;
+  font-size: .66rem; font-weight: 800; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.crumb a { color: var(--ink-mute); transition: color .15s; }
+.crumb a:hover { color: var(--accent); }
+.crumb__sep { opacity: .5; }
+.crumb__now { color: var(--accent); }
+.crumb .dot-led { margin-right: .1rem; }
+
+.pagehead__title {
+  margin-top: .45rem;
+  font-family: var(--font-dis);
+  font-size: clamp(1.35rem, 3.1vw, 2rem);
+  font-weight: 800; line-height: 1.12; letter-spacing: -.005em;
+}
+.pagehead__sub {
+  margin-top: .35rem; max-width: 68ch;
+  font-size: .87rem; color: var(--ink-soft);
+}
+
+/* Keping angka — pengganti panel gauge */
+.chips { display: flex; align-items: center; gap: .45rem; flex-wrap: wrap; }
+.chip {
+  display: inline-flex; align-items: baseline; gap: .4rem;
+  padding: .34rem .7rem;
+  border-radius: 999px;
+  border: 1px solid var(--panel-edge);
+  background: linear-gradient(180deg, rgba(0,0,0,.07), rgba(255,255,255,.28));
+  box-shadow: var(--sh-sunken);
+  font-size: .64rem; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--ink-mute);
+  white-space: nowrap;
+}
+.chip b {
+  font-family: var(--font-mono);
+  font-size: .95rem; font-weight: 700; letter-spacing: 0;
+  color: var(--accent);
+}
+
+.dot-led {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffd2cf, var(--led) 55%, #8c1610);
+  box-shadow: 0 0 5px var(--led), 0 0 11px rgba(255,59,48,.7), inset 0 -1px 1px rgba(0,0,0,.35);
+  animation: pulse 2.6s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: .45 } }
 
 .plate {
   position: relative;
@@ -412,46 +471,11 @@ body::after {
 .screw--bl { bottom: 11px; left: 11px; rotate: -24deg; }
 .screw--br { bottom: 11px; right: 11px; rotate: 8deg; }
 
-.hero__in {
-  position: relative;
-  display: grid; grid-template-columns: 1fr; gap: 1.4rem;
-  padding: 2.2rem 2rem;
-}
-@media (min-width: 880px) {
-  .hero__in { grid-template-columns: 1.55fr .95fr; align-items: center; padding: 2.6rem 2.6rem; }
-}
-
-.eyebrow {
-  display: inline-flex; align-items: center; gap: .5rem;
-  padding: .3rem .7rem .3rem .55rem;
-  border-radius: 999px;
-  font-size: .64rem; font-weight: 800; letter-spacing: .2em; text-transform: uppercase;
-  color: var(--ink-soft);
-  border: 1px solid var(--panel-edge);
-  background: linear-gradient(180deg, rgba(255,255,255,.7), rgba(0,0,0,.05));
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 1px 2px rgba(0,0,0,.12);
-}
-.dot-led {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #ffd2cf, var(--led) 55%, #8c1610);
-  box-shadow: 0 0 5px var(--led), 0 0 11px rgba(255,59,48,.7), inset 0 -1px 1px rgba(0,0,0,.35);
-  animation: pulse 2.6s ease-in-out infinite;
-}
-@keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: .45 } }
-
-.hero h1 {
-  margin-top: .85rem;
-  font-family: var(--font-dis);
-  font-size: clamp(1.7rem, 4.6vw, 2.85rem);
-  font-weight: 800; line-height: 1.08; letter-spacing: -.01em;
-}
-.hero h1 .thin { display: block; font-weight: 400; font-size: .52em; letter-spacing: .3em; color: var(--ink-mute); margin-bottom: .5rem; }
-.hero__lead { margin-top: .9rem; max-width: 56ch; color: var(--ink-soft); }
-
-/* Label peringatan berlapis emboss */
+/* Strip peringatan ramping — satu baris di layar lebar, dapat ditutup */
 .notice {
-  display: flex; gap: .85rem; align-items: flex-start;
-  margin-top: 1.3rem; padding: .9rem 1rem;
+  position: relative;
+  display: flex; gap: .7rem; align-items: center;
+  margin-top: .9rem; padding: .55rem 2.4rem .55rem .8rem;
   border-radius: var(--radius-s);
   border: 1px solid rgba(200,16,46,.35);
   border-left: 4px solid var(--accent);
@@ -482,36 +506,22 @@ body::after {
   border-left-color: var(--accent);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.10), inset 0 -2px 6px rgba(0,0,0,.65);
 }
-.notice__icon { flex: none; width: 20px; height: 20px; margin-top: .1rem; }
-
-/* Panel gauge / status di hero */
-.gauge {
-  position: relative;
-  padding: 1.2rem;
-  border-radius: var(--radius);
-  border: 1px solid var(--panel-edge);
-  background: linear-gradient(180deg, rgba(0,0,0,.06), rgba(255,255,255,.35));
-  box-shadow: var(--sh-sunken);
+.notice__icon { flex: none; width: 17px; height: 17px; }
+.notice__txt { min-width: 0; }
+.notice__close {
+  position: absolute; top: 50%; right: 6px; translate: 0 -50%;
+  width: 24px; height: 24px; border-radius: 7px;
+  display: grid; place-items: center;
+  border: 0; background: transparent; cursor: pointer;
+  color: inherit; opacity: .6;
+  transition: opacity .15s, background .15s;
 }
-.gauge__grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: .7rem; }
-.stat {
-  padding: .8rem .85rem;
-  border-radius: var(--radius-s);
-  border: 1px solid var(--panel-edge);
-  background: linear-gradient(180deg, var(--panel-a), var(--panel-b));
-  box-shadow: inset 0 1px 0 var(--hi-strong), 0 2px 4px rgba(0,0,0,.14);
-}
-.stat__num {
-  font-family: var(--font-mono);
-  font-size: 1.5rem; font-weight: 700; line-height: 1;
-  color: var(--accent);
-  text-shadow: 0 1px 0 var(--hi-strong);
-}
-.stat__lbl { margin-top: .3rem; font-size: .63rem; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-mute); }
+.notice__close:hover { opacity: 1; background: rgba(200,16,46,.12); }
+.notice__close svg { width: 13px; height: 13px; }
 
 /* --------------------------------------------------- 7. SEARCH CONSOLE */
 .console {
-  margin-top: 1.3rem;
+  margin-top: .9rem;
   display: flex; gap: .7rem; align-items: center; flex-wrap: wrap;
   padding: .75rem;
   border-radius: var(--radius);
@@ -548,7 +558,7 @@ body::after {
 
 /* ---------------------------------------------------------- 8. SEKSI */
 main { padding-bottom: 3.5rem; }
-.section { margin-top: 2.1rem; }
+.section { margin-top: 1.7rem; }
 .section__head {
   display: flex; align-items: baseline; gap: .85rem; flex-wrap: wrap;
   margin-bottom: 1rem; padding-bottom: .7rem;
@@ -880,8 +890,10 @@ main { padding-bottom: 3.5rem; }
     font-size: .8rem; letter-spacing: .08em;
     overflow: hidden; text-overflow: ellipsis;
   }
-  .hero__in { padding: 1.5rem 1.2rem; }
-  .gauge__grid { grid-template-columns: repeat(2, 1fr); }
+  .pagehead { padding-block: 1.1rem .6rem; }
+  .pagehead__in { align-items: flex-start; gap: .8rem; }
+  .chips { gap: .35rem; }
+  .chip { padding: .28rem .55rem; font-size: .6rem; }
   .grid { grid-template-columns: 1fr; }
   .grid--dept { grid-template-columns: 1fr; }
   .screw { display: none; }

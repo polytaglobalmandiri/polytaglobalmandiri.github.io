@@ -578,6 +578,10 @@ body::after {
 /* ---------------------------------------------------------- 8. SEKSI */
 main { padding-bottom: 3.5rem; }
 .section { margin-top: 1.7rem; }
+.section--pinned.is-live { animation: pinnedRefresh .32s var(--ease-spring); }
+@keyframes pinnedRefresh {
+  from { opacity: .35; transform: translateY(-6px) scale(.995); }
+}
 .section__head {
   display: flex; align-items: baseline; gap: .85rem; flex-wrap: wrap;
   margin-bottom: 1rem; padding-bottom: .7rem;

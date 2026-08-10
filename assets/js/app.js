@@ -529,6 +529,14 @@
   }
 
   /* ------------------------------------------------------------ Tile */
+  function paintPinButton(button, on, label) {
+    button.classList.toggle("is-on", on);
+    button.innerHTML = on ? ICON.pinOn : ICON.pin;
+    button.setAttribute("aria-label", (on ? "Lepaskan " : "Sematkan ") + String(label) +
+      (on ? " dari Akses Cepat" : " ke Akses Cepat"));
+    button.setAttribute("aria-pressed", String(on));
+  }
+
   function buildTile(pageId, item) {
     var type = item.type || "folder";
     var id = pinId(pageId, item.label);
@@ -552,17 +560,15 @@
         "</span>" +
       "</span>";
 
-    var pin = el("button", "tile__pin" + (isPinned(id) ? " is-on" : ""), isPinned(id) ? ICON.pinOn : ICON.pin);
+    var pin = el("button", "tile__pin");
     pin.type = "button";
-    pin.setAttribute("aria-label", "Sematkan " + String(item.label) + " ke Akses Cepat");
+    paintPinButton(pin, isPinned(id), item.label);
     pin.addEventListener("click", function (e) {
       e.preventDefault();
       e.stopPropagation();
       var on = togglePin(id);
-      pin.classList.toggle("is-on", on);
-      pin.innerHTML = on ? ICON.pinOn : ICON.pin;
       toast(on ? "Disematkan ke Akses Cepat" : "Sematan dilepas", on ? ICON.pinOn : ICON.pin);
-      syncPinnedStat();
+      syncPinnedUI();
     });
     a.appendChild(pin);
 
@@ -588,6 +594,14 @@
     });
   }
 
+  function syncPinButtons() {
+    $$('[data-pin]').forEach(function (tile) {
+      var button = $(".tile__pin", tile);
+      var label = $(".tile__label", tile);
+      if (button) paintPinButton(button, isPinned(tile.dataset.pin), label ? label.textContent : "tautan");
+    });
+  }
+
   /* ---------------------------------------------------------- Seksi */
   function buildSection(pageId, section) {
     var s = el("section", "section reveal");
@@ -603,28 +617,52 @@
     return s;
   }
 
-  /* ------------------------------------------------- Beranda: konten */
-  function buildHome(main) {
-    var wrap = el("div", "wrap");
-
-    /* Akses cepat (pin) */
+  function buildPinnedSection(live) {
     var pinned = [];
     allItems().forEach(function (r) {
       if (isPinned(pinId(r.page, r.item.label))) pinned.push(r);
     });
-    if (pinned.length) {
-      var s = el("section", "section reveal");
-      s.innerHTML =
-        '<div class="section__head">' +
-          '<h2 class="section__title engrave">Akses Cepat</h2>' +
-          '<span class="section__hint">Tautan yang Anda sematkan &mdash; tersimpan di perangkat ini</span>' +
-          '<span class="section__badge">' + pinned.length + " item</span>" +
-        "</div>";
-      var g = el("div", "grid");
-      pinned.forEach(function (r) { g.appendChild(buildTile(r.page, r.item)); });
-      s.appendChild(g);
-      wrap.appendChild(s);
+    if (!pinned.length) return null;
+
+    var s = el("section", "section reveal section--pinned" + (live ? " is-in is-live" : ""));
+    s.setAttribute("data-pinned-section", "");
+    s.innerHTML =
+      '<div class="section__head">' +
+        '<h2 class="section__title engrave">Akses Cepat</h2>' +
+        '<span class="section__hint">Tautan yang Anda sematkan &mdash; tersimpan di perangkat ini</span>' +
+        '<span class="section__badge">' + pinned.length + " item</span>" +
+      "</div>";
+    var g = el("div", "grid");
+    pinned.forEach(function (r) { g.appendChild(buildTile(r.page, r.item)); });
+    s.appendChild(g);
+    return s;
+  }
+
+  function syncPinnedUI() {
+    syncPinButtons();
+    syncPinnedStat();
+
+    var home = $("[data-home-wrap]");
+    if (home) {
+      var current = $("[data-pinned-section]", home);
+      var next = buildPinnedSection(true);
+      if (current && next) home.replaceChild(next, current);
+      else if (current) current.remove();
+      else if (next) home.insertBefore(next, home.firstChild);
     }
+
+    var search = $("#q");
+    if (search) search.dispatchEvent(new Event("input"));
+  }
+
+  /* ------------------------------------------------- Beranda: konten */
+  function buildHome(main) {
+    var wrap = el("div", "wrap");
+    wrap.setAttribute("data-home-wrap", "");
+
+    /* Akses cepat (pin) */
+    var pinnedSection = buildPinnedSection(false);
+    if (pinnedSection) wrap.appendChild(pinnedSection);
 
     /* Departemen */
     var sec = el("section", "section reveal");
@@ -843,6 +881,10 @@
     wireReveal();
     wireTilt();
     wireBackTop();
+
+    window.addEventListener("storage", function (e) {
+      if (e.key === PIN_KEY) syncPinnedUI();
+    });
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);

@@ -117,8 +117,15 @@
   /* -------------------------------------------------------------- Toast */
   var toastWrap;
   function toast(msg, tone) {
-    if (!toastWrap) { toastWrap = el("div", "toast-wrap"); document.body.appendChild(toastWrap); }
-    var t = el("div", "toast", (tone === "bad" ? ICON.warn : ICON.check || "") + "<span>" + esc(msg) + "</span>");
+    if (!toastWrap) {
+      toastWrap = el("div", "toast-wrap");
+      toastWrap.setAttribute("aria-live", "polite");
+      toastWrap.setAttribute("aria-atomic", "false");
+      document.body.appendChild(toastWrap);
+    }
+    var t = el("div", "toast" + (tone === "bad" ? " toast--bad" : " toast--good"),
+      (tone === "bad" ? ICON.warn : ICON.check || "") + "<span>" + esc(msg) + "</span>");
+    t.setAttribute("role", tone === "bad" ? "alert" : "status");
     toastWrap.appendChild(t);
     setTimeout(function () {
       t.classList.add("is-out");
@@ -296,31 +303,82 @@
   }
 
   /* ================================================================ DIALOG */
+  var dialogSeq = 0;
   function dialog(title, bodyNode, buttons) {
-    var pop = el("div", "pop");
-    var box = el("div", "pop__box");
-    box.innerHTML = '<div class="pop__head"><strong style="font-size:.86rem">' + esc(title) + "</strong></div>";
+    var previous = document.activeElement;
+    var titleId = "dlg-title-" + (++dialogSeq);
+    var pop = el("div", "pop pop--dialog");
+    var box = el("div", "pop__box pop__box--dialog");
+    box.setAttribute("role", "dialog");
+    box.setAttribute("aria-modal", "true");
+    box.setAttribute("aria-labelledby", titleId);
+
+    var head = el("div", "pop__head");
+    var heading = el("strong", null, esc(title));
+    heading.id = titleId;
+    head.appendChild(heading);
+    box.appendChild(head);
     var body = el("div", "dlg__body");
     body.appendChild(bodyNode);
     box.appendChild(body);
 
     var foot = el("div", "dlg__foot");
+    var preferredFocus = null;
     buttons.forEach(function (b) {
-      var btn = el("button", "btn" + (b.primary ? " btn--primary" : ""), esc(b.label));
+      var btn = el("button", "btn" + (b.primary ? " btn--primary" : "") + (b.danger ? " btn--danger" : ""), esc(b.label));
       btn.type = "button";
       btn.addEventListener("click", function () { b.run(close, btn); });
+      if (b.autofocus) preferredFocus = btn;
       foot.appendChild(btn);
     });
     box.appendChild(foot);
 
-    function close() { if (pop.parentNode) pop.parentNode.removeChild(pop); document.removeEventListener("keydown", onKey); }
-    function onKey(e) { if (e.key === "Escape") close(); }
+    function close() {
+      if (pop.parentNode) pop.parentNode.removeChild(pop);
+      document.removeEventListener("keydown", onKey);
+      setTimeout(function () {
+        if (previous && previous.isConnected && previous.focus) previous.focus();
+      }, 0);
+    }
+    function onKey(e) {
+      if (e.key === "Escape") { e.preventDefault(); close(); return; }
+      if (e.key !== "Tab") return;
+      var focusable = $$('button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])', box);
+      if (!focusable.length) { e.preventDefault(); return; }
+      var first = focusable[0], last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
 
     pop.appendChild(box);
     pop.addEventListener("click", function (e) { if (e.target === pop) close(); });
     document.addEventListener("keydown", onKey);
     document.body.appendChild(pop);
+    setTimeout(function () {
+      var target = preferredFocus || $(".inp", box) || $("button", box);
+      if (target) target.focus();
+    }, 0);
     return close;
+  }
+
+  function confirmDialog(options) {
+    var content = el("div", "confirm-card");
+    content.appendChild(el("div", "confirm-card__icon", ICON.warn || "!"));
+    var copy = el("div", "confirm-card__copy");
+    copy.appendChild(el("strong", null, esc(options.heading || "Konfirmasi diperlukan")));
+    var message = el("p");
+    message.textContent = options.message;
+    copy.appendChild(message);
+    content.appendChild(copy);
+
+    dialog(options.title || "Konfirmasi", content, [
+      { label: options.cancelLabel || "Batal", autofocus: true, run: function (close) { close(); } },
+      {
+        label: options.confirmLabel || "Lanjutkan",
+        danger: options.danger !== false,
+        run: function (close) { close(); options.onConfirm(); }
+      }
+    ]);
   }
 
   /* ================================================================ RENDER */
@@ -357,10 +415,24 @@
   function buildBar() {
     var bar = el("header", "adm-bar");
     var inner = el("div", "wrap adm-bar__in");
-    inner.innerHTML =
-      '<span class="adm-badge">Mode Administrator</span>' +
-      '<span class="adm-title">POLYTA GLOBAL MANDIRI</span>' +
-      '<span class="adm-status" id="admStatus"></span>';
+
+    var brand = el("a", "brand adm-brand");
+    brand.href = "../";
+    brand.setAttribute("aria-label", "Kembali ke portal POLYTA GLOBAL MANDIRI");
+    brand.innerHTML =
+      '<span class="brand__plate"><img src="../assets/img/logo-polyta.png" alt="" width="438" height="438"></span>' +
+      '<span class="brand__txt">' +
+        '<span class="brand__name">' + esc((state.data && state.data.name) || "POLYTA GLOBAL MANDIRI") + "</span>" +
+        '<span class="brand__sub">Portal Administrator</span>' +
+      "</span>";
+    inner.appendChild(brand);
+
+    var meta = el("div", "adm-bar__meta");
+    meta.appendChild(el("span", "adm-badge", "Mode Administrator"));
+    var status = el("span", "adm-status");
+    status.id = "admStatus";
+    meta.appendChild(status);
+    inner.appendChild(meta);
 
     var tools = el("div", "adm-bar__tools");
 
@@ -521,8 +593,13 @@
       { icon: ICON.top, title: "Naikkan seksi", disabled: si === 0, run: function () { move(page.sections, si, -1); } },
       { icon: rot(ICON.top), title: "Turunkan seksi", disabled: si === page.sections.length - 1, run: function () { move(page.sections, si, 1); } },
       { icon: ICON.close, title: "Hapus seksi", danger: true, run: function () {
-          if (!confirm('Hapus seksi "' + s.title + '" beserta ' + s.items.length + " tautan di dalamnya?")) return;
-          page.sections.splice(si, 1); touch(); render();
+          confirmDialog({
+            title: "Hapus seksi?",
+            heading: s.title || "Seksi tanpa judul",
+            message: s.items.length + " tautan di dalam seksi ini juga akan dihapus dari draf.",
+            confirmLabel: "Hapus seksi",
+            onConfirm: function () { page.sections.splice(si, 1); touch(); render(); }
+          });
         } }
     ]);
     var b = $(".card__body", c);
@@ -581,8 +658,13 @@
       touch(); render();
     }));
     acts.appendChild(iconBtn(ICON.close, "Hapus", false, function () {
-      if (!confirm('Hapus tautan "' + it.label + '"?')) return;
-      section.items.splice(ii, 1); touch(); render();
+      confirmDialog({
+        title: "Hapus tautan?",
+        heading: it.label || "Tautan tanpa nama",
+        message: "Tautan akan dihapus dari seksi ini. Perubahan tetap dapat dibatalkan dengan memuat ulang data yang sedang tayang.",
+        confirmLabel: "Hapus tautan",
+        onConfirm: function () { section.items.splice(ii, 1); touch(); render(); }
+      });
     }));
     top.appendChild(acts);
     wrap.appendChild(top);
@@ -675,7 +757,20 @@
 
   /* ============================================================== SIMPAN */
   function resetDraft() {
-    if (state.dirty && !confirm("Buang draf dan muat ulang isi yang sedang tayang?")) return;
+    if (state.dirty) {
+      confirmDialog({
+        title: "Buang seluruh draf?",
+        heading: "Perubahan lokal belum diterbitkan",
+        message: "Semua perubahan pada perangkat ini akan dibuang dan isi editor dikembalikan ke versi yang sedang tayang.",
+        confirmLabel: "Buang draf",
+        onConfirm: applyReset
+      });
+      return;
+    }
+    applyReset();
+  }
+
+  function applyReset() {
     try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
     state.data = published();
     state.dirty = false;
@@ -862,12 +957,8 @@
       state.data = published();
     }
     render();
-
-    window.addEventListener("beforeunload", function (e) {
-      if (!state.dirty) return;
-      e.preventDefault();
-      e.returnValue = "";
-    });
+    /* Tidak memakai beforeunload karena dialognya dikendalikan browser dan
+       tidak dapat diberi tema. Draf sudah disimpan otomatis setiap perubahan. */
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);

@@ -8,9 +8,16 @@
   position: sticky; top: 0; z-index: 60;
   background: linear-gradient(180deg, var(--metal-a) 0%, var(--metal-b) 46%, var(--metal-c) 54%, var(--metal-b) 100%);
   border-bottom: 1px solid var(--metal-d);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.85), 0 4px 10px rgba(40,33,24,.22);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.85), inset 0 -2px 4px rgba(0,0,0,.14), 0 4px 10px rgba(40,33,24,.22), 0 14px 30px -12px rgba(40,33,24,.35);
 }
-.adm-bar__in { display: flex; align-items: center; gap: .9rem; padding-block: .7rem; flex-wrap: wrap; }
+.adm-bar::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .5;
+  background: repeating-linear-gradient(90deg, rgba(255,255,255,.20) 0 1px, rgba(0,0,0,.035) 1px 2px, rgba(255,255,255,.06) 2px 3px, rgba(0,0,0,.02) 3px 5px);
+}
+.adm-bar__in { position: relative; display: flex; align-items: center; gap: .9rem; padding-block: .7rem; flex-wrap: wrap; }
+.adm-brand { flex: none; }
+.adm-brand .brand__plate { width: 46px; height: 46px; }
+.adm-bar__meta { display: grid; justify-items: start; gap: .28rem; }
 .adm-badge {
   display: inline-flex; align-items: center; gap: .45rem;
   padding: .3rem .7rem; border-radius: 999px;
@@ -19,7 +26,6 @@
   background: linear-gradient(180deg, var(--accent-hi), var(--accent) 55%, var(--accent-lo));
   box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 1px 3px rgba(0,0,0,.35);
 }
-.adm-title { font-family: var(--font-dis); font-size: .95rem; font-weight: 800; letter-spacing: .1em; }
 .adm-bar__tools { margin-left: auto; display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
 
 /* ---------------------------------------------------------- 2. TOMBOL */
@@ -45,6 +51,13 @@
 .btn--ghost:hover { color: var(--ink); border-color: var(--panel-edge); }
 .btn--sm { padding: .3rem .5rem; font-size: .7rem; border-radius: 8px; }
 .btn--danger:hover { border-color: var(--accent); color: var(--accent); }
+.btn--danger {
+  color: #fff;
+  border-color: #7d1022;
+  background: linear-gradient(180deg, #e85d72, #bd1835 55%, #7d1022);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.42), 0 2px 5px rgba(80,5,18,.35);
+}
+.btn--danger:hover { color: #fff; border-color: #5d0917; filter: brightness(1.06); }
 .btn[disabled] { opacity: .45; pointer-events: none; }
 
 .icon-btn {
@@ -210,7 +223,9 @@ select.inp { cursor: pointer; }
   position: fixed; inset: 0; z-index: 95;
   display: grid; place-items: center;
   background: rgba(8,8,12,.55);
+  backdrop-filter: blur(5px);
   padding: 1rem;
+  animation: popFade .16s ease-out;
 }
 .pop__box {
   width: min(620px, 100%); max-height: 82vh; display: flex; flex-direction: column;
@@ -219,8 +234,10 @@ select.inp { cursor: pointer; }
   background: linear-gradient(180deg, var(--panel-a), var(--panel-b));
   box-shadow: var(--sh-raised), 0 30px 60px -20px rgba(0,0,0,.6);
   overflow: hidden;
+  animation: popRise .22s cubic-bezier(.2,.8,.3,1);
 }
 .pop__head { display: flex; align-items: center; gap: .6rem; padding: .8rem .9rem; border-bottom: 1px solid var(--panel-edge); }
+.pop__head strong { font-family: var(--font-dis); font-size: .88rem; letter-spacing: .04em; }
 .pop__grid {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
   gap: .5rem; padding: .9rem; overflow-y: auto;
@@ -236,8 +253,23 @@ select.inp { cursor: pointer; }
 .pop__cell svg { width: 20px; height: 20px; color: var(--ink); }
 
 /* --------------------------------------------------------- 8. DIALOG */
+.pop__box--dialog { width: min(520px, 100%); }
 .dlg__body { padding: .9rem; overflow-y: auto; display: grid; gap: .8rem; }
 .dlg__foot { display: flex; gap: .5rem; justify-content: flex-end; padding: .8rem .9rem; border-top: 1px solid var(--panel-edge); flex-wrap: wrap; }
+
+.confirm-card { display: grid; grid-template-columns: auto 1fr; align-items: start; gap: .85rem; }
+.confirm-card__icon {
+  width: 44px; height: 44px; display: grid; place-items: center; border-radius: 14px;
+  color: #fff; background: linear-gradient(160deg, #ef7083, #bd1835 58%, #74101f);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.5), inset 0 -2px 4px rgba(70,4,15,.35), 0 4px 10px rgba(70,4,15,.25);
+}
+.confirm-card__icon svg { width: 21px; height: 21px; }
+.confirm-card__copy { min-width: 0; padding-top: .1rem; }
+.confirm-card__copy strong { display: block; font-size: .9rem; overflow-wrap: anywhere; }
+.confirm-card__copy p { margin-top: .35rem; color: var(--ink-soft); font-size: .78rem; line-height: 1.55; }
+
+@keyframes popFade { from { opacity: 0; } }
+@keyframes popRise { from { opacity: 0; transform: translateY(10px) scale(.98); } }
 
 .note {
   padding: .7rem .8rem;
@@ -263,6 +295,11 @@ pre.out {
 .adm-foot { padding: 1.5rem 0 3rem; font-size: .74rem; color: var(--ink-mute); }
 @media (max-width: 560px) {
   .adm-bar__in { gap: .5rem; }
+  .adm-brand { flex: 1 1 0; overflow: hidden; }
+  .adm-bar__meta { display: block; margin-left: auto; }
+  .adm-bar__meta .adm-badge { display: none; }
+  .adm-bar__meta .adm-status { font-size: 0; gap: 0; }
+  .adm-bar__meta .adm-status i { width: 10px; height: 10px; }
   .adm-bar__tools { width: 100%; }
   .btn { flex: 1 1 auto; justify-content: center; }
 }

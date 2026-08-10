@@ -315,9 +315,12 @@
   function toast(msg, icon) {
     if (!toastWrap) {
       toastWrap = el("div", "toast-wrap");
+      toastWrap.setAttribute("aria-live", "polite");
+      toastWrap.setAttribute("aria-atomic", "false");
       document.body.appendChild(toastWrap);
     }
     var t = el("div", "toast", (icon || ICON.warn) + "<span>" + esc(msg) + "</span>");
+    t.setAttribute("role", "status");
     toastWrap.appendChild(t);
     setTimeout(function () {
       t.classList.add("is-out");

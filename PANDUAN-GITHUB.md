@@ -9,10 +9,15 @@ Kondisi saat ini:
 |-----|--------|
 | Repositori lokal | ✅ Sudah dibuat (`git init`) |
 | Branch | ✅ `main` |
-| Commit | ✅ 3 commit sudah ada |
-| Remote GitHub | ❌ Belum disambungkan — **lanjut ke Langkah 1** |
+| Commit | ✅ Sudah ada |
+| Remote GitHub | ✅ [zulfipolyta-design/polytaglobalmandiri](https://github.com/zulfipolyta-design/polytaglobalmandiri) |
+| Push pertama | ✅ Selesai — branch `main` melacak `origin/main` |
 | Identitas git (nama/email) | ✅ Sudah diatur |
 | Penyimpan kredensial | ✅ Aktif (Git Credential Manager) |
+
+**Langkah 0–3 sudah selesai.** Untuk pekerjaan sehari-hari, langsung ke
+[Langkah 4](#langkah-4--alur-kerja-harian). Untuk menayangkan situs di web,
+lanjut ke [Langkah 5](#langkah-5--aktifkan-github-pages-opsional).
 
 ---
 

@@ -1,0 +1,19 @@
+# OS / Editor
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+*.swp
+.vscode/
+.idea/
+
+# OneDrive
+*.tmp
+~$*
+
+# Build & dependensi (jika kelak dipakai)
+node_modules/
+dist/
+.cache/
+*.log

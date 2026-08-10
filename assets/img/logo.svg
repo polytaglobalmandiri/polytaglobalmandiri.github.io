@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="POLYTA GLOBAL MANDIRI">
+  <defs>
+    <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fbeeb9"/>
+      <stop offset=".45" stop-color="#d8ab3f"/>
+      <stop offset="1" stop-color="#8a6413"/>
+    </linearGradient>
+    <linearGradient id="gloss" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".75"/>
+      <stop offset=".55" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="drop" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.6" flood-color="#2a2008" flood-opacity=".55"/>
+    </filter>
+  </defs>
+
+  <!-- Plat heksagonal -->
+  <g filter="url(#drop)">
+    <path d="M32 4.5 55 17.6v26.8L32 59.5 9 44.4V17.6z" fill="url(#brass)" stroke="#6d4d0e" stroke-width="1.4"/>
+    <path d="M32 4.5 55 17.6v26.8L32 59.5 9 44.4V17.6z" fill="url(#gloss)"/>
+    <path d="M32 9.6 50.6 20.3v23.4L32 54.4 13.4 43.7V20.3z" fill="none" stroke="#8a6413" stroke-opacity=".5" stroke-width="1"/>
+  </g>
+
+  <!-- Monogram P -->
+  <path d="M23.5 45V19h10.8a8.2 8.2 0 0 1 0 16.4H23.5"
+        fill="none" stroke="#4a340a" stroke-opacity=".9" stroke-width="5.4"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M23.5 44V18h10.8a8.2 8.2 0 0 1 0 16.4H23.5"
+        fill="none" stroke="#fff6dd" stroke-width="5.4"
+        stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

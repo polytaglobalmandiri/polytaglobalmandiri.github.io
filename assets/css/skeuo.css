@@ -371,6 +371,23 @@ body::after {
 /* Kontrol kanan */
 .tools { display: flex; align-items: center; gap: .5rem; }
 
+.portal-home {
+  min-height: 34px; flex: none;
+  display: inline-flex; align-items: center; justify-content: center; gap: .42rem;
+  padding: .45rem .68rem;
+  border-radius: 9px;
+  color: var(--ink-soft);
+  border: 1px solid var(--metal-d);
+  background: linear-gradient(180deg, var(--metal-a), var(--metal-b) 55%, var(--metal-c));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.85), 0 1px 2px rgba(0,0,0,.22), 0 4px 10px -4px rgba(0,0,0,.3);
+  font-size: .68rem; font-weight: 800; letter-spacing: .06em;
+  white-space: nowrap;
+  transition: transform var(--motion-fast) var(--ease-ui), box-shadow var(--motion-ui) var(--ease-ui), color var(--motion-fast) var(--ease-ui), border-color var(--motion-fast) var(--ease-ui);
+}
+.portal-home:hover { color: var(--ink); border-color: var(--accent); }
+.portal-home:active { transform: translateY(1px); box-shadow: var(--sh-press); }
+.portal-home svg { width: 16px; height: 16px; flex: none; }
+
 /* Sakelar tema fisik */
 .switch {
   position: relative;
@@ -1022,6 +1039,8 @@ main { padding-bottom: 3.5rem; }
     font-size: .8rem; letter-spacing: .08em;
     overflow: hidden; text-overflow: ellipsis;
   }
+  .portal-home { width: 36px; padding-inline: 0; }
+  .portal-home span { display: none; }
   .pagehead { padding-block: 1.1rem .6rem; }
   .pagehead__in { align-items: flex-start; gap: .8rem; }
   .chips { gap: .35rem; }

@@ -266,6 +266,9 @@
     arrow:
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">' +
       '<path d="M4 12h15M13 6l6 6-6 6"/></svg>',
+    home:
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' +
+      '<path d="m3.5 10.5 8.5-7 8.5 7"/><path d="M5.5 9.2V21h13V9.2M9.5 21v-7h5v7"/></svg>',
     sun:
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">' +
       '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
@@ -389,6 +392,14 @@
     nav.appendChild(ul);
 
     var tools = el("div", "tools");
+
+    if (active !== "beranda") {
+      var home = el("a", "portal-home", ICON.home + "<span>Portal Utama</span>");
+      home.href = link("");
+      home.title = "Kembali ke Portal Utama";
+      home.setAttribute("aria-label", "Kembali ke Portal Utama");
+      tools.appendChild(home);
+    }
 
     var sw = el("button", "switch");
     sw.type = "button";

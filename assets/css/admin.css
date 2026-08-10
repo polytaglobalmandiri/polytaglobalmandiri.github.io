@@ -40,7 +40,7 @@
   border: 1px solid var(--panel-edge);
   background: linear-gradient(180deg, var(--panel-a), var(--panel-b));
   box-shadow: inset 0 1px 0 var(--hi-strong), 0 1px 2px rgba(0,0,0,.2), 0 4px 10px -5px rgba(0,0,0,.3);
-  transition: transform .1s, box-shadow .12s, border-color .15s;
+  transition: transform var(--motion-fast) var(--ease-ui), box-shadow var(--motion-ui) var(--ease-ui), border-color var(--motion-fast) var(--ease-ui), filter var(--motion-fast) var(--ease-ui);
 }
 .btn:hover { border-color: var(--accent); }
 .btn:active { transform: translateY(1px); box-shadow: var(--sh-press); }
@@ -71,7 +71,7 @@
   border: 1px solid var(--panel-edge);
   background: linear-gradient(180deg, var(--panel-a), var(--panel-b));
   box-shadow: inset 0 1px 0 var(--hi-strong), 0 1px 2px rgba(0,0,0,.18);
-  transition: color .15s, border-color .15s, transform .1s;
+  transition: color var(--motion-fast) var(--ease-ui), border-color var(--motion-fast) var(--ease-ui), transform var(--motion-fast) var(--ease-ui), box-shadow var(--motion-ui) var(--ease-ui);
 }
 .icon-btn:hover { color: var(--ink); border-color: var(--accent); }
 .icon-btn:active { transform: translateY(1px); box-shadow: var(--sh-press); }
@@ -97,7 +97,9 @@
   border: 1px solid var(--panel-edge);
   background: linear-gradient(180deg, var(--panel-a), var(--panel-b));
   box-shadow: inset 0 1px 0 var(--hi-strong), 0 1px 2px rgba(0,0,0,.16);
+  transition: color var(--motion-fast) var(--ease-ui), background var(--motion-fast) var(--ease-ui), border-color var(--motion-fast) var(--ease-ui), box-shadow var(--motion-ui) var(--ease-ui), transform var(--motion-fast) var(--ease-ui);
 }
+.adm-tab:active { transform: translateY(1px); }
 .adm-tab:hover { color: var(--ink); }
 .adm-tab:not(.is-on):hover {
   border-color: var(--accent);
@@ -151,6 +153,7 @@ label.lbl { display: block; font-size: .66rem; letter-spacing: .13em; text-trans
   box-shadow: var(--sh-sunken);
   font-size: .84rem;
   outline: none;
+  transition: border-color var(--motion-fast) var(--ease-ui), box-shadow var(--motion-ui) var(--ease-ui), background var(--motion-fast) var(--ease-ui);
 }
 .inp:focus { border-color: var(--accent); box-shadow: var(--sh-sunken), 0 0 0 3px rgba(var(--accent-rgb), .2); }
 .inp::placeholder { color: var(--ink-mute); }
@@ -202,6 +205,7 @@ select.inp { cursor: pointer; }
   background: linear-gradient(180deg, var(--panel-a), var(--panel-b));
   box-shadow: inset 0 1px 0 var(--hi-strong), 0 1px 2px rgba(0,0,0,.18);
   font-size: .74rem; color: var(--ink);
+  transition: border-color var(--motion-fast) var(--ease-ui), box-shadow var(--motion-ui) var(--ease-ui), transform var(--motion-fast) var(--ease-ui);
 }
 .pick:hover { border-color: var(--accent); }
 .pick__sw {

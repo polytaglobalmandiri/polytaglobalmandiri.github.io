@@ -103,7 +103,7 @@ const SITE = {
           title: "Manajemen SPK",
           hint: "Sistem otomasi surat perintah kerja",
           items: [
-            { label: "SPK Automasi", url: "https://script.google.com/macros/s/AKfycbzEml-brh_-SmKAsvd-1iFy6nelvc9YENtn-bkjD1T6UUgX7QNBE0ycjU02QEfY-91aXQ/exec", type: "script", icon: "chip" }
+            { label: "SPK Automate", url: "../spk-automasi/", type: "script", icon: "chip" }
           ]
         },
         {

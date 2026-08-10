@@ -1,0 +1,5555 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cetak SPK | Polyta Global Mandiri</title>
+  <meta name="theme-color" content="#20242a">
+  <base target="_top">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='22' fill='%23f4f4f1'/%3E%3Cpath fill='%23111216' d='M14 12h50v43h42v53h-8V63H64v45H14V55h42V20H14z'/%3E%3Crect x='15' y='22' width='41' height='12' rx='6' fill='%234563b3'/%3E%3Crect x='22' y='63' width='34' height='37' fill='%23ef2631'/%3E%3Crect x='84' y='64' width='11' height='44' rx='5.5' fill='%2340b84e'/%3E%3C/svg%3E">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.15.12/dist/cdn.min.js"></script>
+  <script>
+  // Controller Alpine global. Komponen ini sengaja kecil: ia menyediakan
+  // state bersama tanpa mengambil alih fungsi bisnis halaman yang sudah stabil.
+  (function registerPolytaAlpineController_() {
+    function register_() {
+      if (!window.Alpine || window.__polytaPageUiRegistered) return;
+      window.__polytaPageUiRegistered = true;
+
+      window.Alpine.data('polytaPageUi', function(pageName) {
+        return {
+          page: String(pageName || 'app'),
+          ready: false,
+          online: navigator.onLine,
+          init: function() {
+            this.ready = true;
+          },
+          setOnline: function(value) {
+            this.online = Boolean(value);
+          }
+        };
+      });
+    }
+
+    document.addEventListener('alpine:init', register_);
+    if (window.Alpine) register_();
+  })();
+</script>
+
+  <style>/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+@layer properties{@supports (((-webkit-hyphens:none)) and (not (margin-trim:inline))) or ((-moz-orient:inline) and (not (color:rgb(from red r g b)))){*,:before,:after,::backdrop{--tw-border-style:solid;--tw-gradient-position:initial;--tw-gradient-from:#0000;--tw-gradient-via:#0000;--tw-gradient-to:#0000;--tw-gradient-stops:initial;--tw-gradient-via-stops:initial;--tw-gradient-from-position:0%;--tw-gradient-via-position:50%;--tw-gradient-to-position:100%;--tw-font-weight:initial;--tw-shadow:0 0 #0000;--tw-shadow-color:initial;--tw-shadow-alpha:100%;--tw-inset-shadow:0 0 #0000;--tw-inset-shadow-color:initial;--tw-inset-shadow-alpha:100%;--tw-ring-color:initial;--tw-ring-shadow:0 0 #0000;--tw-inset-ring-color:initial;--tw-inset-ring-shadow:0 0 #0000;--tw-ring-inset:initial;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-offset-shadow:0 0 #0000;--tw-backdrop-blur:initial;--tw-backdrop-brightness:initial;--tw-backdrop-contrast:initial;--tw-backdrop-grayscale:initial;--tw-backdrop-hue-rotate:initial;--tw-backdrop-invert:initial;--tw-backdrop-opacity:initial;--tw-backdrop-saturate:initial;--tw-backdrop-sepia:initial;--tw-duration:initial}}}@layer theme{:root,:host{--tw-color-red-50:oklch(97.1% .013 17.38);--tw-color-red-300:oklch(80.8% .114 19.571);--tw-color-red-600:oklch(57.7% .245 27.325);--tw-color-red-800:oklch(44.4% .177 26.899);--tw-color-white:#fff;--tw-spacing:.25rem;--tw-text-xs:.75rem;--tw-text-xs--line-height:calc(1 / .75);--tw-font-weight-bold:700;--tw-default-transition-duration:.15s;--tw-default-transition-timing-function:cubic-bezier(.4, 0, .2, 1);--tw-color-polyta-ink:#202327;--tw-color-spk-canvas:#e5e8e4;--tw-color-spk-shell:#eff0ed;--tw-container-app:72rem}}@layer utilities{.tw\:pointer-events-none{pointer-events:none}.tw\:absolute{position:absolute}.tw\:fixed{position:fixed}.tw\:relative{position:relative}.tw\:inset-x-0{inset-inline:0}.tw\:top-0{top:0}.tw\:top-3{top:calc(var(--tw-spacing) * 3)}.tw\:z-\[9999\]{z-index:9999}.tw\:mx-auto\!{margin-inline:auto!important}.tw\:flex{display:flex}.tw\:h-2{height:calc(var(--tw-spacing) * 2)}.tw\:h-px{height:1px}.tw\:min-h-screen{min-height:100vh}.tw\:w-2{width:calc(var(--tw-spacing) * 2)}.tw\:w-full{width:100%}.tw\:max-w-app\!{max-width:var(--tw-container-app)!important}.tw\:items-center{align-items:center}.tw\:justify-center{justify-content:center}.tw\:gap-2{gap:calc(var(--tw-spacing) * 2)}.tw\:overflow-hidden{overflow:hidden}.tw\:rounded-full{border-radius:3.40282e38px}.tw\:border{border-style:var(--tw-border-style);border-width:1px}.tw\:border-red-300\/70{border-color:var(--tw-color-red-300)}@supports (color:color-mix(in lab, red, red)){.tw\:border-red-300\/70{border-color:color-mix(in oklab, var(--tw-color-red-300) 70%, transparent)}}.tw\:bg-red-50\/95{background-color:var(--tw-color-red-50)}@supports (color:color-mix(in lab, red, red)){.tw\:bg-red-50\/95{background-color:color-mix(in oklab, var(--tw-color-red-50) 95%, transparent)}}.tw\:bg-red-600{background-color:var(--tw-color-red-600)}.tw\:bg-spk-canvas{background-color:var(--tw-color-spk-canvas)}.tw\:bg-spk-shell\!{background-color:var(--tw-color-spk-shell)!important}.tw\:bg-gradient-to-r{--tw-gradient-position:to right in oklab;background-image:linear-gradient(var(--tw-gradient-stops))}.tw\:from-transparent{--tw-gradient-from:transparent;--tw-gradient-stops:var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))}.tw\:via-white{--tw-gradient-via:var(--tw-color-white);--tw-gradient-via-stops:var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-via-stops)}.tw\:to-transparent{--tw-gradient-to:transparent;--tw-gradient-stops:var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))}.tw\:px-4{padding-inline:calc(var(--tw-spacing) * 4)}.tw\:py-2{padding-block:calc(var(--tw-spacing) * 2)}.tw\:text-xs{font-size:var(--tw-text-xs);line-height:var(--tw-leading,var(--tw-text-xs--line-height))}.tw\:font-bold{--tw-font-weight:var(--tw-font-weight-bold);font-weight:var(--tw-font-weight-bold)}.tw\:text-polyta-ink{color:var(--tw-color-polyta-ink)}.tw\:text-red-800{color:var(--tw-color-red-800)}.tw\:shadow-lg{--tw-shadow:0 10px 15px -3px var(--tw-shadow-color,#0000001a), 0 4px 6px -4px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.tw\:shadow-spk-shell\!{--tw-shadow:0 3px 0 var(--tw-shadow-color,#151619), 0 24px 58px var(--tw-shadow-color,#1c1f2247), inset 0 1px 0 var(--tw-shadow-color,#ffffffeb)!important;box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)!important}.tw\:backdrop-blur{--tw-backdrop-blur:blur(8px);-webkit-backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)}.tw\:transition-opacity{transition-property:opacity;transition-timing-function:var(--tw-ease,var(--tw-default-transition-timing-function));transition-duration:var(--tw-duration,var(--tw-default-transition-duration))}.tw\:transition-shadow{transition-property:box-shadow;transition-timing-function:var(--tw-ease,var(--tw-default-transition-timing-function));transition-duration:var(--tw-duration,var(--tw-default-transition-duration))}.tw\:duration-200{--tw-duration:.2s;transition-duration:.2s}.tw\:duration-300{--tw-duration:.3s;transition-duration:.3s}}[data-ui-engine=tailwind-alpine]{--polyta-button-height:32px;--polyta-input-height:34px;--polyta-icon-button-size:30px;--polyta-control-radius:8px;--polyta-button-padding-x:13px;--polyta-input-padding-x:10px;--polyta-control-gap:6px;--polyta-control-font-size:.68rem;--polyta-label-font-size:.69rem;--polyta-eyebrow-font-size:.64rem;--polyta-page-title-font-size:1.55rem;--polyta-description-font-size:.75rem;--polyta-panel-title-font-size:.86rem;--polyta-meta-font-size:.69rem}[data-ui-engine=tailwind-alpine] [x-cloak]{display:none!important}body[data-ui-engine=tailwind-alpine]:not([data-page=cetak-spk]){font-size:15px}body[data-page=keluar-bahan] .eyebrow,body[data-page=penarikan-data] .eyebrow{font-size:var(--polyta-eyebrow-font-size)!important;letter-spacing:.11em!important;font-weight:900!important;line-height:1.3!important}body[data-page=keluar-bahan] .page-heading h1,body[data-page=penarikan-data] .page-heading h1{font-size:var(--polyta-page-title-font-size)!important;letter-spacing:-.025em!important;font-weight:850!important;line-height:1.2!important}body[data-page=keluar-bahan] .page-description,body[data-page=penarikan-data] .page-description{font-size:var(--polyta-description-font-size)!important;font-weight:500!important;line-height:1.45!important}body[data-page=keluar-bahan] .panel-title,body[data-page=penarikan-data] .panel-title{font-size:var(--polyta-panel-title-font-size)!important;font-weight:850!important;line-height:1.2!important}body[data-page=keluar-bahan] .panel-caption,body[data-page=penarikan-data] .panel-caption,body[data-page=keluar-bahan] .summary-label,body[data-page=keluar-bahan] .summary-note{font-size:var(--polyta-meta-font-size)!important;line-height:1.4!important}body[data-page=input-spk] #spkInputRoot .field-label,body[data-page=dashboard] #spkInputModal #spkInputRoot .field-label,body[data-page=keluar-bahan] .eta-field-label{font-size:var(--polyta-label-font-size)!important;letter-spacing:.02em!important;font-weight:800!important;line-height:1.3!important}body[data-page=dashboard] .button,body[data-page=keluar-bahan] .button,body[data-page=keluar-bahan] .button-refresh,body[data-page=keluar-bahan] .detail-footer-button,body[data-page=keluar-bahan] .eta-submit-button,body[data-page=keluar-bahan] .eta-save-button,body[data-page=keluar-bahan] .eta-cancel-button,body[data-page=keluar-bahan] .eta-nav-button,body[data-page=keluar-bahan] .eta-open-button,body[data-page=keluar-bahan] .save-button,body[data-page=keluar-bahan] .summary-toggle-button,body[data-page=penarikan-data] .action-button,body[data-page=input-spk] #spkInputRoot .neumorphic-btn-black,body[data-page=input-spk] #spkInputRoot .neumorphic-btn-light,body[data-page=input-spk] #spkInputRoot .btn-add-bahan,body[data-page=input-spk] #spkInputRoot .routing-editor-save,body[data-page=input-spk] #spkInputRoot .routing-editor-cancel,body[data-page=input-spk] #spkInputRoot .save-success-action,body[data-page=input-spk] #spkInputRoot .save-success-secondary,body[data-page=dashboard] #spkInputModal #spkInputRoot .neumorphic-btn-black,body[data-page=dashboard] #spkInputModal #spkInputRoot .neumorphic-btn-light,body[data-page=dashboard] #spkInputModal #spkInputRoot .btn-add-bahan,body[data-page=dashboard] #spkInputModal #spkInputRoot .routing-editor-save,body[data-page=dashboard] #spkInputModal #spkInputRoot .routing-editor-cancel,body[data-page=cetak-spk] .toolbar-button{min-height:var(--polyta-button-height)!important;height:var(--polyta-button-height)!important;padding:0 var(--polyta-button-padding-x)!important;gap:var(--polyta-control-gap)!important;border-radius:var(--polyta-control-radius)!important;box-sizing:border-box!important;font-size:var(--polyta-control-font-size)!important;line-height:1!important}body[data-page=dashboard] .nav-link-app,body[data-page=input-spk] #spkInputRoot .app-nav-link,body[data-page=keluar-bahan] .nav-link,body[data-page=penarikan-data] .app-nav-link{min-height:var(--polyta-button-height)!important;height:var(--polyta-button-height)!important;gap:var(--polyta-control-gap)!important;border-radius:var(--polyta-control-radius)!important;box-sizing:border-box!important;font-size:var(--polyta-control-font-size)!important;padding:0 11px!important;line-height:1!important}body[data-page=input-spk] #spkInputRoot .order-type-option,body[data-page=input-spk] #spkInputRoot .finishing-choice,body[data-page=dashboard] #spkInputModal #spkInputRoot .order-type-option,body[data-page=dashboard] #spkInputModal #spkInputRoot .finishing-choice{min-height:var(--polyta-button-height)!important;height:var(--polyta-button-height)!important;border-radius:var(--polyta-control-radius)!important;box-sizing:border-box!important;font-size:var(--polyta-control-font-size)!important;line-height:1!important}body[data-page=dashboard] .modal .btn-close,body[data-page=keluar-bahan] .detail-close,body[data-page=keluar-bahan] .eta-modal-close{width:var(--polyta-icon-button-size)!important;min-width:var(--polyta-icon-button-size)!important;height:var(--polyta-icon-button-size)!important;min-height:var(--polyta-icon-button-size)!important;border-radius:var(--polyta-control-radius)!important;box-sizing:border-box!important;padding:0!important}body[data-page=penarikan-data] .source-file-action,body[data-page=dashboard] .manage-button{min-height:var(--polyta-icon-button-size)!important;height:var(--polyta-icon-button-size)!important;border-radius:var(--polyta-control-radius)!important;box-sizing:border-box!important;padding:0 10px!important;font-size:.63rem!important;line-height:1!important}body[data-page=dashboard] .form-control,body[data-page=dashboard] .form-select,body[data-page=input-spk] #spkInputRoot input.field-input,body[data-page=input-spk] #spkInputRoot select.field-input,body[data-page=input-spk] #spkInputRoot .routing-process-select,body[data-page=dashboard] #spkInputModal #spkInputRoot input.field-input,body[data-page=dashboard] #spkInputModal #spkInputRoot select.field-input,body[data-page=dashboard] #spkInputModal #spkInputRoot .routing-process-select,body[data-page=keluar-bahan] .search-input,body[data-page=keluar-bahan] .filter-select,body[data-page=keluar-bahan] .editor-input,body[data-page=keluar-bahan] .editor-select,body[data-page=keluar-bahan] .eta-date-input,body[data-page=keluar-bahan] .eta-qty-input,body[data-page=keluar-bahan] .eta-uom-select,body[data-page=keluar-bahan] .eta-modal-input,body[data-page=keluar-bahan] .eta-modal-select{min-height:var(--polyta-input-height)!important;height:var(--polyta-input-height)!important;border-radius:var(--polyta-control-radius)!important;box-sizing:border-box!important;font-size:var(--polyta-control-font-size)!important;padding-top:0!important;padding-bottom:0!important;line-height:1.2!important}body[data-page=input-spk] #spkInputRoot input.field-input,body[data-page=dashboard] #spkInputModal #spkInputRoot input.field-input,body[data-page=keluar-bahan] .editor-input,body[data-page=keluar-bahan] .eta-date-input,body[data-page=keluar-bahan] .eta-qty-input,body[data-page=keluar-bahan] .eta-modal-input{padding-left:var(--polyta-input-padding-x)!important;padding-right:var(--polyta-input-padding-x)!important}body[data-page=input-spk] #spkInputRoot .spk-wrapper input.field-input,body[data-page=dashboard] #spkInputModal #spkInputRoot .spk-wrapper input.field-input{padding-right:42px!important}body[data-page=input-spk] #spkInputRoot .warna-input-wrap input.field-input,body[data-page=dashboard] #spkInputModal #spkInputRoot .warna-input-wrap input.field-input{padding-left:42px!important}body[data-page=keluar-bahan] .search-input{padding-left:31px!important;padding-right:var(--polyta-input-padding-x)!important}body[data-page=keluar-bahan] .filter-select,body[data-page=keluar-bahan] .editor-select,body[data-page=keluar-bahan] .eta-uom-select,body[data-page=keluar-bahan] .eta-modal-select,body[data-page=input-spk] #spkInputRoot select.field-input,body[data-page=dashboard] #spkInputModal #spkInputRoot select.field-input{padding-left:var(--polyta-input-padding-x)!important;padding-right:32px!important}body[data-page=input-spk] #spkInputRoot .input-pair>select.field-input.input-pair-uom,body[data-page=dashboard] #spkInputModal #spkInputRoot .input-pair>select.field-input.input-pair-uom{flex:0 0 82px!important;width:82px!important;min-width:82px!important;padding-left:10px!important;padding-right:24px!important;line-height:normal!important}body[data-page=input-spk] #spkInputRoot select.routing-process-select,body[data-page=dashboard] #spkInputModal #spkInputRoot select.routing-process-select{padding-left:36px!important;padding-right:36px!important}body[data-page=input-spk] #spkInputRoot textarea.field-input,body[data-page=dashboard] #spkInputModal #spkInputRoot textarea.field-input,body[data-page=keluar-bahan] textarea{border-radius:var(--polyta-control-radius)!important;box-sizing:border-box!important;font-size:var(--polyta-control-font-size)!important;line-height:1.4!important}@media (max-width:900px){body[data-page=dashboard] .nav-link-app,body[data-page=input-spk] #spkInputRoot .app-nav-link,body[data-page=keluar-bahan] .nav-link,body[data-page=penarikan-data] .app-nav-link{justify-content:center!important;width:39px!important;min-width:39px!important;padding:0!important}}@property --tw-border-style{syntax:"*";inherits:false;initial-value:solid}@property --tw-gradient-position{syntax:"*";inherits:false}@property --tw-gradient-from{syntax:"<color>";inherits:false;initial-value:#0000}@property --tw-gradient-via{syntax:"<color>";inherits:false;initial-value:#0000}@property --tw-gradient-to{syntax:"<color>";inherits:false;initial-value:#0000}@property --tw-gradient-stops{syntax:"*";inherits:false}@property --tw-gradient-via-stops{syntax:"*";inherits:false}@property --tw-gradient-from-position{syntax:"<length-percentage>";inherits:false;initial-value:0%}@property --tw-gradient-via-position{syntax:"<length-percentage>";inherits:false;initial-value:50%}@property --tw-gradient-to-position{syntax:"<length-percentage>";inherits:false;initial-value:100%}@property --tw-font-weight{syntax:"*";inherits:false}@property --tw-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-shadow-color{syntax:"*";inherits:false}@property --tw-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}@property --tw-inset-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-inset-shadow-color{syntax:"*";inherits:false}@property --tw-inset-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}@property --tw-ring-color{syntax:"*";inherits:false}@property --tw-ring-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-inset-ring-color{syntax:"*";inherits:false}@property --tw-inset-ring-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-ring-inset{syntax:"*";inherits:false}@property --tw-ring-offset-width{syntax:"<length>";inherits:false;initial-value:0}@property --tw-ring-offset-color{syntax:"*";inherits:false;initial-value:#fff}@property --tw-ring-offset-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-backdrop-blur{syntax:"*";inherits:false}@property --tw-backdrop-brightness{syntax:"*";inherits:false}@property --tw-backdrop-contrast{syntax:"*";inherits:false}@property --tw-backdrop-grayscale{syntax:"*";inherits:false}@property --tw-backdrop-hue-rotate{syntax:"*";inherits:false}@property --tw-backdrop-invert{syntax:"*";inherits:false}@property --tw-backdrop-opacity{syntax:"*";inherits:false}@property --tw-backdrop-saturate{syntax:"*";inherits:false}@property --tw-backdrop-sepia{syntax:"*";inherits:false}@property --tw-duration{syntax:"*";inherits:false}</style>
+  <style>
+    :root {
+      --ink: #171b21;
+      --muted: #5f6771;
+      --line: #363c43;
+      --soft-line: #aeb5bd;
+      --paper: #fff;
+      --paper-soft: #f5f6f7;
+      --header: #2d3642;
+      --red: #e32636;
+      --blue: #4563b3;
+      --green: #2ca846;
+      --amber: #a86300;
+      --app-page-background:
+        radial-gradient(circle at 12% 0%, rgba(255,255,255,.08), transparent 28%),
+        repeating-linear-gradient(135deg, rgba(255,255,255,.018) 0 1px, transparent 1px 5px),
+        #24272c;
+
+      /* Tumpukan font sistem. Sengaja tanpa unduhan dari luar agar hasil
+         cetak tidak bergantung pada koneksi: bila font gagal termuat saat
+         mencetak, seluruh tata letak lembar bisa bergeser. Segoe UI dan
+         Calibri jauh lebih rapi dari Arial pada cetakan kecil karena
+         hurufnya lebih sempit sehingga muat lebih banyak pada lebar sama. */
+      --font-sheet: "Segoe UI", Calibri, Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      background: var(--app-page-background);
+    }
+
+    body {
+      min-width: 880px;
+      margin: 0;
+      color: var(--ink);
+      background: var(--app-page-background);
+      font-family: var(--font-sheet);
+    }
+
+    button,
+    a {
+      font: inherit;
+    }
+
+    .print-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: grid;
+      grid-template-columns: minmax(250px, auto) 1fr auto;
+      align-items: center;
+      gap: 18px;
+      min-height: 70px;
+      padding: 11px 22px;
+      border-top: 1px solid #5a5d63;
+      border-bottom: 4px solid #8b1717;
+      color: #fff;
+      background: linear-gradient(180deg, #4b4e54 0, #303238 45%, #202226 46%, #101114 100%);
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.18),
+        inset 0 -1px 0 #000,
+        0 4px 10px rgba(0,0,0,.45);
+    }
+
+    .print-toolbar::after {
+      position: absolute;
+      right: 0;
+      bottom: -4px;
+      left: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #751010, #ec4a4a 50%, #751010);
+      content: "";
+    }
+
+    .toolbar-brand,
+    .toolbar-actions,
+    .toolbar-status {
+      display: flex;
+      align-items: center;
+    }
+
+    .toolbar-brand {
+      gap: 11px;
+    }
+
+    .toolbar-mark {
+      display: grid;
+      place-items: center;
+      width: 46px;
+      height: 46px;
+      flex: 0 0 46px;
+      padding: 4px;
+      border: 1px solid #73787e;
+      border-radius: 11px;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,.92), rgba(255,255,255,.18) 42%, transparent 43%),
+        linear-gradient(145deg, #f7f7f4, #bfc2c4 54%, #85898e);
+      box-shadow:
+        inset 0 1px 1px #fff,
+        inset 0 -2px 3px rgba(0,0,0,.24),
+        0 2px 0 #09090a,
+        0 3px 5px rgba(0,0,0,.5);
+    }
+
+    .polyta-logo {
+      display: block;
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(0 2px 1px rgba(0,0,0,.28));
+    }
+
+    .toolbar-brand strong,
+    .toolbar-brand span {
+      display: block;
+    }
+
+    .toolbar-brand strong {
+      font-size: .88rem;
+      text-shadow: 0 -1px 0 #000;
+    }
+
+    .toolbar-brand span {
+      margin-top: 3px;
+      color: #c0c3c9;
+      font-size: .67rem;
+      letter-spacing: .04em;
+      text-shadow: 0 -1px 0 #000;
+    }
+
+    .toolbar-status {
+      justify-content: center;
+      gap: 9px;
+      color: #e6e9ec;
+      font-size: .76rem;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .status-light {
+      width: 10px;
+      height: 10px;
+      flex: 0 0 10px;
+      border-radius: 50%;
+      background: #f3b635;
+      box-shadow: 0 0 10px rgba(243,182,53,.7);
+    }
+
+    .toolbar-status.is-ready .status-light {
+      background: #35c778;
+      box-shadow: 0 0 10px rgba(53,199,120,.7);
+    }
+
+    .toolbar-status.is-error .status-light {
+      background: #ef4444;
+      box-shadow: 0 0 10px rgba(239,68,68,.7);
+    }
+
+    .toolbar-actions {
+      justify-content: flex-end;
+      gap: 9px;
+    }
+
+    .toolbar-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 39px;
+      padding: 8px 13px;
+      border-radius: 8px;
+      font-size: .7rem;
+      font-weight: 900;
+      letter-spacing: .035em;
+      text-decoration: none;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .toolbar-button.dashboard,
+    .toolbar-button.fullscreen {
+      border: 1px solid #141922;
+      color: #fff;
+      background: linear-gradient(180deg, #586373, #3b4552 48%, #242c36 52%, #171c23);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 3px 0 #080a0d;
+    }
+
+    .toolbar-button.fullscreen[aria-pressed="true"] {
+      border-color: rgba(255,255,255,.35);
+      background: linear-gradient(180deg, #727e8f, #4b5868 48%, #313c49 52%, #202832);
+      box-shadow: inset 0 2px 5px rgba(0,0,0,.6), 0 1px 0 rgba(255,255,255,.12);
+    }
+
+    .toolbar-button.fullscreen {
+      width: 104px;
+      flex: 0 0 104px;
+      gap: 6px;
+      padding: 0 11px;
+      font-size: .72rem;
+      font-weight: 650;
+      letter-spacing: normal;
+      line-height: 1;
+      text-transform: none;
+      white-space: nowrap;
+    }
+
+    .toolbar-button.secondary {
+      border: 1px solid #777c81;
+      color: #25292e;
+      background: linear-gradient(180deg, #fff, #ececea 48%, #c8cac8 52%, #a7abab);
+      box-shadow: inset 0 1px 0 #fff, 0 3px 0 #62666a;
+    }
+
+    .toolbar-button.primary {
+      border: 1px solid #741014;
+      color: #fff;
+      background: linear-gradient(180deg, #ef5059, #d5323d 47%, #b31b26 52%, #841018);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 3px 0 #5f090e;
+    }
+
+    .toolbar-button:disabled {
+      cursor: wait;
+      filter: grayscale(.7);
+      opacity: .62;
+    }
+
+    .toolbar-button[hidden] {
+      display: none !important;
+    }
+
+    .workspace {
+      width: max-content;
+      min-width: 100%;
+      padding: 26px;
+    }
+
+    .print-sheet {
+      /* Angka bertabulasi agar kolom KG, persen, dan tanggal lurus ke bawah
+         pada tabel isian. Tanpa ini lebar tiap digit berbeda dan deretan
+         angka terlihat bergoyang. */
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum" 1;
+      position: relative;
+      width: 210mm;
+      height: 148mm;
+      min-height: 148mm;
+      margin: 0 auto 26px;
+      padding: 4.2mm 4.6mm 4mm;
+      overflow: hidden;
+      color: #12161b;
+      background: var(--paper);
+      border-radius: 2px;
+      box-shadow:
+        0 2px 0 #91969b,
+        0 18px 50px rgba(0,0,0,.38);
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .print-sheet::before {
+      position: absolute;
+      top: 0;
+      right: 0;
+      left: 0;
+      height: 1.35mm;
+      background: linear-gradient(90deg, var(--red) 0 52%, var(--blue) 52% 76%, var(--green) 76% 100%);
+      content: "";
+    }
+
+    .print-page:last-child .print-sheet {
+      margin-bottom: 0;
+    }
+
+    .page-content {
+      width: 100%;
+      transform-origin: top left;
+    }
+
+    .page-footer {
+      position: absolute;
+      right: 4.6mm;
+      bottom: 1.25mm;
+      left: 4.6mm;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      padding-top: .7mm;
+      border-top: .25mm solid #bfc4ca;
+      color: #69717b;
+      font-size: 5.71px;
+    }
+
+    .page-footer span:nth-child(2) {
+      text-align: center;
+    }
+
+    .page-footer span:last-child {
+      text-align: right;
+    }
+
+    .master-frame {
+      border: .35mm solid var(--line);
+    }
+
+    .master-topline {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr 1.25fr auto;
+      align-items: stretch;
+      min-height: 10mm;
+      border-bottom: .25mm solid var(--line);
+    }
+
+    .master-topline > div {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+      padding: 1.2mm 1.7mm;
+      border-right: .2mm solid #aeb4bb;
+    }
+
+    .master-topline > div:last-child {
+      border-right: 0;
+    }
+
+    .master-name {
+      flex-direction: column;
+      align-items: flex-start !important;
+      justify-content: center;
+    }
+
+    .master-name strong {
+      font-size: 9.68px;
+      letter-spacing: .045em;
+    }
+
+    .master-name span {
+      margin-top: .8mm;
+      font-size: 6.75px;
+      font-weight: 700;
+    }
+
+    .master-code {
+      display: grid !important;
+      grid-template-columns: 23mm 1fr;
+      padding: 0 !important;
+      text-align: center;
+    }
+
+    .master-code span,
+    .master-code strong {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+      padding: 1mm;
+      overflow-wrap: anywhere;
+    }
+
+    .master-code span {
+      border-right: .2mm solid #aeb4bb;
+      background: #f3f4f5;
+      font-size: 6.75px;
+      font-weight: 800;
+    }
+
+    .master-code strong {
+      font-size: 8.99px;
+    }
+
+    .master-company {
+      gap: 1.27mm;
+    }
+
+    .master-company .mini-logo {
+      width: 8mm;
+      height: 8mm;
+      flex: 0 0 8mm;
+    }
+
+    .master-company strong,
+    .master-company small {
+      display: block;
+    }
+
+    .master-company strong {
+      font-size: 9.28px;
+    }
+
+    .master-company small {
+      margin-top: .6mm;
+      color: #59616a;
+      font-size: 5.84px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .release-stamp {
+      display: flex !important;
+      flex-direction: column;
+      justify-content: center;
+      min-width: 15mm !important;
+      color: var(--amber);
+      background: #fff9eb;
+      font-size: 5.84px;
+      font-weight: 900;
+      line-height: 1.15;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .release-stamp.is-released {
+      color: #167232;
+      background: #eef9f1;
+    }
+
+    .release-stamp span {
+      margin-top: .5mm;
+      font-size: 9.35px;
+    }
+
+    .master-header-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 1.15fr .92fr 1.08fr;
+      min-height: 31mm;
+    }
+
+    .master-info,
+    .master-route,
+    .master-note {
+      min-width: 0;
+      padding: 1.4mm 1.6mm;
+      border-right: .2mm solid #aeb4bb;
+    }
+
+    .master-header-grid > div:last-child {
+      border-right: 0;
+    }
+
+    .field-line {
+      display: grid;
+      grid-template-columns: 19mm 1fr;
+      align-items: center;
+      min-height: 3.2mm;
+      border-bottom: .18mm solid #a7adb4;
+    }
+
+    .field-line span,
+    .field-line strong {
+      min-width: 0;
+      padding: .45mm .5mm;
+      font-size: 6.69px;
+      line-height: 1.1;
+    }
+
+    .field-line span {
+      color: #4f5760;
+      font-weight: 700;
+    }
+
+    .field-line strong {
+      overflow-wrap: anywhere;
+    }
+
+    .order-type {
+      display: flex;
+      gap: 4mm;
+      margin-bottom: 1.1mm;
+      font-size: 6.75px;
+      font-weight: 800;
+    }
+
+    .order-type span::before {
+      margin-right: .8mm;
+      content: "□";
+      font-size: 8.86px;
+    }
+
+    .order-type span.is-active::before {
+      color: var(--green);
+      content: "✓";
+    }
+
+    .master-route h3,
+    .master-note h3 {
+      margin: 0 0 1mm;
+      font-size: 7.14px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .route-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: .7mm 1.2mm;
+    }
+
+    .route-item {
+      display: flex;
+      align-items: center;
+      gap: 0.59mm;
+      min-width: 0;
+      color: #7b8289;
+      font-size: 6.36px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .route-item::before {
+      content: "□";
+      font-size: 7.14px;
+    }
+
+    .route-item.is-active {
+      color: #171b21;
+    }
+
+    .route-item.is-active::before {
+      color: var(--green);
+      content: "✓";
+    }
+
+    .master-note p {
+      height: 21mm;
+      margin: 0;
+      padding: 1.2mm;
+      overflow: hidden;
+      border: .25mm solid #555c64;
+      background: #fff;
+      font-size: 6.62px;
+      font-weight: 600;
+      line-height: 1.28;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .process-section {
+      border-top: .35mm solid var(--line);
+    }
+
+    .process-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 6.1mm;
+      padding: 1mm 1.8mm;
+      color: #fff;
+      background: var(--header);
+      font-size: 9.09px;
+      font-weight: 900;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .process-title span {
+      color: #dce1e6;
+      font-size: 6.11px;
+      letter-spacing: .035em;
+    }
+
+    .process-fields {
+      display: grid;
+      gap: 1.2mm 2mm;
+      min-height: 16mm;
+      padding: 1.3mm 1.7mm;
+      border-bottom: .25mm solid var(--line);
+    }
+
+    .process-fields.cols-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .process-fields.cols-4 {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .process-field {
+      display: grid;
+      grid-template-columns: 20mm 1fr;
+      align-items: center;
+      min-width: 0;
+      border-bottom: .18mm solid #858c94;
+    }
+
+    .process-field span,
+    .process-field strong {
+      min-width: 0;
+      padding: .45mm .5mm;
+      font-size: 6.62px;
+      line-height: 1.12;
+    }
+
+    .process-field span {
+      color: #505861;
+      font-weight: 700;
+    }
+
+    .process-field strong {
+      overflow-wrap: anywhere;
+    }
+
+    .process-field.wide {
+      grid-column: span 2;
+    }
+
+    .grid-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    .grid-table th,
+    .grid-table td {
+      border: .18mm solid #555c64;
+      padding: .55mm .6mm;
+      font-size: 6.04px;
+      line-height: 1.08;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    .grid-table th {
+      color: #313841;
+      background: #eef0f2;
+      font-weight: 900;
+    }
+
+    .grid-table tbody td {
+      height: 5.1mm;
+    }
+
+    .grid-table .left {
+      text-align: left;
+    }
+
+    .grid-table .right {
+      text-align: right;
+    }
+
+    .grid-table tfoot th,
+    .grid-table tfoot td {
+      background: #f0f2f4;
+      font-weight: 900;
+    }
+
+    .process-table-wrap {
+      padding: 1.2mm 1.5mm 1.5mm;
+    }
+
+    .mixer-layout {
+      display: grid;
+      grid-template-columns: .8fr 2.2fr;
+      gap: 1.7mm;
+      padding: 1.3mm 1.5mm 1mm;
+      border-bottom: .25mm solid var(--line);
+    }
+
+    .mixer-fields {
+      display: grid;
+      align-content: start;
+      gap: 0.85mm;
+    }
+
+    .mixer-fields .process-field {
+      grid-template-columns: 17mm 1fr;
+    }
+
+    .mixer-composition tbody td {
+      height: 3.35mm;
+    }
+
+    .mixer-log tbody td {
+      height: 5.4mm;
+    }
+
+    .roll-log thead tr:first-child th {
+      background: #e2e5e8;
+    }
+
+    .fold-log tbody td,
+    .cutting-log tbody td {
+      height: 5.45mm;
+    }
+
+    .printing-grid {
+      display: grid;
+      grid-template-columns: 3fr 1.05fr;
+      gap: 1.02mm;
+      padding: 1.2mm 1.4mm 1.5mm;
+    }
+
+    .printing-main tbody td {
+      height: 5mm;
+    }
+
+    .printing-side tbody td {
+      height: 4mm;
+    }
+
+    .support-box {
+      margin-top: 1.2mm;
+      padding: 1mm;
+      border: .2mm solid #555c64;
+      font-size: 6.11px;
+      line-height: 1.35;
+    }
+
+    .support-box strong {
+      display: block;
+      margin-bottom: .7mm;
+      font-size: 6.49px;
+      text-transform: uppercase;
+    }
+
+    .cutting-top {
+      display: grid;
+      grid-template-columns: 1.6fr .9fr;
+      gap: 1.7mm;
+      min-height: 25mm;
+      padding: 1.3mm 1.6mm;
+      border-bottom: .25mm solid var(--line);
+    }
+
+    .cutting-fields {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: .8mm 2mm;
+    }
+
+    .cutting-metrics {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      align-content: start;
+      gap: 0.85mm;
+    }
+
+    .cutting-metrics .metric-box {
+      min-height: 8mm;
+      padding: 1mm;
+      border: .2mm solid #7e858d;
+      font-size: 6.11px;
+    }
+
+    .metric-box strong {
+      display: block;
+      margin-bottom: .8mm;
+      text-transform: uppercase;
+    }
+
+    /* Tabel penimbangan pada blok Cutting mengikuti lembar SPK asli:
+       tiga baris standar/maksimal/minimal dengan kolom MIC.PO dan MIC.ACT
+       yang sengaja dibiarkan kosong untuk diisi tangan. */
+    .metric-box .weigh-table {
+      width: 100%;
+      margin-top: .3mm;
+    }
+
+    .metric-box .weigh-table th,
+    .metric-box .weigh-table td {
+      padding: .25mm .4mm;
+      font-size: 5.71px;
+      line-height: 1.15;
+    }
+
+    .metric-box .weigh-table th.left {
+      text-align: left;
+      font-weight: 600;
+      text-transform: none;
+    }
+
+    .po-sheet .page-content {
+      padding-top: .3mm;
+    }
+
+    .po-head {
+      display: grid;
+      grid-template-columns: 1.05fr .88fr 1.07fr;
+      align-items: center;
+      min-height: 18mm;
+      border-bottom: .35mm solid var(--line);
+    }
+
+    .po-company,
+    .po-title,
+    .po-reference {
+      min-width: 0;
+      padding: 1.2mm 1.8mm;
+    }
+
+    .po-company {
+      display: flex;
+      align-items: center;
+      gap: 1.53mm;
+    }
+
+    .po-company .mini-logo {
+      width: 10mm;
+      height: 10mm;
+    }
+
+    .po-company strong,
+    .po-company span {
+      display: block;
+    }
+
+    .po-company strong {
+      font-size: 9.35px;
+    }
+
+    .po-company span {
+      margin-top: .7mm;
+      font-size: 6.11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .po-title {
+      text-align: center;
+    }
+
+    .po-title small,
+    .po-title strong {
+      display: block;
+    }
+
+    .po-title small {
+      color: #6b737c;
+      font-size: 6.23px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .po-title strong {
+      margin-top: .8mm;
+      font-size: 11.5px;
+      letter-spacing: .04em;
+    }
+
+    .po-reference {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1.02mm;
+      align-items: center;
+    }
+
+    .po-reference-data {
+      display: grid;
+      gap: 0.59mm;
+    }
+
+    .po-reference-data strong {
+      font-size: 8.86px;
+    }
+
+    .po-reference-data span {
+      padding-bottom: .7mm;
+      border-bottom: .2mm solid #7c838b;
+      font-size: 6.49px;
+    }
+
+    .po-main-grid {
+      display: grid;
+      grid-template-columns: 1.02fr .93fr 1.2fr;
+      min-height: 90mm;
+      border-bottom: .35mm solid var(--line);
+    }
+
+    .po-panel {
+      min-width: 0;
+      padding: 1.4mm;
+      border-right: .22mm solid #7d848c;
+    }
+
+    .po-panel:last-child {
+      border-right: 0;
+    }
+
+    .po-panel h2 {
+      margin: 0 0 1mm;
+      padding-bottom: .7mm;
+      border-bottom: .3mm solid var(--line);
+      font-size: 9.43px;
+      letter-spacing: .04em;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .po-panel .field-line {
+      grid-template-columns: 20mm 1fr;
+      min-height: 3.55mm;
+    }
+
+    .po-subtitle {
+      margin: 1.2mm 0 .6mm;
+      font-size: 7.01px;
+      font-weight: 900;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .po-route {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: .7mm 1.2mm;
+      margin: 1mm 0;
+    }
+
+    .po-bs-table tbody td,
+    .po-composition-table tbody td {
+      height: 3.35mm;
+    }
+
+    .po-signatures {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.85mm;
+      min-height: 26mm;
+      padding: 1.5mm 1.5mm .8mm;
+    }
+
+    .po-signature {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-width: 0;
+      padding: .5mm;
+      text-align: center;
+    }
+
+    .po-signature span {
+      font-size: 5.97px;
+    }
+
+    .po-signature strong {
+      padding-top: .7mm;
+      border-top: .2mm solid #555c64;
+      font-size: 6.11px;
+      text-transform: uppercase;
+    }
+
+    .loading-card,
+    .error-card {
+      width: min(92vw, 600px);
+      margin: 10vh auto;
+      padding: 30px;
+      border: 1px solid #85898e;
+      border-radius: 15px;
+      background: linear-gradient(145deg, #f8f9f9, #dfe2e5);
+      box-shadow: inset 0 1px 0 #fff, 0 4px 0 #55595e, 0 20px 55px rgba(0,0,0,.42);
+      text-align: center;
+    }
+
+    .loading-card strong,
+    .error-card strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 1.15rem;
+    }
+
+    .loading-card p,
+    .error-card p {
+      margin: 0;
+      color: #5c6269;
+      line-height: 1.5;
+    }
+
+    .spinner {
+      width: 34px;
+      height: 34px;
+      margin: 0 auto 15px;
+      border: 4px solid #bec3c7;
+      border-top-color: var(--red);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 0;
+      }
+
+      html,
+      body {
+        min-width: 0;
+        background: #fff !important;
+      }
+
+      .no-print {
+        display: none !important;
+      }
+
+      .workspace {
+        width: auto;
+        min-width: 0;
+        padding: 0;
+      }
+
+      .print-page {
+        position: relative;
+        width: 210mm;
+        height: 148.5mm;
+        margin: 0;
+        padding: 0;
+        page-break-inside: avoid !important;
+        page-break-after: auto;
+        break-inside: avoid-page !important;
+        break-after: auto;
+      }
+
+      .print-page + .print-page {
+        page-break-before: auto;
+        break-before: auto;
+      }
+
+      .print-page:last-child .print-sheet {
+        top: 0;
+        height: 148.5mm;
+        min-height: 148.5mm;
+      }
+
+      .print-sheet {
+        display: block;
+        width: 210mm;
+        height: 148.5mm;
+        min-height: 148.5mm;
+        margin: 0;
+        padding: 4.2mm 4.6mm 4mm;
+        border-radius: 0;
+        box-shadow: none;
+        page-break-inside: avoid !important;
+        page-break-after: auto;
+        page-break-before: auto;
+        break-inside: avoid-page !important;
+        break-after: auto;
+        break-before: auto;
+      }
+
+      .page-content {
+        page-break-inside: avoid !important;
+        break-inside: avoid-page !important;
+      }
+    }
+
+    @media screen {
+      html {
+        font-size: 15px;
+      }
+
+      .print-toolbar {
+        grid-template-columns: minmax(220px, auto) 1fr auto;
+        min-height: 72px;
+        padding: 8px 22px;
+        gap: 18px;
+      }
+
+      .toolbar-brand {
+        gap: 11px;
+      }
+
+      .toolbar-mark {
+        width: 52px;
+        height: 52px;
+        flex-basis: 52px;
+        padding: 4px;
+        border-radius: 12px;
+      }
+
+      .toolbar-brand strong {
+        font-size: 1.05rem;
+        font-weight: 800;
+        letter-spacing: .01em;
+        line-height: 1.2;
+      }
+
+      .toolbar-brand span {
+        margin-top: 2px;
+        font-size: .74rem;
+        letter-spacing: .02em;
+        line-height: 1.2;
+      }
+
+      .toolbar-status {
+        gap: 7px;
+        font-size: .69rem;
+      }
+
+      .status-light {
+        width: 8px;
+        height: 8px;
+        flex-basis: 8px;
+      }
+
+      .toolbar-actions {
+        gap: 6px;
+      }
+
+      .toolbar-button {
+        min-height: 35px;
+        padding: 6px 11px;
+        border-radius: 8px;
+        font-size: .72rem;
+      }
+
+      html:fullscreen,
+      html:-webkit-full-screen,
+      html:fullscreen body,
+      html:-webkit-full-screen body {
+        min-height: 100%;
+        background: var(--app-page-background);
+      }
+
+      body.app-focus-mode {
+        position: fixed;
+        z-index: 9999;
+        inset: 0;
+        overflow: auto;
+        background: var(--app-page-background);
+      }
+
+      .workspace {
+        padding: 18px;
+      }
+
+      .print-sheet {
+        margin-bottom: 18px;
+      }
+
+      .loading-card,
+      .error-card {
+        padding: 23px;
+        border-radius: 12px;
+      }
+
+      .spinner {
+        width: 29px;
+        height: 29px;
+        margin-bottom: 11px;
+        border-width: 3px;
+      }
+    }
+
+    @media screen and (max-width: 900px) {
+      .print-toolbar {
+        grid-template-columns: minmax(210px, 1fr) auto;
+      }
+
+      .toolbar-button.fullscreen {
+        width: 39px;
+        flex-basis: 39px;
+        padding: 0;
+      }
+
+      .toolbar-button.fullscreen #fullscreenLabel {
+        display: none;
+      }
+
+      .toolbar-status {
+        grid-column: 1 / -1;
+        grid-row: 2;
+      }
+    }
+
+    @media screen and (max-width: 620px) {
+      html {
+        font-size: 14.5px;
+      }
+
+      .print-toolbar {
+        grid-template-columns: 1fr;
+        padding: 8px 10px;
+      }
+
+      .toolbar-brand,
+      .toolbar-status,
+      .toolbar-actions {
+        justify-content: center;
+      }
+
+      .toolbar-status {
+        grid-column: auto;
+        grid-row: auto;
+      }
+
+      .toolbar-actions {
+        flex-wrap: wrap;
+      }
+
+      .workspace {
+        padding: 10px;
+      }
+    }
+
+    /* Final production master for a half-A4 production form. */
+    .print-sheet {
+      padding: 3.2mm 3.6mm 3.2mm;
+      font-family: var(--font-sheet);
+      background:
+        linear-gradient(180deg, rgba(238,243,248,.8), rgba(255,255,255,0) 9mm),
+        #fff;
+    }
+
+    .print-sheet::before {
+      height: 1.1mm;
+      background: linear-gradient(90deg, var(--red) 0 58%, var(--blue) 58% 80%, var(--green) 80%);
+    }
+
+    .page-footer {
+      right: 3.6mm;
+      bottom: .8mm;
+      left: 3.6mm;
+      padding-top: .55mm;
+      border-top-color: #c6ccd2;
+      font-size: 5.32px;
+      font-weight: 650;
+      letter-spacing: .015em;
+    }
+
+    .master-frame {
+      overflow: hidden;
+      border: .32mm solid #202a35;
+      border-radius: .7mm;
+      background: #fff;
+      box-shadow: inset 0 0 0 .18mm #d8dde2;
+    }
+
+    .master-topline {
+      grid-template-columns: .82fr 1.05fr 1.25fr 17mm;
+      min-height: 9.2mm;
+      border-bottom: .32mm solid #202a35;
+      background: linear-gradient(180deg, #fff, #f2f5f7);
+    }
+
+    .master-topline > div {
+      padding: .85mm 1.25mm;
+      border-right-color: #9ea7b0;
+    }
+
+    .master-name {
+      position: relative;
+      padding-left: 2mm !important;
+      color: #fff;
+      background: linear-gradient(135deg, #17212c, #334354);
+    }
+
+    .master-name::after {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 1mm;
+      background: var(--red);
+      content: "";
+    }
+
+    .master-name strong {
+      font-size: 9.35px;
+      letter-spacing: .07em;
+    }
+
+    .master-name span {
+      margin-top: .5mm;
+      color: #e8edf2;
+      font-size: 6.23px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .master-code {
+      grid-template-columns: 20mm 1fr;
+    }
+
+    .master-code span {
+      color: #44505c;
+      background: #e8edf2;
+      font-size: 6.23px;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+    }
+
+    .master-code strong {
+      color: #17212c;
+      font-size: 9.13px;
+    }
+
+    .master-company {
+      gap: 1.06mm;
+    }
+
+    .master-company .mini-logo {
+      width: 7.3mm;
+      height: 7.3mm;
+      flex-basis: 7.3mm;
+    }
+
+    .master-company strong {
+      font-size: 8.93px;
+      letter-spacing: .02em;
+    }
+
+    .master-company small {
+      margin-top: .4mm;
+      font-size: 5.32px;
+      letter-spacing: .055em;
+    }
+
+    .release-stamp {
+      min-width: 17mm !important;
+      color: #8a5600;
+      background: linear-gradient(180deg, #fff9e8, #f6e8bf);
+      font-size: 5.46px;
+      letter-spacing: .06em;
+    }
+
+    .release-stamp.is-released {
+      color: #116334;
+      background: linear-gradient(180deg, #effaf2, #d7efde);
+    }
+
+    .release-stamp span {
+      margin-top: .45mm;
+      font-size: 9.28px;
+    }
+
+    .master-header-grid {
+      grid-template-columns: 1.2fr 1.08fr .8fr 1.08fr;
+      min-height: 27mm;
+      background: #fff;
+    }
+
+    .master-info,
+    .master-route,
+    .master-note {
+      padding: .85mm 1.15mm;
+      border-right-color: #aeb5bd;
+    }
+
+    .field-line {
+      grid-template-columns: 17.5mm 1fr;
+      min-height: 2.7mm;
+      border-bottom-color: #aab2ba;
+    }
+
+    .field-line span,
+    .field-line strong {
+      padding: .32mm .4mm;
+      font-size: 5.91px;
+      line-height: 1.06;
+    }
+
+    .field-line span {
+      color: #56616d;
+      font-weight: 750;
+    }
+
+    .field-line strong {
+      color: #151d26;
+      font-weight: 800;
+    }
+
+    .order-type {
+      gap: 3mm;
+      margin-bottom: .55mm;
+      font-size: 5.97px;
+    }
+
+    .order-type span::before,
+    .route-item::before {
+      content: "\2610";
+    }
+
+    .order-type span.is-active::before,
+    .route-item.is-active::before {
+      color: #13813d;
+      content: "\2713";
+    }
+
+    .master-route h3,
+    .master-note h3 {
+      margin-bottom: .65mm;
+      color: #2f3a45;
+      font-size: 6.23px;
+      letter-spacing: .07em;
+    }
+
+    .route-list {
+      gap: .45mm .8mm;
+    }
+
+    .route-item {
+      gap: 0.42mm;
+      font-size: 5.51px;
+      letter-spacing: .015em;
+    }
+
+    .route-item::before {
+      font-size: 6.49px;
+    }
+
+    .master-note p {
+      height: 18.4mm;
+      padding: 1mm;
+      border: .22mm solid #69737d;
+      border-radius: .6mm;
+      background: linear-gradient(180deg, #fbfcfd, #fff);
+      font-size: 5.91px;
+      line-height: 1.2;
+    }
+
+    .process-section {
+      border-top: .32mm solid #202a35;
+    }
+
+    .process-title {
+      position: relative;
+      min-height: 5.3mm;
+      padding: .75mm 1.55mm .75mm 2.4mm;
+      background: linear-gradient(90deg, #17212c, #344454 68%, #263544);
+      font-size: 9.28px;
+      letter-spacing: .08em;
+    }
+
+    .process-title::before {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: 1mm;
+      background: var(--red);
+      content: "";
+    }
+
+    .process-title span {
+      margin-left: auto;
+      color: #e4e9ee;
+      font-size: 5.39px;
+    }
+
+    .process-fields {
+      gap: .55mm 1.5mm;
+      min-height: 11.4mm;
+      padding: .8mm 1.35mm;
+      border-bottom-color: #606a74;
+      background: linear-gradient(180deg, #f8fafb, #fff);
+    }
+
+    .process-field {
+      grid-template-columns: 16mm 1fr;
+      min-height: 3mm;
+      border-bottom-color: #8d969f;
+    }
+
+    .process-field span,
+    .process-field strong {
+      padding: .3mm .35mm;
+      font-size: 5.78px;
+      line-height: 1.05;
+    }
+
+    .grid-table th,
+    .grid-table td {
+      padding: .38mm .45mm;
+      border-color: #626c76;
+      font-size: 5.51px;
+      line-height: 1.04;
+    }
+
+    .grid-table th {
+      color: #25313d;
+      background: #e9eef2;
+      letter-spacing: .015em;
+    }
+
+    .grid-table tbody td {
+      height: 4mm;
+    }
+
+    .grid-table tfoot th,
+    .grid-table tfoot td {
+      background: #dfe6eb;
+    }
+
+    .process-table-wrap {
+      padding: .8mm 1.15mm .9mm;
+    }
+
+    .mixer-layout {
+      grid-template-columns: .78fr 2.22fr;
+      gap: 1.19mm;
+      padding: .85mm 1.15mm .7mm;
+      border-bottom-color: #606a74;
+      background: #fbfcfd;
+    }
+
+    .mixer-fields {
+      gap: 0.47mm;
+    }
+
+    .mixer-fields .process-field {
+      grid-template-columns: 15mm 1fr;
+    }
+
+    .mixer-composition tbody td {
+      height: 2.75mm;
+    }
+
+    .mixer-log tbody td {
+      height: 3.55mm;
+    }
+
+    .roll-log tbody td,
+    .fold-log tbody td,
+    .cutting-log tbody td {
+      height: 4mm;
+    }
+
+    .printing-grid {
+      grid-template-columns: 3.05fr 1fr;
+      gap: 0.72mm;
+      padding: .75mm 1.05mm .85mm;
+    }
+
+    .printing-main tbody td {
+      height: 3.75mm;
+    }
+
+    .printing-side tbody td {
+      height: 3.3mm;
+    }
+
+    .support-box {
+      margin-top: .7mm;
+      padding: .65mm;
+      border-color: #66717b;
+      border-radius: .45mm;
+      background: #fbfcfd;
+      font-size: 5.32px;
+      line-height: 1.2;
+    }
+
+    .support-box strong {
+      margin-bottom: .4mm;
+      font-size: 5.64px;
+    }
+
+    .cutting-top {
+      grid-template-columns: 1.65fr .85fr;
+      gap: 1.1mm;
+      min-height: 19mm;
+      padding: .85mm 1.2mm;
+      border-bottom-color: #606a74;
+      background: #fbfcfd;
+    }
+
+    .cutting-fields {
+      gap: .4mm 1.3mm;
+    }
+
+    .cutting-metrics {
+      gap: 0.51mm;
+    }
+
+    .cutting-metrics .metric-box {
+      min-height: 6.5mm;
+      padding: .65mm;
+      border-color: #76818b;
+      border-radius: .45mm;
+      background: #fff;
+      font-size: 5.26px;
+      line-height: 1.18;
+    }
+
+    /* Tujuh pengesahan disusun satu baris, bukan dua baris berisi empat.
+       Susunan lama menyisakan sel kosong dan memakan tinggi dua kali lipat;
+       ruang yang dihemat dipakai untuk memperbesar huruf isi lembar. */
+    .process-signatures {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      min-height: 9.5mm;
+      border-top: .3mm solid #202a35;
+      background: linear-gradient(180deg, #f1f4f7, #fff 38%);
+    }
+
+    .process-signature {
+      display: grid;
+      grid-template-rows: auto 1fr auto auto;
+      min-width: 0;
+      padding: .6mm .5mm .45mm;
+      border-right: .18mm solid #aeb5bd;
+      text-align: center;
+    }
+
+    .process-signature:last-child {
+      border-right: 0;
+    }
+
+    .process-signature-label {
+      color: #4d5863;
+      font-size: 4.95px;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .process-signature-space {
+      min-height: 6mm;
+    }
+
+    .process-signature strong {
+      padding-top: .45mm;
+      border-top: .2mm solid #505a64;
+      color: #1d2731;
+      font-size: 5.23px;
+      /* Huruf kapital dengan jarak longgar membuat nama peran terpanjang
+         melebihi lebar kolom. Jaraknya dirapatkan agar tetap satu baris. */
+      letter-spacing: -.005em;
+      text-transform: uppercase;
+    }
+
+    .process-signature small {
+      margin-top: .35mm;
+      color: #747d86;
+      font-size: 4.61px;
+    }
+
+    .po-head {
+      min-height: 15mm;
+      border-bottom-color: #202a35;
+      background: linear-gradient(180deg, #fff, #f4f6f8);
+    }
+
+    .po-company,
+    .po-title,
+    .po-reference {
+      padding: .9mm 1.45mm;
+    }
+
+    .po-company .mini-logo {
+      width: 9mm;
+      height: 9mm;
+    }
+
+    .po-company strong {
+      font-size: 8.95px;
+      letter-spacing: .02em;
+    }
+
+    .po-company span {
+      font-size: 5.64px;
+      letter-spacing: .06em;
+    }
+
+    .po-title small {
+      font-size: 5.64px;
+      letter-spacing: .12em;
+    }
+
+    .po-title strong {
+      margin-top: .5mm;
+      color: #18232e;
+      font-size: 10.5px;
+      letter-spacing: .07em;
+    }
+
+    .po-reference-data {
+      gap: 0.38mm;
+    }
+
+    .po-reference-data strong {
+      color: #17212c;
+      font-size: 7.99px;
+      letter-spacing: .035em;
+    }
+
+    .po-reference-data span {
+      padding-bottom: .45mm;
+      font-size: 5.91px;
+    }
+
+    .po-main-grid {
+      grid-template-columns: 1.04fr .94fr 1.18fr;
+      min-height: 83mm;
+      border-bottom-color: #202a35;
+    }
+
+    .po-panel {
+      padding: 1.05mm 1.15mm;
+      border-right-color: #8f99a3;
+    }
+
+    .po-panel h2 {
+      margin-bottom: .65mm;
+      padding-bottom: .45mm;
+      border-bottom-color: #27323d;
+      color: #26323e;
+      font-size: 7.52px;
+      letter-spacing: .075em;
+    }
+
+    .po-panel .field-line {
+      grid-template-columns: 18.5mm 1fr;
+      min-height: 3mm;
+    }
+
+    .po-subtitle {
+      margin: .75mm 0 .35mm;
+      color: #27323d;
+      font-size: 6.23px;
+      letter-spacing: .07em;
+    }
+
+    .po-route {
+      gap: .4mm .8mm;
+      margin: .6mm 0;
+    }
+
+    .po-bs-table tbody td,
+    .po-composition-table tbody td {
+      height: 2.95mm;
+    }
+
+    .po-signatures {
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 0;
+      min-height: 23mm;
+      padding: 0;
+      background: linear-gradient(180deg, #edf1f4, #fff 34%);
+    }
+
+    .po-signature {
+      display: grid;
+      grid-template-rows: auto 1fr auto auto;
+      padding: .7mm .75mm .5mm;
+      border-right: .18mm solid #aeb5bd;
+    }
+
+    .po-signature:last-child {
+      border-right: 0;
+    }
+
+    .po-signature .signature-label {
+      color: #505b66;
+      font-size: 5.06px;
+      font-weight: 800;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    .po-signature .signature-space {
+      min-height: 9mm;
+    }
+
+    .po-signature strong {
+      padding-top: .55mm;
+      border-top-color: #505a64;
+      font-size: 5.39px;
+    }
+
+    .po-signature small {
+      margin-top: .3mm;
+      color: #77808a;
+      font-size: 4.35px;
+    }
+
+    @media print {
+      .print-page,
+      .print-sheet,
+      .print-page:last-child .print-sheet {
+        top: 0;
+        width: 210mm;
+        height: 148.5mm;
+        min-height: 148.5mm;
+      }
+
+      .print-sheet {
+        padding: 3.2mm 3.6mm 3.2mm;
+      }
+
+      /* Bayangan hampir tak terlihat di atas kertas namun mahal diraster pada
+         resolusi cetak, dan dikali jumlah halaman itu membuat pratinjau cetak
+         Chrome membeku. Dimatikan khusus saat mencetak; tampilan layar tetap. */
+      * {
+        box-shadow: none !important;
+      }
+    }
+
+    /* Half-A4 production master: larger, balanced, and arranged two-up on A4. */
+    .print-sheet {
+      width: 210mm;
+      height: 148.5mm;
+      min-height: 148.5mm;
+      padding: 3.1mm 3.8mm 3.2mm;
+      background:
+        linear-gradient(180deg, rgba(229,235,241,.92), rgba(255,255,255,0) 10mm),
+        #fff;
+    }
+
+    .print-sheet::before {
+      height: 1.25mm;
+      background: linear-gradient(90deg, #c91829 0 60%, #3f5eaa 60% 82%, #289443 82%);
+    }
+
+    .page-content.master-frame {
+      display: flex;
+      flex-direction: column;
+      min-height: 135mm;
+      border-width: .38mm;
+      border-color: #17232f;
+      border-radius: 1mm;
+      box-shadow:
+        inset 0 0 0 .18mm #d9dee3,
+        0 .35mm .8mm rgba(25,35,45,.12);
+    }
+
+    .page-footer {
+      right: 3.8mm;
+      bottom: .75mm;
+      left: 3.8mm;
+      padding-top: .6mm;
+      border-top: .2mm solid #aeb7c0;
+      color: #58636e;
+      font-size: 6.23px;
+      font-weight: 700;
+    }
+
+    .master-topline {
+      grid-template-columns: .88fr 1.08fr 1.3fr 18mm;
+      min-height: 10.8mm;
+    }
+
+    .master-topline > div {
+      padding: 1mm 1.4mm;
+    }
+
+    .master-name {
+      padding-left: 2.2mm !important;
+    }
+
+    .master-name strong {
+      font-size: 10.2px;
+      letter-spacing: .075em;
+    }
+
+    .master-name span {
+      margin-top: .65mm;
+      font-size: 7.52px;
+    }
+
+    .master-code {
+      grid-template-columns: 21mm 1fr;
+    }
+
+    .master-code span {
+      font-size: 7.34px;
+    }
+
+    .master-code strong {
+      font-size: 9.74px;
+    }
+
+    .master-company {
+      gap: 1.27mm;
+    }
+
+    .master-company .mini-logo {
+      width: 8.3mm;
+      height: 8.3mm;
+      flex-basis: 8.3mm;
+    }
+
+    .master-company strong {
+      font-size: 9.74px;
+    }
+
+    .master-company small {
+      margin-top: .5mm;
+      font-size: 6.49px;
+    }
+
+    .release-stamp {
+      min-width: 18mm !important;
+      font-size: 6.75px;
+    }
+
+    .release-stamp span {
+      margin-top: .55mm;
+      font-size: 9.87px;
+    }
+
+    .master-header-grid {
+      grid-template-columns: 1.18fr 1.08fr .82fr 1.1fr;
+      min-height: 30mm;
+    }
+
+    .master-info,
+    .master-route,
+    .master-note {
+      padding: 1mm 1.3mm;
+    }
+
+    .field-line {
+      grid-template-columns: 18.5mm 1fr;
+      min-height: 3.15mm;
+    }
+
+    .field-line span,
+    .field-line strong {
+      padding: .38mm .48mm;
+      font-size: 7.34px;
+      line-height: 1.12;
+    }
+
+    .order-type {
+      gap: 3.4mm;
+      margin-bottom: .7mm;
+      font-size: 7.21px;
+    }
+
+    .master-route h3,
+    .master-note h3 {
+      margin-bottom: .8mm;
+      font-size: 7.4px;
+    }
+
+    .route-list {
+      gap: .55mm 1mm;
+    }
+
+    .route-item {
+      gap: 0.47mm;
+      font-size: 6.69px;
+    }
+
+    .route-item::before {
+      font-size: 7.52px;
+    }
+
+    .master-note p {
+      height: 20.6mm;
+      padding: 1.15mm;
+      font-size: 7.01px;
+      line-height: 1.28;
+    }
+
+    .process-sheet .process-section {
+      display: flex;
+      flex: 1 1 auto;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .process-title {
+      min-height: 6.4mm;
+      padding: .9mm 1.7mm .9mm 2.6mm;
+      font-size: 10.12px;
+      letter-spacing: .085em;
+    }
+
+    .process-title span {
+      font-size: 6.69px;
+    }
+
+    .process-fields {
+      gap: .7mm 1.6mm;
+      min-height: 13.5mm;
+      padding: .95mm 1.45mm;
+    }
+
+    .process-field {
+      grid-template-columns: 17.5mm 1fr;
+      min-height: 3.25mm;
+    }
+
+    .process-field span,
+    .process-field strong {
+      padding: .35mm .42mm;
+      font-size: 6.94px;
+      line-height: 1.1;
+    }
+
+    .grid-table th,
+    .grid-table td {
+      padding: .42mm .5mm;
+      border-color: #56626e;
+      font-size: 6.81px;
+      line-height: 1.08;
+    }
+
+    .grid-table th {
+      background: #e5ebf0;
+    }
+
+    .process-table-wrap {
+      display: flex;
+      flex: 1 1 auto;
+      min-height: 0;
+      padding: .9mm 1.25mm 1mm;
+    }
+
+    .process-table-wrap > .grid-table {
+      height: 100%;
+    }
+
+    .mixer-layout {
+      gap: 1.36mm;
+      padding: 1mm 1.25mm .8mm;
+    }
+
+    .mixer-fields {
+      gap: 0.55mm;
+    }
+
+    .mixer-fields .process-field {
+      grid-template-columns: 16.5mm 1fr;
+    }
+
+    .mixer-composition tbody td {
+      height: 3.05mm;
+    }
+
+    .mixer-log tbody td {
+      height: 4.25mm;
+    }
+
+    .roll-log tbody td,
+    .fold-log tbody td,
+    .cutting-log tbody td {
+      height: 4.35mm;
+    }
+
+    .printing-grid {
+      flex: 1 1 auto;
+      min-height: 0;
+      gap: 0.85mm;
+      padding: .9mm 1.2mm 1mm;
+    }
+
+    .printing-grid > .grid-table {
+      height: 100%;
+    }
+
+    .printing-main tbody td {
+      height: 4.2mm;
+    }
+
+    .printing-side tbody td {
+      height: 3.7mm;
+    }
+
+    .support-box {
+      margin-top: .8mm;
+      padding: .8mm;
+      font-size: 6.49px;
+      line-height: 1.25;
+    }
+
+    .support-box strong {
+      margin-bottom: .45mm;
+      font-size: 6.94px;
+    }
+
+    .cutting-top {
+      gap: 1.27mm;
+      min-height: 21.5mm;
+      padding: 1mm 1.3mm;
+    }
+
+    .cutting-fields,
+    .cutting-metrics {
+      gap: .55mm 1.45mm;
+    }
+
+    .cutting-metrics .metric-box {
+      min-height: 7.2mm;
+      padding: .75mm;
+      font-size: 6.36px;
+      line-height: 1.22;
+    }
+
+    /* Tujuh pengesahan dalam satu baris. Nilai kolom di sini wajib sama
+       dengan blok layar; ketika masih 6, tanda tangan ketujuh terdorong ke
+       baris berikutnya dan namanya terlihat terpotong. */
+    .process-signatures {
+      flex: 0 0 auto;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      min-height: 13mm;
+      border-top: .38mm solid #17232f;
+      background: linear-gradient(180deg, #e9eef2, #fff 34%);
+    }
+
+    .process-signature {
+      padding: .6mm .5mm .45mm;
+    }
+
+    .process-signature-label {
+      color: #3f4d59;
+      font-size: 4.95px;
+    }
+
+    .process-signature-space {
+      min-height: 7mm;
+    }
+
+    /* Kolom selebar sekitar 29mm, jadi nama peran dikecilkan dan dirapatkan
+       agar "General Manager" tetap muat dalam satu baris. */
+    .process-signature strong {
+      font-size: 5.23px;
+      letter-spacing: -.01em;
+      line-height: 1.1;
+    }
+
+    .process-signature small {
+      font-size: 4.18px;
+    }
+
+    .po-head {
+      grid-template-columns: 1.12fr .82fr 1.06fr;
+      min-height: 17.5mm;
+      background:
+        linear-gradient(90deg, rgba(227,38,54,.055), transparent 29%),
+        linear-gradient(180deg, #fff, #eef2f5);
+    }
+
+    .po-company,
+    .po-title,
+    .po-reference {
+      padding: 1.1mm 1.6mm;
+    }
+
+    .po-company,
+    .po-title {
+      border-right: .2mm solid #aab3bc;
+    }
+
+    .po-company .mini-logo {
+      width: 10mm;
+      height: 10mm;
+      flex: 0 0 10mm;
+    }
+
+    .po-company strong {
+      font-size: 8.97px;
+    }
+
+    .po-company span {
+      font-size: 6.49px;
+    }
+
+    .po-title small {
+      font-size: 6.62px;
+    }
+
+    .po-title strong {
+      margin-top: .65mm;
+      font-size: 12.8px;
+    }
+
+    .po-reference-data {
+      gap: 0.47mm;
+    }
+
+    .po-reference-data strong {
+      font-size: 9.41px;
+    }
+
+    .po-reference-data span {
+      padding-bottom: .55mm;
+      font-size: 6.75px;
+    }
+
+    .po-main-grid {
+      flex: 1 1 auto;
+      grid-template-columns: 1.08fr 1fr 1.12fr;
+      min-height: 0;
+      background: #f7f9fa;
+    }
+
+    .po-panel {
+      padding: 0 1.3mm 1.2mm;
+      background: linear-gradient(180deg, #f7f9fa, #fff 13mm);
+    }
+
+    .po-panel h2 {
+      margin: 0 -1.3mm .9mm;
+      padding: .9mm 1.3mm .75mm 2.2mm;
+      border-bottom: .3mm solid #17232f;
+      color: #fff;
+      background: linear-gradient(90deg, #233140, #3a4b5b);
+      font-size: 9.49px;
+      letter-spacing: .075em;
+      text-align: left;
+      text-shadow: 0 1px 0 rgba(0,0,0,.35);
+    }
+
+    .po-panel h2::before {
+      display: inline-block;
+      width: .8mm;
+      height: 2.4mm;
+      margin-right: 1mm;
+      background: var(--red);
+      vertical-align: -.35mm;
+      content: "";
+    }
+
+    .po-panel .field-line {
+      grid-template-columns: 20mm 1fr;
+      min-height: 3.2mm;
+    }
+
+    .po-subtitle {
+      margin: .95mm 0 .5mm;
+      padding: .55mm .8mm .5mm 1.25mm;
+      border-left: .8mm solid var(--red);
+      color: #263544;
+      background: #e5ebf0;
+      font-size: 7.21px;
+    }
+
+    .po-route {
+      gap: .5mm .95mm;
+      margin: .75mm 0;
+    }
+
+    .po-bs-table tbody td,
+    .po-composition-table tbody td {
+      height: 3.2mm;
+    }
+
+    .po-signatures {
+      flex: 0 0 auto;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      min-height: 27mm;
+      border-top: .42mm solid #17232f;
+      background: linear-gradient(180deg, #e6ecf1, #fff 35%);
+    }
+
+    .po-signature {
+      padding: .9mm .85mm .65mm;
+    }
+
+    .po-signature:nth-child(even) {
+      background: rgba(231,236,241,.34);
+    }
+
+    .po-signature .signature-label {
+      color: #3f4c59;
+      font-size: 6.23px;
+    }
+
+    .po-signature .signature-space {
+      min-height: 10.5mm;
+    }
+
+    .po-signature strong {
+      font-size: 6.69px;
+    }
+
+    .po-signature small {
+      font-size: 5.19px;
+    }
+
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 0;
+      }
+
+      .workspace {
+        width: 210mm;
+        margin: 0;
+      }
+
+      .print-page,
+      .print-sheet,
+      .print-page:last-child .print-sheet {
+        top: 0;
+        width: 210mm;
+        height: 148.5mm;
+        min-height: 148.5mm;
+      }
+
+      .print-page {
+        overflow: hidden;
+        page-break-before: auto;
+        page-break-after: auto;
+        break-before: auto;
+        break-after: auto;
+      }
+
+      .print-page + .print-page {
+        page-break-before: auto;
+        break-before: auto;
+      }
+
+      .print-page:nth-child(2n) {
+        page-break-after: always;
+        break-after: page;
+      }
+
+      .print-page:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
+
+      .print-page:nth-child(odd)::after {
+        position: absolute;
+        right: 3.8mm;
+        bottom: 0;
+        left: 3.8mm;
+        z-index: 2;
+        border-bottom: .18mm dashed #8e969f;
+        content: "";
+      }
+
+      .print-sheet {
+        margin: 0;
+        padding: 3.1mm 3.8mm 3.2mm;
+      }
+    }
+
+    /* Full A4 landscape master: one production form per sheet. */
+    .print-sheet {
+      width: 297mm;
+      height: 210mm;
+      min-height: 210mm;
+      padding: 4.3mm 5mm 4.5mm;
+    }
+
+    .print-sheet::before {
+      height: 1.5mm;
+    }
+
+    .page-content.master-frame {
+      min-height: 194mm;
+      border-width: .45mm;
+      border-radius: 1.2mm;
+    }
+
+    .page-footer {
+      right: 5mm;
+      bottom: 1mm;
+      left: 5mm;
+      padding-top: .8mm;
+      font-size: 9.35px;
+    }
+
+    .master-topline {
+      grid-template-columns: .88fr 1.08fr 1.3fr 23mm;
+      min-height: 14mm;
+    }
+
+    .master-topline > div {
+      padding: 1.35mm 1.8mm;
+    }
+
+    .master-name {
+      padding-left: 3mm !important;
+    }
+
+    .master-name strong {
+      font-size: 16.5px;
+    }
+
+    .master-name span {
+      margin-top: .85mm;
+      font-size: 9.46px;
+    }
+
+    .master-code {
+      grid-template-columns: 28mm 1fr;
+    }
+
+    .master-code span {
+      font-size: 9.02px;
+    }
+
+    .master-code strong {
+      font-size: 11.2px;
+    }
+
+    .master-company {
+      gap: 1.7mm;
+    }
+
+    .master-company .mini-logo {
+      width: 11mm;
+      height: 11mm;
+      flex-basis: 11mm;
+    }
+
+    .master-company strong {
+      font-size: 11.2px;
+    }
+
+    .master-company small {
+      margin-top: .65mm;
+      font-size: 10.0px;
+    }
+
+    .release-stamp {
+      min-width: 23mm !important;
+      font-size: 10.0px;
+    }
+
+    .release-stamp span {
+      margin-top: .7mm;
+      font-size: 11.8px;
+    }
+
+    .master-header-grid {
+      min-height: 40mm;
+    }
+
+    .master-info,
+    .master-route,
+    .master-note {
+      padding: 1.4mm 1.7mm;
+    }
+
+    .field-line {
+      grid-template-columns: 25mm 1fr;
+      min-height: 4.15mm;
+    }
+
+    .field-line span,
+    .field-line strong {
+      padding: .5mm .6mm;
+      font-size: 9.13px;
+    }
+
+    .order-type {
+      gap: 4.5mm;
+      margin-bottom: 1mm;
+      font-size: 9.02px;
+    }
+
+    .master-route h3,
+    .master-note h3 {
+      margin-bottom: 1.05mm;
+      font-size: 9.02px;
+    }
+
+    .route-list {
+      gap: .75mm 1.4mm;
+    }
+
+    .route-item {
+      gap: 0.59mm;
+      font-size: 9.87px;
+    }
+
+    .route-item::before {
+      font-size: 9.13px;
+    }
+
+    .master-note p {
+      height: 28mm;
+      padding: 1.5mm;
+      font-size: 10.25px;
+    }
+
+    .process-title {
+      min-height: 8.6mm;
+      padding: 1.2mm 2.2mm 1.2mm 3.4mm;
+      font-size: 12px;
+    }
+
+    .process-title span {
+      font-size: 9.87px;
+    }
+
+    .process-fields {
+      gap: .9mm 2mm;
+      min-height: 17mm;
+      padding: 1.2mm 1.8mm;
+    }
+
+    .process-field {
+      grid-template-columns: 22mm 1fr;
+      min-height: 4.2mm;
+    }
+
+    .process-field span,
+    .process-field strong {
+      padding: .45mm .55mm;
+      font-size: 10.25px;
+    }
+
+    .grid-table th,
+    .grid-table td {
+      padding: .55mm .65mm;
+      font-size: 9.87px;
+    }
+
+    .process-table-wrap {
+      padding: 1.2mm 1.6mm 1.3mm;
+    }
+
+    .mixer-layout {
+      gap: 2.1mm;
+      padding: 1.3mm 1.6mm 1mm;
+    }
+
+    .mixer-fields {
+      gap: 0.72mm;
+    }
+
+    .mixer-fields .process-field {
+      grid-template-columns: 21mm 1fr;
+    }
+
+    .mixer-composition tbody td {
+      height: 4.1mm;
+    }
+
+    .mixer-log tbody td {
+      height: 5.5mm;
+    }
+
+    .roll-log tbody td,
+    .fold-log tbody td,
+    .cutting-log tbody td {
+      height: 5.8mm;
+    }
+
+    .printing-grid {
+      gap: 1.19mm;
+      padding: 1.2mm 1.6mm 1.3mm;
+    }
+
+    .printing-main tbody td {
+      height: 5.5mm;
+    }
+
+    .printing-side tbody td {
+      height: 4.7mm;
+    }
+
+    .support-box {
+      margin-top: 1mm;
+      padding: 1mm;
+      font-size: 9.6px;
+    }
+
+    .support-box strong {
+      margin-bottom: .6mm;
+      font-size: 10.25px;
+    }
+
+    .cutting-top {
+      gap: 1.7mm;
+      min-height: 28mm;
+      padding: 1.3mm 1.7mm;
+    }
+
+    .cutting-fields,
+    .cutting-metrics {
+      gap: .75mm 1.9mm;
+    }
+
+    .cutting-metrics .metric-box {
+      min-height: 9.3mm;
+      padding: 1mm;
+      font-size: 9.47px;
+    }
+
+    .process-signatures {
+      min-height: 30mm;
+    }
+
+    .process-signature {
+      padding: 1.2mm 1.15mm .8mm;
+    }
+
+    .process-signature-label {
+      font-size: 9.57px;
+    }
+
+    .process-signature-space {
+      min-height: 14mm;
+    }
+
+    .process-signature strong {
+      font-size: 9.47px;
+    }
+
+    .process-signature small {
+      font-size: 7.14px;
+    }
+
+    .po-head {
+      min-height: 24mm;
+    }
+
+    .po-company,
+    .po-title,
+    .po-reference {
+      padding: 1.5mm 2.1mm;
+    }
+
+    .po-company .mini-logo {
+      width: 14mm;
+      height: 14mm;
+      flex-basis: 14mm;
+    }
+
+    .po-company strong {
+      font-size: 12.8px;
+    }
+
+    .po-company span {
+      font-size: 9.87px;
+    }
+
+    .po-title small {
+      font-size: 10.0px;
+    }
+
+    .po-title strong {
+      margin-top: .85mm;
+      font-size: 19.8px;
+    }
+
+    .po-reference-data {
+      gap: 0.64mm;
+    }
+
+    .po-reference-data strong {
+      font-size: 10.8px;
+    }
+
+    .po-reference-data span {
+      padding-bottom: .7mm;
+      font-size: 10.25px;
+    }
+
+    .po-panel {
+      padding: 0 1.7mm 1.6mm;
+    }
+
+    .po-panel h2 {
+      margin: 0 -1.7mm 1.2mm;
+      padding: 1.2mm 1.7mm 1mm 2.8mm;
+      font-size: 9.8px;
+    }
+
+    .po-panel h2::before {
+      width: 1mm;
+      height: 3.1mm;
+      margin-right: 1.3mm;
+      vertical-align: -.45mm;
+    }
+
+    .po-panel .field-line {
+      grid-template-columns: 26mm 1fr;
+      min-height: 4.2mm;
+    }
+
+    .po-subtitle {
+      margin: 1.2mm 0 .7mm;
+      padding: .75mm 1mm .65mm 1.7mm;
+      border-left-width: 1mm;
+      font-size: 9.02px;
+    }
+
+    .po-route {
+      gap: .7mm 1.25mm;
+      margin: 1mm 0;
+    }
+
+    .po-bs-table tbody td,
+    .po-composition-table tbody td {
+      height: 4.2mm;
+    }
+
+    .po-signatures {
+      min-height: 36mm;
+    }
+
+    .po-signature {
+      padding: 1.2mm 1.1mm .85mm;
+    }
+
+    .po-signature .signature-label {
+      font-size: 8.95px;
+    }
+
+    .po-signature .signature-space {
+      min-height: 17mm;
+    }
+
+    .po-signature strong {
+      font-size: 9.87px;
+    }
+
+    .po-signature small {
+      font-size: 7.4px;
+    }
+
+    @media print {
+      @page {
+        size: A4 landscape;
+        margin: 0;
+      }
+
+      .workspace {
+        width: 297mm;
+        margin: 0;
+      }
+
+      .print-page,
+      .print-sheet,
+      .print-page:last-child .print-sheet {
+        top: 0;
+        width: 297mm;
+        height: 210mm;
+        min-height: 210mm;
+      }
+
+      .print-page {
+        overflow: hidden;
+        page-break-before: auto;
+        page-break-after: always;
+        break-before: auto;
+        break-after: page;
+      }
+
+      .print-page + .print-page {
+        page-break-before: auto;
+        break-before: auto;
+      }
+
+      .print-page:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
+
+      .print-page:nth-child(odd)::after {
+        display: none;
+        content: none;
+      }
+
+      .print-sheet {
+        margin: 0;
+        padding: 4.3mm 5mm 4.5mm;
+      }
+    }
+
+    /* A4 portrait correction: one upright production form per sheet. */
+    .print-sheet {
+      width: 210mm;
+      height: 297mm;
+      min-height: 297mm;
+      padding: 5mm 5mm 5.2mm;
+    }
+
+    .page-content.master-frame {
+      min-height: 280mm;
+    }
+
+    .page-footer {
+      right: 5mm;
+      bottom: 1mm;
+      left: 5mm;
+    }
+
+    .master-topline {
+      grid-template-columns: .95fr 1.08fr 1.22fr 29mm;
+    }
+
+    .release-stamp {
+      min-width: 27mm !important;
+      color: #9c1b24;
+      background: linear-gradient(180deg, #fff1f2, #f3c8cc);
+      box-shadow: inset 1mm 0 0 #d62e3a;
+    }
+
+    .release-stamp.is-released {
+      color: #0f6b35;
+      background: linear-gradient(180deg, #eefaf1, #cdebd6);
+      box-shadow: inset 1mm 0 0 #23934b;
+    }
+
+    .release-stamp.is-non-release {
+      color: #9c1b24;
+      background: linear-gradient(180deg, #fff1f2, #f3c8cc);
+      box-shadow: inset 1mm 0 0 #d62e3a;
+    }
+
+    .release-stamp span {
+      margin-top: 0;
+      font-size: 10.4px;
+      white-space: nowrap;
+    }
+
+    .master-header-grid {
+      grid-template-columns: 1fr 1fr;
+      min-height: 72mm;
+    }
+
+    .master-header-grid > div:nth-child(1),
+    .master-header-grid > div:nth-child(2) {
+      border-bottom: .2mm solid #aeb4bb;
+    }
+
+    .master-header-grid > div:nth-child(2),
+    .master-header-grid > div:nth-child(4) {
+      border-right: 0;
+    }
+
+    .process-fields.cols-3,
+    .process-fields.cols-4 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .printing-grid {
+      grid-template-columns: 1fr;
+      align-content: stretch;
+    }
+
+    .printing-grid > div {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr;
+      gap: 1.02mm;
+      min-width: 0;
+    }
+
+    .printing-grid > div > .grid-table {
+      grid-row: 1 / span 2;
+      height: 100%;
+    }
+
+    .printing-grid .support-box {
+      margin-top: 0;
+    }
+
+    .cutting-top {
+      grid-template-columns: 1fr;
+    }
+
+    .cutting-metrics {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .process-signatures {
+      min-height: 36mm;
+    }
+
+    .process-signature-space {
+      min-height: 17mm;
+    }
+
+    .po-main-grid {
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto 1fr;
+    }
+
+    .po-panel:nth-child(2) {
+      border-right: 0;
+    }
+
+    .po-panel:nth-child(3) {
+      grid-column: 1 / -1;
+      border-top: .25mm solid #8f99a3;
+      border-right: 0;
+    }
+
+    .po-signatures {
+      min-height: 42mm;
+    }
+
+    .po-signature .signature-space {
+      min-height: 21mm;
+    }
+
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 0;
+      }
+
+      .workspace {
+        width: 210mm;
+        margin: 0;
+      }
+
+      .print-page,
+      .print-sheet,
+      .print-page:last-child .print-sheet {
+        top: 0;
+        width: 210mm;
+        height: 297mm;
+        min-height: 297mm;
+      }
+
+      .print-page {
+        overflow: hidden;
+        page-break-after: always;
+        break-after: page;
+      }
+
+      .print-page:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
+
+      .print-sheet {
+        margin: 0;
+        padding: 5mm 5mm 5.2mm;
+      }
+    }
+
+    /* Final half-A4 format: two landscape forms on one A4 portrait sheet. */
+    .print-sheet {
+      width: 210mm;
+      height: 148.5mm;
+      min-height: 148.5mm;
+      padding: 3.1mm 3.8mm 3.2mm;
+    }
+
+    .print-sheet::before {
+      height: 1.25mm;
+    }
+
+    .page-content.master-frame {
+      min-height: 135mm;
+      border-width: .38mm;
+      border-radius: 1mm;
+    }
+
+    .page-footer {
+      right: 3.8mm;
+      bottom: .75mm;
+      left: 3.8mm;
+      padding-top: .6mm;
+      font-size: 6.23px;
+    }
+
+    .master-topline {
+      grid-template-columns: .88fr 1.08fr 1.3fr 20mm;
+      min-height: 10.8mm;
+    }
+
+    .master-topline > div {
+      padding: 1mm 1.4mm;
+    }
+
+    .master-name {
+      padding-left: 2.2mm !important;
+    }
+
+    .master-name strong {
+      font-size: 10.2px;
+    }
+
+    .master-name span {
+      margin-top: .65mm;
+      font-size: 7.52px;
+    }
+
+    .master-code {
+      grid-template-columns: 21mm 1fr;
+    }
+
+    .master-code span {
+      font-size: 7.34px;
+    }
+
+    .master-code strong {
+      font-size: 9.74px;
+    }
+
+    .master-company {
+      gap: 1.27mm;
+    }
+
+    .master-company .mini-logo {
+      width: 8.3mm;
+      height: 8.3mm;
+      flex-basis: 8.3mm;
+    }
+
+    .master-company strong {
+      font-size: 9.74px;
+    }
+
+    .master-company small {
+      margin-top: .5mm;
+      font-size: 6.49px;
+    }
+
+    .release-stamp {
+      min-width: 20mm !important;
+      color: #9c1b24;
+      background: linear-gradient(180deg, #fff1f2, #f3c8cc);
+      box-shadow: inset .8mm 0 0 #d62e3a;
+    }
+
+    .release-stamp.is-released {
+      color: #0f6b35;
+      background: linear-gradient(180deg, #eefaf1, #cdebd6);
+      box-shadow: inset .8mm 0 0 #23934b;
+    }
+
+    .release-stamp.is-non-release {
+      color: #9c1b24;
+      background: linear-gradient(180deg, #fff1f2, #f3c8cc);
+      box-shadow: inset .8mm 0 0 #d62e3a;
+    }
+
+    .release-stamp span {
+      margin-top: 0;
+      font-size: 9.6px;
+    }
+
+    .master-header-grid {
+      grid-template-columns: 1.18fr 1.08fr .82fr 1.1fr;
+      min-height: 30mm;
+    }
+
+    .master-header-grid > div {
+      border-right: .2mm solid #aeb4bb;
+      border-bottom: 0;
+    }
+
+    .master-header-grid > div:last-child {
+      border-right: 0;
+    }
+
+    .master-info,
+    .master-route,
+    .master-note {
+      padding: 1mm 1.3mm;
+    }
+
+    .field-line {
+      grid-template-columns: 18.5mm 1fr;
+      min-height: 3.15mm;
+    }
+
+    .field-line span,
+    .field-line strong {
+      padding: .38mm .48mm;
+      font-size: 7.34px;
+      line-height: 1.12;
+    }
+
+    .order-type {
+      gap: 3.4mm;
+      margin-bottom: .7mm;
+      font-size: 7.21px;
+    }
+
+    .master-route h3,
+    .master-note h3 {
+      margin-bottom: .8mm;
+      font-size: 7.4px;
+    }
+
+    .route-list {
+      gap: .55mm 1mm;
+    }
+
+    .route-item {
+      gap: 0.47mm;
+      font-size: 6.69px;
+    }
+
+    .route-item::before {
+      font-size: 7.52px;
+    }
+
+    .master-note p {
+      height: 20.6mm;
+      padding: 1.15mm;
+      font-size: 7.01px;
+    }
+
+    .process-title {
+      min-height: 6.4mm;
+      padding: .9mm 1.7mm .9mm 2.6mm;
+      font-size: 10.12px;
+    }
+
+    .process-title span {
+      font-size: 6.69px;
+    }
+
+    .process-fields {
+      gap: .7mm 1.6mm;
+      min-height: 13.5mm;
+      padding: .95mm 1.45mm;
+    }
+
+    .process-fields.cols-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .process-fields.cols-4 {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .process-field {
+      grid-template-columns: 17.5mm 1fr;
+      min-height: 3.25mm;
+    }
+
+    .process-field span,
+    .process-field strong {
+      padding: .35mm .42mm;
+      font-size: 6.94px;
+      line-height: 1.1;
+    }
+
+    .grid-table th,
+    .grid-table td {
+      padding: .42mm .5mm;
+      font-size: 6.81px;
+      line-height: 1.08;
+    }
+
+    .process-table-wrap {
+      padding: .9mm 1.25mm 1mm;
+    }
+
+    .mixer-layout {
+      gap: 1.36mm;
+      padding: 1mm 1.25mm .8mm;
+    }
+
+    .mixer-fields {
+      gap: 0.55mm;
+    }
+
+    .mixer-fields .process-field {
+      grid-template-columns: 16.5mm 1fr;
+    }
+
+    .mixer-composition tbody td {
+      height: 3.05mm;
+    }
+
+    .mixer-log tbody td {
+      height: 4.25mm;
+    }
+
+    .roll-log tbody td,
+    .fold-log tbody td,
+    .cutting-log tbody td {
+      height: 4.35mm;
+    }
+
+    .printing-grid {
+      grid-template-columns: 3.05fr 1fr;
+      gap: 0.85mm;
+      padding: .9mm 1.2mm 1mm;
+    }
+
+    .printing-grid > div {
+      display: block;
+      min-width: 0;
+    }
+
+    .printing-grid > div > .grid-table {
+      grid-row: auto;
+      height: auto;
+    }
+
+    .printing-main tbody td {
+      height: 4.2mm;
+    }
+
+    .printing-side tbody td {
+      height: 3.7mm;
+    }
+
+    .printing-grid .support-box {
+      margin-top: .8mm;
+      padding: .8mm;
+      font-size: 6.49px;
+    }
+
+    .support-box strong {
+      margin-bottom: .45mm;
+      font-size: 6.94px;
+    }
+
+    .cutting-top {
+      grid-template-columns: 1.65fr .85fr;
+      gap: 1.27mm;
+      min-height: 21.5mm;
+      padding: 1mm 1.3mm;
+    }
+
+    .cutting-fields,
+    .cutting-metrics {
+      gap: .55mm 1.45mm;
+    }
+
+    .cutting-metrics {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .cutting-metrics .metric-box {
+      min-height: 7.2mm;
+      padding: .75mm;
+      font-size: 6.36px;
+    }
+
+    .process-signatures {
+      min-height: 22mm;
+    }
+
+    .process-signature {
+      padding: .85mm .9mm .6mm;
+    }
+
+    .process-signature-label {
+      font-size: 6.04px;
+    }
+
+    .process-signature-space {
+      min-height: 9.5mm;
+    }
+
+    .process-signature strong {
+      font-size: 6.42px;
+    }
+
+    .process-signature small {
+      font-size: 4.93px;
+    }
+
+    .po-head {
+      grid-template-columns: 1.12fr .82fr 1.06fr;
+      min-height: 17.5mm;
+    }
+
+    .po-company,
+    .po-title,
+    .po-reference {
+      padding: 1.1mm 1.6mm;
+    }
+
+    .po-company .mini-logo {
+      width: 10mm;
+      height: 10mm;
+      flex-basis: 10mm;
+    }
+
+    .po-company strong {
+      font-size: 8.97px;
+    }
+
+    .po-company span {
+      font-size: 6.49px;
+    }
+
+    .po-title small {
+      font-size: 6.62px;
+    }
+
+    .po-title strong {
+      margin-top: .65mm;
+      font-size: 12.8px;
+    }
+
+    .po-reference-data {
+      gap: 0.47mm;
+    }
+
+    .po-reference-data strong {
+      font-size: 9.41px;
+    }
+
+    .po-reference-data span {
+      padding-bottom: .55mm;
+      font-size: 6.75px;
+    }
+
+    .po-main-grid {
+      grid-template-columns: 1.08fr 1fr 1.12fr;
+      grid-template-rows: none;
+      min-height: 0;
+    }
+
+    /* Ketiga panel PO punya pola sama: isi utama, lalu satu sub-judul beserta
+       baris penutupnya (Blowing, Pengiriman, Keterangan Produk). Isi utamanya
+       berbeda tinggi, sehingga tanpa penataan ini kelompok penutup tiap panel
+       berhenti di ketinggian berbeda dan bagian bawah terlihat bergerigi.
+       Panel dijadikan kolom fleksibel dan sub-judulnya didorong ke dasar,
+       sehingga ketiga kelompok penutup itu sejajar. */
+    .po-panel {
+      display: flex;
+      flex-direction: column;
+      padding: 0 1.3mm 1.2mm;
+      border-top: 0;
+    }
+
+    .po-panel > .po-subtitle {
+      margin-top: auto;
+    }
+
+    /* Kotak keterangan artikel selebar halaman, dengan label di dalam bingkai
+       dan isinya tepat di bawah label. */
+    .po-article-note {
+      margin-top: .9mm;
+      border: .25mm solid #17232f;
+      border-radius: .6mm;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .po-article-note-label {
+      padding: .85mm 1.8mm .75mm;
+      border-bottom: .2mm solid #7d848c;
+      background: linear-gradient(180deg, #eef2f5, #fff);
+      font-weight: 700;
+      font-size: 7.21px;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+    }
+
+    /* Garis tulis dibuat dari gradien berulang agar jumlahnya menyesuaikan
+       tinggi kotak tanpa elemen kosong satu per satu. Tinggi baris wajib sama
+       dengan jarak gradien supaya teks duduk tepat di atas garis. */
+    .po-article-note-body {
+      height: 12.8mm;
+      padding: .3mm 1.3mm;
+      line-height: 3.2mm;
+      background-image: repeating-linear-gradient(
+        180deg,
+        transparent 0,
+        transparent 3.03mm,
+        #c3c9cf 3.03mm,
+        #c3c9cf 3.2mm
+      );
+      background-position: 0 .3mm;
+      white-space: pre-wrap;
+      overflow: hidden;
+      word-break: break-word;
+    }
+
+    .po-panel:nth-child(2) {
+      border-right: .22mm solid #7d848c;
+    }
+
+    .po-panel:nth-child(3) {
+      grid-column: auto;
+      border-top: 0;
+      border-right: 0;
+    }
+
+    .po-panel h2 {
+      margin: 0 -1.3mm .9mm;
+      padding: .9mm 1.3mm .75mm 2.2mm;
+      font-size: 9.49px;
+    }
+
+    .po-panel .field-line {
+      grid-template-columns: 20mm 1fr;
+      min-height: 3.2mm;
+    }
+
+    .po-subtitle {
+      margin: .95mm 0 .5mm;
+      padding: .55mm .8mm .5mm 1.25mm;
+      font-size: 7.21px;
+    }
+
+    .po-route {
+      gap: .5mm .95mm;
+      margin: .75mm 0;
+    }
+
+    .po-bs-table tbody td,
+    .po-composition-table tbody td {
+      height: 3.2mm;
+    }
+
+    .po-signatures {
+      min-height: 27mm;
+    }
+
+    .po-signature {
+      padding: .9mm .85mm .65mm;
+    }
+
+    .po-signature .signature-label {
+      font-size: 6.23px;
+    }
+
+    .po-signature .signature-space {
+      min-height: 10.5mm;
+    }
+
+    .po-signature strong {
+      font-size: 6.69px;
+    }
+
+    .po-signature small {
+      font-size: 5.19px;
+    }
+
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 0;
+      }
+
+      .workspace {
+        width: 210mm;
+        margin: 0;
+      }
+
+      .print-page,
+      .print-sheet,
+      .print-page:last-child .print-sheet {
+        top: 0;
+        width: 210mm;
+        height: 148.5mm;
+        min-height: 148.5mm;
+      }
+
+      .print-page {
+        overflow: hidden;
+        page-break-before: auto;
+        page-break-after: auto;
+        break-before: auto;
+        break-after: auto;
+      }
+
+      .print-page + .print-page {
+        page-break-before: auto;
+        break-before: auto;
+      }
+
+      .print-page:nth-child(2n) {
+        page-break-after: always;
+        break-after: page;
+      }
+
+      .print-page:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
+
+      .print-page:nth-child(odd)::after {
+        display: block;
+        position: absolute;
+        right: 3.8mm;
+        bottom: 0;
+        left: 3.8mm;
+        z-index: 2;
+        border-bottom: .18mm dashed #8e969f;
+        content: "";
+      }
+
+      .print-sheet {
+        margin: 0;
+        padding: 3.1mm 3.8mm 3.2mm;
+      }
+    }
+
+    /* One half-A4 form per printed page, preserving the established layout. */
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 0;
+      }
+
+      .print-page,
+      .print-page:nth-child(2n) {
+        page-break-before: auto;
+        page-break-after: always;
+        break-before: auto;
+        break-after: page;
+      }
+
+      .print-page:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
+
+      .print-page:nth-child(odd)::after {
+        display: none;
+        content: none;
+      }
+    }
+
+    /* Readability pass for half-A4 forms and aligned PO planning sections. */
+    .print-sheet {
+      font-family: var(--font-sheet);
+    }
+
+    .page-footer {
+      font-size: 8.86px;
+    }
+
+    .master-name strong {
+      font-size: 12.5px;
+    }
+
+    .master-name span {
+      font-size: 9.74px;
+    }
+
+    .master-code span {
+      font-size: 9.35px;
+    }
+
+    .master-code strong {
+      font-size: 10.12px;
+    }
+
+    .master-company strong {
+      font-size: 10.12px;
+    }
+
+    .master-company small {
+      font-size: 9.43px;
+    }
+
+    .release-stamp span {
+      font-size: 10.12px;
+      font-weight: 700;
+    }
+
+    .master-topline {
+      grid-template-columns: .88fr 1.08fr 1.3fr 23mm;
+    }
+
+    .release-stamp {
+      min-width: 23mm !important;
+    }
+
+    .field-line span {
+      font-size: 9.6px;
+      font-weight: 400;
+    }
+
+    .field-line strong {
+      font-size: 8.8px;
+      font-weight: 500;
+    }
+
+    .order-type {
+      font-size: 9.6px;
+      font-weight: 500;
+    }
+
+    .master-route h3,
+    .master-note h3 {
+      font-size: 9.6px;
+    }
+
+    .route-item {
+      font-size: 9.09px;
+      font-weight: 500;
+    }
+
+    .route-item::before {
+      font-size: 9.87px;
+    }
+
+    .master-note p {
+      font-size: 9.09px;
+      line-height: 1.18;
+    }
+
+    .process-title {
+      font-size: 10.2px;
+    }
+
+    .process-title span {
+      font-size: 8.82px;
+    }
+
+    .process-field span {
+      font-size: 9.35px;
+      font-weight: 400;
+    }
+
+    .process-field strong {
+      font-size: 10.0px;
+      font-weight: 500;
+    }
+
+    .grid-table th,
+    .grid-table td {
+      font-size: 9.22px;
+      line-height: 1.05;
+    }
+
+    .grid-table th {
+      font-weight: 600;
+    }
+
+    .grid-table td {
+      font-weight: 400;
+    }
+
+    .support-box {
+      font-size: 9.57px;
+    }
+
+    .support-box strong {
+      font-size: 9.22px;
+      font-weight: 600;
+    }
+
+    .cutting-metrics .metric-box {
+      font-size: 9.43px;
+    }
+
+    .metric-box strong {
+      font-weight: 600;
+    }
+
+    .process-signature-label {
+      font-size: 7.92px;
+      font-weight: 500;
+    }
+
+    .process-signature strong {
+      font-size: 8.82px;
+      font-weight: 500;
+    }
+
+    .process-signature small {
+      font-size: 6.49px;
+    }
+
+    /* Aturan efektif untuk blok pengesahan; empat aturan sebelumnya di berkas
+       ini tertimpa oleh yang ini. Tinggi total dirapatkan namun ruang tanda
+       tangannya dipertahankan 8mm agar tetap cukup untuk dibubuhi. */
+    .process-signatures {
+      min-height: 15mm;
+    }
+
+    .process-signature-space {
+      min-height: 8mm;
+    }
+
+    .po-company strong {
+      font-size: 10.2px;
+    }
+
+    .po-company,
+    .po-title {
+      border-right: 0;
+    }
+
+    .po-company span {
+      font-size: 9.28px;
+    }
+
+    .po-title small {
+      font-size: 9.43px;
+    }
+
+    .po-title strong {
+      font-size: 15.2px;
+    }
+
+    .po-reference-data strong {
+      font-size: 9.9px;
+      font-weight: 700;
+    }
+
+    .po-reference-data span {
+      font-size: 8.82px;
+    }
+
+    .po-panel h2 {
+      font-size: 9.24px;
+    }
+
+    .po-subtitle {
+      font-size: 9.35px;
+    }
+
+    .po-order-status {
+      align-items: center;
+      min-height: 5.2mm;
+      margin: .45mm 0 .7mm;
+      padding: .65mm 1mm;
+      border: .2mm solid #aab3bc;
+      background: #eef2f5;
+    }
+
+    .po-process-bs-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.59mm;
+      align-items: start;
+    }
+
+    .po-process-bs-grid .po-subtitle {
+      margin: 0 0 .45mm;
+    }
+
+    .po-process-bs-grid .po-route {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: .35mm .9mm;
+      margin: .55mm 0 .7mm;
+    }
+
+    .po-process-bs-grid .route-item {
+      font-size: 9.22px;
+      font-weight: 500;
+    }
+
+    .po-process-bs-grid .po-bs-table th,
+    .po-process-bs-grid .po-bs-table td {
+      height: 2.55mm;
+      padding: .25mm .35mm;
+      font-size: 8.82px;
+    }
+
+    .po-signature .signature-label {
+      font-size: 8.86px;
+      font-weight: 500;
+    }
+
+    .po-signature strong {
+      font-size: 8.82px;
+      font-weight: 500;
+    }
+
+    .po-signature small {
+      font-size: 6.49px;
+    }
+
+    .po-signatures {
+      min-height: 24mm;
+    }
+
+    .po-signature .signature-space {
+      min-height: 8.5mm;
+    }
+
+    /* ==========================================================
+       Penyelarasan akhir panel PO Produksi.
+       Blok ini sengaja diletakkan paling bawah: berkas ini berisi
+       beberapa generasi tata letak yang saling menimpa, sehingga
+       hanya aturan terakhir yang benar-benar berlaku.
+       ========================================================== */
+
+    /* Judul panel dibuat sama tinggi dan teksnya ditengahkan secara vertikal,
+       sehingga isi ketiga panel mulai pada garis yang sama.
+       Judul terpanjang, "Urutan Proses & Target BS", hanya sekitar 31mm pada
+       lebar panel ~63mm, jadi tidak akan pecah dua baris. Ukuran 4.8mm pas
+       untuk satu baris berikut padding tanpa menyisakan ruang terbuang. */
+    .po-panel h2 {
+      display: flex;
+      align-items: center;
+      min-height: 4.8mm;
+    }
+
+    /* Pembungkus .po-panel-head sengaja dibiarkan tanpa aturan melar. Saat
+       isinya dipaksa mengisi ruang tersisa, baris Data Utama merenggang dan
+       kedua tabel ikut memanjang sehingga tampilannya justru terlihat kosong
+       melompong. Sisa ruang kini dibiarkan menumpuk di atas kelompok penutup,
+       yang tetap sejajar karena didorong ke dasar oleh margin-top: auto. */
+
+    /* Ruang kosong yang tersisa di panel dipakai untuk melonggarkan isinya,
+       bukan dibiarkan menganggur. Tinggi baris dan sel tabel dinaikkan
+       serentak dari 3.2mm ke 4mm; karena ketiga kelompok penutup sama-sama
+       empat baris, kesejajarannya tetap terjaga. Perhitungan ruang: panel
+       tertinggi menjadi sekitar 64mm dari 75mm yang tersedia, sehingga isi
+       tetap tidak meluap dan tidak akan disusutkan balik oleh fitAllPages_. */
+    .po-panel .field-line {
+      min-height: 4mm;
+    }
+
+    .po-bs-table tbody td,
+    .po-composition-table tbody td {
+      height: 4mm;
+    }
+
+    .po-panel .field-line span,
+    .po-panel .field-line strong {
+      padding-top: .5mm;
+      padding-bottom: .5mm;
+    }
+
+    /* Jarak antar bagian dilonggarkan supaya ketiga panel bernapas serupa. */
+    .po-subtitle {
+      margin: 1.5mm 0 .9mm;
+    }
+
+    .po-panel .field-line:last-of-type {
+      margin-bottom: 0;
+    }
+
+    .po-route {
+      gap: .8mm 1.1mm;
+      margin: 1mm 0;
+    }
+
+    /* Kotak keterangan artikel ikut dilonggarkan menjadi empat garis 4mm.
+       Jarak gradien wajib sama dengan line-height agar teks tetap duduk
+       tepat di atas garis. */
+    /* Kotak diberi jarak dari sisi kiri, kanan, dan bawah bingkai lembar
+       supaya tidak menempel pada tepinya. Sebelumnya hanya jarak atas yang
+       diatur, sehingga kotak melebar rata dengan tepi frame dan terlihat
+       menempel pada garis bingkai maupun pada blok tanda tangan di bawahnya. */
+    .po-article-note {
+      margin: 1.4mm 1.8mm 1.6mm;
+    }
+
+    /* Isi diberi jarak dari bingkai di keempat sisinya agar teks dan garis
+       tulis tidak menempel pada border. Tinggi total = padding atas 1mm +
+       tiga garis 4mm + padding bawah 1mm. Gradien dimulai dari tepi padding
+       (background-origin bawaan padding-box), jadi tidak perlu digeser lagi.
+       Sengaja tiga garis, bukan empat: dengan empat, sisa ruang halaman
+       tinggal ~1mm sehingga SPK yang isinya sedikit lebih panjang akan
+       memicu penyusutan seluruh lembar oleh fitAllPages_. */
+    .po-article-note-body {
+      height: 14mm;
+      padding: 1mm 1.8mm;
+      line-height: 4mm;
+      background-image: repeating-linear-gradient(
+        180deg,
+        transparent 0,
+        transparent 3.83mm,
+        #c3c9cf 3.83mm,
+        #c3c9cf 4mm
+      );
+      background-position: 0 0;
+    }
+
+    /* Nomor urut langkah pada kotak Urutan Proses. Muncul hanya untuk SPK yang
+       menyimpan urutan alurnya; SPK lama tetap menampilkan daftar tetap tanpa
+       nomor. Ditaruh di akhir stylesheet mengikuti pola berkas ini, di mana
+       aturan terakhir untuk sebuah selektor yang menentukan. */
+    .route-item-order {
+      display: inline-block;
+      min-width: 3.2mm;
+      margin-right: 1mm;
+      padding: 0 .5mm;
+      border-radius: .8mm;
+      background: #2f5f8d;
+      color: #fff;
+      font-size: .82em;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    </style>
+  <script src="/assets/js/gas-rpc.js?v=20260811-1"></script>
+</head>
+<body
+  class="tw:min-h-screen tw:text-polyta-ink selection:tw:bg-polyta-brand-soft selection:tw:text-polyta-brand"
+  data-spk=""
+  data-mode="release"
+  data-row=""
+  data-ui-engine="tailwind-alpine"
+  data-page="cetak-spk"
+  x-data="polytaPageUi('cetak-spk')"
+  x-bind:data-ui-ready="ready ? 'true' : 'false'"
+  x-bind:data-connection="online ? 'online' : 'offline'"
+  x-on:online.window="setOnline(true)"
+  x-on:offline.window="setOnline(false)"
+>
+  <div
+  class="no-print tw:pointer-events-none tw:fixed tw:inset-x-0 tw:top-3 tw:z-[9999] tw:flex tw:justify-center tw:px-4"
+  x-cloak
+  x-show="!online"
+  x-transition.opacity.duration.200ms
+  role="status"
+  aria-live="polite"
+>
+  <div class="tw:flex tw:items-center tw:gap-2 tw:rounded-full tw:border tw:border-red-300/70 tw:bg-red-50/95 tw:px-4 tw:py-2 tw:text-xs tw:font-bold tw:text-red-800 tw:shadow-lg tw:backdrop-blur">
+    <span class="tw:h-2 tw:w-2 tw:rounded-full tw:bg-red-600" aria-hidden="true"></span>
+    Koneksi terputus — menunggu jaringan kembali
+  </div>
+</div>
+
+  <header class="print-toolbar no-print">
+    <div class="toolbar-brand">
+      <div class="toolbar-mark" aria-hidden="true">
+        <svg class="polyta-logo" viewBox="0 0 120 120" focusable="false">
+          <defs>
+            <linearGradient id="printLogoMetal" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#4b4e54"/>
+              <stop offset=".42" stop-color="#111216"/>
+              <stop offset="1" stop-color="#020304"/>
+            </linearGradient>
+            <linearGradient id="printLogoBlue" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#6f8fe0"/>
+              <stop offset=".48" stop-color="#4563b3"/>
+              <stop offset="1" stop-color="#293f87"/>
+            </linearGradient>
+            <linearGradient id="printLogoRed" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#ff5660"/>
+              <stop offset=".5" stop-color="#ef2631"/>
+              <stop offset="1" stop-color="#b90f1d"/>
+            </linearGradient>
+            <linearGradient id="printLogoGreen" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#72d77b"/>
+              <stop offset=".48" stop-color="#40b84e"/>
+              <stop offset="1" stop-color="#168d2d"/>
+            </linearGradient>
+          </defs>
+          <path d="M14 12h50v43h42v53h-8V63H64v45H14V55h42V20H14z" fill="url(#printLogoMetal)"/>
+          <rect x="15" y="22" width="41" height="12" rx="6" fill="url(#printLogoBlue)"/>
+          <rect x="22" y="63" width="34" height="37" fill="url(#printLogoRed)"/>
+          <rect x="84" y="64" width="11" height="44" rx="5.5" fill="url(#printLogoGreen)"/>
+          <path d="M17 15h43M24 66h30M86.5 67v35" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="2" opacity=".36"/>
+        </svg>
+      </div>
+      <div>
+        <strong>Polyta Global Mandiri</strong>
+        <span>Plastic Packaging Industry</span>
+      </div>
+    </div>
+
+    <div id="toolbarStatus" class="toolbar-status" role="status" aria-live="polite">
+      <span class="status-light" aria-hidden="true"></span>
+      <span id="toolbarStatusText">Memuat data SPK...</span>
+    </div>
+
+    <div class="toolbar-actions">
+      <a class="toolbar-button dashboard" href="/spk-automasi/" target="_top">&#8962; PPIC</a>
+      <button
+        id="btnFullscreen"
+        class="toolbar-button fullscreen"
+        type="button"
+        aria-pressed="false"
+        title="Buka tampilan layar penuh"
+      >
+        <i id="fullscreenIcon" class="fa-solid fa-expand" aria-hidden="true"></i>
+        <span id="fullscreenLabel">Layar Penuh</span>
+      </button>
+      <button id="printButton" class="toolbar-button primary" type="button" disabled>
+        Cetak &amp; Tandai Release
+      </button>
+    </div>
+  </header>
+
+  <main id="printRoot" class="workspace tw:transition-opacity tw:duration-200">
+    <div class="loading-card">
+      <div class="spinner" aria-hidden="true"></div>
+      <strong>Menyiapkan paket SPK</strong>
+      <p>PO Produksi dan formulir setiap alur sedang disusun.</p>
+    </div>
+  </main>
+
+  <script>
+    const REQUESTED_SPK = new URLSearchParams(window.location.search).get('spk') || '';
+    // Petunjuk baris Database dari halaman pemanggil; server tetap memverifikasi.
+    let requestedDbRow = Math.max(0, Math.floor(Number(new URLSearchParams(window.location.search).get('row')) || 0));
+    const PRINT_MODE =
+      document.body.dataset.mode === 'view' ||
+      new URLSearchParams(window.location.search).get('mode') === 'view'
+        ? 'view'
+        : 'release';
+
+    const PROCESS_DEFINITIONS = [
+      { key: 'mixer', label: 'Mixer' },
+      { key: 'blowing', label: 'Blowing' },
+      { key: 'printing', label: 'Printing' },
+      { key: 'slitting', label: 'Slitting' },
+      { key: 'folding', label: 'Folding' },
+      { key: 'gusset', label: 'Gusset' }
+    ];
+
+    const BS_DEFINITIONS = [
+      { key: 'blowing', label: 'Blowing' },
+      { key: 'printing', label: 'Printing' },
+      { key: 'slitting', label: 'Slitting' },
+      { key: 'folding', label: 'Folding' },
+      { key: 'gusset', label: 'Gusset' },
+      { key: 'sheet', label: 'Sheet' },
+      { key: 'pon', label: 'Pon' },
+      { key: 'tshirt', label: 'T-Shirt' },
+      { key: 'bottomSeal', label: 'Bottom Seal' },
+      { key: 'sideSeal', label: 'Side Seal' },
+      { key: 'handle', label: 'Handle' },
+      { key: 'sheetSlitting', label: 'Sheet Slitting' }
+    ];
+
+    const printRootEl = document.getElementById('printRoot');
+    const printButtonEl = document.getElementById('printButton');
+    const toolbarStatusEl = document.getElementById('toolbarStatus');
+    const toolbarStatusTextEl = document.getElementById('toolbarStatusText');
+    let currentPrintData = null;
+    let releaseRequestInFlight = false;
+
+    document.addEventListener('DOMContentLoaded', function () {
+      initializeFullscreen_();
+      loadPrintData_();
+    });
+
+    function initializeFullscreen_() {
+      const button = document.getElementById('btnFullscreen');
+      if (!button) return;
+
+      button.addEventListener('click', toggleAppFullscreen_);
+      document.addEventListener('fullscreenchange', syncFullscreenButton_);
+      document.addEventListener('webkitfullscreenchange', syncFullscreenButton_);
+      document.addEventListener('keydown', event => {
+        if (event.key !== 'Escape' || !document.body.classList.contains('app-focus-mode')) return;
+        document.body.classList.remove('app-focus-mode');
+        syncFullscreenButton_();
+      });
+      syncFullscreenButton_();
+    }
+
+    function toggleAppFullscreen_() {
+      const nativeFullscreen =
+        document.fullscreenElement ||
+        document.webkitFullscreenElement;
+      const fallbackActive = document.body.classList.contains('app-focus-mode');
+
+      if (nativeFullscreen) {
+        const exitFullscreen =
+          document.exitFullscreen ||
+          document.webkitExitFullscreen;
+        if (exitFullscreen) {
+          Promise.resolve(exitFullscreen.call(document))
+            .catch(() => {
+              document.body.classList.remove('app-focus-mode');
+              syncFullscreenButton_();
+            });
+          return;
+        }
+      }
+
+      if (fallbackActive) {
+        document.body.classList.remove('app-focus-mode');
+        syncFullscreenButton_();
+        return;
+      }
+
+      const root = document.documentElement;
+      const requestFullscreen =
+        root.requestFullscreen ||
+        root.webkitRequestFullscreen;
+
+      if (!requestFullscreen) {
+        enableFullscreenFallback_();
+        return;
+      }
+
+      try {
+        const requestResult = requestFullscreen.call(root);
+        if (requestResult && typeof requestResult.catch === 'function') {
+          requestResult.catch(enableFullscreenFallback_);
+        }
+      } catch (error) {
+        enableFullscreenFallback_();
+      }
+    }
+
+    function enableFullscreenFallback_() {
+      document.body.classList.add('app-focus-mode');
+      syncFullscreenButton_();
+    }
+
+    function syncFullscreenButton_() {
+      const button = document.getElementById('btnFullscreen');
+      const icon = document.getElementById('fullscreenIcon');
+      const label = document.getElementById('fullscreenLabel');
+      if (!button || !icon || !label) return;
+
+      const active = Boolean(
+        document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        document.body.classList.contains('app-focus-mode')
+      );
+
+      button.setAttribute('aria-pressed', String(active));
+      button.title = active ? 'Keluar dari layar penuh' : 'Buka tampilan layar penuh';
+      icon.className = active ? 'fa-solid fa-compress' : 'fa-solid fa-expand';
+      label.textContent = active ? 'Keluar Penuh' : 'Layar Penuh';
+    }
+    printButtonEl.addEventListener('click', function () {
+      if (PRINT_MODE === 'release') requestReleaseAndPrint_(true);
+    });
+
+    window.addEventListener('beforeprint', function () {
+      // Aturan @media print mengubah tata letak, jadi hasil pengukuran versi
+      // layar tidak bisa dipakai ulang di sini.
+      fitAllPages_(true);
+      if (
+        PRINT_MODE === 'release' &&
+        currentPrintData &&
+        currentPrintData.release !== 'YA' &&
+        !releaseRequestInFlight &&
+        hasAppsScriptRuntime_()
+      ) {
+        requestReleaseAndPrint_(false);
+      }
+    });
+    // Pendaftaran beforeprint kedua dihapus: sebelumnya fitAllPages_ berjalan
+    // dua kali pada setiap pencetakan karena terdaftar di dua tempat.
+    //
+    // resize juga tidak lagi memanggil langsung. Sekali menggeser jendela
+    // memicu puluhan event, dan tiap event mengukur ulang seluruh halaman.
+    // Sekarang diredam menjadi satu kali per frame.
+    var fitFrameHandle = 0;
+    window.addEventListener('resize', function () {
+      if (fitFrameHandle) window.cancelAnimationFrame(fitFrameHandle);
+      fitFrameHandle = window.requestAnimationFrame(function () {
+        fitFrameHandle = 0;
+        fitAllPages_();
+      });
+    });
+
+    window.addEventListener('afterprint', function () {
+      if (PRINT_MODE === 'release' && currentPrintData && currentPrintData.release === 'YA') {
+        setToolbarStatus_('Dokumen telah ditandai Release = YA.', 'ready');
+      }
+    });
+
+    function hasAppsScriptRuntime_() {
+      return typeof google !== 'undefined' && google.script && google.script.run;
+    }
+
+    function loadPrintData_() {
+      const requested = REQUESTED_SPK.trim();
+
+      if (hasAppsScriptRuntime_()) {
+        if (!requested) {
+          showLoadError_('Nomor SPK tidak tersedia pada tautan cetak.');
+          return;
+        }
+
+        google.script.run
+          .withSuccessHandler(handlePrintDataResponse_)
+          .withFailureHandler(function (error) {
+            showLoadError_(error && error.message ? error.message : 'Data SPK gagal dimuat.');
+          })
+          .getSpkPrintData(requested, requestedDbRow);
+        return;
+      }
+
+      handlePrintDataResponse_({
+        status: 'success',
+        found: true,
+        data: getLocalPreviewData_()
+      });
+    }
+
+    function handlePrintDataResponse_(response) {
+      if (!response || response.status !== 'success' || !response.found || !response.data) {
+        showLoadError_(response && response.message ? response.message : 'Data SPK tidak ditemukan.');
+        return;
+      }
+
+      currentPrintData = response.data;
+      // Baris hasil verifikasi server dipakai ulang saat menandai Release,
+      // sehingga tombol cetak tidak perlu mencari baris dari awal.
+      if (currentPrintData.rowNumber) requestedDbRow = currentPrintData.rowNumber;
+      renderPrintPack_(currentPrintData);
+      printButtonEl.hidden = PRINT_MODE === 'view';
+      printButtonEl.disabled = PRINT_MODE !== 'release';
+      setToolbarStatus_(
+        PRINT_MODE === 'view'
+          ? 'Mode Lihat Saja. Release tidak diubah.'
+          : currentPrintData.release === 'YA'
+            ? 'Paket SPK sudah pernah di-release dan siap dicetak ulang.'
+            : 'Paket siap. Release menjadi YA setelah tombol cetak ditekan.',
+        'ready'
+      );
+    }
+
+    function requestReleaseAndPrint_(openPrintDialog) {
+      if (!currentPrintData || releaseRequestInFlight || PRINT_MODE !== 'release') return;
+
+      if (!hasAppsScriptRuntime_()) {
+        applyReleaseToUi_('YA');
+        if (openPrintDialog) window.print();
+        return;
+      }
+
+      releaseRequestInFlight = true;
+      printButtonEl.textContent = 'MENANDAI RELEASE...';
+      setToolbarStatus_('Memperbarui kolom BV (Release)...', '');
+
+      // Dialog cetak dibuka lebih dulu, penandaan Release berjalan paralel.
+      // Menunggu jawaban server dulu membuat tombol terasa lambat 1-4 detik
+      // tanpa manfaat: penandaannya idempoten, dan jalur Ctrl+P memang sudah
+      // menembakkannya secara paralel lewat beforeprint.
+      if (openPrintDialog) window.print();
+
+      google.script.run
+        .withSuccessHandler(function (response) {
+          releaseRequestInFlight = false;
+          printButtonEl.disabled = false;
+          printButtonEl.textContent = 'CETAK & TANDAI RELEASE';
+
+          if (!response || response.status !== 'success') {
+            setToolbarStatus_(
+              response && response.message ? response.message : 'Status Release gagal diperbarui.',
+              'error'
+            );
+            return;
+          }
+
+          applyReleaseToUi_('YA');
+          setToolbarStatus_(response.message || 'Release berhasil diperbarui.', 'ready');
+        })
+        .withFailureHandler(function (error) {
+          releaseRequestInFlight = false;
+          printButtonEl.disabled = false;
+          printButtonEl.textContent = 'CETAK & TANDAI RELEASE';
+          setToolbarStatus_(
+            error && error.message ? error.message : 'Status Release gagal diperbarui.',
+            'error'
+          );
+        })
+        .markSpkReleasedForPrint(currentPrintData.spk, requestedDbRow);
+    }
+
+    function applyReleaseToUi_(release) {
+      if (!currentPrintData) return;
+      currentPrintData.release = release;
+      const released = release === 'YA';
+      const releaseLabel = released ? 'RELEASE' : 'NON RELEASE';
+
+      document.querySelectorAll('[data-release-badge]').forEach(function (badge) {
+        badge.classList.toggle('is-released', released);
+        badge.classList.toggle('is-non-release', !released);
+        badge.innerHTML = '<span>' + releaseLabel + '</span>';
+      });
+      document.querySelectorAll('[data-release-footer]').forEach(function (footer) {
+        footer.textContent = 'Status: ' + releaseLabel;
+      });
+    }
+
+    function setToolbarStatus_(message, state) {
+      toolbarStatusTextEl.textContent = message;
+      toolbarStatusEl.classList.toggle('is-ready', state === 'ready');
+      toolbarStatusEl.classList.toggle('is-error', state === 'error');
+    }
+
+    function showLoadError_(message) {
+      printButtonEl.disabled = true;
+      setToolbarStatus_(message, 'error');
+      printRootEl.innerHTML = `
+        <div class="error-card">
+          <strong>Dokumen tidak dapat disiapkan</strong>
+          <p>${escapeHtml_(message)}</p>
+        </div>
+      `;
+    }
+
+    // Satu lembar untuk satu langkah alur. Proses yang dijalankan dua kali
+    // menghasilkan dua lembar terpisah dengan ukuran dan target BS masing
+    // masing. SPK lama yang belum menyimpan urutan tetap dicetak seperti
+    // sebelumnya: satu lembar per proses aktif, mengikuti urutan baku.
+    function buildRoutingForms_(data) {
+      const labelOf = {};
+      PROCESS_DEFINITIONS.forEach(function (process) { labelOf[process.key] = process.label; });
+
+      const steps = Array.isArray(data.routingSteps) ? data.routingSteps : [];
+      if (!steps.length) {
+        const legacy = [];
+        PROCESS_DEFINITIONS.forEach(function (process) {
+          if (data.proses && data.proses[process.key]) legacy.push({ key: process.key, label: process.label });
+        });
+        if (isMeaningful_(data.finishing) || isMeaningful_(data.handlePm)) {
+          legacy.push({ key: 'cutting', label: cuttingTitle_(data) });
+        }
+        return legacy;
+      }
+
+      const totals = {};
+      steps.forEach(function (step) {
+        totals[step.key] = (totals[step.key] || 0) + 1;
+      });
+
+      const seen = {};
+      const forms = [];
+      steps.forEach(function (step) {
+        const values = step && step.values ? step.values : {};
+        const isCutting = step.key === 'cutting';
+        if (!isCutting && !labelOf[step.key]) return;
+        if (isCutting && !isMeaningful_(values.finishing) && !isMeaningful_(values.handlePm)) return;
+
+        seen[step.key] = (seen[step.key] || 0) + 1;
+        const label = isCutting
+          ? cuttingTitle_({ finishing: values.finishing, handlePm: values.handlePm })
+          : labelOf[step.key];
+        const repeats = totals[step.key] > 1;
+
+        forms.push({
+          key: step.key,
+          label: label,
+          step: step,
+          pageLabel: repeats
+            ? label + ' (' + seen[step.key] + ' dari ' + totals[step.key] + ')'
+            : label
+        });
+      });
+
+      return forms;
+    }
+
+    function formStepValues_(form) {
+      return form && form.step && form.step.values ? form.step.values : null;
+    }
+
+    // Nilai langkah didahulukan; bila langkahnya tidak menyimpan isian itu,
+    // dipakai kolom ringkasan dari Database seperti perilaku lama.
+    function formValue_(data, form, fieldId, dataKey) {
+      const values = formStepValues_(form);
+      if (values && Object.prototype.hasOwnProperty.call(values, fieldId)) return values[fieldId];
+      return data[dataKey === undefined ? fieldId : dataKey];
+    }
+
+    function formBs_(data, form, bsKey) {
+      const values = formStepValues_(form);
+      const fieldId = 'bs-' + bsKey;
+      if (values && Object.prototype.hasOwnProperty.call(values, fieldId)) {
+        const parsed = parseFloat(values[fieldId]);
+        return Number.isFinite(parsed) ? parsed : 0;
+      }
+      return data.bsPercent ? data.bsPercent[bsKey] : '';
+    }
+
+    function formNote_(data, form) {
+      let noteKey = form.key;
+      if (form.key === 'cutting') {
+        noteKey = finishingNoteKey_(formValue_(data, form, 'finishing'));
+      }
+      if (!noteKey) return '';
+
+      const values = formStepValues_(form);
+      const fieldId = 'ket-' + noteKey;
+      if (values && Object.prototype.hasOwnProperty.call(values, fieldId)) {
+        return String(values[fieldId] || '').trim();
+      }
+      return processNote_(data, noteKey);
+    }
+
+    // Penanda urutan pemakaian, hanya muncul bila prosesnya memang berulang.
+    function formRepeatSuffix_(form) {
+      if (!form || !form.pageLabel || form.pageLabel === form.label) return '';
+      return form.pageLabel.slice(form.label.length);
+    }
+
+    // Bag dicatat sebagai jumlah ball per outer, Roll sebagai isi per roll
+    // beserta satuannya. Keduanya berasal dari langkah Cutting yang dicetak.
+    function packingDetailText_(data, form) {
+      const packing = String(formValue_(data, form, 'packing') || '').trim();
+      const upper = packing.toUpperCase();
+      if (upper === 'BAG') {
+        const ball = String(formValue_(data, form, 'packingOuterBall') || '').trim();
+        return ball === '' ? packing : packing + ' · ' + ball + ' ball/outer';
+      }
+      if (upper === 'ROLL') {
+        const nilai = String(formValue_(data, form, 'packingRollNilai') || '').trim();
+        const uom = String(formValue_(data, form, 'packingRollUom') || '').trim();
+        if (nilai === '') return packing;
+        return packing + ' · ' + nilai + (uom ? ' ' + uom : '');
+      }
+      return packing;
+    }
+
+    // Jenis bahan dan film kini satu kolom di Data Utama, jadi dicetak juga
+    // sebagai satu baris.
+    function bahanFilmText_(data) {
+      return [data.material, data.film]
+        .map(function (value) { return String(value || '').trim(); })
+        .filter(Boolean)
+        .join(' · ');
+    }
+
+    // Mode Lembaran menggandakan PCS/KG, jadi modenya ikut dicetak supaya
+    // angkanya dapat ditelusuri.
+    function pcsPerKgText_(data) {
+      const base = formatNumber_(data.pcsPerKg, 2);
+      const mode = String(data.pcsKgMode || '').trim();
+      return mode ? base + ' (' + mode + ')' : base;
+    }
+
+    // Toleransi order dan toleransi produksi ditulis berdampingan.
+    function toleransiText_(data) {
+      const order = formatPercent_(data.toleransi);
+      const produksi = Number(data.toleransiProduksi);
+      if (!Number.isFinite(produksi) || produksi <= 0) return order;
+      return order + ' / prod ' + formatPercent_(produksi);
+    }
+
+    // Bila ada jadwal bertahap, jumlah tahapnya disebut di samping tanggal.
+    function tanggalKirimText_(data) {
+      const base = formatDate_(data.etd);
+      const jadwal = Array.isArray(data.pengirimanParsial) ? data.pengirimanParsial : [];
+      // Satu tahap berarti kiriman sekaligus, jadi penanda tahap hanya ditulis
+      // bila pengirimannya memang dibagi.
+      return jadwal.length > 1 ? base + ' (' + jadwal.length + ' tahap)' : base;
+    }
+
+    // Ukuran bahan yang diketik manual pada form didahulukan; hasil hitungan
+    // Spreadsheet di kolom M:Q hanya dipakai bila kolom manualnya kosong.
+    const MANUAL_DIMENSION_KEYS = {
+      lebar: 'bahanLebar',
+      panjang: 'bahanPanjang',
+      tebal: 'bahanTebal'
+    };
+
+    function dimensionText_(data, key, decimals) {
+      const manual = Number(data[MANUAL_DIMENSION_KEYS[key]]);
+      if (Number.isFinite(manual) && manual > 0) return formatNumber_(manual, decimals);
+
+      const component = data.ukuranKomponen || {};
+      const value = Number(component[key]);
+      return Number.isFinite(value) && value > 0 ? formatNumber_(value, decimals) : '';
+    }
+
+    function cuttingBsForForm_(data, form) {
+      const values = formStepValues_(form);
+      if (!values) return cuttingBs_(data);
+
+      const scoped = {
+        finishing: values.finishing,
+        handlePm: values.handlePm,
+        modelKantong: data.modelKantong,
+        bsPercent: {}
+      };
+      ['bottomSeal', 'sideSeal', 'tshirt', 'handle', 'pon'].forEach(function (key) {
+        scoped.bsPercent[key] = formBs_(data, form, key);
+      });
+      return cuttingBs_(scoped);
+    }
+
+    function renderPrintPack_(data) {
+      const forms = [{ key: 'po', label: 'PO Produksi' }].concat(buildRoutingForms_(data));
+
+      const totalPages = forms.length;
+      const generatedText = formatDateTime_(new Date());
+      printRootEl.innerHTML = forms.map(function (form, index) {
+        let page = '';
+        if (form.key === 'po') {
+          page = buildPoPage_(data, index + 1, totalPages, generatedText);
+        } else {
+          page = buildProcessPage_(data, form, index + 1, totalPages, generatedText);
+        }
+        return '<div class="print-page">' + page + '</div>';
+      }).join('');
+
+      window.requestAnimationFrame(function () { fitAllPages_(true); });
+    }
+
+    // Lebar jendela terakhir saat penyesuaian dijalankan. Hasil penyesuaian
+    // hanya bergantung pada lebar; bila tidak berubah, pengukuran ulang tidak
+    // menghasilkan apa pun dan cukup dilewati.
+    let lastFitWidth = -1;
+
+    // Versi lama menulis gaya lalu membaca scrollHeight secara bergantian, di
+    // dalam perulangan, untuk setiap halaman. Tiap pembacaan setelah penulisan
+    // memaksa browser menghitung ulang seluruh tata letak. Dengan tujuh
+    // halaman berisi tabel bersarang, itu berarti puluhan perhitungan ulang
+    // dan terasa berat, terutama saat dialog cetak dibuka.
+    //
+    // Sekarang penulisan dan pembacaan dikelompokkan: semua halaman diukur
+    // dulu, baru semua gaya ditulis. Dua putaran sudah cukup karena putaran
+    // kedua hanya menghaluskan hasil putaran pertama.
+    function fitAllPages_(force) {
+      const viewportWidth = window.innerWidth;
+      if (!force && viewportWidth === lastFitWidth) return;
+      lastFitWidth = viewportWidth;
+
+      const sheets = [];
+      document.querySelectorAll('.print-sheet').forEach(function (sheet) {
+        const content = sheet.querySelector('.page-content');
+        const footer = sheet.querySelector('.page-footer');
+        if (content && footer) sheets.push({ sheet, content, footer, scale: 1 });
+      });
+      if (!sheets.length) return;
+
+      // Tulis: kembalikan semua halaman ke keadaan tanpa penyusutan.
+      sheets.forEach(function (item) {
+        item.content.style.zoom = '';
+        item.content.style.width = '100%';
+        item.content.style.transform = 'none';
+      });
+
+      // Baca: ambil tinggi tersedia dan tinggi yang dibutuhkan sekaligus.
+      sheets.forEach(function (item) {
+        item.available = Math.max(1, item.footer.offsetTop - item.content.offsetTop - 4);
+        item.required = Math.max(1, item.content.scrollHeight);
+      });
+
+      // Tulis hasil akhir. Satu putaran sudah cukup: zoom menyusutkan tata
+      // letaknya secara seragam, jadi tinggi berubah linear terhadap skala.
+      // Cara lama memakai transform disertai pelebaran width ke (100/skala)%,
+      // yang mengubah pembungkusan teks sehingga perlu diukur berulang.
+      sheets.forEach(function (item) {
+        let scale = Math.min(1, item.available / item.required);
+        if (scale >= 0.995) {
+          scale = 1;
+          item.content.style.zoom = '';
+        } else {
+          item.content.style.zoom = String(scale);
+        }
+        item.sheet.dataset.fitScale = scale.toFixed(3);
+      });
+    }
+
+    function buildPoPage_(data, pageNumber, totalPages, generatedText) {
+      const component = data.ukuranKomponen || {};
+      // Enam baris agar tingginya sama persis dengan tabel Target BS di panel
+      // sebelahnya, yang juga enam baris.
+      const compositionItems = Array.isArray(data.komposisi) ? data.komposisi.slice(0, 6) : [];
+      const compositionRows = Array.from({ length: 6 }, function (_, index) {
+        const item = compositionItems[index] || {};
+        return `
+          <tr>
+            <td>${index + 1}</td>
+            <td class="left">${escapeHtml_(item.material || '')}</td>
+            <td class="right">${item.kg === '' || item.kg === undefined ? '' : formatNumber_(item.kg, 2)}</td>
+            <td class="right">${item.percent === '' || item.percent === undefined ? '' : formatPercent_(item.percent)}</td>
+          </tr>
+        `;
+      }).join('');
+
+      const bsRows = Array.from({ length: 6 }, function (_, index) {
+        const left = BS_DEFINITIONS[index];
+        const right = BS_DEFINITIONS[index + 6];
+        return `
+          <tr>
+            <td class="left">${escapeHtml_(left.label)}</td>
+            <td>${formatPercent_(data.bsPercent && data.bsPercent[left.key])}</td>
+            <td class="left">${escapeHtml_(right.label)}</td>
+            <td>${formatPercent_(data.bsPercent && data.bsPercent[right.key])}</td>
+          </tr>
+        `;
+      }).join('');
+
+      return `
+        <section class="print-sheet po-sheet">
+          <div class="page-content master-frame">
+            <header class="po-head">
+              <div class="po-company">
+                <div class="mini-logo">${buildPolytaLogo_()}</div>
+                <div>
+                  <strong>PT POLYTA GLOBAL MANDIRI</strong>
+                  <span>Plastic Packaging Industry</span>
+                </div>
+              </div>
+              <div class="po-title">
+                <small>Surat Perintah Kerja</small>
+                <strong>PO PRODUKSI</strong>
+              </div>
+              <div class="po-reference">
+                <div class="po-reference-data">
+                  <strong>SPK ${escapeHtml_(displayValue_(data.spk))}</strong>
+                  <span>Tanggal SPK: ${escapeHtml_(formatDate_(data.tanggal))}</span>
+                  <span>Nomor PO: ${escapeHtml_(displayValue_(data.nomorPO))}</span>
+                  <span>PO Masuk: ${escapeHtml_(formatDate_(data.poMasuk))}</span>
+                </div>
+                ${releaseStamp_(data)}
+              </div>
+            </header>
+
+            <div class="po-main-grid">
+              <section class="po-panel">
+                <h2>Data Utama</h2>
+                <div class="po-panel-head">
+                ${/* Data Utama menyisakan identitas order dan sisi komersial.
+                      Seluruh data berdimensi dipindah ke kelompok Ukuran di
+                      bawah agar operator membacanya dalam satu tempat. */''}
+                ${fieldLine_('No. SPK', data.spk)}
+                ${fieldLine_('Customer', data.customer)}
+                ${fieldLine_('Artikel', data.artikel)}
+                ${fieldLine_('Order', quantityWithUom_(data.jumlahOrder, data.uomOrder))}
+                ${fieldLine_('Stok', data.stokOst || '')}
+                ${fieldLine_('Keluar Bahan', quantityWithUom_(data.keluarBahan, data.uomKB))}
+                ${fieldLine_('Material', data.material)}
+                ${fieldLine_('Warna', data.keteranganWarna)}
+                ${fieldLine_('Bahan', data.keteranganBahan)}
+                </div>
+
+                <div class="po-subtitle">Ukuran</div>
+                ${fieldLine_('Ukuran Jadi', data.ukuranJadi)}
+                ${fieldLine_('Ukuran Blowing', data.ukuranBlow)}
+                ${fieldLine_('L x P x T', joinNonEmpty_([
+                  component.lebar,
+                  component.panjang,
+                  component.tebal
+                ], ' x '))}
+                ${fieldLine_('Tebal Blow', component.tebalBlow)}
+              </section>
+
+              <section class="po-panel">
+                <h2>Urutan Proses &amp; Target BS</h2>
+                <div class="po-panel-head">
+                <div class="po-process-bs-grid">
+                  <div class="po-process-column">
+                    <div class="po-route">${buildRouteItems_(data)}</div>
+                  </div>
+                  <div class="po-bs-column">
+                    <table class="grid-table po-bs-table">
+                      <thead>
+                        <tr>
+                          <th>Divisi</th><th>%</th><th>Divisi</th><th>%</th>
+                        </tr>
+                      </thead>
+                      <tbody>${bsRows}</tbody>
+                      <tfoot>
+                        <tr>
+                          <th colspan="3">Total BS</th>
+                          <td>${formatPercent_(data.totalBs)}</td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                </div>
+                ${/* Pengiriman dan Keterangan Produk digabung: keduanya sama-sama
+                      berisi keterangan pelengkap di luar alur proses. */''}                </div>
+
+                <div class="po-subtitle">Spesifikasi</div>
+                ${fieldLine_('Bahan / Film', bahanFilmText_(data))}
+                ${fieldLine_('Density', formatNumber_(data.density, 2))}
+                ${fieldLine_('PCS / KG', pcsPerKgText_(data))}
+                ${fieldLine_('Toleransi', toleransiText_(data))}
+              </section>
+
+              <section class="po-panel">
+                <h2>Komposisi Bahan</h2>
+                <div class="po-panel-head">
+                <div class="order-type po-order-status">
+                  <span class="${isRepeatOrder_(data) ? 'is-active' : ''}">Repeat Order</span>
+                  <span class="${isRepeatOrder_(data) ? '' : 'is-active'}">New Order</span>
+                </div>
+                <table class="grid-table po-composition-table">
+                  <thead>
+                    <tr>
+                      <th style="width:9%">No.</th>
+                      <th>Jenis Bahan</th>
+                      <th style="width:22%">Qty (KG)</th>
+                      <th style="width:20%">Percent</th>
+                    </tr>
+                  </thead>
+                  <tbody>${compositionRows}</tbody>
+                  <tfoot>
+                    <tr>
+                      <th colspan="2">Total</th>
+                      <td class="right">${formatNumber_(data.totalKomposisiKg, 2)}</td>
+                      <td class="right">${formatPercent_(data.totalKomposisiPercent)}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+                </div>
+
+                <div class="po-subtitle">Administrasi</div>
+                ${fieldLine_('Tanggal Kirim', tanggalKirimText_(data))}
+                ${fieldLine_('SPK Ref.', data.spkReferensi)}
+                ${fieldLine_('Marketing', data.marketing)}
+                ${fieldLine_('Kode Item', data.kodeItem)}
+              </section>
+            </div>
+
+            ${/* Keterangan artikel dikeluarkan dari kolom panel dan dibuat
+                  selebar halaman: isinya bisa panjang dan sering ditambahi
+                  tangan di lapangan, sehingga satu kolom sempit tidak cukup.
+                  Labelnya berada di dalam bingkai, isinya tepat di bawahnya. */''}
+            <section class="po-article-note" aria-label="Keterangan Artikel">
+              <div class="po-article-note-label">Keterangan Artikel</div>
+              <div class="po-article-note-body">${escapeHtml_(displayValue_(data.keteranganArtikel))}</div>
+            </section>
+
+            <div class="po-signatures" aria-label="Persetujuan PO Produksi">
+              ${/* Kepala divisi ditempatkan tepat setelah Admin, sama dengan
+                    urutan pada lembar tiap alur produksi. */''}
+              ${poSignature_('Dibuat', 'Admin')}
+              ${poSignature_('Mengetahui', 'Kepala Blowing')}
+              ${poSignature_('Diperiksa', 'Asmen PPIC')}
+              ${poSignature_('Diverifikasi', 'Manager PPIC')}
+              ${poSignature_('Diverifikasi', 'Manager QC / QA')}
+              ${poSignature_('Disetujui', 'Senior Manager')}
+              ${poSignature_('Disahkan', 'General Manager')}
+            </div>
+          </div>
+          ${pageFooter_(data, 'PO Produksi', pageNumber, totalPages, generatedText)}
+        </section>
+      `;
+    }
+
+    function buildProcessPage_(data, form, pageNumber, totalPages, generatedText) {
+      let body = '';
+      if (form.key === 'mixer') body = buildMixerSection_(data);
+      else if (form.key === 'blowing') body = buildBlowingSection_(data, form);
+      else if (form.key === 'printing') body = buildPrintingSection_(data, form);
+      else if (form.key === 'cutting') body = buildCuttingSection_(data, form);
+      else body = buildConversionSection_(data, form);
+
+      return `
+        <section class="print-sheet process-sheet" data-form="${escapeHtml_(form.key)}">
+          <div class="page-content master-frame">
+            ${buildMasterHeader_(data, form)}
+            ${body}
+            ${processSignatures_(form)}
+          </div>
+          ${pageFooter_(data, form.pageLabel || form.label, pageNumber, totalPages, generatedText)}
+        </section>
+      `;
+    }
+
+    function buildMasterHeader_(data, form) {
+      const productNote = form.step ? formNote_(data, form) : buildProcessProductNote_(data, form.key);
+      const orderUnit = String(data.uomOrder || '').toUpperCase();
+      return `
+        <header>
+          <div class="master-topline">
+            <div class="master-name">
+              <strong>SPK PRODUKSI</strong>
+            </div>
+            <div class="master-code">
+              ${/* Lembar SPK asli selalu menulis "No. Po Customer" beserta nomor
+                    PO customer, tanpa memandang UOM order. Sebelumnya order
+                    ROLL dan KG keliru menampilkan Artikel di sini. */''}
+              <span>Nomor PO</span>
+              <strong>${escapeHtml_(displayValue_(data.nomorPO))}</strong>
+            </div>
+            <div class="master-company">
+              <div class="mini-logo">${buildPolytaLogo_()}</div>
+              <div>
+                <strong>PT POLYTA GLOBAL MANDIRI</strong>
+                <small>Plastic Packaging Industry</small>
+              </div>
+            </div>
+            ${releaseStamp_(data)}
+          </div>
+
+          <div class="master-header-grid">
+            <div class="master-info">
+              <div class="order-type">
+                <span class="${isRepeatOrder_(data) ? 'is-active' : ''}">Repeat Order</span>
+                <span class="${isRepeatOrder_(data) ? '' : 'is-active'}">New Order</span>
+              </div>
+              ${/* Nomor PO customer sudah tampil pada baris judul lembar ini,
+                    jadi tidak diulang lagi sebagai field di bawahnya. */''}
+              ${fieldLine_('Tgl SPK', formatDate_(data.tanggal))}
+              ${fieldLine_('No. SPK', data.spk)}
+              ${fieldLine_('Customer', data.customer)}
+              ${fieldLine_('Artikel', data.artikel)}
+              ${fieldLine_('Material', data.material)}
+              ${fieldLine_('PCS / KG', formatNumber_(data.pcsPerKg, 2))}
+              ${fieldLine_('Ukuran Jadi', data.ukuranJadi)}
+            </div>
+
+            <div class="master-info">
+              ${fieldLine_('Jumlah Order', orderWithKgEquivalent_(data))}
+              ${fieldLine_('Tanggal Kirim', formatDate_(data.etd))}
+              ${fieldLine_('Jumlah Bahan', quantityWithUom_(data.keluarBahan, data.uomKB))}
+              ${fieldLine_('Toleransi', formatPercent_(data.toleransi))}
+              ${fieldLine_('Kg / Roll', kgPerRollText_(data))}
+              ${fieldLine_('Meter / Roll', meterPerRollText_(data))}
+              ${fieldLine_('Marketing', data.marketing)}
+              ${fieldLine_('PO Sebelumnya', data.spkReferensi)}
+            </div>
+
+            <div class="master-route">
+              <h3>Urutan Proses</h3>
+              <div class="route-list">${buildRouteItems_(data)}</div>
+            </div>
+
+            <div class="master-note">
+              <h3>Keterangan Produk</h3>
+              <p>${escapeHtml_(productNote)}</p>
+            </div>
+          </div>
+        </header>
+      `;
+    }
+
+    function buildMixerSection_(data) {
+      const compositionItems = Array.isArray(data.komposisi) ? data.komposisi.slice(0, 8) : [];
+      const compositionRows = Array.from({ length: 8 }, function (_, index) {
+        const item = compositionItems[index] || {};
+        return `
+          <tr>
+            <td class="left">${escapeHtml_(item.material || '')}</td>
+            <td>${item.percent === '' || item.percent === undefined ? '' : formatPercent_(item.percent)}</td>
+            <td class="right">${item.kg === '' || item.kg === undefined ? '' : formatNumber_(item.kg, 2)}</td>
+          </tr>
+        `;
+      }).join('');
+      const materialHeaders = Array.from({ length: 7 }, function (_, index) {
+        const item = compositionItems[index] || {};
+        return `<th>${escapeHtml_(item.material || 'Bahan ' + (index + 1))}</th>`;
+      }).join('');
+
+      return `
+        <section class="process-section">
+          <div class="process-title">
+            <strong>MIXER</strong>
+            <span>Komposisi dan pemakaian bahan baku</span>
+          </div>
+          <div class="mixer-layout">
+            <div class="mixer-fields">
+              ${processField_('Mesin', '')}
+              ${processField_('Jenis Bahan', data.material)}
+              ${processField_('Kode Item', data.kodeItem)}
+              ${processField_('Keterangan', processNote_(data, 'mixer'))}
+              ${processField_('Keluar Bahan', quantityWithUom_(data.keluarBahan, data.uomKB))}
+            </div>
+            <table class="grid-table mixer-composition">
+              <thead><tr><th>Jenis Bahan</th><th>Percent (%)</th><th>Qty (KG)</th></tr></thead>
+              <tbody>${compositionRows}</tbody>
+              <tfoot>
+                <tr>
+                  <th>Total</th>
+                  <td>${formatPercent_(data.totalKomposisiPercent)}</td>
+                  <td class="right">${formatNumber_(data.totalKomposisiKg, 2)}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          <div class="process-table-wrap">
+            <table class="grid-table mixer-log">
+              <thead>
+                <tr>
+                  <th style="width:12%">Tanggal</th>
+                  <th colspan="7">Jenis Bahan Baku / Batch Aktual</th>
+                </tr>
+                <tr>
+                  <th>Shift / Operator</th>
+                  ${materialHeaders}
+                </tr>
+              </thead>
+              <tbody>${blankRows_(8, 8)}</tbody>
+            </table>
+          </div>
+        </section>
+      `;
+    }
+
+    function buildBlowingSection_(data, form) {
+      const component = data.ukuranKomponen || {};
+      const gramatur = calculateGramatur_(data.pcsPerKg);
+      const bsValue = formBs_(data, form, 'blowing');
+      return `
+        <section class="process-section">
+          <div class="process-title">
+            <strong>BLOWING${escapeHtml_(formRepeatSuffix_(form).toUpperCase())}</strong>
+            <span>Kontrol roll, hasil, waktu, dan gramatur</span>
+          </div>
+          <div class="process-fields cols-4">
+            ${processField_('Mesin', formValue_(data, form, 'mesin-blowing'))}
+            ${processField_('Ukuran Blowing', data.ukuranBlow)}
+            ${processField_('Microne', component.tebalBlow)}
+            ${processField_('Ket', data.film)}
+            ${processField_('Kode Item', data.kodeItem)}
+            ${processField_('Estimasi Proses', '')}
+            ${processField_('Keterangan', formNote_(data, form))}
+            ${processField_('Target BS', formatPercent_(bsValue))}
+            ${processField_('BS (KG)', targetBsKg_(data, bsValue))}
+            ${processField_('Gram. Std.', formatNumber_(gramatur.std, 2))}
+            ${processField_('Gram. Max.', formatNumber_(gramatur.max, 2))}
+            ${processField_('Gram. Min.', formatNumber_(gramatur.min, 2))}
+            ${processField_('Threat', formValue_(data, form, 'blowingThreat'))}
+            ${processField_('Mode Cetak', formValue_(data, form, 'blowingModeCetak'))}
+            ${processField_('Density', formatNumber_(data.density, 2))}
+          </div>
+          <div class="process-table-wrap">
+            ${buildRollLogTable_(9)}
+          </div>
+        </section>
+      `;
+    }
+
+    function calculateGramatur_(pcsPerKg) {
+      const number = Number(pcsPerKg);
+      if (!Number.isFinite(number) || number <= 0) return { std: null, max: null, min: null };
+      const std = 1000 / number;
+      return { std: std, max: std * 1.05, min: std * 0.95 };
+    }
+
+    function buildPrintingSection_(data, form) {
+      const component = data.ukuranKomponen || {};
+      const bsValue = formBs_(data, form, 'printing');
+      const kodeSilinder = formValue_(data, form, 'printingKodeSilinder');
+      const warnaList = (data.warna || []).filter(function (item) { return isMeaningful_(item.nama); });
+      const jumlahWarna = warnaList.length;
+      const inkRows = (jumlahWarna
+        ? warnaList.map(function (item, index) {
+            const pemakaian = item.pemakaian === '' || item.pemakaian === null || item.pemakaian === undefined
+              ? ''
+              : formatNumber_(item.pemakaian, 2);
+            return '<tr><th class="left">Tinta ' + (index + 1) + '</th><td>' +
+              escapeHtml_(item.nama) + '</td><td>' + escapeHtml_(pemakaian) + '</td></tr>';
+          })
+        : Array.from({ length: 6 }, function (_, index) {
+            return ['<tr><th class="left">Tinta ', index + 1, '</th><td></td><td></td></tr>'].join('');
+          })
+      ).join('');
+
+      return `
+        <section class="process-section">
+          <div class="process-title">
+            <strong>PRINTING${escapeHtml_(formRepeatSuffix_(form).toUpperCase())}</strong>
+            <span>Kontrol cetak, warna, tinta, silinder, dan solvent</span>
+          </div>
+          <div class="process-fields cols-4">
+            ${processField_('Kode Item', data.kodeItem)}
+            ${processField_('Mesin', formValue_(data, form, 'mesin-printing'))}
+            ${/* SPK asli menulis jumlah warna sebagai "1+0", yaitu depan+belakang.
+                  Cacah baris tinta dipakai hanya bila kolom itu kosong. */''}
+            ${processField_(
+              'Jumlah Warna',
+              isMeaningful_(data.keteranganWarna)
+                ? data.keteranganWarna
+                : (jumlahWarna ? String(jumlahWarna) : '')
+            )}
+            ${processField_('Target BS', formatPercent_(bsValue))}
+            ${processField_('BS (KG)', targetBsKg_(data, bsValue))}
+            ${processField_('Width', component.lebar)}
+            ${processField_('Pitch', component.panjang)}
+            ${processField_('Keterangan', formNote_(data, form))}
+          </div>
+          <div class="printing-grid">
+            <table class="grid-table roll-log printing-main">
+              <thead>
+                <tr>
+                  <th rowspan="2">No. Roll</th><th rowspan="2">Tgl</th>
+                  <th colspan="2">Hasil</th><th colspan="2">Jam</th><th rowspan="2">Ket.</th>
+                  <th rowspan="2">No. Roll</th><th rowspan="2">Tgl</th>
+                  <th colspan="2">Hasil</th><th colspan="2">Jam</th><th rowspan="2">Ket.</th>
+                </tr>
+                <tr>
+                  <th>Shift</th><th>KG</th><th>Start</th><th>Finish</th>
+                  <th>Shift</th><th>KG</th><th>Start</th><th>Finish</th>
+                </tr>
+              </thead>
+              <tbody>${blankRows_(14, 9)}</tbody>
+              <tfoot>
+                <tr><th colspan="5">Total Hasil</th><td colspan="4">BS / NG Printing</td><td colspan="5">BS / NG Polos</td></tr>
+              </tfoot>
+            </table>
+            <div>
+              <table class="grid-table printing-side">
+                <thead><tr><th>Pemakaian Tinta</th><th>Warna</th><th>KG</th></tr></thead>
+                <tbody>${inkRows}</tbody>
+              </table>
+              <div class="support-box">
+                <strong>Nomer Silinder</strong>
+                <span>${isMeaningful_(kodeSilinder)
+                  ? escapeHtml_(kodeSilinder)
+                  : '................................................'}</span>
+              </div>
+              <div class="support-box">
+                <strong>Solvent</strong>
+                <span>........ KG &nbsp; / &nbsp; ........ Meter</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    // Slitting, Folding, dan Gusset memakai kerangka yang sama. Ukurannya
+    // diambil dari kolom routing milik prosesnya masing-masing, bukan dari
+    // Ukuran Jadi; Ukuran Jadi adalah ukuran produk akhir dan tidak
+    // menggambarkan ukuran yang dikerjakan divisi ini.
+    const CONVERSION_FIELD_MAP = {
+      slitting: { label: 'Ukuran Slitting', ukuran: 'ukuranSlitting' },
+      folding: { label: 'Ukuran Lipat', ukuran: 'ukuranFolding' },
+      gusset: { label: 'Ukuran Gusset', ukuran: 'ukuranGusset', extraLabel: 'Lebar Gusset', extra: 'lebarGusset' }
+    };
+
+    function buildConversionSection_(data, form) {
+      const map = CONVERSION_FIELD_MAP[form.key] || {};
+      const bsValue = formBs_(data, form, form.key);
+      const ukuran = map.ukuran ? formValue_(data, form, map.ukuran) : '';
+      return `
+        <section class="process-section">
+          <div class="process-title">
+            <strong>${escapeHtml_((form.pageLabel || form.label).toUpperCase())}</strong>
+            <span>Kontrol operator, roll awal, dan hasil produksi</span>
+          </div>
+          <div class="process-fields cols-4">
+            ${processField_('Kode Item', data.kodeItem)}
+            ${processField_('Mesin', formValue_(data, form, 'mesin-' + form.key))}
+            ${processField_(map.label || 'Ukuran', ukuran)}
+            ${processField_(map.extraLabel || 'Lebar Bahan', map.extra ? formValue_(data, form, map.extra) : dimensionText_(data, 'lebar', 2))}
+            ${processField_('Target BS', formatPercent_(bsValue))}
+            ${processField_('BS (KG)', targetBsKg_(data, bsValue))}
+            ${processField_('BS Sheet', formatPercent_(formBs_(data, form, 'sheet')))}
+            ${processField_('Model Kantong', data.modelKantong)}
+            ${processField_('Keterangan', formNote_(data, form))}
+          </div>
+          <div class="process-table-wrap">
+            ${buildConversionLogTable_(data.uomOrder, 9)}
+          </div>
+        </section>
+      `;
+    }
+
+    function buildCuttingSection_(data, form) {
+      const bsValue = cuttingBsForForm_(data, form);
+      const finishing = formValue_(data, form, 'finishing');
+      const handlePm = formValue_(data, form, 'handlePm');
+      return `
+        <section class="process-section">
+          <div class="process-title">
+            <strong>${escapeHtml_((form.pageLabel || cuttingTitle_(data)).toUpperCase())}</strong>
+            <span>Kontrol finishing, packing, berat, dan hasil</span>
+          </div>
+          <div class="cutting-top">
+            <div class="cutting-fields">
+              ${/* SPK asli menulis jenis finishing pada baris Mesin. */''}
+              ${processField_('Mesin', formValue_(data, form, 'mesin-cutting') || finishing)}
+              ${processField_('Kode Item', data.kodeItem)}
+              ${processField_('Model Kantong', data.modelKantong)}
+              ${processField_('Jenis Potongan', data.jenisPotongan)}
+              ${processField_('Handle / Pon', handlePm)}
+              ${processField_('Jenis Packing', formValue_(data, form, 'jenisPacking'))}
+              ${processField_('Packing', packingDetailText_(data, form))}
+              ${processField_('Target BS', formatPercent_(bsValue))}
+              ${processField_('BS (KG)', targetBsKg_(data, bsValue))}
+              ${processField_('Keterangan', formNote_(data, form))}
+            </div>
+            <div class="cutting-metrics">
+              ${/* Kolom MIC.PO dan MIC.ACT diisi tangan saat penimbangan,
+                    sama seperti pada lembar SPK asli. */''}
+              <div class="metric-box">
+                <strong>Berat Timbangan</strong>
+                <table class="grid-table weigh-table">
+                  <thead><tr><th></th><th>MIC.PO</th><th>MIC.ACT</th></tr></thead>
+                  <tbody>
+                    <tr><th class="left">Standart</th><td>&nbsp;</td><td>&nbsp;</td></tr>
+                    <tr><th class="left">Maximal</th><td>&nbsp;</td><td>&nbsp;</td></tr>
+                    <tr><th class="left">Minimal</th><td>&nbsp;</td><td>&nbsp;</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="metric-box">
+                <strong>Target Mesin</strong>
+                Target Speed: ........<br>Target Per jam: ........
+              </div>
+              <div class="metric-box">
+                <strong>PO Sebelumnya</strong>
+                ${escapeHtml_(displayValue_(data.spkReferensi))}
+              </div>
+            </div>
+          </div>
+          <div class="process-table-wrap">
+            ${buildCuttingLogTable_(data.uomOrder, 8)}
+          </div>
+        </section>
+      `;
+    }
+
+    function buildRollLogTable_(rowCount) {
+      return `
+        <table class="grid-table roll-log">
+          <thead>
+            <tr>
+              <th rowspan="2">No. Roll</th><th rowspan="2">Tgl</th>
+              <th colspan="2">Hasil</th><th colspan="2">Jam</th><th rowspan="2">Ket.</th>
+              <th rowspan="2">No. Roll</th><th rowspan="2">Tgl</th>
+              <th colspan="2">Hasil</th><th colspan="2">Jam</th><th rowspan="2">Ket.</th>
+            </tr>
+            <tr>
+              <th>Shift</th><th>KG</th><th>Start</th><th>Finish</th>
+              <th>Shift</th><th>KG</th><th>Start</th><th>Finish</th>
+            </tr>
+          </thead>
+          <tbody>${blankRows_(14, rowCount)}</tbody>
+        </table>
+      `;
+    }
+
+    function buildConversionLogTable_(uom, rowCount) {
+      const unit = String(uom || 'KG').toUpperCase();
+      const groupHeader = `
+        <th>Tgl / Operator</th><th>Roll Awal</th><th>Hasil ${escapeHtml_(unit)}</th>
+      `;
+      return `
+        <table class="grid-table fold-log">
+          <thead><tr>${groupHeader}${groupHeader}${groupHeader}${groupHeader}</tr></thead>
+          <tbody>${blankRows_(12, rowCount)}</tbody>
+        </table>
+      `;
+    }
+
+    function buildCuttingLogTable_(uom, rowCount) {
+      const unit = String(uom || 'KG').toUpperCase();
+      const groupHeader = `
+        <th>Roll Awal / Tgl</th><th>Shift</th><th>Hasil ${escapeHtml_(unit)}</th>
+      `;
+      return `
+        <table class="grid-table cutting-log">
+          <thead>
+            <tr><th colspan="3">Hasil 1</th><th colspan="3">Hasil 2</th><th colspan="3">Hasil 3</th><th colspan="3">Hasil 4</th></tr>
+            <tr>${groupHeader}${groupHeader}${groupHeader}${groupHeader}</tr>
+          </thead>
+          <tbody>${blankRows_(12, rowCount)}</tbody>
+        </table>
+      `;
+    }
+
+    // SPK yang menyimpan urutan menampilkan alurnya apa adanya dan bernomor,
+    // termasuk proses yang dijalankan lebih dari sekali. SPK lama tetap
+    // memakai daftar tetap dengan penanda proses yang aktif.
+    function buildRouteItems_(data) {
+      const labelOf = {};
+      PROCESS_DEFINITIONS.forEach(function (process) { labelOf[process.key] = process.label; });
+
+      const steps = Array.isArray(data.routingSteps) ? data.routingSteps : [];
+      if (steps.length) {
+        return steps.map(function (step, index) {
+          const label = step.key === 'cutting'
+            ? 'Cutting'
+            : (labelOf[step.key] || step.key);
+          return `
+            <span class="route-item is-active">
+              <span class="route-item-order">${index + 1}</span>${escapeHtml_(label)}
+            </span>
+          `;
+        }).join('');
+      }
+
+      const items = PROCESS_DEFINITIONS.map(function (process) {
+        return {
+          label: process.label,
+          active: Boolean(data.proses && data.proses[process.key])
+        };
+      });
+      items.push({
+        label: 'Cutting',
+        active: isMeaningful_(data.finishing) || isMeaningful_(data.handlePm)
+      });
+      return items.map(function (item) {
+        return `
+          <span class="route-item${item.active ? ' is-active' : ''}">
+            ${escapeHtml_(item.label)}
+          </span>
+        `;
+      }).join('');
+    }
+
+    function buildProcessProductNote_(data, processKey) {
+      const noteKey = processKey === 'cutting' ? finishingNoteKey_(data.finishing) : processKey;
+      return processNote_(data, noteKey);
+    }
+
+    function processNote_(data, key) {
+      return String(data.keteranganProses && data.keteranganProses[key] || '').trim();
+    }
+
+    function finishingNoteKey_(finishing) {
+      const key = String(finishing || '').trim().toUpperCase();
+      if (key === 'BOTTOM SEAL') return 'bottomSeal';
+      if (key === 'SIDE SEAL') return 'sideSeal';
+      if (key === 'TSHIRT') return 'tshirt';
+      return '';
+    }
+
+    function modelMentionsTshirt_(data) {
+      // Toleran terhadap variasi ketikan manual: "T-SHIRT", "T - SHIRT BAG",
+      // "Tshirt", "TS", dan sejenisnya.
+      const model = String(data.modelKantong || '').toUpperCase();
+      return /T[\s\-]*SHIRT/.test(model) || /\bTS\b/.test(model);
+    }
+
+    function cuttingBs_(data) {
+      const bs = data.bsPercent || {};
+      let total = 0;
+      const finishing = String(data.finishing || '').trim().toUpperCase();
+      const handle = String(data.handlePm || '').trim().toUpperCase();
+      if (finishing === 'BOTTOM SEAL') {
+        const bottomSeal = Number(bs.bottomSeal) || 0;
+        // Data lama kadang menyimpan BS cutting di slot T-Shirt walau alurnya
+        // Bottom Seal (Model Kantong menyebut T-Shirt). Pakai nilai itu saat
+        // slot Bottom Seal kosong.
+        total += bottomSeal > 0
+          ? bottomSeal
+          : (modelMentionsTshirt_(data) ? Number(bs.tshirt) || 0 : 0);
+      }
+      if (finishing === 'SIDE SEAL') total += Number(bs.sideSeal) || 0;
+      if (finishing === 'TSHIRT') total += Number(bs.tshirt) || 0;
+      if (handle === 'HANDLE') total += Number(bs.handle) || 0;
+      if (handle === 'PON') total += Number(bs.pon) || 0;
+      return total;
+    }
+
+    function cuttingTitle_(data) {
+      const labels = ['Cutting'];
+      if (isMeaningful_(data.finishing)) labels.push(data.finishing);
+      if (isMeaningful_(data.handlePm)) labels.push(data.handlePm);
+      return labels.join(' - ');
+    }
+
+    // SPK asli menulis Quantity Order sebagai "100.000 PCS = 1.182,95 KG",
+    // yaitu jumlah order beserta padanannya dalam KG lewat konversi PCS/KG.
+    function orderWithKgEquivalent_(data) {
+      const base = quantityWithUom_(data.jumlahOrder, data.uomOrder);
+      const jumlah = Number(data.jumlahOrder);
+      const pcsPerKg = Number(data.pcsPerKg);
+      const uom = String(data.uomOrder || '').trim().toUpperCase();
+      if (uom !== 'PCS' || !Number.isFinite(jumlah) || !(pcsPerKg > 0)) return base;
+      return base + ' = ' + formatNumber_(jumlah / pcsPerKg, 2) + ' KG';
+    }
+
+    // Berat tiap roll diturunkan dari panjang per roll dibagi konversi
+    // Meter/KG. Keduanya berasal dari Database, jadi tidak ada tebakan.
+    function kgPerRollText_(data) {
+      const meterRoll = Number(data.meterRoll);
+      const meterPerKg = Number(data.meterPerKg);
+      if (!(meterRoll > 0) || !(meterPerKg > 0)) return '';
+      return formatNumber_(meterRoll / meterPerKg, 2) + ' KG';
+    }
+
+    function meterPerRollText_(data) {
+      const meterRoll = Number(data.meterRoll);
+      if (!(meterRoll > 0)) return '';
+      return formatNumber_(meterRoll, 2) + ' Mtr';
+    }
+
+    // Target BS dalam KG dihitung dari Jumlah Bahan Baku, sama seperti SPK
+    // asli: 1.300 KG x 2% = 26 KG.
+    function targetBsKg_(data, percent) {
+      return targetBsQuantity_(data.keluarBahan, data.uomKB, percent);
+    }
+
+    function targetBsQuantity_(quantity, uom, percent) {
+      const base = Number(quantity);
+      const rate = Number(percent);
+      if (!Number.isFinite(base) || !Number.isFinite(rate)) return '';
+      return formatNumber_(base * rate / 100, 2) + ' ' + String(uom || '');
+    }
+
+    function blankRows_(columnCount, rowCount) {
+      return Array.from({ length: rowCount }, function () {
+        return '<tr>' + Array.from({ length: columnCount }, function () {
+          return '<td>&nbsp;</td>';
+        }).join('') + '</tr>';
+      }).join('');
+    }
+
+    function fieldLine_(label, value) {
+      return `
+        <div class="field-line">
+          <span>${escapeHtml_(label)}</span>
+          <strong>${escapeHtml_(displayValue_(value))}</strong>
+        </div>
+      `;
+    }
+
+    function processField_(label, value) {
+      return `
+        <div class="process-field">
+          <span>${escapeHtml_(label)}</span>
+          <strong>${escapeHtml_(displayValue_(value))}</strong>
+        </div>
+      `;
+    }
+
+    function poSignature_(approval, role) {
+      return `
+        <div class="po-signature">
+          <span class="signature-label">${escapeHtml_(approval)}</span>
+          <span class="signature-space" aria-hidden="true"></span>
+          <strong>${escapeHtml_(role)}</strong>
+          <small>Nama jelas / Tanggal</small>
+        </div>
+      `;
+    }
+
+    function processSignatures_(form) {
+      const division = form.key === 'cutting' ? 'Finishing' : form.label;
+      // Tiap lembar alur perlu pengesahan kepala divisi yang mengerjakannya,
+      // ditempatkan setelah Admin seperti pada lembar SPK asli yang memuat
+      // baris KA.BLOWING, KA.PRODUKSI, dan seterusnya.
+      const signatures = [
+        { approval: 'Dibuat', role: 'Admin' },
+        { approval: 'Mengetahui', role: 'Kepala ' + division },
+        { approval: 'Diperiksa', role: 'Asmen PPIC' },
+        { approval: 'Diverifikasi', role: 'Manager PPIC' },
+        { approval: 'Diverifikasi', role: 'Manager QC / QA' },
+        { approval: 'Disetujui', role: 'Senior Manager' },
+        { approval: 'Disahkan', role: 'General Manager' }
+      ];
+
+      return `
+        <section class="process-signatures" aria-label="Pengesahan alur ${escapeHtml_(division)}">
+          ${signatures.map(function (signature) {
+            return `
+              <div class="process-signature">
+                <span class="process-signature-label">${escapeHtml_(signature.approval)}</span>
+                <span class="process-signature-space" aria-hidden="true"></span>
+                <strong>${escapeHtml_(signature.role)}</strong>
+                <small>Nama jelas / Tanggal</small>
+              </div>
+            `;
+          }).join('')}
+        </section>
+      `;
+    }
+
+    function releaseStamp_(data) {
+      const released = data.release === 'YA';
+      const releaseLabel = released ? 'RELEASE' : 'NON RELEASE';
+      return `
+        <div class="release-stamp ${released ? 'is-released' : 'is-non-release'}" data-release-badge>
+          <span>${releaseLabel}</span>
+        </div>
+      `;
+    }
+
+    function pageFooter_(data, formLabel, pageNumber, totalPages, generatedText) {
+      return `
+        <footer class="page-footer">
+          <span>SPK ${escapeHtml_(displayValue_(data.spk))} - ${escapeHtml_(formLabel)}</span>
+          <span>Halaman ${pageNumber} dari ${totalPages} - ${escapeHtml_(generatedText)}</span>
+          <span data-release-footer>Status: ${data.release === 'YA' ? 'RELEASE' : 'NON RELEASE'}</span>
+        </footer>
+      `;
+    }
+
+    function buildPolytaLogo_() {
+      return `
+        <svg class="polyta-logo" viewBox="0 0 120 120" focusable="false" aria-hidden="true">
+          <path d="M14 12h50v43h42v53h-8V63H64v45H14V55h42V20H14z" fill="#101217"/>
+          <rect x="15" y="22" width="41" height="12" rx="6" fill="#4563b3"/>
+          <rect x="22" y="63" width="34" height="37" fill="#ef2631"/>
+          <rect x="84" y="64" width="11" height="44" rx="5.5" fill="#40b84e"/>
+          <path d="M17 15h43M24 66h30M86.5 67v35" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="2" opacity=".32"/>
+        </svg>
+      `;
+    }
+
+    function isRepeatOrder_(data) {
+      return String(data.jenisOrder || '').trim().toUpperCase() === 'REPEAT ORDER';
+    }
+
+    function displayValue_(value) {
+      if (value === 0) return '0';
+      if (value === null || value === undefined || String(value).trim() === '') return '-';
+      return String(value);
+    }
+
+    function isMeaningful_(value) {
+      const normalized = String(value === null || value === undefined ? '' : value)
+        .trim()
+        .toUpperCase();
+      return normalized !== '' && normalized !== '-';
+    }
+
+    function quantityWithUom_(quantity, uom) {
+      const number = formatNumber_(quantity, 2);
+      const unit = String(uom || '').trim();
+      return joinNonEmpty_([number === '-' ? '' : number, unit], ' ') || '-';
+    }
+
+    function joinNonEmpty_(values, separator) {
+      return values
+        .filter(function (value) {
+          return value !== null &&
+            value !== undefined &&
+            String(value).trim() !== '' &&
+            String(value).trim() !== '-';
+        })
+        .join(separator);
+    }
+
+    function formatNumber_(value, maximumFractionDigits) {
+      if (value === '' || value === null || value === undefined) return '-';
+      const number = Number(value);
+      if (!Number.isFinite(number)) return displayValue_(value);
+      return new Intl.NumberFormat('id-ID', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: maximumFractionDigits
+      }).format(number);
+    }
+
+    function formatPercent_(value) {
+      if (value === '' || value === null || value === undefined) return '0%';
+      const number = Number(value);
+      if (!Number.isFinite(number)) return displayValue_(value);
+      return new Intl.NumberFormat('id-ID', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+      }).format(number) + '%';
+    }
+
+    function formatDate_(value) {
+      if (!value) return '-';
+      const match = String(value).match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (!match) return displayValue_(value);
+      const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+      return new Intl.DateTimeFormat('id-ID', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      }).format(date);
+    }
+
+    function formatDateTime_(date) {
+      return new Intl.DateTimeFormat('id-ID', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).format(date);
+    }
+
+    function escapeHtml_(value) {
+      return String(value === null || value === undefined ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function getLocalPreviewData_() {
+      return {
+        spk: 'G26.125',
+        tanggal: '2026-07-26',
+        jenisOrder: 'New Order',
+        marketing: 'MARKETING 01',
+        nomorPO: 'PO-2026-0781',
+        customer: 'CUSTOMER CONTOH',
+        material: 'LLDPE SUSU',
+        film: 'TUBE',
+        artikel: 'KANTONG INDUSTRI 63 X 100',
+        modelKantong: 'BOTTOM SEAL + HANDLE',
+        ukuranBlow: '126 X 0.08',
+        ukuranJadi: '63 X 100 X 0.08',
+        ukuranKomponen: {
+          lebar: '63',
+          panjang: '100',
+          tebal: '0.08',
+          lebarBahan: '126',
+          tebalBlow: '0.08'
+        },
+        density: 0.92,
+        pcsPerKg: 10.801587,
+        meterPerKg: 10.78383,
+        meterRoll: 1500,
+        kodeItem: 'FOOD GRADE',
+        keteranganWarna: '1+0',
+        spkReferensi: 'G26.081',
+        blowingThreat: 'NON THREAT',
+        blowingModeCetak: 'INLINE',
+        printingKodeSilinder: 'SIL-2026-014',
+        ukuranSlitting: '63 X 0.08',
+        ukuranFolding: '63 + 10 LIDAH X 0.08',
+        ukuranGusset: '63 / 20 X 0.08',
+        jenisPacking: 'KARUNG',
+        packing: '1 OUTER 50 PCS / 1 BALL 1500 PCS',
+        proses: {
+          mixer: true,
+          blowing: true,
+          printing: true,
+          slitting: true,
+          folding: true,
+          gusset: true
+        },
+        keteranganProses: {
+          mixer: 'Campurkan bahan sesuai komposisi dan pastikan warna tercampur merata.',
+          blowing: 'Ketebalan film harus merata dan sesuai sampel.',
+          printing: 'Gunakan artwork revisi terakhir dan periksa register warna.',
+          slitting: 'Lebar hasil slitting mengikuti ukuran dan toleransi SPK.',
+          folding: 'Periksa ukuran lipatan pada awal dan setiap pergantian roll.',
+          gusset: 'Cek kedalaman gusset pada awal roll.',
+          bottomSeal: 'Seal harus rata, kuat, dan tidak berkerut.',
+          sideSeal: '',
+          tshirt: ''
+        },
+        finishing: 'BOTTOM SEAL',
+        handlePm: 'HANDLE',
+        bsPercent: {
+          blowing: 1,
+          printing: 3,
+          slitting: 1,
+          folding: 1,
+          gusset: 1,
+          sheet: 0,
+          pon: 0,
+          tshirt: 0,
+          bottomSeal: 1,
+          sideSeal: 0,
+          handle: 1,
+          sheetSlitting: 0
+        },
+        totalBs: 9,
+        jumlahOrder: 15000,
+        uomOrder: 'PCS',
+        keluarBahan: 350,
+        uomKB: 'KG',
+        toleransi: 5,
+        etd: '2026-08-01',
+        komposisi: [
+          { material: 'LLDPE A', kg: 210, percent: 60 },
+          { material: 'LLDPE B', kg: 105, percent: 30 },
+          { material: 'MASTERBATCH WHITE', kg: 35, percent: 10 }
+        ],
+        totalKomposisiKg: 350,
+        totalKomposisiPercent: 100,
+        spkReferensi: '',
+        release: 'Tidak'
+      };
+    }
+  </script>
+</body>
+</html>

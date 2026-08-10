@@ -1,0 +1,3493 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#202226">
+  <base target="_top">
+  <title>Penarikan Data | Polyta Global Mandiri</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='22' fill='%23f4f4f1'/%3E%3Cpath fill='%23111216' d='M14 12h50v43h42v53h-8V63H64v45H14V55h42V20H14z'/%3E%3Crect x='15' y='22' width='41' height='12' rx='6' fill='%234563b3'/%3E%3Crect x='22' y='63' width='34' height='37' fill='%23ef2631'/%3E%3Crect x='84' y='64' width='11' height='44' rx='5.5' fill='%2340b84e'/%3E%3C/svg%3E">
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.15.12/dist/cdn.min.js"></script>
+  <script>
+  // Controller Alpine global. Komponen ini sengaja kecil: ia menyediakan
+  // state bersama tanpa mengambil alih fungsi bisnis halaman yang sudah stabil.
+  (function registerPolytaAlpineController_() {
+    function register_() {
+      if (!window.Alpine || window.__polytaPageUiRegistered) return;
+      window.__polytaPageUiRegistered = true;
+
+      window.Alpine.data('polytaPageUi', function(pageName) {
+        return {
+          page: String(pageName || 'app'),
+          ready: false,
+          online: navigator.onLine,
+          init: function() {
+            this.ready = true;
+          },
+          setOnline: function(value) {
+            this.online = Boolean(value);
+          }
+        };
+      });
+    }
+
+    document.addEventListener('alpine:init', register_);
+    if (window.Alpine) register_();
+  })();
+</script>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+@layer properties{@supports (((-webkit-hyphens:none)) and (not (margin-trim:inline))) or ((-moz-orient:inline) and (not (color:rgb(from red r g b)))){*,:before,:after,::backdrop{--tw-border-style:solid;--tw-gradient-position:initial;--tw-gradient-from:#0000;--tw-gradient-via:#0000;--tw-gradient-to:#0000;--tw-gradient-stops:initial;--tw-gradient-via-stops:initial;--tw-gradient-from-position:0%;--tw-gradient-via-position:50%;--tw-gradient-to-position:100%;--tw-font-weight:initial;--tw-shadow:0 0 #0000;--tw-shadow-color:initial;--tw-shadow-alpha:100%;--tw-inset-shadow:0 0 #0000;--tw-inset-shadow-color:initial;--tw-inset-shadow-alpha:100%;--tw-ring-color:initial;--tw-ring-shadow:0 0 #0000;--tw-inset-ring-color:initial;--tw-inset-ring-shadow:0 0 #0000;--tw-ring-inset:initial;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-offset-shadow:0 0 #0000;--tw-backdrop-blur:initial;--tw-backdrop-brightness:initial;--tw-backdrop-contrast:initial;--tw-backdrop-grayscale:initial;--tw-backdrop-hue-rotate:initial;--tw-backdrop-invert:initial;--tw-backdrop-opacity:initial;--tw-backdrop-saturate:initial;--tw-backdrop-sepia:initial;--tw-duration:initial}}}@layer theme{:root,:host{--tw-color-red-50:oklch(97.1% .013 17.38);--tw-color-red-300:oklch(80.8% .114 19.571);--tw-color-red-600:oklch(57.7% .245 27.325);--tw-color-red-800:oklch(44.4% .177 26.899);--tw-color-white:#fff;--tw-spacing:.25rem;--tw-text-xs:.75rem;--tw-text-xs--line-height:calc(1 / .75);--tw-font-weight-bold:700;--tw-default-transition-duration:.15s;--tw-default-transition-timing-function:cubic-bezier(.4, 0, .2, 1);--tw-color-polyta-ink:#202327;--tw-color-spk-canvas:#e5e8e4;--tw-color-spk-shell:#eff0ed;--tw-container-app:72rem}}@layer utilities{.tw\:pointer-events-none{pointer-events:none}.tw\:absolute{position:absolute}.tw\:fixed{position:fixed}.tw\:relative{position:relative}.tw\:inset-x-0{inset-inline:0}.tw\:top-0{top:0}.tw\:top-3{top:calc(var(--tw-spacing) * 3)}.tw\:z-\[9999\]{z-index:9999}.tw\:mx-auto\!{margin-inline:auto!important}.tw\:flex{display:flex}.tw\:h-2{height:calc(var(--tw-spacing) * 2)}.tw\:h-px{height:1px}.tw\:min-h-screen{min-height:100vh}.tw\:w-2{width:calc(var(--tw-spacing) * 2)}.tw\:w-full{width:100%}.tw\:max-w-app\!{max-width:var(--tw-container-app)!important}.tw\:items-center{align-items:center}.tw\:justify-center{justify-content:center}.tw\:gap-2{gap:calc(var(--tw-spacing) * 2)}.tw\:overflow-hidden{overflow:hidden}.tw\:rounded-full{border-radius:3.40282e38px}.tw\:border{border-style:var(--tw-border-style);border-width:1px}.tw\:border-red-300\/70{border-color:var(--tw-color-red-300)}@supports (color:color-mix(in lab, red, red)){.tw\:border-red-300\/70{border-color:color-mix(in oklab, var(--tw-color-red-300) 70%, transparent)}}.tw\:bg-red-50\/95{background-color:var(--tw-color-red-50)}@supports (color:color-mix(in lab, red, red)){.tw\:bg-red-50\/95{background-color:color-mix(in oklab, var(--tw-color-red-50) 95%, transparent)}}.tw\:bg-red-600{background-color:var(--tw-color-red-600)}.tw\:bg-spk-canvas{background-color:var(--tw-color-spk-canvas)}.tw\:bg-spk-shell\!{background-color:var(--tw-color-spk-shell)!important}.tw\:bg-gradient-to-r{--tw-gradient-position:to right in oklab;background-image:linear-gradient(var(--tw-gradient-stops))}.tw\:from-transparent{--tw-gradient-from:transparent;--tw-gradient-stops:var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))}.tw\:via-white{--tw-gradient-via:var(--tw-color-white);--tw-gradient-via-stops:var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-via-stops)}.tw\:to-transparent{--tw-gradient-to:transparent;--tw-gradient-stops:var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))}.tw\:px-4{padding-inline:calc(var(--tw-spacing) * 4)}.tw\:py-2{padding-block:calc(var(--tw-spacing) * 2)}.tw\:text-xs{font-size:var(--tw-text-xs);line-height:var(--tw-leading,var(--tw-text-xs--line-height))}.tw\:font-bold{--tw-font-weight:var(--tw-font-weight-bold);font-weight:var(--tw-font-weight-bold)}.tw\:text-polyta-ink{color:var(--tw-color-polyta-ink)}.tw\:text-red-800{color:var(--tw-color-red-800)}.tw\:shadow-lg{--tw-shadow:0 10px 15px -3px var(--tw-shadow-color,#0000001a), 0 4px 6px -4px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.tw\:shadow-spk-shell\!{--tw-shadow:0 3px 0 var(--tw-shadow-color,#151619), 0 24px 58px var(--tw-shadow-color,#1c1f2247), inset 0 1px 0 var(--tw-shadow-color,#ffffffeb)!important;box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)!important}.tw\:backdrop-blur{--tw-backdrop-blur:blur(8px);-webkit-backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)}.tw\:transition-opacity{transition-property:opacity;transition-timing-function:var(--tw-ease,var(--tw-default-transition-timing-function));transition-duration:var(--tw-duration,var(--tw-default-transition-duration))}.tw\:transition-shadow{transition-property:box-shadow;transition-timing-function:var(--tw-ease,var(--tw-default-transition-timing-function));transition-duration:var(--tw-duration,var(--tw-default-transition-duration))}.tw\:duration-200{--tw-duration:.2s;transition-duration:.2s}.tw\:duration-300{--tw-duration:.3s;transition-duration:.3s}}[data-ui-engine=tailwind-alpine]{--polyta-button-height:32px;--polyta-input-height:34px;--polyta-icon-button-size:30px;--polyta-control-radius:8px;--polyta-button-padding-x:13px;--polyta-input-padding-x:10px;--polyta-control-gap:6px;--polyta-control-font-size:.68rem;--polyta-label-font-size:.69rem;--polyta-eyebrow-font-size:.64rem;--polyta-page-title-font-size:1.55rem;--polyta-description-font-size:.75rem;--polyta-panel-title-font-size:.86rem;--polyta-meta-font-size:.69rem}[data-ui-engine=tailwind-alpine] [x-cloak]{display:none!important}body[data-ui-engine=tailwind-alpine]:not([data-page=cetak-spk]){font-size:15px}body[data-page=keluar-bahan] .eyebrow,body[data-page=penarikan-data] .eyebrow{font-size:var(--polyta-eyebrow-font-size)!important;letter-spacing:.11em!important;font-weight:900!important;line-height:1.3!important}body[data-page=keluar-bahan] .page-heading h1,body[data-page=penarikan-data] .page-heading h1{font-size:var(--polyta-page-title-font-size)!important;letter-spacing:-.025em!important;font-weight:850!important;line-height:1.2!important}body[data-page=keluar-bahan] .page-description,body[data-page=penarikan-data] .page-description{font-size:var(--polyta-description-font-size)!important;font-weight:500!important;line-height:1.45!important}body[data-page=keluar-bahan] .panel-title,body[data-page=penarikan-data] .panel-title{font-size:var(--polyta-panel-title-font-size)!important;font-weight:850!important;line-height:1.2!important}body[data-page=keluar-bahan] .panel-caption,body[data-page=penarikan-data] .panel-caption,body[data-page=keluar-bahan] .summary-label,body[data-page=keluar-bahan] .summary-note{font-size:var(--polyta-meta-font-size)!important;line-height:1.4!important}body[data-page=input-spk] #spkInputRoot .field-label,body[data-page=dashboard] #spkInputModal #spkInputRoot .field-label,body[data-page=keluar-bahan] .eta-field-label{font-size:var(--polyta-label-font-size)!important;letter-spacing:.02em!important;font-weight:800!important;line-height:1.3!important}body[data-page=dashboard] .button,body[data-page=keluar-bahan] .button,body[data-page=keluar-bahan] .button-refresh,body[data-page=keluar-bahan] .detail-footer-button,body[data-page=keluar-bahan] .eta-submit-button,body[data-page=keluar-bahan] .eta-save-button,body[data-page=keluar-bahan] .eta-cancel-button,body[data-page=keluar-bahan] .eta-nav-button,body[data-page=keluar-bahan] .eta-open-button,body[data-page=keluar-bahan] .save-button,body[data-page=keluar-bahan] .summary-toggle-button,body[data-page=penarikan-data] .action-button,body[data-page=input-spk] #spkInputRoot .neumorphic-btn-black,body[data-page=input-spk] #spkInputRoot .neumorphic-btn-light,body[data-page=input-spk] #spkInputRoot .btn-add-bahan,body[data-page=input-spk] #spkInputRoot .routing-editor-save,body[data-page=input-spk] #spkInputRoot .routing-editor-cancel,body[data-page=input-spk] #spkInputRoot .save-success-action,body[data-page=input-spk] #spkInputRoot .save-success-secondary,body[data-page=dashboard] #spkInputModal #spkInputRoot .neumorphic-btn-black,body[data-page=dashboard] #spkInputModal #spkInputRoot .neumorphic-btn-light,body[data-page=dashboard] #spkInputModal #spkInputRoot .btn-add-bahan,body[data-page=dashboard] #spkInputModal #spkInputRoot .routing-editor-save,body[data-page=dashboard] #spkInputModal #spkInputRoot .routing-editor-cancel,body[data-page=cetak-spk] .toolbar-button{min-height:var(--polyta-button-height)!important;height:var(--polyta-button-height)!important;padding:0 var(--polyta-button-padding-x)!important;gap:var(--polyta-control-gap)!important;border-radius:var(--polyta-control-radius)!important;box-sizing:border-box!important;font-size:var(--polyta-control-font-size)!important;line-height:1!important}body[data-page=dashboard] .nav-link-app,body[data-page=input-spk] #spkInputRoot .app-nav-link,body[data-page=keluar-bahan] .nav-link,body[data-page=penarikan-data] .app-nav-link{min-height:var(--polyta-button-height)!important;height:var(--polyta-button-height)!important;gap:var(--polyta-control-gap)!important;border-radius:var(--polyta-control-radius)!important;box-sizing:border-box!important;font-size:var(--polyta-control-font-size)!important;padding:0 11px!important;line-height:1!important}body[data-page=input-spk] #spkInputRoot .order-type-option,body[data-page=input-spk] #spkInputRoot .finishing-choice,body[data-page=dashboard] #spkInputModal #spkInputRoot .order-type-option,body[data-page=dashboard] #spkInputModal #spkInputRoot .finishing-choice{min-height:var(--polyta-button-height)!important;height:var(--polyta-button-height)!important;border-radius:var(--polyta-control-radius)!important;box-sizing:border-box!important;font-size:var(--polyta-control-font-size)!important;line-height:1!important}body[data-page=dashboard] .modal .btn-close,body[data-page=keluar-bahan] .detail-close,body[data-page=keluar-bahan] .eta-modal-close{width:var(--polyta-icon-button-size)!important;min-width:var(--polyta-icon-button-size)!important;height:var(--polyta-icon-button-size)!important;min-height:var(--polyta-icon-button-size)!important;border-radius:var(--polyta-control-radius)!important;box-sizing:border-box!important;padding:0!important}body[data-page=penarikan-data] .source-file-action,body[data-page=dashboard] .manage-button{min-height:var(--polyta-icon-button-size)!important;height:var(--polyta-icon-button-size)!important;border-radius:var(--polyta-control-radius)!important;box-sizing:border-box!important;padding:0 10px!important;font-size:.63rem!important;line-height:1!important}body[data-page=dashboard] .form-control,body[data-page=dashboard] .form-select,body[data-page=input-spk] #spkInputRoot input.field-input,body[data-page=input-spk] #spkInputRoot select.field-input,body[data-page=input-spk] #spkInputRoot .routing-process-select,body[data-page=dashboard] #spkInputModal #spkInputRoot input.field-input,body[data-page=dashboard] #spkInputModal #spkInputRoot select.field-input,body[data-page=dashboard] #spkInputModal #spkInputRoot .routing-process-select,body[data-page=keluar-bahan] .search-input,body[data-page=keluar-bahan] .filter-select,body[data-page=keluar-bahan] .editor-input,body[data-page=keluar-bahan] .editor-select,body[data-page=keluar-bahan] .eta-date-input,body[data-page=keluar-bahan] .eta-qty-input,body[data-page=keluar-bahan] .eta-uom-select,body[data-page=keluar-bahan] .eta-modal-input,body[data-page=keluar-bahan] .eta-modal-select{min-height:var(--polyta-input-height)!important;height:var(--polyta-input-height)!important;border-radius:var(--polyta-control-radius)!important;box-sizing:border-box!important;font-size:var(--polyta-control-font-size)!important;padding-top:0!important;padding-bottom:0!important;line-height:1.2!important}body[data-page=input-spk] #spkInputRoot input.field-input,body[data-page=dashboard] #spkInputModal #spkInputRoot input.field-input,body[data-page=keluar-bahan] .editor-input,body[data-page=keluar-bahan] .eta-date-input,body[data-page=keluar-bahan] .eta-qty-input,body[data-page=keluar-bahan] .eta-modal-input{padding-left:var(--polyta-input-padding-x)!important;padding-right:var(--polyta-input-padding-x)!important}body[data-page=input-spk] #spkInputRoot .spk-wrapper input.field-input,body[data-page=dashboard] #spkInputModal #spkInputRoot .spk-wrapper input.field-input{padding-right:42px!important}body[data-page=input-spk] #spkInputRoot .warna-input-wrap input.field-input,body[data-page=dashboard] #spkInputModal #spkInputRoot .warna-input-wrap input.field-input{padding-left:42px!important}body[data-page=keluar-bahan] .search-input{padding-left:31px!important;padding-right:var(--polyta-input-padding-x)!important}body[data-page=keluar-bahan] .filter-select,body[data-page=keluar-bahan] .editor-select,body[data-page=keluar-bahan] .eta-uom-select,body[data-page=keluar-bahan] .eta-modal-select,body[data-page=input-spk] #spkInputRoot select.field-input,body[data-page=dashboard] #spkInputModal #spkInputRoot select.field-input{padding-left:var(--polyta-input-padding-x)!important;padding-right:32px!important}body[data-page=input-spk] #spkInputRoot .input-pair>select.field-input.input-pair-uom,body[data-page=dashboard] #spkInputModal #spkInputRoot .input-pair>select.field-input.input-pair-uom{flex:0 0 82px!important;width:82px!important;min-width:82px!important;padding-left:10px!important;padding-right:24px!important;line-height:normal!important}body[data-page=input-spk] #spkInputRoot select.routing-process-select,body[data-page=dashboard] #spkInputModal #spkInputRoot select.routing-process-select{padding-left:36px!important;padding-right:36px!important}body[data-page=input-spk] #spkInputRoot textarea.field-input,body[data-page=dashboard] #spkInputModal #spkInputRoot textarea.field-input,body[data-page=keluar-bahan] textarea{border-radius:var(--polyta-control-radius)!important;box-sizing:border-box!important;font-size:var(--polyta-control-font-size)!important;line-height:1.4!important}@media (max-width:900px){body[data-page=dashboard] .nav-link-app,body[data-page=input-spk] #spkInputRoot .app-nav-link,body[data-page=keluar-bahan] .nav-link,body[data-page=penarikan-data] .app-nav-link{justify-content:center!important;width:39px!important;min-width:39px!important;padding:0!important}}@property --tw-border-style{syntax:"*";inherits:false;initial-value:solid}@property --tw-gradient-position{syntax:"*";inherits:false}@property --tw-gradient-from{syntax:"<color>";inherits:false;initial-value:#0000}@property --tw-gradient-via{syntax:"<color>";inherits:false;initial-value:#0000}@property --tw-gradient-to{syntax:"<color>";inherits:false;initial-value:#0000}@property --tw-gradient-stops{syntax:"*";inherits:false}@property --tw-gradient-via-stops{syntax:"*";inherits:false}@property --tw-gradient-from-position{syntax:"<length-percentage>";inherits:false;initial-value:0%}@property --tw-gradient-via-position{syntax:"<length-percentage>";inherits:false;initial-value:50%}@property --tw-gradient-to-position{syntax:"<length-percentage>";inherits:false;initial-value:100%}@property --tw-font-weight{syntax:"*";inherits:false}@property --tw-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-shadow-color{syntax:"*";inherits:false}@property --tw-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}@property --tw-inset-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-inset-shadow-color{syntax:"*";inherits:false}@property --tw-inset-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}@property --tw-ring-color{syntax:"*";inherits:false}@property --tw-ring-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-inset-ring-color{syntax:"*";inherits:false}@property --tw-inset-ring-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-ring-inset{syntax:"*";inherits:false}@property --tw-ring-offset-width{syntax:"<length>";inherits:false;initial-value:0}@property --tw-ring-offset-color{syntax:"*";inherits:false;initial-value:#fff}@property --tw-ring-offset-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-backdrop-blur{syntax:"*";inherits:false}@property --tw-backdrop-brightness{syntax:"*";inherits:false}@property --tw-backdrop-contrast{syntax:"*";inherits:false}@property --tw-backdrop-grayscale{syntax:"*";inherits:false}@property --tw-backdrop-hue-rotate{syntax:"*";inherits:false}@property --tw-backdrop-invert{syntax:"*";inherits:false}@property --tw-backdrop-opacity{syntax:"*";inherits:false}@property --tw-backdrop-saturate{syntax:"*";inherits:false}@property --tw-backdrop-sepia{syntax:"*";inherits:false}@property --tw-duration{syntax:"*";inherits:false}</style>
+
+  <style>
+    :root {
+      --ink-900: #25272b;
+      --ink-700: #4f5359;
+      --ink-500: #747980;
+      --metal-100: #eeeeeb;
+      --metal-200: #d7d8d5;
+      --metal-300: #c2c4c2;
+      --brand: #c92b2b;
+      --brand-dark: #8d1515;
+      --success: #167253;
+      --danger: #bb2639;
+      --app-page-background-color: #26282c;
+      --app-page-background-image:
+        linear-gradient(135deg, rgba(255,255,255,.025) 25%, transparent 25%),
+        linear-gradient(315deg, rgba(255,255,255,.025) 25%, transparent 25%),
+        radial-gradient(circle at 20% 0, rgba(255,255,255,.06), transparent 30rem);
+      --app-page-background-position: 0 0, 6px 6px, 0 0;
+      --app-page-background-size: 12px 12px, 12px 12px, auto;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      background-color: var(--app-page-background-color);
+      background-image: var(--app-page-background-image);
+      background-position: var(--app-page-background-position);
+      background-size: var(--app-page-background-size);
+      color: var(--ink-900);
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      font-size: 15px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button { font: inherit; }
+
+    .app-topbar {
+      min-height: 76px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-top: 1px solid #5a5d63;
+      border-bottom: 4px solid #8b1717;
+      background: linear-gradient(180deg, #4b4e54 0, #303238 45%, #202226 46%, #101114 100%);
+      color: #fff;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.18),
+        inset 0 -1px 0 #000,
+        0 4px 10px rgba(0,0,0,.45);
+    }
+
+    .app-topbar::after {
+      position: absolute;
+      right: 0;
+      bottom: -4px;
+      left: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #751010, #ec4a4a 50%, #751010);
+      content: "";
+    }
+
+    .app-topbar-inner {
+      width: min(100%, 1600px);
+      min-height: 72px;
+      margin: 0 auto;
+      padding: 0 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .app-brand {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .app-brand-mark {
+      width: 46px;
+      height: 46px;
+      flex: 0 0 46px;
+      display: grid;
+      place-items: center;
+      padding: 4px;
+      border: 1px solid #74787d;
+      border-radius: 12px;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,.92), rgba(255,255,255,.18) 42%, transparent 43%),
+        linear-gradient(145deg, #f7f7f4, #bfc2c4 54%, #85898e);
+      box-shadow:
+        inset 0 1px 1px #fff,
+        inset 0 -2px 3px rgba(0,0,0,.24),
+        0 2px 0 #09090a,
+        0 3px 5px rgba(0,0,0,.5);
+    }
+
+    .polyta-logo {
+      width: 100%;
+      height: 100%;
+      display: block;
+      filter: drop-shadow(0 2px 1px rgba(0,0,0,.28));
+    }
+
+    .app-brand-name {
+      display: block;
+      color: #fff;
+      font-size: .95rem;
+      font-weight: 800;
+      line-height: 1.2;
+      text-shadow: 0 -1px 0 #000;
+    }
+
+    .app-brand-subtitle {
+      display: block;
+      margin-top: 3px;
+      color: #c0c3c9;
+      font-size: .72rem;
+      line-height: 1.2;
+      text-shadow: 0 -1px 0 #000;
+    }
+
+    .app-nav {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .app-nav-link {
+      min-height: 38px;
+      padding: 0 13px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 1px solid rgba(0,0,0,.5);
+      border-radius: 9px;
+      background: linear-gradient(180deg, #42454b, #25272c);
+      color: #d6d8dc;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.13),
+        0 1px 0 rgba(255,255,255,.07),
+        0 2px 2px rgba(0,0,0,.35);
+      font-size: .78rem;
+      font-weight: 750;
+      text-decoration: none;
+      text-shadow: 0 -1px 0 #000;
+    }
+
+    .app-nav-link:hover {
+      border-color: #111;
+      background: linear-gradient(180deg, #52555b, #303238);
+      color: #fff;
+    }
+
+    .app-nav-link.active {
+      border-color: #08090a;
+      background: #1b1c20;
+      color: #fff;
+      box-shadow:
+        inset 0 2px 5px rgba(0,0,0,.85),
+        0 1px 0 rgba(255,255,255,.1);
+    }
+
+    .app-main {
+      width: min(calc(100% - 32px), 1120px);
+      margin: 26px auto 40px;
+      padding: 32px 28px 36px;
+      border: 1px solid #777a7d;
+      border-radius: 20px;
+      background:
+        radial-gradient(circle at 15px 15px, #55585b 0 1px, #c8c9c7 2px 4px, #777 5px, transparent 6px),
+        radial-gradient(circle at calc(100% - 15px) 15px, #55585b 0 1px, #c8c9c7 2px 4px, #777 5px, transparent 6px),
+        radial-gradient(circle at 15px calc(100% - 15px), #55585b 0 1px, #c8c9c7 2px 4px, #777 5px, transparent 6px),
+        radial-gradient(circle at calc(100% - 15px) calc(100% - 15px), #55585b 0 1px, #c8c9c7 2px 4px, #777 5px, transparent 6px),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.11) 0, rgba(255,255,255,.11) 1px, rgba(0,0,0,.018) 2px, transparent 4px),
+        linear-gradient(145deg, var(--metal-100), var(--metal-200));
+      box-shadow:
+        inset 0 1px 1px rgba(255,255,255,.95),
+        inset 0 -2px 4px rgba(0,0,0,.16),
+        0 3px 0 #151619,
+        0 16px 32px rgba(0,0,0,.45);
+    }
+
+    .page-heading {
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 22px;
+    }
+
+    .heading-group {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .heading-icon {
+      width: 52px;
+      height: 52px;
+      flex: 0 0 52px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #c99797;
+      border-radius: 14px;
+      background: linear-gradient(145deg, #fff0f0, #e3b8b8);
+      color: var(--brand);
+      box-shadow:
+        inset 1px 1px 0 rgba(255,255,255,.9),
+        inset -1px -1px 2px rgba(124,30,30,.22),
+        0 2px 3px rgba(0,0,0,.24);
+      font-size: 20px;
+      text-shadow: 0 1px 0 #fff;
+    }
+
+    .eyebrow {
+      margin: 0 0 5px;
+      color: #9f1d1d;
+      font-size: .66rem;
+      font-weight: 900;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+      text-shadow: 0 1px 0 #fff;
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--ink-900);
+      font-size: clamp(1.45rem, 3vw, 1.9rem);
+      font-weight: 850;
+      letter-spacing: -.03em;
+      text-shadow: 0 1px 0 #fff;
+    }
+
+    .page-description {
+      margin: 6px 0 0;
+      color: var(--ink-500);
+      font-size: .78rem;
+      line-height: 1.5;
+      text-shadow: 0 1px 0 rgba(255,255,255,.8);
+    }
+
+    .connection-chip {
+      padding: 8px 11px;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      border: 1px solid #a1a3a5;
+      border-radius: 999px;
+      background: #dfe0de;
+      color: var(--ink-700);
+      box-shadow:
+        inset 0 2px 3px rgba(0,0,0,.14),
+        0 1px 0 #fff;
+      font-size: .68rem;
+      font-weight: 800;
+      text-shadow: 0 1px 0 #fff;
+      white-space: nowrap;
+    }
+
+    .connection-dot {
+      width: 8px;
+      height: 8px;
+      border: 1px solid #0c573e;
+      border-radius: 50%;
+      background: #2cbf89;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.65),
+        0 0 6px rgba(22,114,83,.55);
+    }
+
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: 285px minmax(0, 1fr);
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .panel {
+      overflow: hidden;
+      border: 1px solid #b1b3b3;
+      border-bottom-color: #8f9192;
+      border-radius: 13px;
+      background: linear-gradient(180deg, #fdfdfb, #e8e9e6);
+      box-shadow:
+        inset 0 1px 0 #fff,
+        inset 0 -1px 0 rgba(0,0,0,.11),
+        0 3px 0 #8e9091,
+        0 6px 10px rgba(0,0,0,.17);
+    }
+
+    .panel-header {
+      min-height: 58px;
+      padding: 14px 17px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid #b3b5b6;
+      background: linear-gradient(180deg, #fff 0, #f4f4f2 48%, #e7e8e5 52%, #d9dad7 100%);
+      box-shadow:
+        inset 0 1px 0 #fff,
+        inset 0 -1px 0 rgba(0,0,0,.08);
+    }
+
+    .panel-title {
+      margin: 0;
+      color: var(--ink-900);
+      font-size: .84rem;
+      font-weight: 850;
+      text-shadow: 0 1px 0 #fff;
+    }
+
+    .panel-caption {
+      margin: 3px 0 0;
+      color: var(--ink-500);
+      font-size: .67rem;
+      text-shadow: 0 1px 0 #fff;
+    }
+
+    .guide-body {
+      padding: 17px;
+      display: grid;
+      gap: 15px;
+    }
+
+    .guide-step {
+      display: grid;
+      grid-template-columns: 32px minmax(0, 1fr);
+      align-items: start;
+      gap: 10px;
+    }
+
+    .guide-number {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #9d9fa1;
+      border-radius: 9px;
+      background: linear-gradient(180deg, #fff, #d8d9d6);
+      color: var(--brand-dark);
+      box-shadow:
+        inset 0 1px 0 #fff,
+        0 2px 0 #858789,
+        0 3px 5px rgba(0,0,0,.15);
+      font-size: .7rem;
+      font-weight: 900;
+      text-shadow: 0 1px 0 #fff;
+    }
+
+    .guide-step strong {
+      display: block;
+      margin: 2px 0 3px;
+      color: var(--ink-900);
+      font-size: .73rem;
+      text-shadow: 0 1px 0 #fff;
+    }
+
+    .guide-step span {
+      display: block;
+      color: var(--ink-500);
+      font-size: .67rem;
+      line-height: 1.45;
+      text-shadow: 0 1px 0 #fff;
+    }
+
+    .guide-step .guide-number {
+      display: grid;
+      place-items: center;
+      margin: 0;
+      color: var(--brand-dark);
+      font-size: .7rem;
+      font-weight: 900;
+      line-height: 1;
+      text-align: center;
+    }
+
+    .guide-note {
+      margin: 1px 17px 17px;
+      padding: 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      border: 1px solid #bc9f70;
+      border-radius: 10px;
+      background: linear-gradient(145deg, #fff8e9, #e7d4ad);
+      color: #71501f;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.8),
+        0 2px 3px rgba(0,0,0,.12);
+      font-size: .67rem;
+      line-height: 1.5;
+      text-shadow: 0 1px 0 rgba(255,255,255,.65);
+    }
+
+    .explorer-body {
+      padding: 16px;
+      background:
+        repeating-linear-gradient(90deg, rgba(255,255,255,.07) 0, rgba(255,255,255,.07) 1px, rgba(0,0,0,.012) 2px, transparent 4px),
+        linear-gradient(180deg, #dedfdd, #cccdca);
+    }
+
+    .breadcrumb-well {
+      min-height: 43px;
+      margin-bottom: 12px;
+      padding: 10px 13px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 7px;
+      border: 1px solid #999b9e;
+      border-top-color: #737679;
+      border-left-color: #737679;
+      border-radius: 9px;
+      background: #f7f7f4;
+      color: var(--ink-500);
+      box-shadow:
+        inset 1px 2px 4px rgba(0,0,0,.18),
+        0 1px 0 #fff;
+      font-size: .7rem;
+      font-weight: 750;
+    }
+
+    .breadcrumb-item {
+      padding: 0;
+      border: 0;
+      background: none;
+      color: #555a61;
+      font-weight: 750;
+      cursor: pointer;
+      text-shadow: 0 1px 0 #fff;
+    }
+
+    .breadcrumb-item:hover { color: var(--brand-dark); }
+    .breadcrumb-current { color: var(--brand); font-weight: 850; }
+    .breadcrumb-separator { color: #999da2; }
+
+    .folder-area {
+      min-height: 318px;
+      max-height: 430px;
+      padding: 14px;
+      overflow-y: auto;
+      border: 1px solid #999b9e;
+      border-top-color: #6f7275;
+      border-left-color: #6f7275;
+      border-radius: 10px;
+      background:
+        repeating-linear-gradient(0deg, rgba(0,0,0,.012) 0, rgba(0,0,0,.012) 1px, transparent 1px, transparent 4px),
+        #e4e5e2;
+      box-shadow:
+        inset 2px 3px 7px rgba(0,0,0,.22),
+        0 1px 0 #fff;
+    }
+
+    .folder-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 11px;
+    }
+
+    .folder-item {
+      width: 100%;
+      min-width: 0;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid #a6a8aa;
+      border-bottom-color: #7f8183;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #fff, #e5e6e3 49%, #d0d1ce);
+      color: #44484e;
+      box-shadow:
+        inset 0 1px 0 #fff,
+        0 2px 0 #858789,
+        0 4px 7px rgba(0,0,0,.16);
+      text-align: left;
+      cursor: pointer;
+      transition: transform .15s ease, filter .15s ease;
+    }
+
+    .folder-item:hover {
+      filter: brightness(1.025);
+      transform: translateY(-1px);
+    }
+
+    .folder-item:active {
+      box-shadow:
+        inset 1px 2px 5px rgba(0,0,0,.28),
+        0 1px 0 #fff;
+      transform: translateY(2px);
+    }
+
+    .folder-icon {
+      width: 36px;
+      height: 36px;
+      flex: 0 0 36px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #b49b65;
+      border-radius: 9px;
+      background: linear-gradient(145deg, #fff2c5, #d8b760);
+      color: #8e6415;
+      box-shadow:
+        inset 1px 1px 0 rgba(255,255,255,.8),
+        0 1px 2px rgba(0,0,0,.18);
+    }
+
+    .folder-name {
+      overflow: hidden;
+      font-size: .72rem;
+      font-weight: 820;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      text-shadow: 0 1px 0 #fff;
+    }
+
+    .directory-section + .directory-section {
+      margin-top: 16px;
+    }
+
+    .directory-section-header {
+      margin: 0 1px 9px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      color: #555a61;
+      font-size: .65rem;
+      font-weight: 850;
+      letter-spacing: .045em;
+      text-transform: uppercase;
+      text-shadow: 0 1px 0 #fff;
+    }
+
+    .directory-section-header span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .directory-count {
+      min-width: 24px;
+      padding: 2px 7px;
+      justify-content: center;
+      border: 1px solid #a1a3a5;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #fff, #d6d7d4);
+      color: #62666b;
+      box-shadow: inset 0 1px 0 #fff;
+      font-size: .58rem;
+      letter-spacing: 0;
+    }
+
+    .source-file-toolbar {
+      margin-bottom: 9px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .source-file-search {
+      min-width: 0;
+      position: relative;
+      flex: 1 1 auto;
+    }
+
+    .source-file-search i {
+      position: absolute;
+      top: 50%;
+      left: 10px;
+      color: #7a7e83;
+      font-size: .65rem;
+      pointer-events: none;
+      transform: translateY(-50%);
+    }
+
+    .source-file-search input {
+      width: 100%;
+      min-height: 34px;
+      padding: 7px 11px 7px 29px;
+      border: 1px solid #929598;
+      border-top-color: #707376;
+      border-left-color: #707376;
+      border-radius: 8px;
+      outline: none;
+      background: #f8f8f5;
+      color: #3f444a;
+      box-shadow:
+        inset 1px 2px 4px rgba(0,0,0,.16),
+        0 1px 0 #fff;
+      font: inherit;
+      font-size: .64rem;
+      font-weight: 720;
+    }
+
+    .source-file-search input:focus {
+      border-color: #a51d1d;
+      box-shadow:
+        inset 1px 2px 4px rgba(0,0,0,.14),
+        0 0 0 2px rgba(192, 38, 38, .14);
+    }
+
+    .source-file-filter-count {
+      flex: 0 0 auto;
+      color: #666b70;
+      font-size: .58rem;
+      font-weight: 780;
+      white-space: nowrap;
+      text-shadow: 0 1px 0 #fff;
+    }
+
+    .source-status-filter {
+      margin: 0 0 9px;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .source-status-filter-label {
+      margin-right: 2px;
+      color: #686d72;
+      font-size: .58rem;
+      font-weight: 820;
+      text-shadow: 0 1px 0 #fff;
+    }
+
+    .source-status-filter-button {
+      min-height: 27px;
+      padding: 4px 9px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      border: 1px solid #96999c;
+      border-bottom-color: #777a7d;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #fff, #d9dad7);
+      color: #5c6166;
+      box-shadow:
+        inset 0 1px 0 #fff,
+        0 1px 0 #888b8d;
+      font-size: .56rem;
+      font-weight: 820;
+      cursor: pointer;
+      transition: filter .15s ease, transform .15s ease;
+    }
+
+    .source-status-filter-button:hover {
+      filter: brightness(1.04);
+    }
+
+    .source-status-filter-button:active {
+      transform: translateY(1px);
+    }
+
+    .source-status-filter-button.is-active {
+      border-color: #9e2020;
+      border-bottom-color: #681212;
+      background: linear-gradient(180deg, #e95757, #b92323 54%, #8a1515);
+      color: #fff;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.34),
+        0 2px 0 #651111;
+      text-shadow: 0 -1px 0 rgba(0,0,0,.24);
+    }
+
+    .source-status-filter-count {
+      min-width: 18px;
+      padding: 1px 5px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.1);
+      text-align: center;
+    }
+
+    .source-status-filter-button.is-active .source-status-filter-count {
+      background: rgba(255,255,255,.2);
+    }
+
+    .database-status-warning {
+      margin: 0 0 9px;
+      padding: 7px 9px;
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+      border: 1px solid #b59045;
+      border-radius: 7px;
+      background: linear-gradient(180deg, #fff6d9, #ead6a4);
+      color: #6f551c;
+      font-size: .59rem;
+      font-weight: 720;
+      line-height: 1.4;
+    }
+
+    .source-file-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .source-file-item {
+      min-width: 0;
+      padding: 9px 10px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      border: 1px solid #a6a8aa;
+      border-bottom-color: #7f8183;
+      border-radius: 9px;
+      background: linear-gradient(180deg, #fbfbf8, #dedfdb);
+      box-shadow:
+        inset 0 1px 0 #fff,
+        0 2px 0 #858789,
+        0 3px 6px rgba(0,0,0,.13);
+    }
+
+    .source-file-item.is-in-database {
+      border-color: #70a07f;
+      border-bottom-color: #4f7c5d;
+      background: linear-gradient(180deg, #f4fff6, #d5e7d9);
+      box-shadow:
+        inset 0 1px 0 #fff,
+        0 2px 0 #5d8569,
+        0 3px 6px rgba(0,0,0,.12);
+    }
+
+    .source-file-icon {
+      width: 32px;
+      height: 32px;
+      flex: 0 0 32px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #75a184;
+      border-radius: 8px;
+      background: linear-gradient(145deg, #eaffef, #86c69a);
+      color: #176b39;
+      box-shadow:
+        inset 1px 1px 0 rgba(255,255,255,.8),
+        0 1px 2px rgba(0,0,0,.16);
+    }
+
+    .source-file-copy {
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    .source-file-name {
+      display: block;
+      overflow: hidden;
+      color: #3f444a;
+      font-size: .68rem;
+      font-weight: 820;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      text-shadow: 0 1px 0 #fff;
+    }
+
+    .source-file-type {
+      color: #6d7176;
+      font-size: .58rem;
+      font-weight: 700;
+    }
+
+    .source-file-meta {
+      margin-top: 3px;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 5px 7px;
+    }
+
+    .source-file-status {
+      padding: 2px 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      border: 1px solid;
+      border-radius: 999px;
+      font-size: .52rem;
+      font-weight: 850;
+      line-height: 1.2;
+    }
+
+    .source-file-status.is-saved {
+      border-color: #659377;
+      background: #d7efde;
+      color: #176438;
+    }
+
+    .source-file-status.is-pending {
+      border-color: #a58a4d;
+      background: #f7eac6;
+      color: #725719;
+    }
+
+    .source-file-status.is-unknown {
+      border-color: #93979a;
+      background: #e5e6e3;
+      color: #64696e;
+    }
+
+    .source-file-empty-filter {
+      padding: 18px 12px;
+      border: 1px dashed #a1a4a6;
+      border-radius: 8px;
+      color: #696e73;
+      font-size: .64rem;
+      font-weight: 750;
+      text-align: center;
+      text-shadow: 0 1px 0 #fff;
+    }
+
+    .source-file-action {
+      min-height: 31px;
+      padding: 0 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      flex: 0 0 auto;
+      border: 1px solid #9d2525;
+      border-bottom-color: #681313;
+      border-radius: 7px;
+      background: linear-gradient(180deg, #ef5b5b, #be2727 53%, #8f1717);
+      color: #fff;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.36),
+        0 2px 0 #641212;
+      font-size: .58rem;
+      font-weight: 850;
+      cursor: pointer;
+    }
+
+    .source-file-action:hover:not(:disabled) {
+      filter: brightness(1.07);
+    }
+
+    .source-file-action:active:not(:disabled) {
+      transform: translateY(2px);
+      box-shadow: inset 0 2px 4px rgba(0,0,0,.28);
+    }
+
+    .source-file-action:disabled {
+      cursor: not-allowed;
+      filter: grayscale(.55);
+      opacity: .55;
+    }
+
+    .loader-state,
+    .empty-state {
+      min-height: 286px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--ink-500);
+      text-align: center;
+    }
+
+    .loader-gear {
+      margin-bottom: 12px;
+      color: var(--brand);
+      font-size: 30px;
+      animation: spin 1.4s linear infinite;
+      text-shadow: 0 1px 0 #fff;
+    }
+
+    .empty-icon {
+      width: 58px;
+      height: 58px;
+      margin-bottom: 13px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #a6a8aa;
+      border-radius: 15px;
+      background: linear-gradient(145deg, #fff, #cacbc8);
+      color: #73777d;
+      box-shadow:
+        inset 1px 1px 0 #fff,
+        0 2px 0 #858789,
+        0 4px 7px rgba(0,0,0,.15);
+      font-size: 22px;
+    }
+
+    .empty-state strong {
+      color: var(--ink-900);
+      font-size: .84rem;
+      text-shadow: 0 1px 0 #fff;
+    }
+
+    .empty-state span {
+      max-width: 270px;
+      margin-top: 5px;
+      font-size: .69rem;
+      line-height: 1.5;
+      text-shadow: 0 1px 0 #fff;
+    }
+
+    .action-area {
+      padding: 15px 16px 17px;
+      border-top: 1px solid #b3b5b6;
+      background: linear-gradient(180deg, #eeeeeb, #d3d4d1);
+      box-shadow: inset 0 1px 0 #fff;
+    }
+
+    .mode-toggle {
+      margin-bottom: 11px;
+      padding: 11px 13px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      border: 1px solid #bc9f70;
+      border-radius: 10px;
+      background: linear-gradient(145deg, #fff8e9, #e7d4ad);
+      color: #71501f;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.8),
+        0 2px 3px rgba(0,0,0,.12);
+      font-size: .67rem;
+      line-height: 1.5;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .mode-toggle input {
+      margin-top: 2px;
+      width: 15px;
+      height: 15px;
+      flex: none;
+      accent-color: #8b1111;
+      cursor: pointer;
+    }
+
+    .mode-toggle strong {
+      display: block;
+      font-size: .7rem;
+    }
+
+    .action-button {
+      width: 100%;
+      min-height: 47px;
+      padding: 0 17px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      border: 1px solid #821111;
+      border-bottom-color: #5d0808;
+      border-radius: 11px;
+      background: linear-gradient(180deg, #ed5252 0, #d83232 46%, #b61d1d 52%, #8b1111 100%);
+      color: #fff;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.48),
+        inset 0 -1px 0 rgba(73,0,0,.45),
+        0 3px 0 #650b0b,
+        0 5px 8px rgba(77,0,0,.3);
+      font-size: .73rem;
+      font-weight: 850;
+      letter-spacing: .035em;
+      text-shadow: 0 -1px 0 #620a0a;
+      cursor: pointer;
+    }
+
+    .action-button:hover:not(:disabled) {
+      background: linear-gradient(180deg, #f25a5a 0, #dd3636 46%, #be2020 52%, #941313 100%);
+    }
+
+    .action-button:active:not(:disabled) {
+      box-shadow:
+        inset 0 2px 4px rgba(0,0,0,.32),
+        0 1px 0 #650b0b;
+      transform: translateY(2px);
+    }
+
+    .action-button:disabled {
+      cursor: not-allowed;
+      filter: grayscale(.45);
+      opacity: .55;
+    }
+
+    .progress-ui {
+      padding: 13px;
+      border: 1px solid #999b9e;
+      border-top-color: #737679;
+      border-left-color: #737679;
+      border-radius: 10px;
+      background: #d8d9d6;
+      box-shadow:
+        inset 1px 2px 4px rgba(0,0,0,.14),
+        0 1px 0 #fff;
+    }
+
+    .progress-ui:not(.hidden) { margin-bottom: 14px; }
+
+    .cancel-button {
+      margin-top: 12px;
+      border-color: #4b4e51;
+      border-bottom-color: #313335;
+      background: linear-gradient(180deg, #8a8f94 0, #6d7276 46%, #55595d 52%, #3c3f42 100%);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.35),
+        inset 0 -1px 0 rgba(0,0,0,.4),
+        0 3px 0 #2c2e30,
+        0 5px 8px rgba(0,0,0,.28);
+    }
+
+    .cancel-button:hover:not(:disabled) {
+      background: linear-gradient(180deg, #94999e 0, #75797d 46%, #5c6064 52%, #434649 100%);
+    }
+
+    .progress-meta {
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--ink-700);
+      font-size: .7rem;
+      font-weight: 800;
+      text-shadow: 0 1px 0 #fff;
+    }
+
+    .progress-text { color: var(--brand); }
+
+    .progress-container {
+      height: 10px;
+      overflow: hidden;
+      border: 1px solid #b5b7b8;
+      border-radius: 999px;
+      background: #c9cac8;
+      box-shadow:
+        inset 0 2px 3px rgba(0,0,0,.3),
+        0 1px 0 #fff;
+    }
+
+    .progress-bar {
+      width: 0;
+      height: 100%;
+      border: 1px solid #8b1111;
+      border-radius: inherit;
+      background: linear-gradient(180deg, #f45c5c, #c52323 49%, #a21515 51%, #7e0d0d);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.48);
+      transition: width .3s ease;
+    }
+
+    .progress-caption {
+      margin: 8px 0 0;
+      color: var(--ink-500);
+      font-size: .66rem;
+      line-height: 1.45;
+      text-align: center;
+      text-shadow: 0 1px 0 #fff;
+    }
+
+    .hidden { display: none !important; }
+
+    .swal2-popup.metal-alert {
+      border: 1px solid #8b8d8f;
+      background: linear-gradient(145deg, #f4f4f1, #d5d6d3) !important;
+      box-shadow:
+        inset 0 1px 0 #fff,
+        0 4px 0 #313236,
+        0 20px 50px rgba(0,0,0,.45);
+    }
+
+    .swal2-popup.extraction-report-popup {
+      width: min(780px, calc(100vw - 28px));
+      max-height: calc(100vh - 28px);
+      padding: 0;
+      overflow: hidden;
+      border-radius: 18px;
+    }
+
+    .extraction-report-popup .swal2-icon {
+      display: none !important;
+    }
+
+    .extraction-report-popup .swal2-title {
+      padding: 18px 48px 0;
+      color: var(--ink-900);
+      font-size: 1.05rem;
+      font-weight: 900;
+      letter-spacing: -.02em;
+    }
+
+    .extraction-report-popup .swal2-html-container {
+      margin: 12px 0 0;
+      padding: 0 22px;
+      overflow: hidden;
+      color: var(--ink-900);
+      font-size: .76rem;
+      text-align: left;
+    }
+
+    .extraction-report-popup .swal2-actions {
+      width: 100%;
+      margin: 14px 0 0;
+      padding: 13px 22px 16px;
+      border-top: 1px solid rgba(79,83,89,.22);
+      background: rgba(255,255,255,.3);
+    }
+
+    .extraction-report-popup .extraction-report-confirm {
+      min-width: 138px;
+      padding: 10px 18px;
+      border: 1px solid #711010;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #d83a3a, #951919);
+      color: #fff;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.3),
+        0 3px 0 #5f0b0b,
+        0 8px 18px rgba(141,21,21,.2);
+      font-size: .74rem;
+      font-weight: 900;
+      letter-spacing: .02em;
+      cursor: pointer;
+    }
+
+    .extraction-report-popup .extraction-report-confirm:hover {
+      filter: brightness(1.06);
+      transform: translateY(-1px);
+    }
+
+    .extraction-report-popup .extraction-report-close {
+      top: 5px;
+      right: 7px;
+      width: 34px;
+      height: 34px;
+      color: var(--ink-700);
+      font-size: 1.6rem;
+    }
+
+    .extraction-report {
+      display: grid;
+      gap: 12px;
+    }
+
+    .extraction-report-lead {
+      padding: 11px 13px;
+      border: 1px solid rgba(79,83,89,.2);
+      border-radius: 11px;
+      background: rgba(255,255,255,.48);
+      color: var(--ink-700);
+      font-size: .72rem;
+      font-weight: 650;
+      line-height: 1.55;
+      text-align: left;
+    }
+
+    .extraction-report-stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .extraction-report-stat {
+      min-width: 0;
+      padding: 10px 11px;
+      border: 1px solid rgba(79,83,89,.22);
+      border-radius: 11px;
+      background: linear-gradient(145deg, rgba(255,255,255,.8), rgba(205,207,204,.72));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.85);
+    }
+
+    .extraction-report-stat-label {
+      display: block;
+      color: var(--ink-500);
+      font-size: .59rem;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .extraction-report-stat-value {
+      display: block;
+      margin-top: 3px;
+      color: var(--ink-900);
+      font-size: 1.08rem;
+      font-weight: 950;
+      line-height: 1;
+    }
+
+    .extraction-report-stat.is-success .extraction-report-stat-value { color: var(--success); }
+    .extraction-report-stat.is-error .extraction-report-stat-value { color: var(--danger); }
+    .extraction-report-stat.is-warning .extraction-report-stat-value { color: #9a5a08; }
+
+    .extraction-issue-section {
+      overflow: hidden;
+      border: 1px solid rgba(79,83,89,.25);
+      border-radius: 12px;
+      background: rgba(255,255,255,.38);
+    }
+
+    .extraction-issue-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(79,83,89,.16);
+      background: rgba(255,255,255,.42);
+    }
+
+    .extraction-issue-heading {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      margin: 0;
+      color: var(--ink-900);
+      font-size: .74rem;
+      font-weight: 950;
+    }
+
+    .extraction-issue-section.is-error .extraction-issue-heading i { color: var(--danger); }
+    .extraction-issue-section.is-warning .extraction-issue-heading i { color: #a96308; }
+
+    .extraction-issue-count {
+      flex: 0 0 auto;
+      padding: 3px 8px;
+      border: 1px solid rgba(79,83,89,.2);
+      border-radius: 999px;
+      background: rgba(255,255,255,.55);
+      color: var(--ink-700);
+      font-size: .59rem;
+      font-weight: 900;
+    }
+
+    .extraction-issue-list {
+      max-height: min(240px, 30vh);
+      padding: 8px;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+
+    .extraction-issue-item {
+      display: grid;
+      grid-template-columns: 26px minmax(0, 1fr);
+      gap: 9px;
+      padding: 9px 8px;
+      border-bottom: 1px solid rgba(79,83,89,.12);
+    }
+
+    .extraction-issue-item:last-child { border-bottom: 0; }
+
+    .extraction-issue-index {
+      width: 24px;
+      height: 24px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(79,83,89,.2);
+      border-radius: 8px;
+      background: linear-gradient(145deg, #f8f8f6, #c9cbc8);
+      color: var(--ink-700);
+      font-size: .58rem;
+      font-weight: 950;
+      box-shadow: inset 0 1px 0 #fff;
+    }
+
+    .extraction-issue-main { min-width: 0; }
+
+    .extraction-issue-file-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 5px 7px;
+    }
+
+    .extraction-issue-file {
+      min-width: 0;
+      overflow: hidden;
+      color: var(--ink-900);
+      font-size: .7rem;
+      font-weight: 900;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .extraction-issue-chip {
+      flex: 0 0 auto;
+      padding: 2px 6px;
+      border: 1px solid rgba(79,83,89,.2);
+      border-radius: 999px;
+      background: rgba(255,255,255,.62);
+      color: var(--ink-700);
+      font-size: .53rem;
+      font-weight: 900;
+      letter-spacing: .03em;
+    }
+
+    .extraction-issue-section.is-error .extraction-issue-category {
+      border-color: rgba(187,38,57,.22);
+      background: rgba(187,38,57,.08);
+      color: #922034;
+    }
+
+    .extraction-issue-section.is-warning .extraction-issue-category {
+      border-color: rgba(169,99,8,.24);
+      background: rgba(169,99,8,.09);
+      color: #875006;
+    }
+
+    .extraction-issue-reason {
+      margin: 4px 0 0;
+      color: var(--ink-700);
+      font-size: .66rem;
+      font-weight: 600;
+      line-height: 1.45;
+    }
+
+    .extraction-issue-omitted {
+      margin: 0;
+      padding: 8px 12px;
+      border-top: 1px dashed rgba(79,83,89,.22);
+      color: var(--ink-500);
+      font-size: .62rem;
+      font-weight: 750;
+      text-align: center;
+    }
+
+    .extraction-report-clean {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 11px 13px;
+      border: 1px solid rgba(22,114,83,.2);
+      border-radius: 11px;
+      background: rgba(22,114,83,.08);
+      color: #135c46;
+      font-size: .7rem;
+      font-weight: 800;
+    }
+
+    .extraction-report-meta {
+      color: var(--ink-500);
+      font-size: .61rem;
+      font-weight: 750;
+      text-align: right;
+    }
+
+    @media (max-width: 640px) {
+      .swal2-popup.extraction-report-popup {
+        width: calc(100vw - 18px);
+        max-height: calc(100vh - 18px);
+        border-radius: 14px;
+      }
+
+      .extraction-report-popup .swal2-html-container {
+        padding: 0 12px;
+      }
+
+      .extraction-report-popup .swal2-actions {
+        padding-right: 12px;
+        padding-left: 12px;
+      }
+
+      .extraction-report-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .extraction-issue-list {
+        max-height: min(210px, 28vh);
+      }
+
+      .extraction-issue-file {
+        max-width: 100%;
+        white-space: normal;
+        overflow-wrap: anywhere;
+      }
+
+      .extraction-report-meta {
+        text-align: left;
+      }
+    }
+
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb {
+      border: 1px solid #64676b;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #85888d, #55585d);
+      box-shadow: inset 1px 0 0 rgba(255,255,255,.25);
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 900px) {
+      .app-topbar-inner { padding: 0 18px; }
+      .app-nav-link { width: 39px; padding: 0; }
+      .app-nav-link span { display: none; }
+      .workspace-grid { grid-template-columns: 1fr; }
+      .guide-panel { order: 2; }
+    }
+
+    @media (max-width: 640px) {
+      .app-main {
+        width: min(calc(100% - 18px), 1120px);
+        margin-top: 16px;
+        padding: 24px 15px 26px;
+      }
+
+      .page-heading {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .connection-chip { margin-left: 67px; }
+      .folder-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 480px) {
+      .app-topbar-inner { padding: 0 13px; }
+      .app-brand-name { font-size: .82rem; }
+      .app-brand-subtitle { display: none; }
+      .heading-icon { width: 45px; height: 45px; flex-basis: 45px; }
+      .connection-chip { margin-left: 60px; }
+    }
+
+    /* Compact density shared with Dashboard and Input SPK. */
+    html {
+      font-size: 15px;
+    }
+
+    .app-topbar {
+      min-height: 72px;
+    }
+
+    .app-topbar-inner {
+      min-height: 68px;
+      padding-inline: 22px;
+      gap: 18px;
+    }
+
+    .app-brand {
+      gap: 11px;
+    }
+
+    .app-brand-mark {
+      width: 52px;
+      height: 52px;
+      flex-basis: 52px;
+      padding: 4px;
+      border-radius: 12px;
+    }
+
+    .app-brand-name {
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: .01em;
+      line-height: 1.2;
+    }
+
+    .app-brand-subtitle {
+      margin-top: 2px;
+      font-size: .74rem;
+      letter-spacing: .02em;
+      line-height: 1.2;
+    }
+
+    .app-nav {
+      gap: 5px;
+    }
+
+    .app-nav-link {
+      min-height: 35px;
+      padding-inline: 11px;
+      gap: 6px;
+      border-radius: 8px;
+      font-size: .72rem;
+    }
+
+    .app-fullscreen-button {
+      appearance: none;
+      font-family: inherit;
+      font-size: .72rem;
+      font-weight: 650;
+      letter-spacing: normal;
+      text-transform: none;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    @media (min-width: 901px) {
+      .app-fullscreen-button {
+        width: 104px;
+        flex: 0 0 104px;
+      }
+    }
+
+    .app-fullscreen-button[aria-pressed="true"] {
+      border-color: rgba(255,255,255,.18);
+      background: rgba(255,255,255,.14);
+      color: #fff;
+    }
+
+    html:fullscreen,
+    html:-webkit-full-screen,
+    html:fullscreen body,
+    html:-webkit-full-screen body {
+      min-height: 100%;
+      background-color: var(--app-page-background-color);
+      background-image: var(--app-page-background-image);
+      background-position: var(--app-page-background-position);
+      background-size: var(--app-page-background-size);
+    }
+
+    body.app-focus-mode {
+      position: fixed;
+      z-index: 9999;
+      inset: 0;
+      overflow: auto;
+      background-color: var(--app-page-background-color);
+      background-image: var(--app-page-background-image);
+      background-position: var(--app-page-background-position);
+      background-size: var(--app-page-background-size);
+    }
+
+    .app-main {
+      width: min(calc(100% - 24px), 1080px);
+      margin: 18px auto 28px;
+      padding: 23px 21px 26px;
+      border-radius: 17px;
+    }
+
+    .page-heading {
+      margin-bottom: 17px;
+      gap: 16px;
+    }
+
+    .heading-group {
+      gap: 11px;
+    }
+
+    .heading-icon {
+      width: 42px;
+      height: 42px;
+      flex-basis: 42px;
+      border-radius: 11px;
+      font-size: 17px;
+    }
+
+    .eyebrow {
+      margin-bottom: 3px;
+      font-size: .61rem;
+    }
+
+    h1 {
+      font-size: clamp(1.3rem, 2.4vw, 1.65rem);
+    }
+
+    .page-description {
+      margin-top: 4px;
+      font-size: .72rem;
+      line-height: 1.42;
+    }
+
+    .connection-chip {
+      padding: 6px 9px;
+      gap: 6px;
+      font-size: .62rem;
+    }
+
+    .connection-dot {
+      width: 7px;
+      height: 7px;
+    }
+
+    .workspace-grid {
+      grid-template-columns: 250px minmax(0, 1fr);
+      gap: 12px;
+    }
+
+    .panel {
+      border-radius: 11px;
+    }
+
+    .panel-header {
+      min-height: 49px;
+      padding: 11px 14px;
+      gap: 9px;
+    }
+
+    .panel-title {
+      font-size: .76rem;
+    }
+
+    .panel-caption {
+      margin-top: 2px;
+      font-size: .61rem;
+    }
+
+    .guide-body {
+      padding: 13px;
+      gap: 11px;
+    }
+
+    .guide-step {
+      grid-template-columns: 27px minmax(0, 1fr);
+      gap: 8px;
+    }
+
+    .guide-number {
+      width: 27px;
+      height: 27px;
+      border-radius: 7px;
+      font-size: .62rem;
+    }
+
+    .guide-step strong {
+      margin: 1px 0 2px;
+      font-size: .67rem;
+    }
+
+    .guide-step span {
+      font-size: .61rem;
+      line-height: 1.4;
+    }
+
+    .guide-note {
+      margin: 0 13px 13px;
+      padding: 9px;
+      gap: 7px;
+      border-radius: 8px;
+      font-size: .61rem;
+    }
+
+    .explorer-body {
+      padding: 12px;
+    }
+
+    .breadcrumb-well {
+      min-height: 36px;
+      margin-bottom: 9px;
+      padding: 7px 10px;
+      gap: 5px;
+      border-radius: 8px;
+      font-size: .64rem;
+    }
+
+    .folder-area {
+      min-height: 270px;
+      max-height: 370px;
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    .folder-grid {
+      gap: 8px;
+    }
+
+    .folder-item {
+      padding: 9px;
+      gap: 8px;
+      border-radius: 8px;
+    }
+
+    .folder-icon {
+      width: 31px;
+      height: 31px;
+      flex-basis: 31px;
+      border-radius: 7px;
+    }
+
+    .folder-name {
+      font-size: .66rem;
+    }
+
+    .directory-section + .directory-section {
+      margin-top: 12px;
+    }
+
+    .directory-section-header {
+      margin-bottom: 7px;
+      font-size: .59rem;
+    }
+
+    .source-file-toolbar {
+      margin-bottom: 7px;
+      gap: 6px;
+    }
+
+    .source-file-search input {
+      min-height: 30px;
+      padding-block: 5px;
+      font-size: .59rem;
+    }
+
+    .source-file-filter-count {
+      font-size: .54rem;
+    }
+
+    .source-status-filter {
+      margin-bottom: 7px;
+      gap: 5px;
+    }
+
+    .source-status-filter-button {
+      min-height: 24px;
+      padding: 3px 7px;
+      font-size: .52rem;
+    }
+
+    .source-file-item {
+      padding: 7px 8px;
+      gap: 7px;
+      border-radius: 8px;
+    }
+
+    .source-file-icon {
+      width: 29px;
+      height: 29px;
+      flex-basis: 29px;
+      border-radius: 7px;
+    }
+
+    .source-file-name {
+      font-size: .63rem;
+    }
+
+    .source-file-action {
+      min-height: 28px;
+      padding-inline: 8px;
+      font-size: .55rem;
+    }
+
+    .loader-state,
+    .empty-state {
+      min-height: 240px;
+    }
+
+    .empty-icon {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 10px;
+      border-radius: 12px;
+      font-size: 19px;
+    }
+
+    .action-area {
+      padding: 11px 12px 13px;
+    }
+
+    .action-button {
+      min-height: 39px;
+      padding-inline: 13px;
+      gap: 7px;
+      border-radius: 9px;
+      font-size: .68rem;
+    }
+
+    .progress-ui {
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    .progress-meta {
+      margin-bottom: 6px;
+      font-size: .64rem;
+    }
+
+    .progress-container {
+      height: 8px;
+    }
+
+    .progress-caption {
+      margin-top: 6px;
+      font-size: .61rem;
+    }
+
+    @media (max-width: 900px) {
+      .app-topbar-inner {
+        padding-inline: 15px;
+      }
+
+      .app-main {
+        width: min(calc(100% - 18px), 1080px);
+        margin-top: 13px;
+        padding: 18px 15px 21px;
+      }
+
+      .workspace-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 520px) {
+      html {
+        font-size: 14.5px;
+      }
+
+      .app-main {
+        width: calc(100% - 12px);
+        padding: 14px 10px 18px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+      }
+    }
+
+    /* Unified typography and page-heading system for the primary UI. */
+    .page-heading {
+      align-items: center;
+      margin-bottom: 16px;
+      gap: 16px;
+    }
+
+    .heading-group {
+      gap: 11px;
+    }
+
+    .heading-icon {
+      width: 46px;
+      height: 46px;
+      flex-basis: 46px;
+      border-radius: 12px;
+      font-size: 18px;
+    }
+
+    .eyebrow {
+      margin: 0 0 4px;
+      font-size: .64rem;
+      font-weight: 900;
+      line-height: 1.3;
+      letter-spacing: .11em;
+    }
+
+    h1 {
+      font-size: 1.55rem;
+      font-weight: 850;
+      line-height: 1.2;
+      letter-spacing: -.025em;
+    }
+
+    .page-description {
+      margin-top: 5px;
+      font-size: .75rem;
+      font-weight: 500;
+      line-height: 1.45;
+    }
+
+    .panel-title {
+      font-size: .86rem;
+      font-weight: 850;
+      line-height: 1.2;
+    }
+
+    .panel-caption {
+      font-size: .69rem;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 640px) {
+      .page-heading {
+        align-items: flex-start;
+      }
+    }
+
+    </style>
+  <script src="/assets/js/gas-rpc.js?v=20260811-1"></script>
+</head>
+<body
+  class="tw:min-h-screen tw:text-polyta-ink selection:tw:bg-polyta-brand-soft selection:tw:text-polyta-brand"
+  data-ui-engine="tailwind-alpine"
+  data-page="penarikan-data"
+  x-data="polytaPageUi('penarikan-data')"
+  x-bind:data-ui-ready="ready ? 'true' : 'false'"
+  x-bind:data-connection="online ? 'online' : 'offline'"
+  x-on:online.window="setOnline(true)"
+  x-on:offline.window="setOnline(false)"
+>
+  <div
+  class="no-print tw:pointer-events-none tw:fixed tw:inset-x-0 tw:top-3 tw:z-[9999] tw:flex tw:justify-center tw:px-4"
+  x-cloak
+  x-show="!online"
+  x-transition.opacity.duration.200ms
+  role="status"
+  aria-live="polite"
+>
+  <div class="tw:flex tw:items-center tw:gap-2 tw:rounded-full tw:border tw:border-red-300/70 tw:bg-red-50/95 tw:px-4 tw:py-2 tw:text-xs tw:font-bold tw:text-red-800 tw:shadow-lg tw:backdrop-blur">
+    <span class="tw:h-2 tw:w-2 tw:rounded-full tw:bg-red-600" aria-hidden="true"></span>
+    Koneksi terputus — menunggu jaringan kembali
+  </div>
+</div>
+
+  <header class="app-topbar">
+    <div class="app-topbar-inner">
+      <div class="app-brand">
+        <div class="app-brand-mark" aria-hidden="true">
+          <svg class="polyta-logo" viewBox="0 0 120 120" focusable="false">
+            <defs>
+              <linearGradient id="pullLogoMetal" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#4b4e54"/>
+                <stop offset=".42" stop-color="#111216"/>
+                <stop offset="1" stop-color="#020304"/>
+              </linearGradient>
+              <linearGradient id="pullLogoBlue" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#6f8fe0"/>
+                <stop offset=".48" stop-color="#4563b3"/>
+                <stop offset="1" stop-color="#293f87"/>
+              </linearGradient>
+              <linearGradient id="pullLogoRed" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#ff5660"/>
+                <stop offset=".5" stop-color="#ef2631"/>
+                <stop offset="1" stop-color="#b90f1d"/>
+              </linearGradient>
+              <linearGradient id="pullLogoGreen" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#72d77b"/>
+                <stop offset=".48" stop-color="#40b84e"/>
+                <stop offset="1" stop-color="#168d2d"/>
+              </linearGradient>
+            </defs>
+            <path d="M14 12h50v43h42v53h-8V63H64v45H14V55h42V20H14z" fill="url(#pullLogoMetal)"/>
+            <rect x="15" y="22" width="41" height="12" rx="6" fill="url(#pullLogoBlue)"/>
+            <rect x="22" y="63" width="34" height="37" fill="url(#pullLogoRed)"/>
+            <rect x="84" y="64" width="11" height="44" rx="5.5" fill="url(#pullLogoGreen)"/>
+            <path d="M17 15h43M24 66h30M86.5 67v35" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="2" opacity=".36"/>
+          </svg>
+        </div>
+        <div>
+          <span class="app-brand-name">Polyta Global Mandiri</span>
+          <span class="app-brand-subtitle">Plastic Packaging Industry</span>
+        </div>
+      </div>
+      <nav class="app-nav" aria-label="Navigasi utama">
+        <a class="app-nav-link" href="/spk-automasi/" target="_top" title="PPIC">
+          <i class="fa-solid fa-chart-pie"></i><span>PPIC</span>
+        </a>
+        <a class="app-nav-link" href="/spk-automasi/keluar-bahan/" target="_top" title="Keluar Bahan Manager PPIC">
+          <i class="fa-solid fa-dolly"></i><span>Keluar Bahan</span>
+        </a>
+        <a class="app-nav-link active" href="/spk-automasi/penarikan-data/" target="_top" aria-current="page" title="Penarikan Data">
+          <i class="fa-solid fa-file-arrow-down"></i><span>Penarikan Data</span>
+        </a>
+        <button
+          id="btnFullscreen"
+          class="app-nav-link app-fullscreen-button"
+          type="button"
+          aria-pressed="false"
+          title="Buka tampilan layar penuh"
+        >
+          <i id="fullscreenIcon" class="fa-solid fa-expand" aria-hidden="true"></i>
+          <span id="fullscreenLabel">Layar Penuh</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="app-main tw:transition-shadow tw:duration-300">
+    <section class="page-heading" aria-labelledby="pageTitle">
+      <div class="heading-group">
+        <div class="heading-icon" aria-hidden="true"><i class="fa-solid fa-folder-tree"></i></div>
+        <div>
+          <p class="eyebrow">Sinkronisasi Data</p>
+          <h1 id="pageTitle">Penarikan Data</h1>
+          <p class="page-description">Cari nomor SPK, periksa status Database, lalu tarik seluruh folder atau satu file tertentu.</p>
+        </div>
+      </div>
+      <div class="connection-chip">
+        <span class="connection-dot" aria-hidden="true"></span>
+        <span id="connectionText">Menghubungkan ke Drive</span>
+      </div>
+    </section>
+
+    <section class="workspace-grid">
+      <aside class="panel guide-panel" aria-labelledby="guideTitle">
+        <div class="panel-header">
+          <div>
+            <h2 id="guideTitle" class="panel-title">Alur Penarikan</h2>
+            <p class="panel-caption">Pilih scope penarikan yang dibutuhkan</p>
+          </div>
+          <i class="fa-solid fa-list-check" aria-hidden="true"></i>
+        </div>
+
+        <div class="guide-body">
+          <div class="guide-step">
+            <span class="guide-number">01</span>
+            <div>
+              <strong>Pilih direktori</strong>
+              <span>Buka subfolder hingga mencapai folder yang berisi file SPK.</span>
+            </div>
+          </div>
+          <div class="guide-step">
+            <span class="guide-number">02</span>
+            <div>
+              <strong>Cari dan periksa</strong>
+              <span>Gunakan pencarian SPK dan lihat tanda apakah file sudah tersimpan.</span>
+            </div>
+          </div>
+          <div class="guide-step">
+            <span class="guide-number">03</span>
+            <div>
+              <strong>Mulai penarikan</strong>
+              <span>Tarik semua file dalam folder atau gunakan tombol Tarik pada satu file SPK.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="guide-note">
+          <i class="fa-solid fa-forward-fast" aria-hidden="true"></i>
+          <span>Kedua mode berjalan incremental: SPK lama tidak ditimpa. SPK baru ditambahkan dan disusun dari kecil ke besar; rumus, Release, serta keterangan manual tetap dilindungi.</span>
+        </div>
+      </aside>
+
+      <section class="panel explorer-panel" aria-labelledby="explorerTitle">
+        <div class="panel-header">
+          <div>
+            <h2 id="explorerTitle" class="panel-title">Direktori Sumber</h2>
+            <p class="panel-caption">Navigasikan folder, cari SPK, dan periksa status</p>
+          </div>
+          <i class="fa-brands fa-google-drive" aria-hidden="true"></i>
+        </div>
+
+        <div class="explorer-body">
+          <div id="breadcrumbArea" class="breadcrumb-well" aria-label="Lokasi folder">
+            <span>Menghubungkan ke Drive...</span>
+          </div>
+          <div id="folderArea" class="folder-area" aria-live="polite"></div>
+        </div>
+
+        <div class="action-area">
+          <div id="progressUI" class="progress-ui hidden" aria-live="polite">
+            <div class="progress-meta">
+              <span><i class="fa-solid fa-gears"></i> Mengekstrak data</span>
+              <span id="progressText" class="progress-text">0%</span>
+            </div>
+            <div class="progress-container">
+              <div id="progressBar" class="progress-bar"></div>
+            </div>
+            <p id="progressCaption" class="progress-caption">Menyiapkan sinkronisasi data.</p>
+            <p class="progress-caption"><i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i> Progres tersimpan di server. Halaman boleh ditutup dan dibuka kembali.</p>
+            <button id="btnBatal" class="action-button cancel-button" type="button" onclick="batalkanTarikData()">
+              <i class="fa-solid fa-ban"></i>
+              Batalkan penarikan
+            </button>
+          </div>
+
+          <label class="mode-toggle" for="modeLengkapi">
+            <input type="checkbox" id="modeLengkapi" onchange="syncExtractionControls_()">
+            <span>
+              <strong>Mode Lengkapi Data Lama</strong>
+              Isi warna tinta, keterangan artikel, keterangan divisi, dan kode item untuk SPK yang sudah ada di Database. Hanya sel yang masih kosong yang diisi; kolom lain dan hasil edit manual tidak disentuh.
+            </span>
+          </label>
+          <button id="btnTarik" class="action-button" type="button" onclick="ekstrakDataFolder()" disabled>
+            <i class="fa-solid fa-file-import"></i>
+            Tarik semua file dari direktori ini
+          </button>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    let pathHistory = [];
+    let progressInterval = null;
+    let currentExtractionJobId = '';
+    let activeExtractionFolderId = '';
+    let activeExtractionFileId = '';
+    let activeExtractionFileName = '';
+    let progressPollInFlight = false;
+    let extractionRequestInFlight = false;
+    let extractionResumeScheduled = false;
+    const mockExtractedFileIds = new Set(['root-sheet-preview']);
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initializeFullscreen_();
+      if (isGasEnvironment()) {
+        restoreActiveExtractionJob();
+      } else {
+        fetchFolder(null);
+      }
+    });
+
+    function initializeFullscreen_() {
+      const button = document.getElementById('btnFullscreen');
+      if (!button) return;
+
+      button.addEventListener('click', toggleAppFullscreen_);
+      document.addEventListener('fullscreenchange', syncFullscreenButton_);
+      document.addEventListener('webkitfullscreenchange', syncFullscreenButton_);
+      document.addEventListener('keydown', event => {
+        if (event.key !== 'Escape' || !document.body.classList.contains('app-focus-mode')) return;
+        document.body.classList.remove('app-focus-mode');
+        syncFullscreenButton_();
+      });
+      syncFullscreenButton_();
+    }
+
+    function toggleAppFullscreen_() {
+      const nativeFullscreen =
+        document.fullscreenElement ||
+        document.webkitFullscreenElement;
+      const fallbackActive = document.body.classList.contains('app-focus-mode');
+
+      if (nativeFullscreen) {
+        const exitFullscreen =
+          document.exitFullscreen ||
+          document.webkitExitFullscreen;
+        if (exitFullscreen) {
+          Promise.resolve(exitFullscreen.call(document))
+            .catch(() => {
+              document.body.classList.remove('app-focus-mode');
+              syncFullscreenButton_();
+            });
+          return;
+        }
+      }
+
+      if (fallbackActive) {
+        document.body.classList.remove('app-focus-mode');
+        syncFullscreenButton_();
+        return;
+      }
+
+      const root = document.documentElement;
+      const requestFullscreen =
+        root.requestFullscreen ||
+        root.webkitRequestFullscreen;
+
+      if (!requestFullscreen) {
+        enableFullscreenFallback_();
+        return;
+      }
+
+      try {
+        const requestResult = requestFullscreen.call(root);
+        if (requestResult && typeof requestResult.catch === 'function') {
+          requestResult.catch(enableFullscreenFallback_);
+        }
+      } catch (error) {
+        enableFullscreenFallback_();
+      }
+    }
+
+    function enableFullscreenFallback_() {
+      document.body.classList.add('app-focus-mode');
+      syncFullscreenButton_();
+    }
+
+    function syncFullscreenButton_() {
+      const button = document.getElementById('btnFullscreen');
+      const icon = document.getElementById('fullscreenIcon');
+      const label = document.getElementById('fullscreenLabel');
+      if (!button || !icon || !label) return;
+
+      const active = Boolean(
+        document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        document.body.classList.contains('app-focus-mode')
+      );
+
+      button.setAttribute('aria-pressed', String(active));
+      button.title = active ? 'Keluar dari layar penuh' : 'Buka tampilan layar penuh';
+      icon.className = active ? 'fa-solid fa-compress' : 'fa-solid fa-expand';
+      label.textContent = active ? 'Keluar Penuh' : 'Layar Penuh';
+    }
+
+    function isGasEnvironment() {
+      return typeof google !== 'undefined' && google.script && google.script.run;
+    }
+
+    function restoreActiveExtractionJob() {
+      google.script.run
+        .withSuccessHandler(res => {
+          if (res && res.status === 'success' && res.active && res.job) {
+            attachToExtractionJob_(res.job, true);
+            return;
+          }
+
+          fetchFolder(null);
+
+          if (res && res.status === 'error') {
+            showError(res.message || 'Status penarikan sebelumnya tidak dapat dibaca.');
+          }
+        })
+        .withFailureHandler(() => fetchFolder(null))
+        .getActiveExtractionJob();
+    }
+
+    function showExtractionProgressUi_() {
+      document.getElementById('btnTarik').classList.add('hidden');
+      document.getElementById('progressUI').classList.remove('hidden');
+      syncExtractionControls_();
+    }
+
+    function attachToExtractionJob_(job, refreshFolder) {
+      if (!job || !job.jobId || !job.folderId) {
+        fetchFolder(null);
+        return;
+      }
+
+      currentExtractionJobId = job.jobId;
+      activeExtractionFolderId = job.folderId;
+      activeExtractionFileId = job.fileId || '';
+      activeExtractionFileName = job.fileName || '';
+      extractionRequestInFlight = false;
+      extractionResumeScheduled = false;
+
+      showExtractionProgressUi_();
+      startProgress(job.jobId);
+
+      if (job.progress) {
+        renderExtractionProgress(job.progress);
+      }
+
+      if (refreshFolder) {
+        fetchFolder(job.folderId, job.folderName || 'Folder penarikan');
+      }
+
+      const serverStatus = job.progress && job.progress.status
+        ? job.progress.status
+        : job.status;
+
+      if (serverStatus === 'paused' || serverStatus === 'preparing') {
+        const resumeIndex = job.progress && job.progress.nextIndex != null
+          ? Number(job.progress.nextIndex) || 0
+          : Number(job.nextIndex) || 0;
+        const resumeStats = job.progress && job.progress.resumeStats
+          ? job.progress.resumeStats
+          : job.resumeStats || null;
+
+        scheduleExtractionResume_(
+          resumeIndex,
+          resumeStats
+        );
+        return;
+      }
+
+      if (serverStatus === 'done' || serverStatus === 'error') {
+        const terminalResult =
+          job.result ||
+          (job.progress && job.progress.result) || {
+            status: serverStatus === 'error' ? 'error' : 'success',
+            message: job.progress && job.progress.message
+              ? job.progress.message
+              : 'Proses penarikan sebelumnya telah selesai.',
+            created: job.progress ? job.progress.created : 0,
+            skipped: job.progress ? job.progress.skipped : 0,
+            errors: job.progress ? job.progress.errors : 0,
+            processed: job.progress ? job.progress.processed : 0,
+            total: job.progress ? job.progress.total : 0
+          };
+
+        window.setTimeout(() => handleExtractionResponse(terminalResult), 50);
+      }
+    }
+
+    function fetchFolder(folderId, folderName = null) {
+      showFolderLoading();
+      setConnectionState('Menghubungkan ke Drive', false);
+      document.getElementById('btnTarik').disabled = true;
+
+      if (isGasEnvironment()) {
+        google.script.run
+          .withSuccessHandler(res => handleFolderResponse(res, folderId))
+          .withFailureHandler(err => showError(err && err.message ? err.message : 'Gagal membaca Google Drive.'))
+          .getFolderData(folderId);
+      } else {
+        window.setTimeout(() => {
+          handleFolderResponse(getMockFolderData(folderId, folderName), folderId);
+        }, 450);
+      }
+    }
+
+    function handleFolderResponse(res, requestedFolderId) {
+      if (!res || res.status === 'error') {
+        showError(res && res.message ? res.message : 'Respons folder tidak dikenali.');
+        return;
+      }
+
+      if (!requestedFolderId) {
+        pathHistory = [{ id: res.id, name: res.name }];
+      } else {
+        const existingIndex = pathHistory.findIndex(path => path.id === res.id);
+        if (existingIndex > -1) {
+          pathHistory = pathHistory.slice(0, existingIndex + 1);
+        } else {
+          pathHistory.push({ id: res.id, name: res.name });
+        }
+      }
+
+      renderBreadcrumb();
+      renderFolders(
+        Array.isArray(res.subFolders) ? res.subFolders : [],
+        Array.isArray(res.sourceFiles) ? res.sourceFiles : [],
+        res.databaseStatus || { available: true, message: '' }
+      );
+      setConnectionState('Drive terhubung', true);
+      syncExtractionControls_();
+    }
+
+    function showFolderLoading() {
+      document.getElementById('folderArea').innerHTML =
+        '<div class="loader-state">' +
+          '<i class="fa-solid fa-gear loader-gear" aria-hidden="true"></i>' +
+          '<strong>Membaca direktori</strong>' +
+        '</div>';
+    }
+
+    function setConnectionState(text, connected) {
+      document.getElementById('connectionText').textContent = text;
+      document.querySelector('.connection-dot').style.opacity = connected ? '1' : '.4';
+    }
+
+    function renderBreadcrumb() {
+      const container = document.getElementById('breadcrumbArea');
+      container.innerHTML = '';
+
+      pathHistory.forEach((path, index) => {
+        const isLast = index === pathHistory.length - 1;
+
+        if (isLast) {
+          const current = document.createElement('span');
+          current.className = 'breadcrumb-current';
+          current.textContent = path.name;
+          container.appendChild(current);
+        } else {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'breadcrumb-item';
+          button.textContent = path.name;
+          button.addEventListener('click', () => fetchFolder(path.id, path.name));
+          container.appendChild(button);
+
+          const separator = document.createElement('span');
+          separator.className = 'breadcrumb-separator';
+          separator.textContent = '/';
+          container.appendChild(separator);
+        }
+      });
+    }
+
+    function renderFolders(folders, sourceFiles, databaseStatus) {
+      const container = document.getElementById('folderArea');
+      container.innerHTML = '';
+
+      if (!folders.length && !sourceFiles.length) {
+        container.innerHTML =
+          '<div class="empty-state">' +
+            '<div class="empty-icon"><i class="fa-regular fa-folder-open" aria-hidden="true"></i></div>' +
+            '<strong>Tidak ada sumber SPK</strong>' +
+            '<span>Folder ini tidak memiliki subfolder atau file Google Sheets/Excel yang didukung.</span>' +
+          '</div>';
+        return;
+      }
+
+      if (folders.length) {
+        const folderSection = document.createElement('section');
+        folderSection.className = 'directory-section';
+        folderSection.appendChild(
+          createDirectorySectionHeader_('Folder', folders.length, 'fa-folder')
+        );
+
+        const grid = document.createElement('div');
+        grid.className = 'folder-grid';
+
+        folders.forEach(folder => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'folder-item';
+          button.title = folder.name;
+          button.addEventListener('click', () => fetchFolder(folder.id, folder.name));
+
+          const icon = document.createElement('span');
+          icon.className = 'folder-icon';
+          icon.innerHTML = '<i class="fa-solid fa-folder" aria-hidden="true"></i>';
+
+          const name = document.createElement('span');
+          name.className = 'folder-name';
+          name.textContent = folder.name;
+
+          button.appendChild(icon);
+          button.appendChild(name);
+          grid.appendChild(button);
+        });
+
+        folderSection.appendChild(grid);
+        container.appendChild(folderSection);
+      }
+
+      if (sourceFiles.length) {
+        const fileSection = document.createElement('section');
+        fileSection.className = 'directory-section';
+        fileSection.appendChild(
+          createDirectorySectionHeader_('File SPK', sourceFiles.length, 'fa-file-excel')
+        );
+
+        const toolbar = document.createElement('div');
+        toolbar.className = 'source-file-toolbar';
+
+        const search = document.createElement('label');
+        search.className = 'source-file-search';
+        search.innerHTML =
+          '<i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>';
+
+        const searchInput = document.createElement('input');
+        searchInput.id = 'spkSearchInput';
+        searchInput.type = 'search';
+        searchInput.placeholder = 'Cari nomor SPK atau nama file...';
+        searchInput.setAttribute('aria-label', 'Cari nomor SPK atau nama file');
+        searchInput.autocomplete = 'off';
+
+        const filterCount = document.createElement('span');
+        filterCount.className = 'source-file-filter-count';
+        filterCount.textContent = sourceFiles.length + ' dari ' + sourceFiles.length;
+
+        search.appendChild(searchInput);
+        toolbar.appendChild(search);
+        toolbar.appendChild(filterCount);
+        fileSection.appendChild(toolbar);
+
+        const statusFilter = document.createElement('div');
+        statusFilter.className = 'source-status-filter';
+        statusFilter.setAttribute('role', 'group');
+        statusFilter.setAttribute('aria-label', 'Filter status penarikan');
+        fileSection.dataset.statusFilter = 'all';
+
+        const statusFilterLabel = document.createElement('span');
+        statusFilterLabel.className = 'source-status-filter-label';
+        statusFilterLabel.textContent = 'Status:';
+        statusFilter.appendChild(statusFilterLabel);
+
+        const savedCount = sourceFiles.filter(file => (
+          file.inDatabase === true
+        )).length;
+        const pendingCount = sourceFiles.filter(file => (
+          file.inDatabase === false
+        )).length;
+        const statusOptions = [
+          { value: 'all', label: 'Semua', count: sourceFiles.length },
+          { value: 'pending', label: 'Belum ditarik', count: pendingCount },
+          { value: 'saved', label: 'Sudah ditarik', count: savedCount }
+        ];
+
+        statusOptions.forEach((option, index) => {
+          const button = document.createElement('button');
+          const isActive = index === 0;
+          button.type = 'button';
+          button.className =
+            'source-status-filter-button' +
+            (isActive ? ' is-active' : '');
+          button.dataset.statusFilter = option.value;
+          button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+          button.innerHTML =
+            '<span>' + option.label + '</span>' +
+            '<span class="source-status-filter-count">' + option.count + '</span>';
+          button.addEventListener('click', () => {
+            fileSection.dataset.statusFilter = option.value;
+
+            fileSection
+              .querySelectorAll('.source-status-filter-button')
+              .forEach(filterButton => {
+                const selected = filterButton === button;
+                filterButton.classList.toggle('is-active', selected);
+                filterButton.setAttribute(
+                  'aria-pressed',
+                  selected ? 'true' : 'false'
+                );
+              });
+
+            filterSourceFiles_(fileSection, searchInput.value);
+          });
+          statusFilter.appendChild(button);
+        });
+
+        fileSection.appendChild(statusFilter);
+
+        if (databaseStatus && databaseStatus.available === false) {
+          const warning = document.createElement('p');
+          warning.className = 'database-status-warning';
+          warning.innerHTML =
+            '<i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>' +
+            '<span>Status Database tidak dapat dibaca. File tetap bisa ditarik dan akan diperiksa saat proses berjalan.</span>';
+          fileSection.appendChild(warning);
+        }
+
+        const fileList = document.createElement('div');
+        fileList.className = 'source-file-list';
+
+        sourceFiles.forEach(file => {
+          const item = document.createElement('div');
+          item.className = 'source-file-item';
+          item.dataset.searchText = (
+            String(file.spk || '') + ' ' + String(file.name || '')
+          ).toUpperCase();
+          item.dataset.searchCompact = item.dataset.searchText
+            .replace(/[^A-Z0-9]/g, '');
+          item.dataset.extractionStatus = file.inDatabase === true
+            ? 'saved'
+            : (file.inDatabase === false ? 'pending' : 'unknown');
+
+          if (file.inDatabase === true) {
+            item.classList.add('is-in-database');
+          }
+
+          const icon = document.createElement('span');
+          icon.className = 'source-file-icon';
+          icon.innerHTML = file.inDatabase === true
+            ? '<i class="fa-solid fa-circle-check" aria-hidden="true"></i>'
+            : '<i class="fa-solid fa-file-excel" aria-hidden="true"></i>';
+
+          const copy = document.createElement('span');
+          copy.className = 'source-file-copy';
+
+          const name = document.createElement('span');
+          name.className = 'source-file-name';
+          name.textContent = file.name;
+          name.title = file.name;
+
+          const type = document.createElement('span');
+          type.className = 'source-file-type';
+          type.textContent = getSourceFileTypeLabel_(file.mimeType);
+
+          const meta = document.createElement('span');
+          meta.className = 'source-file-meta';
+
+          const status = document.createElement('span');
+          status.className = 'source-file-status';
+
+          if (file.inDatabase === true) {
+            status.classList.add('is-saved');
+            status.innerHTML =
+              '<i class="fa-solid fa-check" aria-hidden="true"></i>' +
+              '<span>Sudah ditarik</span>';
+          } else if (file.inDatabase === false) {
+            status.classList.add('is-pending');
+            status.innerHTML =
+              '<i class="fa-solid fa-clock" aria-hidden="true"></i>' +
+              '<span>Belum ditarik</span>';
+          } else {
+            status.classList.add('is-unknown');
+            status.innerHTML =
+              '<i class="fa-solid fa-circle-question" aria-hidden="true"></i>' +
+              '<span>' +
+                (
+                  file.spk
+                    ? 'Status belum tersedia'
+                    : 'SPK tidak terdeteksi'
+                ) +
+              '</span>';
+          }
+
+          const action = document.createElement('button');
+          action.type = 'button';
+          action.className = 'source-file-action';
+          action.dataset.inDatabase = file.inDatabase === true ? 'true' : 'false';
+          action.title = file.inDatabase === true
+            ? 'SPK ini sudah tersedia di Database'
+            : 'Tarik data hanya dari ' + file.name;
+          action.disabled = Boolean(currentExtractionJobId) ||
+            (isBackfillMode_() ? file.inDatabase !== true : file.inDatabase === true);
+          action.innerHTML = file.inDatabase === true
+            ? (
+              '<i class="fa-solid fa-database" aria-hidden="true"></i>' +
+              '<span>Sudah ada</span>'
+            )
+            : (
+              '<i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i>' +
+              '<span>Tarik</span>'
+            );
+          action.addEventListener('click', () => {
+            ekstrakDataFile(file.id, file.name);
+          });
+
+          copy.appendChild(name);
+          meta.appendChild(type);
+          meta.appendChild(status);
+          copy.appendChild(meta);
+          item.appendChild(icon);
+          item.appendChild(copy);
+          item.appendChild(action);
+          fileList.appendChild(item);
+        });
+
+        const emptyFilter = document.createElement('div');
+        emptyFilter.className = 'source-file-empty-filter hidden';
+        emptyFilter.innerHTML =
+          '<i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> ' +
+          'Tidak ada file yang cocok dengan pencarian.';
+
+        fileSection.appendChild(fileList);
+        fileSection.appendChild(emptyFilter);
+        container.appendChild(fileSection);
+
+        searchInput.addEventListener('input', () => {
+          filterSourceFiles_(fileSection, searchInput.value);
+        });
+      }
+    }
+
+    function filterSourceFiles_(fileSection, query) {
+      const searchText = String(query || '').trim().toUpperCase();
+      const searchCompact = searchText.replace(/[^A-Z0-9]/g, '');
+      const statusFilter = fileSection.dataset.statusFilter || 'all';
+      const items = Array.from(
+        fileSection.querySelectorAll('.source-file-item')
+      );
+      let visibleCount = 0;
+
+      items.forEach(item => {
+        const matchesSearch = (
+          searchText === '' ||
+          item.dataset.searchText.includes(searchText) ||
+          (
+            searchCompact !== '' &&
+            item.dataset.searchCompact.includes(searchCompact)
+          )
+        );
+        const matchesStatus = (
+          statusFilter === 'all' ||
+          item.dataset.extractionStatus === statusFilter
+        );
+        const matches = matchesSearch && matchesStatus;
+
+        item.classList.toggle('hidden', !matches);
+        if (matches) visibleCount++;
+      });
+
+      const filterCount = fileSection.querySelector('.source-file-filter-count');
+      const emptyFilter = fileSection.querySelector('.source-file-empty-filter');
+      filterCount.textContent = visibleCount + ' dari ' + items.length;
+      emptyFilter.classList.toggle('hidden', visibleCount !== 0);
+    }
+
+    function createDirectorySectionHeader_(label, count, iconClass) {
+      const header = document.createElement('div');
+      header.className = 'directory-section-header';
+      header.innerHTML =
+        '<span><i class="fa-solid ' + iconClass + '" aria-hidden="true"></i>' +
+          label +
+        '</span>' +
+        '<span class="directory-count">' + count + '</span>';
+      return header;
+    }
+
+    function getSourceFileTypeLabel_(mimeType) {
+      if (mimeType === 'application/vnd.google-apps.spreadsheet') {
+        return 'Google Sheets';
+      }
+
+      if (mimeType === 'application/vnd.ms-excel') {
+        return 'Excel (.xls)';
+      }
+
+      return 'Excel (.xlsx)';
+    }
+
+    function isBackfillMode_() {
+      const toggle = document.getElementById('modeLengkapi');
+      return Boolean(toggle && toggle.checked);
+    }
+
+    function syncExtractionControls_() {
+      const busy = Boolean(currentExtractionJobId);
+      const backfill = isBackfillMode_();
+      const folderButton = document.getElementById('btnTarik');
+      folderButton.disabled = busy || pathHistory.length === 0;
+
+      document.querySelectorAll('.source-file-action').forEach(button => {
+        const inDatabase = button.dataset.inDatabase === 'true';
+        button.disabled = busy || (backfill ? !inDatabase : inDatabase);
+
+        if (backfill && inDatabase) {
+          button.title = 'Lengkapi data lama SPK ini (isi kolom baru yang masih kosong)';
+          button.innerHTML =
+            '<i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>' +
+            '<span>Lengkapi</span>';
+        } else if (inDatabase) {
+          button.title = 'SPK ini sudah tersedia di Database';
+          button.innerHTML =
+            '<i class="fa-solid fa-database" aria-hidden="true"></i>' +
+            '<span>Sudah ada</span>';
+        } else {
+          button.title = 'Tarik data hanya dari file ini';
+          button.innerHTML =
+            '<i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i>' +
+            '<span>Tarik</span>';
+        }
+      });
+    }
+
+    function createExtractionJobId() {
+      return 'job-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 12);
+    }
+
+    function renderExtractionProgress(progress) {
+      if (!progress) return;
+
+      const rawPercent = Number(progress.percent);
+      const percent = Number.isFinite(rawPercent)
+        ? Math.max(0, Math.min(100, Math.round(rawPercent)))
+        : 0;
+      const total = Number(progress.total) || 0;
+      const processed = Number(progress.processed) || 0;
+      const created = Number(progress.created) || 0;
+      const skipped = Number(progress.skipped) || 0;
+      const errors = Number(progress.errors) || 0;
+
+      document.getElementById('progressBar').style.width = percent + '%';
+      document.getElementById('progressText').textContent =
+        total > 0
+          ? percent + '% · ' + processed + '/' + total
+          : percent + '%';
+
+      let caption = progress.message || 'Menyinkronkan data sumber ke Database.';
+      if (created || skipped || errors) {
+        caption +=
+          ' · Baru ' + created +
+          ' · Dilewati ' + skipped +
+          (errors ? ' · Gagal ' + errors : '');
+      }
+
+      document.getElementById('progressCaption').textContent = caption;
+    }
+
+    function pollExtractionProgress(jobId) {
+      if (!jobId || jobId !== currentExtractionJobId || progressPollInFlight || !isGasEnvironment()) {
+        return;
+      }
+
+      progressPollInFlight = true;
+      google.script.run
+        .withSuccessHandler(progress => {
+          progressPollInFlight = false;
+          if (jobId !== currentExtractionJobId) return;
+          renderExtractionProgress(progress);
+
+          if (
+            progress &&
+            progress.status === 'paused' &&
+            Number(progress.nextIndex) < Number(progress.total)
+          ) {
+            scheduleExtractionResume_(
+              Number(progress.nextIndex) || 0,
+              progress.resumeStats || null
+            );
+            return;
+          }
+
+          if (
+            progress &&
+            (progress.status === 'done' || progress.status === 'error') &&
+            !extractionRequestInFlight
+          ) {
+            handleExtractionResponse(
+              progress.result || {
+                status: progress.status === 'error' ? 'error' : 'success',
+                message: progress.message || 'Proses penarikan telah selesai.',
+                created: progress.created || 0,
+                skipped: progress.skipped || 0,
+                errors: progress.errors || 0,
+                processed: progress.processed || 0,
+                total: progress.total || 0
+              }
+            );
+          }
+        })
+        .withFailureHandler(() => {
+          progressPollInFlight = false;
+        })
+        .getExtractionProgress(jobId);
+    }
+
+    function startProgress(jobId) {
+      window.clearInterval(progressInterval);
+      currentExtractionJobId = jobId;
+      progressPollInFlight = false;
+      extractionResumeScheduled = false;
+
+      renderExtractionProgress({
+        percent: 0,
+        processed: 0,
+        total: 0,
+        created: 0,
+        skipped: 0,
+        errors: 0,
+        message: 'Memindai file sumber...'
+      });
+
+      if (isGasEnvironment()) {
+        pollExtractionProgress(jobId);
+        progressInterval = window.setInterval(() => pollExtractionProgress(jobId), 900);
+        return;
+      }
+
+      let previewProgress = 0;
+      progressInterval = window.setInterval(() => {
+        previewProgress = Math.min(95, previewProgress + 12);
+        renderExtractionProgress({
+          percent: previewProgress,
+          processed: Math.floor(previewProgress / 20),
+          total: 5,
+          created: Math.floor(previewProgress / 35),
+          skipped: Math.floor(previewProgress / 25),
+          errors: 0,
+          message: 'Pratinjau lokal: memeriksa SPK baru.'
+        });
+      }, 250);
+    }
+
+    function stopProgress(result) {
+      window.clearInterval(progressInterval);
+      progressInterval = null;
+      progressPollInFlight = false;
+      extractionResumeScheduled = false;
+
+      if (result && result.status !== 'error') {
+        renderExtractionProgress({
+          percent: 100,
+          processed: result.processed || result.total || 0,
+          total: result.total || result.processed || 0,
+          created: result.created || 0,
+          skipped: result.skipped || 0,
+          errors: result.errors || 0,
+          message: result.created
+            ? 'SPK baru berhasil ditambahkan dan Database sudah diurutkan.'
+            : 'Tidak ada SPK baru; data lama dilewati tanpa perubahan.'
+        });
+      }
+    }
+
+    function ekstrakDataFolder() {
+      beginExtraction_('', '');
+    }
+
+    function ekstrakDataFile(fileId, fileName) {
+      const safeFileId = String(fileId || '').trim();
+      if (!safeFileId) return;
+
+      beginExtraction_(safeFileId, String(fileName || 'File SPK'));
+    }
+
+    function beginExtraction_(targetFileId, targetFileName) {
+      if (!pathHistory.length) return;
+
+      const currentFolderId = pathHistory[pathHistory.length - 1].id;
+      const safeFileId = String(targetFileId || '').trim();
+      const safeFileName = safeFileId
+        ? String(targetFileName || 'File SPK')
+        : '';
+
+      currentExtractionJobId = createExtractionJobId();
+      activeExtractionFolderId = currentFolderId;
+      activeExtractionFileId = safeFileId;
+      activeExtractionFileName = safeFileName;
+      extractionRequestInFlight = false;
+      extractionResumeScheduled = false;
+
+      showExtractionProgressUi_();
+      document.getElementById('progressBar').style.width = '0%';
+      document.getElementById('progressText').textContent = '0%';
+
+      renderExtractionProgress({
+        percent: 0,
+        processed: 0,
+        total: 0,
+        created: 0,
+        skipped: 0,
+        errors: 0,
+        currentFile: safeFileName,
+        message: safeFileId
+          ? 'Mendaftarkan penarikan file ' + safeFileName + '...'
+          : 'Mendaftarkan penarikan seluruh folder...'
+      });
+
+      if (isGasEnvironment()) {
+        const requestedJobId = currentExtractionJobId;
+
+        google.script.run
+          .withSuccessHandler(res => {
+            if (
+              !res ||
+              res.status === 'error' ||
+              !res.active ||
+              !res.job
+            ) {
+              handleExtractionFailure(
+                res && res.message
+                  ? res.message
+                  : 'Proses penarikan tidak dapat didaftarkan.'
+              );
+              return;
+            }
+
+            const refreshFolder = res.job.jobId !== requestedJobId;
+            attachToExtractionJob_(res.job, refreshFolder);
+          })
+          .withFailureHandler(err => handleExtractionFailure(
+            err && err.message
+              ? err.message
+              : 'Proses penarikan tidak dapat didaftarkan.'
+          ))
+          .beginExtractionJob(
+            currentFolderId,
+            requestedJobId,
+            safeFileId || null,
+            document.getElementById('modeLengkapi').checked ? 'backfill' : 'sync'
+          );
+      } else {
+        startProgress(currentExtractionJobId);
+        window.setTimeout(() => {
+          if (safeFileId) {
+            mockExtractedFileIds.add(safeFileId);
+            handleExtractionResponse({
+              status: 'success',
+              message: 'Pratinjau lokal: satu file SPK berhasil diproses.',
+              created: 1,
+              skipped: 0,
+              errors: 0,
+              warnings: 0,
+              processed: 1,
+              total: 1,
+              report: {
+                errors: [],
+                warnings: [],
+                omittedErrors: 0,
+                omittedWarnings: 0
+              }
+            });
+            return;
+          }
+
+          handleExtractionResponse({
+            status: 'warning',
+            message: 'Pratinjau lokal selesai. Beberapa file memerlukan perhatian sebelum ditarik ulang.',
+            created: 2,
+            skipped: 3,
+            errors: 14,
+            warnings: 1,
+            processed: 20,
+            total: 20,
+            report: {
+              errors: [
+                {
+                  file: 'G26.041 - SPK Produksi.xlsx',
+                  spk: 'G26.041',
+                  category: 'Duplikat SPK',
+                  reason: 'Ada lebih dari satu file sumber untuk SPK G26.041. Sisakan satu file yang paling baru.'
+                },
+                {
+                  file: 'SPK Customer Baru.xlsx',
+                  spk: '',
+                  category: 'Format SPK',
+                  reason: 'Format SPK pada F7 tidak valid. Gunakan format seperti G26.001.'
+                }
+              ].concat(Array.from({ length: 12 }, (_, index) => ({
+                file: `G26.${String(index + 60).padStart(3, '0')} - Data Uji.xlsx`,
+                spk: `G26.${String(index + 60).padStart(3, '0')}`,
+                category: index % 2 === 0 ? 'Duplikat SPK' : 'SPK tidak cocok',
+                reason: index % 2 === 0
+                  ? 'Terdapat file sumber lain dengan nomor SPK yang sama.'
+                  : 'Nomor SPK pada nama file berbeda dengan nilai yang ditemukan pada sel F7.'
+              }))),
+              warnings: [
+                {
+                  file: 'G26.052 - Kantong HDPE.xlsx',
+                  spk: 'G26.052',
+                  category: 'Komposisi bahan',
+                  reason: 'Ditemukan 10 bahan. Database AW-BR hanya menyimpan sampai Bahan 8.'
+                }
+              ],
+              omittedErrors: 0,
+              omittedWarnings: 0
+            }
+          });
+        }, 1800);
+      }
+    }
+
+    function runExtractionChunk(startIndex, resumeStats) {
+      if (
+        !activeExtractionFolderId ||
+        !currentExtractionJobId ||
+        extractionRequestInFlight
+      ) {
+        return;
+      }
+
+      extractionResumeScheduled = false;
+      extractionRequestInFlight = true;
+      google.script.run
+        .withSuccessHandler(res => {
+          extractionRequestInFlight = false;
+          handleExtractionResponse(res);
+        })
+        .withFailureHandler(err => {
+          extractionRequestInFlight = false;
+          handleExtractionFailure(
+            err && err.message ? err.message : 'Proses ekstraksi gagal.'
+          );
+        })
+        .extractData(
+          activeExtractionFolderId,
+          currentExtractionJobId,
+          startIndex || 0,
+          resumeStats || null,
+          activeExtractionFileId || null
+        );
+    }
+
+    function scheduleExtractionResume_(startIndex, resumeStats) {
+      if (
+        extractionRequestInFlight ||
+        extractionResumeScheduled ||
+        !activeExtractionFolderId ||
+        !currentExtractionJobId
+      ) {
+        return;
+      }
+
+      extractionResumeScheduled = true;
+      renderExtractionProgress({
+        percent: resumeStats && resumeStats.total
+          ? Math.floor((startIndex / resumeStats.total) * 100)
+          : 0,
+        processed: startIndex,
+        total: resumeStats && resumeStats.total ? resumeStats.total : 0,
+        created: resumeStats && resumeStats.created ? resumeStats.created : 0,
+        skipped: resumeStats && resumeStats.skipped ? resumeStats.skipped : 0,
+        errors: resumeStats && resumeStats.errors ? resumeStats.errors : 0,
+        message: 'Melanjutkan otomatis ke batch berikutnya...'
+      });
+
+      window.setTimeout(() => {
+        extractionResumeScheduled = false;
+        runExtractionChunk(startIndex, resumeStats);
+      }, 250);
+    }
+
+    function escapeReportHtml_(value) {
+      return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function formatReportMessage_(message) {
+      return escapeReportHtml_(message || 'Proses penarikan telah selesai.')
+        .replace(/\n/g, '<br>');
+    }
+
+    function buildExtractionIssueSection_(options) {
+      const items = Array.isArray(options.items) ? options.items : [];
+      const omitted = Math.max(0, Number(options.omitted) || 0);
+      const total = Math.max(
+        Number(options.total) || 0,
+        items.length + omitted
+      );
+
+      if (!items.length && total === 0) return '';
+
+      const rows = items.map((item, index) => {
+        const source = item && typeof item === 'object' ? item : {};
+        const file = escapeReportHtml_(source.file || 'File tanpa nama');
+        const spk = escapeReportHtml_(source.spk || '');
+        const category = escapeReportHtml_(source.category || options.fallbackCategory);
+        const reason = escapeReportHtml_(source.reason || 'Penyebab tidak diketahui.');
+
+        return `
+          <article class="extraction-issue-item">
+            <span class="extraction-issue-index">${index + 1}</span>
+            <div class="extraction-issue-main">
+              <div class="extraction-issue-file-row">
+                <strong class="extraction-issue-file" title="${file}">${file}</strong>
+                ${spk ? `<span class="extraction-issue-chip">SPK ${spk}</span>` : ''}
+                <span class="extraction-issue-chip extraction-issue-category">${category}</span>
+              </div>
+              <p class="extraction-issue-reason">${reason}</p>
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      const undisplayed = Math.max(omitted, total - items.length);
+
+      return `
+        <section class="extraction-issue-section is-${options.kind}">
+          <header class="extraction-issue-header">
+            <h3 class="extraction-issue-heading">
+              <i class="fa-solid ${options.icon}" aria-hidden="true"></i>
+              ${escapeReportHtml_(options.title)}
+            </h3>
+            <span class="extraction-issue-count">${total} file</span>
+          </header>
+          ${rows ? `<div class="extraction-issue-list">${rows}</div>` : ''}
+          ${undisplayed > 0
+            ? `<p class="extraction-issue-omitted">+ ${undisplayed} rincian lainnya tidak ditampilkan untuk menjaga laporan tetap ringan.</p>`
+            : ''}
+        </section>
+      `;
+    }
+
+    function buildExtractionReportHtml_(result) {
+      const report = result && result.report && typeof result.report === 'object'
+        ? result.report
+        : {};
+      const errors = Array.isArray(report.errors) ? report.errors : [];
+      const warnings = Array.isArray(report.warnings) ? report.warnings : [];
+      const created = Math.max(0, Number(result.created) || 0);
+      const skipped = Math.max(0, Number(result.skipped) || 0);
+      const errorCount = Math.max(
+        Number(result.errors) || 0,
+        errors.length + (Number(report.omittedErrors) || 0)
+      );
+      const warningCount = Math.max(
+        Number(result.warnings) || 0,
+        warnings.length + (Number(report.omittedWarnings) || 0)
+      );
+      const processed = Math.max(0, Number(result.processed) || 0);
+      const total = Math.max(processed, Number(result.total) || 0);
+
+      const errorSection = buildExtractionIssueSection_({
+        kind: 'error',
+        icon: 'fa-circle-xmark',
+        title: 'File gagal diproses',
+        fallbackCategory: 'Gagal memproses',
+        items: errors,
+        omitted: report.omittedErrors,
+        total: errorCount
+      });
+      const warningSection = buildExtractionIssueSection_({
+        kind: 'warning',
+        icon: 'fa-triangle-exclamation',
+        title: 'File dengan peringatan',
+        fallbackCategory: 'Perlu perhatian',
+        items: warnings,
+        omitted: report.omittedWarnings,
+        total: warningCount
+      });
+
+      return `
+        <div class="extraction-report">
+          <div class="extraction-report-lead">${formatReportMessage_(result.message)}</div>
+
+          <div class="extraction-report-stats" aria-label="Ringkasan penarikan">
+            <div class="extraction-report-stat is-success">
+              <span class="extraction-report-stat-label">SPK baru</span>
+              <strong class="extraction-report-stat-value">${created}</strong>
+            </div>
+            <div class="extraction-report-stat">
+              <span class="extraction-report-stat-label">Dilewati</span>
+              <strong class="extraction-report-stat-value">${skipped}</strong>
+            </div>
+            <div class="extraction-report-stat is-error">
+              <span class="extraction-report-stat-label">Gagal</span>
+              <strong class="extraction-report-stat-value">${errorCount}</strong>
+            </div>
+            <div class="extraction-report-stat is-warning">
+              <span class="extraction-report-stat-label">Peringatan</span>
+              <strong class="extraction-report-stat-value">${warningCount}</strong>
+            </div>
+          </div>
+
+          ${errorSection}
+          ${warningSection}
+          ${!errorSection && !warningSection
+            ? `
+              <div class="extraction-report-clean">
+                <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+                Semua file yang memenuhi syarat selesai diproses tanpa error.
+              </div>
+            `
+            : ''}
+
+          <div class="extraction-report-meta">
+            ${total > 0 ? `${processed} dari ${total} file telah diperiksa` : 'Tidak ada file sumber yang diproses'}
+          </div>
+        </div>
+      `;
+    }
+
+    function getExtractionReportTitle_(result) {
+      if (result.status === 'error') return 'Penarikan tidak dapat diselesaikan';
+      if ((Number(result.errors) || 0) > 0) return 'Penarikan selesai dengan error';
+      if ((Number(result.warnings) || 0) > 0) return 'Penarikan selesai dengan catatan';
+      return 'Penarikan data selesai';
+    }
+
+    function handleExtractionResponse(res) {
+      if (!res) {
+        handleExtractionFailure('Respons sinkronisasi tidak dikenali.');
+        return;
+      }
+
+      if (res.running) {
+        if (
+          res.activeJob &&
+          res.activeJob.jobId &&
+          res.activeJob.jobId !== currentExtractionJobId
+        ) {
+          attachToExtractionJob_(res.activeJob, true);
+        } else {
+          renderExtractionProgress({
+            status: 'running',
+            percent: 0,
+            message: res.message || 'Penarikan data masih berjalan.'
+          });
+        }
+        return;
+      }
+
+      if (res.paused && Number(res.nextIndex) < Number(res.total)) {
+        renderExtractionProgress({
+          percent: res.total ? Math.floor((res.nextIndex / res.total) * 100) : 0,
+          processed: res.nextIndex,
+          total: res.total,
+          created: res.created,
+          skipped: res.skipped,
+          errors: res.resumeStats ? res.resumeStats.errors : 0,
+          message: 'Melanjutkan otomatis ke batch berikutnya...'
+        });
+
+        scheduleExtractionResume_(res.nextIndex, res.resumeStats);
+        return;
+      }
+
+      const completedJobId = currentExtractionJobId;
+      const completedFolderId = activeExtractionFolderId;
+      const completedFolderName = pathHistory.length
+        ? pathHistory[pathHistory.length - 1].name
+        : 'Folder penarikan';
+      stopProgress(res);
+      window.setTimeout(() => {
+        resetExtractionControls();
+
+        if (completedFolderId && res.status !== 'error') {
+          fetchFolder(completedFolderId, completedFolderName);
+        }
+
+        const icon = res.status === 'success'
+          ? 'success'
+          : (res.status === 'error' ? 'error' : 'warning');
+
+        Swal.fire({
+          icon: icon,
+          title: getExtractionReportTitle_(res),
+          html: buildExtractionReportHtml_(res),
+          showCloseButton: true,
+          confirmButtonText: 'Tutup laporan',
+          buttonsStyling: false,
+          background: '#e2e3e0',
+          customClass: {
+            popup: 'metal-alert extraction-report-popup',
+            confirmButton: 'extraction-report-confirm',
+            closeButton: 'extraction-report-close'
+          }
+        }).then(() => acknowledgeExtractionJob_(completedJobId));
+      }, 450);
+    }
+
+    function acknowledgeExtractionJob_(jobId) {
+      if (!jobId || !isGasEnvironment()) return;
+
+      google.script.run
+        .withFailureHandler(() => {})
+        .acknowledgeExtractionJob(jobId);
+    }
+
+    let extractionCancelInFlight = false;
+
+    function batalkanTarikData() {
+      if (!currentExtractionJobId || extractionCancelInFlight) return;
+
+      Swal.fire({
+        icon: 'warning',
+        title: 'Batalkan penarikan data?',
+        text: 'Proses berhenti setelah file yang sedang dibaca selesai. Data yang sudah masuk tetap tersimpan; file yang belum diproses tidak diubah.',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, batalkan',
+        cancelButtonText: 'Lanjutkan proses',
+        confirmButtonColor: '#c92b2b',
+        background: '#e2e3e0',
+        customClass: { popup: 'metal-alert' }
+      }).then(result => {
+        if (!result.isConfirmed || !currentExtractionJobId) return;
+
+        const jobId = currentExtractionJobId;
+        extractionCancelInFlight = true;
+        const cancelButton = document.getElementById('btnBatal');
+        if (cancelButton) cancelButton.disabled = true;
+        document.getElementById('progressCaption').textContent =
+          'Membatalkan penarikan data...';
+
+        if (!isGasEnvironment()) {
+          extractionCancelInFlight = false;
+          window.clearInterval(progressInterval);
+          progressInterval = null;
+          resetExtractionControls();
+          return;
+        }
+
+        google.script.run
+          .withSuccessHandler(() => {
+            extractionCancelInFlight = false;
+
+            // Jika tidak ada batch yang sedang berjalan, tidak akan ada
+            // respons chunk yang menutup proses; bereskan langsung di sini.
+            if (!extractionRequestInFlight && !extractionResumeScheduled) {
+              window.clearInterval(progressInterval);
+              progressInterval = null;
+              resetExtractionControls();
+              acknowledgeExtractionJob_(jobId);
+              Swal.fire({
+                icon: 'info',
+                title: 'Penarikan dibatalkan',
+                text: 'Data yang sudah masuk tetap tersimpan. File yang belum diproses tidak diubah.',
+                confirmButtonColor: '#c92b2b',
+                background: '#e2e3e0',
+                customClass: { popup: 'metal-alert' }
+              });
+            }
+          })
+          .withFailureHandler(err => {
+            extractionCancelInFlight = false;
+            if (cancelButton) cancelButton.disabled = false;
+            showError(
+              err && err.message
+                ? err.message
+                : 'Permintaan pembatalan gagal dikirim.'
+            );
+          })
+          .cancelExtractionJob(jobId);
+      });
+    }
+
+    function handleExtractionFailure(message) {
+      window.clearInterval(progressInterval);
+      progressInterval = null;
+      extractionRequestInFlight = false;
+      extractionResumeScheduled = false;
+      currentExtractionJobId = '';
+      activeExtractionFolderId = '';
+      activeExtractionFileId = '';
+      activeExtractionFileName = '';
+      progressPollInFlight = false;
+      resetExtractionControls();
+      showError(message);
+    }
+
+    function resetExtractionControls() {
+      document.getElementById('progressUI').classList.add('hidden');
+      document.getElementById('btnTarik').classList.remove('hidden');
+      const cancelButton = document.getElementById('btnBatal');
+      if (cancelButton) cancelButton.disabled = false;
+      currentExtractionJobId = '';
+      activeExtractionFolderId = '';
+      activeExtractionFileId = '';
+      activeExtractionFileName = '';
+      extractionRequestInFlight = false;
+      extractionResumeScheduled = false;
+      syncExtractionControls_();
+    }
+
+    function showError(message) {
+      setConnectionState('Koneksi bermasalah', false);
+      syncExtractionControls_();
+      Swal.fire({
+        icon: 'error',
+        title: 'Kesalahan Sistem',
+        text: message,
+        confirmButtonColor: '#c92b2b',
+        background: '#e2e3e0',
+        customClass: { popup: 'metal-alert' }
+      });
+    }
+
+    function getMockFolderData(folderId, folderName) {
+      if (!folderId || folderId === 'root-preview') {
+        return {
+          status: 'success',
+          id: 'root-preview',
+          name: 'SPK Production',
+          subFolders: [
+            { id: 'july-preview', name: 'Juli 2026' },
+            { id: 'june-preview', name: 'Juni 2026' },
+            { id: 'archive-preview', name: 'Arsip Produksi' },
+            { id: 'sample-preview', name: 'Sample & Trial' }
+          ],
+          sourceFiles: [
+            {
+              id: 'root-sheet-preview',
+              name: 'G26.101 - SPK Produksi',
+              mimeType: 'application/vnd.google-apps.spreadsheet',
+              spk: 'G26.101',
+              inDatabase: mockExtractedFileIds.has('root-sheet-preview')
+            },
+            {
+              id: 'root-excel-preview',
+              name: 'G26.102 - Kantong HDPE.xlsx',
+              mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+              spk: 'G26.102',
+              inDatabase: mockExtractedFileIds.has('root-excel-preview')
+            }
+          ],
+          databaseStatus: { available: true, message: '' }
+        };
+      }
+
+      return {
+        status: 'success',
+        id: folderId,
+        name: folderName || 'Folder Produksi',
+        subFolders: folderId === 'archive-preview'
+          ? [
+              { id: 'archive-2025-preview', name: '2025' },
+              { id: 'archive-2024-preview', name: '2024' }
+            ]
+          : [],
+        sourceFiles: [
+          {
+            id: folderId + '-sheet-preview',
+            name: 'G26.102 - Kantong HDPE.xlsx',
+            mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            spk: 'G26.102',
+            inDatabase: mockExtractedFileIds.has(folderId + '-sheet-preview')
+          },
+          {
+            id: folderId + '-excel-preview',
+            name: 'G26.103 - Kantong OPP.xls',
+            mimeType: 'application/vnd.ms-excel',
+            spk: 'G26.103',
+            inDatabase: mockExtractedFileIds.has(folderId + '-excel-preview')
+          }
+        ],
+        databaseStatus: { available: true, message: '' }
+      };
+    }
+  </script>
+</body>
+</html>

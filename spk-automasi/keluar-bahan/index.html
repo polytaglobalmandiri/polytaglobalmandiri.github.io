@@ -1,0 +1,5617 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#202226">
+  <title>Keluar Bahan | Manager PPIC</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='22' fill='%23f4f4f1'/%3E%3Cpath fill='%23111216' d='M14 12h50v43h42v53h-8V63H64v45H14V55h42V20H14z'/%3E%3Crect x='15' y='22' width='41' height='12' rx='6' fill='%234563b3'/%3E%3Crect x='22' y='63' width='34' height='37' fill='%23ef2631'/%3E%3Crect x='84' y='64' width='11' height='44' rx='5.5' fill='%2340b84e'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.15.12/dist/cdn.min.js"></script>
+  <script>
+  // Controller Alpine global. Komponen ini sengaja kecil: ia menyediakan
+  // state bersama tanpa mengambil alih fungsi bisnis halaman yang sudah stabil.
+  (function registerPolytaAlpineController_() {
+    function register_() {
+      if (!window.Alpine || window.__polytaPageUiRegistered) return;
+      window.__polytaPageUiRegistered = true;
+
+      window.Alpine.data('polytaPageUi', function(pageName) {
+        return {
+          page: String(pageName || 'app'),
+          ready: false,
+          online: navigator.onLine,
+          init: function() {
+            this.ready = true;
+          },
+          setOnline: function(value) {
+            this.online = Boolean(value);
+          }
+        };
+      });
+    }
+
+    document.addEventListener('alpine:init', register_);
+    if (window.Alpine) register_();
+  })();
+</script>
+
+  <style>/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+@layer properties{@supports (((-webkit-hyphens:none)) and (not (margin-trim:inline))) or ((-moz-orient:inline) and (not (color:rgb(from red r g b)))){*,:before,:after,::backdrop{--tw-border-style:solid;--tw-gradient-position:initial;--tw-gradient-from:#0000;--tw-gradient-via:#0000;--tw-gradient-to:#0000;--tw-gradient-stops:initial;--tw-gradient-via-stops:initial;--tw-gradient-from-position:0%;--tw-gradient-via-position:50%;--tw-gradient-to-position:100%;--tw-font-weight:initial;--tw-shadow:0 0 #0000;--tw-shadow-color:initial;--tw-shadow-alpha:100%;--tw-inset-shadow:0 0 #0000;--tw-inset-shadow-color:initial;--tw-inset-shadow-alpha:100%;--tw-ring-color:initial;--tw-ring-shadow:0 0 #0000;--tw-inset-ring-color:initial;--tw-inset-ring-shadow:0 0 #0000;--tw-ring-inset:initial;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-offset-shadow:0 0 #0000;--tw-backdrop-blur:initial;--tw-backdrop-brightness:initial;--tw-backdrop-contrast:initial;--tw-backdrop-grayscale:initial;--tw-backdrop-hue-rotate:initial;--tw-backdrop-invert:initial;--tw-backdrop-opacity:initial;--tw-backdrop-saturate:initial;--tw-backdrop-sepia:initial;--tw-duration:initial}}}@layer theme{:root,:host{--tw-color-red-50:oklch(97.1% .013 17.38);--tw-color-red-300:oklch(80.8% .114 19.571);--tw-color-red-600:oklch(57.7% .245 27.325);--tw-color-red-800:oklch(44.4% .177 26.899);--tw-color-white:#fff;--tw-spacing:.25rem;--tw-text-xs:.75rem;--tw-text-xs--line-height:calc(1 / .75);--tw-font-weight-bold:700;--tw-default-transition-duration:.15s;--tw-default-transition-timing-function:cubic-bezier(.4, 0, .2, 1);--tw-color-polyta-ink:#202327;--tw-color-spk-canvas:#e5e8e4;--tw-color-spk-shell:#eff0ed;--tw-container-app:72rem}}@layer utilities{.tw\:pointer-events-none{pointer-events:none}.tw\:absolute{position:absolute}.tw\:fixed{position:fixed}.tw\:relative{position:relative}.tw\:inset-x-0{inset-inline:0}.tw\:top-0{top:0}.tw\:top-3{top:calc(var(--tw-spacing) * 3)}.tw\:z-\[9999\]{z-index:9999}.tw\:mx-auto\!{margin-inline:auto!important}.tw\:flex{display:flex}.tw\:h-2{height:calc(var(--tw-spacing) * 2)}.tw\:h-px{height:1px}.tw\:min-h-screen{min-height:100vh}.tw\:w-2{width:calc(var(--tw-spacing) * 2)}.tw\:w-full{width:100%}.tw\:max-w-app\!{max-width:var(--tw-container-app)!important}.tw\:items-center{align-items:center}.tw\:justify-center{justify-content:center}.tw\:gap-2{gap:calc(var(--tw-spacing) * 2)}.tw\:overflow-hidden{overflow:hidden}.tw\:rounded-full{border-radius:3.40282e38px}.tw\:border{border-style:var(--tw-border-style);border-width:1px}.tw\:border-red-300\/70{border-color:var(--tw-color-red-300)}@supports (color:color-mix(in lab, red, red)){.tw\:border-red-300\/70{border-color:color-mix(in oklab, var(--tw-color-red-300) 70%, transparent)}}.tw\:bg-red-50\/95{background-color:var(--tw-color-red-50)}@supports (color:color-mix(in lab, red, red)){.tw\:bg-red-50\/95{background-color:color-mix(in oklab, var(--tw-color-red-50) 95%, transparent)}}.tw\:bg-red-600{background-color:var(--tw-color-red-600)}.tw\:bg-spk-canvas{background-color:var(--tw-color-spk-canvas)}.tw\:bg-spk-shell\!{background-color:var(--tw-color-spk-shell)!important}.tw\:bg-gradient-to-r{--tw-gradient-position:to right in oklab;background-image:linear-gradient(var(--tw-gradient-stops))}.tw\:from-transparent{--tw-gradient-from:transparent;--tw-gradient-stops:var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))}.tw\:via-white{--tw-gradient-via:var(--tw-color-white);--tw-gradient-via-stops:var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-via-stops)}.tw\:to-transparent{--tw-gradient-to:transparent;--tw-gradient-stops:var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))}.tw\:px-4{padding-inline:calc(var(--tw-spacing) * 4)}.tw\:py-2{padding-block:calc(var(--tw-spacing) * 2)}.tw\:text-xs{font-size:var(--tw-text-xs);line-height:var(--tw-leading,var(--tw-text-xs--line-height))}.tw\:font-bold{--tw-font-weight:var(--tw-font-weight-bold);font-weight:var(--tw-font-weight-bold)}.tw\:text-polyta-ink{color:var(--tw-color-polyta-ink)}.tw\:text-red-800{color:var(--tw-color-red-800)}.tw\:shadow-lg{--tw-shadow:0 10px 15px -3px var(--tw-shadow-color,#0000001a), 0 4px 6px -4px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.tw\:shadow-spk-shell\!{--tw-shadow:0 3px 0 var(--tw-shadow-color,#151619), 0 24px 58px var(--tw-shadow-color,#1c1f2247), inset 0 1px 0 var(--tw-shadow-color,#ffffffeb)!important;box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)!important}.tw\:backdrop-blur{--tw-backdrop-blur:blur(8px);-webkit-backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)}.tw\:transition-opacity{transition-property:opacity;transition-timing-function:var(--tw-ease,var(--tw-default-transition-timing-function));transition-duration:var(--tw-duration,var(--tw-default-transition-duration))}.tw\:transition-shadow{transition-property:box-shadow;transition-timing-function:var(--tw-ease,var(--tw-default-transition-timing-function));transition-duration:var(--tw-duration,var(--tw-default-transition-duration))}.tw\:duration-200{--tw-duration:.2s;transition-duration:.2s}.tw\:duration-300{--tw-duration:.3s;transition-duration:.3s}}[data-ui-engine=tailwind-alpine]{--polyta-button-height:32px;--polyta-input-height:34px;--polyta-icon-button-size:30px;--polyta-control-radius:8px;--polyta-button-padding-x:13px;--polyta-input-padding-x:10px;--polyta-control-gap:6px;--polyta-control-font-size:.68rem;--polyta-label-font-size:.69rem;--polyta-eyebrow-font-size:.64rem;--polyta-page-title-font-size:1.55rem;--polyta-description-font-size:.75rem;--polyta-panel-title-font-size:.86rem;--polyta-meta-font-size:.69rem}[data-ui-engine=tailwind-alpine] [x-cloak]{display:none!important}body[data-ui-engine=tailwind-alpine]:not([data-page=cetak-spk]){font-size:15px}body[data-page=keluar-bahan] .eyebrow,body[data-page=penarikan-data] .eyebrow{font-size:var(--polyta-eyebrow-font-size)!important;letter-spacing:.11em!important;font-weight:900!important;line-height:1.3!important}body[data-page=keluar-bahan] .page-heading h1,body[data-page=penarikan-data] .page-heading h1{font-size:var(--polyta-page-title-font-size)!important;letter-spacing:-.025em!important;font-weight:850!important;line-height:1.2!important}body[data-page=keluar-bahan] .page-description,body[data-page=penarikan-data] .page-description{font-size:var(--polyta-description-font-size)!important;font-weight:500!important;line-height:1.45!important}body[data-page=keluar-bahan] .panel-title,body[data-page=penarikan-data] .panel-title{font-size:var(--polyta-panel-title-font-size)!important;font-weight:850!important;line-height:1.2!important}body[data-page=keluar-bahan] .panel-caption,body[data-page=penarikan-data] .panel-caption,body[data-page=keluar-bahan] .summary-label,body[data-page=keluar-bahan] .summary-note{font-size:var(--polyta-meta-font-size)!important;line-height:1.4!important}body[data-page=input-spk] #spkInputRoot .field-label,body[data-page=dashboard] #spkInputModal #spkInputRoot .field-label,body[data-page=keluar-bahan] .eta-field-label{font-size:var(--polyta-label-font-size)!important;letter-spacing:.02em!important;font-weight:800!important;line-height:1.3!important}body[data-page=dashboard] .button,body[data-page=keluar-bahan] .button,body[data-page=keluar-bahan] .button-refresh,body[data-page=keluar-bahan] .detail-footer-button,body[data-page=keluar-bahan] .eta-submit-button,body[data-page=keluar-bahan] .eta-save-button,body[data-page=keluar-bahan] .eta-cancel-button,body[data-page=keluar-bahan] .eta-nav-button,body[data-page=keluar-bahan] .eta-open-button,body[data-page=keluar-bahan] .save-button,body[data-page=keluar-bahan] .summary-toggle-button,body[data-page=penarikan-data] .action-button,body[data-page=input-spk] #spkInputRoot .neumorphic-btn-black,body[data-page=input-spk] #spkInputRoot .neumorphic-btn-light,body[data-page=input-spk] #spkInputRoot .btn-add-bahan,body[data-page=input-spk] #spkInputRoot .routing-editor-save,body[data-page=input-spk] #spkInputRoot .routing-editor-cancel,body[data-page=input-spk] #spkInputRoot .save-success-action,body[data-page=input-spk] #spkInputRoot .save-success-secondary,body[data-page=dashboard] #spkInputModal #spkInputRoot .neumorphic-btn-black,body[data-page=dashboard] #spkInputModal #spkInputRoot .neumorphic-btn-light,body[data-page=dashboard] #spkInputModal #spkInputRoot .btn-add-bahan,body[data-page=dashboard] #spkInputModal #spkInputRoot .routing-editor-save,body[data-page=dashboard] #spkInputModal #spkInputRoot .routing-editor-cancel,body[data-page=cetak-spk] .toolbar-button{min-height:var(--polyta-button-height)!important;height:var(--polyta-button-height)!important;padding:0 var(--polyta-button-padding-x)!important;gap:var(--polyta-control-gap)!important;border-radius:var(--polyta-control-radius)!important;box-sizing:border-box!important;font-size:var(--polyta-control-font-size)!important;line-height:1!important}body[data-page=dashboard] .nav-link-app,body[data-page=input-spk] #spkInputRoot .app-nav-link,body[data-page=keluar-bahan] .nav-link,body[data-page=penarikan-data] .app-nav-link{min-height:var(--polyta-button-height)!important;height:var(--polyta-button-height)!important;gap:var(--polyta-control-gap)!important;border-radius:var(--polyta-control-radius)!important;box-sizing:border-box!important;font-size:var(--polyta-control-font-size)!important;padding:0 11px!important;line-height:1!important}body[data-page=input-spk] #spkInputRoot .order-type-option,body[data-page=input-spk] #spkInputRoot .finishing-choice,body[data-page=dashboard] #spkInputModal #spkInputRoot .order-type-option,body[data-page=dashboard] #spkInputModal #spkInputRoot .finishing-choice{min-height:var(--polyta-button-height)!important;height:var(--polyta-button-height)!important;border-radius:var(--polyta-control-radius)!important;box-sizing:border-box!important;font-size:var(--polyta-control-font-size)!important;line-height:1!important}body[data-page=dashboard] .modal .btn-close,body[data-page=keluar-bahan] .detail-close,body[data-page=keluar-bahan] .eta-modal-close{width:var(--polyta-icon-button-size)!important;min-width:var(--polyta-icon-button-size)!important;height:var(--polyta-icon-button-size)!important;min-height:var(--polyta-icon-button-size)!important;border-radius:var(--polyta-control-radius)!important;box-sizing:border-box!important;padding:0!important}body[data-page=penarikan-data] .source-file-action,body[data-page=dashboard] .manage-button{min-height:var(--polyta-icon-button-size)!important;height:var(--polyta-icon-button-size)!important;border-radius:var(--polyta-control-radius)!important;box-sizing:border-box!important;padding:0 10px!important;font-size:.63rem!important;line-height:1!important}body[data-page=dashboard] .form-control,body[data-page=dashboard] .form-select,body[data-page=input-spk] #spkInputRoot input.field-input,body[data-page=input-spk] #spkInputRoot select.field-input,body[data-page=input-spk] #spkInputRoot .routing-process-select,body[data-page=dashboard] #spkInputModal #spkInputRoot input.field-input,body[data-page=dashboard] #spkInputModal #spkInputRoot select.field-input,body[data-page=dashboard] #spkInputModal #spkInputRoot .routing-process-select,body[data-page=keluar-bahan] .search-input,body[data-page=keluar-bahan] .filter-select,body[data-page=keluar-bahan] .editor-input,body[data-page=keluar-bahan] .editor-select,body[data-page=keluar-bahan] .eta-date-input,body[data-page=keluar-bahan] .eta-qty-input,body[data-page=keluar-bahan] .eta-uom-select,body[data-page=keluar-bahan] .eta-modal-input,body[data-page=keluar-bahan] .eta-modal-select{min-height:var(--polyta-input-height)!important;height:var(--polyta-input-height)!important;border-radius:var(--polyta-control-radius)!important;box-sizing:border-box!important;font-size:var(--polyta-control-font-size)!important;padding-top:0!important;padding-bottom:0!important;line-height:1.2!important}body[data-page=input-spk] #spkInputRoot input.field-input,body[data-page=dashboard] #spkInputModal #spkInputRoot input.field-input,body[data-page=keluar-bahan] .editor-input,body[data-page=keluar-bahan] .eta-date-input,body[data-page=keluar-bahan] .eta-qty-input,body[data-page=keluar-bahan] .eta-modal-input{padding-left:var(--polyta-input-padding-x)!important;padding-right:var(--polyta-input-padding-x)!important}body[data-page=input-spk] #spkInputRoot .spk-wrapper input.field-input,body[data-page=dashboard] #spkInputModal #spkInputRoot .spk-wrapper input.field-input{padding-right:42px!important}body[data-page=input-spk] #spkInputRoot .warna-input-wrap input.field-input,body[data-page=dashboard] #spkInputModal #spkInputRoot .warna-input-wrap input.field-input{padding-left:42px!important}body[data-page=keluar-bahan] .search-input{padding-left:31px!important;padding-right:var(--polyta-input-padding-x)!important}body[data-page=keluar-bahan] .filter-select,body[data-page=keluar-bahan] .editor-select,body[data-page=keluar-bahan] .eta-uom-select,body[data-page=keluar-bahan] .eta-modal-select,body[data-page=input-spk] #spkInputRoot select.field-input,body[data-page=dashboard] #spkInputModal #spkInputRoot select.field-input{padding-left:var(--polyta-input-padding-x)!important;padding-right:32px!important}body[data-page=input-spk] #spkInputRoot .input-pair>select.field-input.input-pair-uom,body[data-page=dashboard] #spkInputModal #spkInputRoot .input-pair>select.field-input.input-pair-uom{flex:0 0 82px!important;width:82px!important;min-width:82px!important;padding-left:10px!important;padding-right:24px!important;line-height:normal!important}body[data-page=input-spk] #spkInputRoot select.routing-process-select,body[data-page=dashboard] #spkInputModal #spkInputRoot select.routing-process-select{padding-left:36px!important;padding-right:36px!important}body[data-page=input-spk] #spkInputRoot textarea.field-input,body[data-page=dashboard] #spkInputModal #spkInputRoot textarea.field-input,body[data-page=keluar-bahan] textarea{border-radius:var(--polyta-control-radius)!important;box-sizing:border-box!important;font-size:var(--polyta-control-font-size)!important;line-height:1.4!important}@media (max-width:900px){body[data-page=dashboard] .nav-link-app,body[data-page=input-spk] #spkInputRoot .app-nav-link,body[data-page=keluar-bahan] .nav-link,body[data-page=penarikan-data] .app-nav-link{justify-content:center!important;width:39px!important;min-width:39px!important;padding:0!important}}@property --tw-border-style{syntax:"*";inherits:false;initial-value:solid}@property --tw-gradient-position{syntax:"*";inherits:false}@property --tw-gradient-from{syntax:"<color>";inherits:false;initial-value:#0000}@property --tw-gradient-via{syntax:"<color>";inherits:false;initial-value:#0000}@property --tw-gradient-to{syntax:"<color>";inherits:false;initial-value:#0000}@property --tw-gradient-stops{syntax:"*";inherits:false}@property --tw-gradient-via-stops{syntax:"*";inherits:false}@property --tw-gradient-from-position{syntax:"<length-percentage>";inherits:false;initial-value:0%}@property --tw-gradient-via-position{syntax:"<length-percentage>";inherits:false;initial-value:50%}@property --tw-gradient-to-position{syntax:"<length-percentage>";inherits:false;initial-value:100%}@property --tw-font-weight{syntax:"*";inherits:false}@property --tw-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-shadow-color{syntax:"*";inherits:false}@property --tw-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}@property --tw-inset-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-inset-shadow-color{syntax:"*";inherits:false}@property --tw-inset-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}@property --tw-ring-color{syntax:"*";inherits:false}@property --tw-ring-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-inset-ring-color{syntax:"*";inherits:false}@property --tw-inset-ring-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-ring-inset{syntax:"*";inherits:false}@property --tw-ring-offset-width{syntax:"<length>";inherits:false;initial-value:0}@property --tw-ring-offset-color{syntax:"*";inherits:false;initial-value:#fff}@property --tw-ring-offset-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-backdrop-blur{syntax:"*";inherits:false}@property --tw-backdrop-brightness{syntax:"*";inherits:false}@property --tw-backdrop-contrast{syntax:"*";inherits:false}@property --tw-backdrop-grayscale{syntax:"*";inherits:false}@property --tw-backdrop-hue-rotate{syntax:"*";inherits:false}@property --tw-backdrop-invert{syntax:"*";inherits:false}@property --tw-backdrop-opacity{syntax:"*";inherits:false}@property --tw-backdrop-saturate{syntax:"*";inherits:false}@property --tw-backdrop-sepia{syntax:"*";inherits:false}@property --tw-duration{syntax:"*";inherits:false}</style>
+  <style>
+    :root {
+      --bg: #e5e7eb;
+      --surface: #f5f6f7;
+      --surface-soft: #eceef1;
+      --ink: #17191d;
+      --muted: #667085;
+      --line: #d1d5db;
+      --red: #b4232c;
+      --red-dark: #841820;
+      --red-soft: #fbeaec;
+      --green: #18794e;
+      --green-soft: #e7f6ee;
+      --amber: #a15c00;
+      --amber-soft: #fff4dc;
+      --blue: #315aa9;
+      --shadow: 0 18px 46px rgba(28, 36, 50, .12);
+      --shadow-soft: 0 8px 24px rgba(28, 36, 50, .08);
+      --radius: 22px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+      background: var(--bg);
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 0%, rgba(255, 255, 255, .95), transparent 30%),
+        radial-gradient(circle at 100% 8%, rgba(180, 35, 44, .09), transparent 26%),
+        linear-gradient(155deg, #eef0f3 0%, #dfe2e6 100%);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button,
+    a {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid rgba(113, 118, 128, .22);
+      background: rgba(244, 246, 248, .9);
+      box-shadow: 0 8px 28px rgba(28, 36, 50, .08);
+      backdrop-filter: blur(18px);
+    }
+
+    .header-inner {
+      width: min(1480px, calc(100% - 36px));
+      min-height: 78px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      min-width: 250px;
+    }
+
+    .brand-mark {
+      width: 43px;
+      height: 43px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border: 1px solid rgba(132, 24, 32, .25);
+      border-radius: 14px;
+      color: #fff;
+      background: linear-gradient(145deg, #d03b45, #8a1821);
+      box-shadow: 0 8px 18px rgba(132, 24, 32, .24), inset 0 1px 0 rgba(255, 255, 255, .35);
+    }
+
+    .brand-mark i {
+      font-size: 1.05rem;
+    }
+
+    .brand-name,
+    .brand-subtitle {
+      display: block;
+    }
+
+    .brand-name {
+      font-size: .84rem;
+      font-weight: 900;
+      letter-spacing: -.02em;
+    }
+
+    .brand-subtitle {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: .62rem;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    .topnav {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 7px;
+    }
+
+    .nav-link {
+      min-height: 42px;
+      padding: 0 13px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      color: #4b5563;
+      text-decoration: none;
+      font-size: .72rem;
+      font-weight: 800;
+      transition: .18s ease;
+    }
+
+    .nav-link:hover {
+      border-color: #d6d9de;
+      color: var(--red-dark);
+      background: rgba(255, 255, 255, .76);
+    }
+
+    .nav-link.active {
+      border-color: rgba(132, 24, 32, .2);
+      color: #fff;
+      background: linear-gradient(145deg, #c12c36, #8a1821);
+      box-shadow: 0 7px 16px rgba(132, 24, 32, .22);
+    }
+
+    .app-main {
+      width: min(1480px, calc(100% - 36px));
+      margin: 0 auto;
+      padding: 34px 0 56px;
+    }
+
+    .page-heading {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--red);
+      font-size: .67rem;
+      font-weight: 900;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.9rem, 4vw, 3.3rem);
+      line-height: 1;
+      letter-spacing: -.055em;
+    }
+
+    .page-description {
+      max-width: 760px;
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: .88rem;
+      font-weight: 550;
+      line-height: 1.65;
+    }
+
+    .role-chip {
+      min-height: 44px;
+      padding: 0 15px;
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      border: 1px solid rgba(49, 90, 169, .22);
+      border-radius: 999px;
+      color: #284982;
+      background: rgba(237, 243, 255, .9);
+      box-shadow: var(--shadow-soft);
+      font-size: .71rem;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .summary-card {
+      min-height: 122px;
+      padding: 21px;
+      display: flex;
+      align-items: center;
+      gap: 17px;
+      border: 1px solid rgba(122, 128, 138, .18);
+      border-radius: var(--radius);
+      background: rgba(248, 249, 250, .82);
+      box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255, 255, 255, .9);
+    }
+
+    .summary-icon {
+      width: 50px;
+      height: 50px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border-radius: 16px;
+      color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .summary-card.pending .summary-icon {
+      color: var(--amber);
+      background: var(--amber-soft);
+    }
+
+    .summary-card.complete .summary-icon {
+      color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .summary-label,
+    .summary-value,
+    .summary-note {
+      display: block;
+    }
+
+    .summary-label {
+      color: var(--muted);
+      font-size: .66rem;
+      font-weight: 850;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .summary-value {
+      margin-top: 3px;
+      font-size: 1.85rem;
+      font-weight: 900;
+      letter-spacing: -.05em;
+    }
+
+    .summary-note {
+      margin-top: 2px;
+      color: #7b8492;
+      font-size: .67rem;
+      font-weight: 650;
+    }
+
+    .workspace {
+      overflow: hidden;
+      border: 1px solid rgba(122, 128, 138, .2);
+      border-radius: 26px;
+      background: rgba(248, 249, 250, .9);
+      box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, .94);
+    }
+
+    .workspace-toolbar {
+      padding: 18px;
+      display: grid;
+      grid-template-columns: minmax(250px, 1fr) auto auto;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .search-wrap {
+      position: relative;
+    }
+
+    .search-wrap i {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      color: #7d8592;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+
+    .search-input,
+    .filter-select,
+    .editor-input,
+    .editor-select {
+      min-height: 44px;
+      border: 1px solid #cfd3d9;
+      border-radius: 12px;
+      outline: none;
+      color: var(--ink);
+      background: #fff;
+      box-shadow: inset 0 1px 2px rgba(28, 36, 50, .05);
+      font-weight: 650;
+      transition: .18s ease;
+    }
+
+    .search-input:focus,
+    .filter-select:focus,
+    .editor-input:focus,
+    .editor-select:focus {
+      border-color: rgba(180, 35, 44, .65);
+      box-shadow: 0 0 0 3px rgba(180, 35, 44, .11);
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0 15px 0 42px;
+    }
+
+    .filter-select {
+      min-width: 178px;
+      padding: 0 36px 0 13px;
+    }
+
+    .button {
+      min-height: 44px;
+      padding: 0 15px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 0;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: .72rem;
+      font-weight: 900;
+      transition: .18s ease;
+    }
+
+    .button:disabled {
+      cursor: wait;
+      opacity: .66;
+    }
+
+    .button-refresh {
+      color: #374151;
+      background: #e6e8eb;
+      box-shadow: inset 0 0 0 1px #d0d4d9;
+    }
+
+    .button-refresh:hover:not(:disabled) {
+      color: var(--red-dark);
+      background: #fff;
+    }
+
+    .table-wrap {
+      overflow: auto;
+    }
+
+    .manager-pagination {
+      min-height: 58px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-top: 1px solid #c8c9c7;
+      background: linear-gradient(180deg, #eeeeeb, #d3d4d1);
+      box-shadow: inset 0 1px 0 #fff;
+    }
+
+    .manager-pagination[hidden] {
+      display: none;
+    }
+
+    .manager-pagination-info {
+      color: #55585d;
+      font-size: .67rem;
+      font-weight: 750;
+    }
+
+    .manager-pagination-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .manager-pagination-page {
+      min-width: 92px;
+      color: #44474c;
+      font-size: .66rem;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    table {
+      width: 100%;
+      min-width: 1120px;
+      border-collapse: collapse;
+    }
+
+    th {
+      padding: 13px 15px;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      color: #6b7280;
+      background: #eceef1;
+      font-size: .62rem;
+      font-weight: 900;
+      letter-spacing: .09em;
+      text-align: left;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 16px 15px;
+      border-top: 1px solid #e1e4e8;
+      vertical-align: middle;
+      font-size: .75rem;
+    }
+
+    tbody tr {
+      background: rgba(255, 255, 255, .52);
+      transition: background .16s ease;
+    }
+
+    tbody tr:hover {
+      background: rgba(255, 255, 255, .95);
+    }
+
+    tbody tr.is-saving {
+      background: #fff8eb;
+    }
+
+    .spk-code {
+      display: block;
+      color: var(--red-dark);
+      font-size: .8rem;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .date-text {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: .66rem;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .primary-text,
+    .secondary-text {
+      display: block;
+    }
+
+    .primary-text {
+      max-width: 235px;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .secondary-text {
+      max-width: 235px;
+      margin-top: 4px;
+      overflow: hidden;
+      color: var(--muted);
+      font-size: .65rem;
+      font-weight: 600;
+      line-height: 1.4;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .order-value {
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .status-badge {
+      min-height: 28px;
+      padding: 0 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      font-size: .62rem;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .status-badge.pending {
+      color: #875000;
+      background: var(--amber-soft);
+      box-shadow: inset 0 0 0 1px rgba(161, 92, 0, .16);
+    }
+
+    .status-badge.complete {
+      color: var(--green);
+      background: var(--green-soft);
+      box-shadow: inset 0 0 0 1px rgba(24, 121, 78, .16);
+    }
+
+    .editor {
+      display: grid;
+      grid-template-columns: minmax(110px, 1fr) 94px;
+      gap: 7px;
+      min-width: 225px;
+    }
+
+    .editor-input,
+    .editor-select {
+      width: 100%;
+      min-height: 40px;
+      padding: 0 11px;
+      font-size: .72rem;
+    }
+
+    .save-button {
+      min-width: 92px;
+      color: #fff;
+      background: linear-gradient(145deg, #c12c36, #8a1821);
+      box-shadow: 0 7px 14px rgba(132, 24, 32, .18);
+    }
+
+    .save-button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 18px rgba(132, 24, 32, .24);
+    }
+
+    .state-panel {
+      min-height: 360px;
+      padding: 48px 24px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+    }
+
+    .state-panel[hidden] {
+      display: none;
+    }
+
+    .state-icon {
+      width: 62px;
+      height: 62px;
+      margin: 0 auto 16px;
+      display: grid;
+      place-items: center;
+      border-radius: 20px;
+      color: var(--red);
+      background: var(--red-soft);
+      font-size: 1.25rem;
+    }
+
+    .state-panel h2 {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 900;
+    }
+
+    .state-panel p {
+      max-width: 520px;
+      margin: 8px auto 0;
+      color: var(--muted);
+      font-size: .76rem;
+      font-weight: 600;
+      line-height: 1.6;
+    }
+
+    .spinner {
+      width: 21px;
+      height: 21px;
+      border: 3px solid rgba(180, 35, 44, .2);
+      border-top-color: var(--red);
+      border-radius: 50%;
+      animation: spin .75s linear infinite;
+    }
+
+    .toast {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      z-index: 50;
+      width: min(420px, calc(100% - 44px));
+      padding: 15px 17px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      border: 1px solid rgba(24, 121, 78, .23);
+      border-radius: 16px;
+      color: #155f3f;
+      background: #f2fbf6;
+      box-shadow: 0 18px 42px rgba(28, 36, 50, .18);
+      font-size: .74rem;
+      font-weight: 750;
+      line-height: 1.5;
+      transform: translateY(22px);
+      opacity: 0;
+      pointer-events: none;
+      transition: .22s ease;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast.error {
+      border-color: rgba(180, 35, 44, .23);
+      color: var(--red-dark);
+      background: #fff4f5;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 980px) {
+      .header-inner {
+        width: min(100% - 24px, 1480px);
+        padding: 12px 0;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 11px;
+      }
+
+      .topnav {
+        width: 100%;
+        overflow-x: auto;
+        justify-content: flex-start;
+        padding-bottom: 3px;
+      }
+
+      .nav-link {
+        white-space: nowrap;
+      }
+
+      .app-main {
+        width: min(100% - 24px, 1480px);
+        padding-top: 25px;
+      }
+
+      .page-heading {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .summary-card {
+        min-height: 98px;
+      }
+
+      .manager-pagination {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .manager-pagination-actions {
+        justify-content: space-between;
+      }
+
+      .workspace-toolbar {
+        grid-template-columns: 1fr;
+      }
+
+      .filter-select,
+      .button-refresh {
+        width: 100%;
+      }
+
+      .brand {
+        min-width: 0;
+      }
+
+      .nav-link {
+        padding: 0 11px;
+      }
+    }
+  </style>
+  <style id="shared-industrial-theme">
+    /* Shell visual bersama Dashboard, Input SPK, dan Penarikan Data. */
+    :root {
+      --bg: #26282c;
+      --surface: #eeeeeb;
+      --surface-soft: #d7d8d5;
+      --ink: #25272b;
+      --muted: #747980;
+      --line: #a9abad;
+      --red: #c92b2b;
+      --red-dark: #8d1515;
+      --green: #167253;
+      --amber: #9b5c05;
+      --shadow: 0 16px 32px rgba(0, 0, 0, .42);
+      --shadow-soft: 0 6px 10px rgba(0, 0, 0, .18);
+      --radius: 14px;
+    }
+
+    html { background: #26282c; }
+
+    body {
+      color: var(--ink);
+      background-color: #26282c;
+      background-image:
+        linear-gradient(135deg, rgba(255, 255, 255, .025) 25%, transparent 25%),
+        linear-gradient(315deg, rgba(255, 255, 255, .025) 25%, transparent 25%),
+        radial-gradient(circle at 20% 0, rgba(255, 255, 255, .06), transparent 30rem);
+      background-position: 0 0, 6px 6px, 0 0;
+      background-size: 12px 12px, 12px 12px, auto;
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      font-size: 15px;
+    }
+
+    .app-header {
+      min-height: 72px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-top: 1px solid #5a5d63;
+      border-bottom: 4px solid #8b1717;
+      background: linear-gradient(180deg, #4b4e54 0, #303238 45%, #202226 46%, #101114 100%);
+      color: #fff;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .18),
+        inset 0 -1px 0 #000,
+        0 4px 10px rgba(0, 0, 0, .45);
+      backdrop-filter: none;
+    }
+
+    .app-header::after {
+      position: absolute;
+      right: 0;
+      bottom: -4px;
+      left: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #751010, #ec4a4a 50%, #751010);
+      content: "";
+    }
+
+    .header-inner {
+      width: min(100%, 1600px);
+      min-height: 68px;
+      margin: 0 auto;
+      padding: 0 22px;
+      flex-direction: row;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .brand { min-width: 0; gap: 11px; }
+
+    .brand-mark {
+      width: 52px;
+      height: 52px;
+      flex: 0 0 52px;
+      padding: 4px;
+      border: 1px solid #74787d;
+      border-radius: 12px;
+      color: inherit;
+      background:
+        linear-gradient(145deg, rgba(255, 255, 255, .92), rgba(255, 255, 255, .18) 42%, transparent 43%),
+        linear-gradient(145deg, #f7f7f4, #bfc2c4 54%, #85898e);
+      box-shadow:
+        inset 0 1px 1px #fff,
+        inset 0 -2px 3px rgba(0, 0, 0, .24),
+        0 2px 0 #09090a,
+        0 3px 5px rgba(0, 0, 0, .5);
+    }
+
+    .polyta-logo {
+      width: 100%;
+      height: 100%;
+      display: block;
+      filter: drop-shadow(0 2px 1px rgba(0, 0, 0, .28));
+    }
+
+    .brand-name {
+      color: #fff;
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: .01em;
+      line-height: 1.2;
+      text-shadow: 0 -1px 0 #000;
+    }
+
+    .brand-subtitle {
+      margin-top: 2px;
+      color: #c0c3c9;
+      font-size: .74rem;
+      font-weight: 600;
+      letter-spacing: .02em;
+      line-height: 1.2;
+      text-transform: none;
+      text-shadow: 0 -1px 0 #000;
+    }
+
+    .topnav {
+      width: auto;
+      padding: 0;
+      overflow: visible;
+      justify-content: flex-end;
+      gap: 5px;
+    }
+
+    .nav-link {
+      min-height: 35px;
+      padding: 0 11px;
+      gap: 6px;
+      border: 1px solid rgba(0, 0, 0, .5);
+      border-radius: 8px;
+      color: #d6d8dc;
+      background: linear-gradient(180deg, #42454b, #25272c);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .13),
+        0 1px 0 rgba(255, 255, 255, .07),
+        0 2px 2px rgba(0, 0, 0, .35);
+      font-size: .72rem;
+      font-weight: 750;
+      text-shadow: 0 -1px 0 #000;
+      white-space: nowrap;
+    }
+
+    button.nav-link {
+      appearance: none;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    .nav-link:hover {
+      border-color: #111;
+      color: #fff;
+      background: linear-gradient(180deg, #52555b, #303238);
+    }
+
+    .nav-link.active,
+    .nav-link[aria-pressed="true"] {
+      border-color: #08090a;
+      color: #fff;
+      background: #1b1c20;
+      box-shadow:
+        inset 0 2px 5px rgba(0, 0, 0, .85),
+        0 1px 0 rgba(255, 255, 255, .1);
+    }
+
+    .app-main {
+      position: relative;
+      width: min(calc(100% - 32px), 1544px);
+      margin: 26px auto 38px;
+      padding: 25px 24px 32px;
+      border: 1px solid #777a7d;
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 15px 15px, #55585b 0 1px, #c8c9c7 2px 4px, #777 5px, transparent 6px),
+        radial-gradient(circle at calc(100% - 15px) 15px, #55585b 0 1px, #c8c9c7 2px 4px, #777 5px, transparent 6px),
+        radial-gradient(circle at 15px calc(100% - 15px), #55585b 0 1px, #c8c9c7 2px 4px, #777 5px, transparent 6px),
+        radial-gradient(circle at calc(100% - 15px) calc(100% - 15px), #55585b 0 1px, #c8c9c7 2px 4px, #777 5px, transparent 6px),
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, .11) 0, rgba(255, 255, 255, .11) 1px, rgba(0, 0, 0, .018) 2px, transparent 4px),
+        linear-gradient(145deg, #eeeeeb, #d7d8d5);
+      box-shadow:
+        inset 0 1px 1px rgba(255, 255, 255, .95),
+        inset 0 -2px 4px rgba(0, 0, 0, .16),
+        0 3px 0 #151619,
+        0 16px 32px rgba(0, 0, 0, .45);
+    }
+
+    .page-heading {
+      margin-bottom: 16px;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .heading-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .heading-group {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+
+    .heading-icon {
+      width: 46px;
+      height: 46px;
+      flex: 0 0 46px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #c99797;
+      border-radius: 12px;
+      color: var(--red);
+      background: linear-gradient(145deg, #fff0f0, #e3b8b8);
+      box-shadow:
+        inset 1px 1px 0 rgba(255, 255, 255, .9),
+        inset -1px -1px 2px rgba(124, 30, 30, .22),
+        0 2px 3px rgba(0, 0, 0, .24);
+      font-size: 18px;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, .75);
+    }
+
+    .eyebrow {
+      margin: 0 0 4px;
+      color: #9f1d1d;
+      font-size: .64rem;
+      font-weight: 900;
+      line-height: 1.3;
+      letter-spacing: .11em;
+      text-shadow: 0 1px 0 #fff;
+    }
+
+    h1 {
+      margin: 0;
+      color: #25272b;
+      font-size: 1.55rem;
+      font-weight: 850;
+      line-height: 1.2;
+      letter-spacing: -.025em;
+      text-shadow: 0 1px 0 #fff;
+    }
+
+    .page-description {
+      max-width: 760px;
+      margin: 5px 0 0;
+      color: #747980;
+      font-size: .75rem;
+      font-weight: 500;
+      line-height: 1.45;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, .8);
+    }
+
+    .role-chip {
+      min-height: 34px;
+      padding: 0 11px;
+      border: 1px solid #a1a3a5;
+      border-radius: 999px;
+      color: #4f5359;
+      background: #dfe0de;
+      box-shadow: inset 0 2px 3px rgba(0, 0, 0, .14), 0 1px 0 #fff;
+      font-size: .68rem;
+      font-weight: 800;
+      text-shadow: 0 1px 0 #fff;
+    }
+
+    .summary-collapse {
+      display: grid;
+      grid-template-rows: 1fr;
+      margin-bottom: 14px;
+      transition: grid-template-rows .28s ease, margin-bottom .28s ease, opacity .2s ease;
+    }
+
+    .summary-collapse-inner {
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .summary-collapse.is-collapsed {
+      grid-template-rows: 0fr;
+      margin-bottom: 0;
+      opacity: .35;
+    }
+
+    .summary-grid { gap: 12px; margin-bottom: 0; }
+
+    .summary-toggle-button[aria-expanded="false"] {
+      box-shadow:
+        inset 0 2px 4px rgba(0, 0, 0, .24),
+        0 1px 0 rgba(255, 255, 255, .78);
+      transform: translateY(1px);
+    }
+
+    .summary-card {
+      min-height: 94px;
+      padding: 15px 16px;
+      gap: 13px;
+      border: 1px solid #b1b3b3;
+      border-bottom-color: #8f9192;
+      border-radius: 13px;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, .72), transparent 38%),
+        linear-gradient(180deg, #fdfdfb, #e8e9e6);
+      box-shadow:
+        inset 0 1px 0 #fff,
+        inset 1px 0 0 rgba(255, 255, 255, .55),
+        inset 0 -1px 0 rgba(0, 0, 0, .11),
+        0 3px 0 #8e9091,
+        0 6px 10px rgba(0, 0, 0, .16);
+    }
+
+    .summary-icon {
+      width: 42px;
+      height: 42px;
+      border: 1px solid #b7b9ba;
+      border-radius: 11px;
+      color: #8d1515;
+      background: linear-gradient(145deg, #f5dada, #d5a8a8);
+      box-shadow: inset 1px 1px 0 rgba(255, 255, 255, .8), inset -1px -1px 2px rgba(0, 0, 0, .12);
+    }
+
+    .summary-card.pending .summary-icon {
+      color: #8a5206;
+      background: linear-gradient(145deg, #fff1d4, #dfc58e);
+    }
+
+    .summary-card.complete .summary-icon {
+      color: #116044;
+      background: linear-gradient(145deg, #e2f3eb, #acd4c3);
+    }
+
+    .summary-label {
+      color: #656a70;
+      font-size: .64rem;
+      font-weight: 900;
+      letter-spacing: .07em;
+      text-shadow: 0 1px 0 #fff;
+    }
+
+    .summary-value {
+      margin-top: 1px;
+      color: #25272b;
+      font-size: 1.45rem;
+      letter-spacing: -.035em;
+      text-shadow: 0 1px 0 #fff;
+    }
+
+    .summary-note {
+      margin-top: 1px;
+      color: #747980;
+      font-size: .65rem;
+      text-shadow: 0 1px 0 #fff;
+    }
+
+    .workspace {
+      border: 1px solid #8f9192;
+      border-radius: 14px;
+      background: #d8d9d6;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .86),
+        inset 0 -1px 0 rgba(0, 0, 0, .12),
+        0 3px 0 #696b6d,
+        0 7px 14px rgba(0, 0, 0, .2);
+    }
+
+    .workspace-toolbar {
+      padding: 12px 14px;
+      grid-template-columns: minmax(250px, 1fr) 180px auto;
+      gap: 8px;
+      border-bottom: 1px solid #999b9d;
+      background:
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, .08) 0, rgba(255, 255, 255, .08) 1px, transparent 2px, transparent 4px),
+        linear-gradient(180deg, #e1e2df, #c9cac7);
+      box-shadow: inset 0 1px 0 #fff, inset 0 -1px 0 rgba(0, 0, 0, .1);
+    }
+
+    .search-wrap i { left: 11px; color: #5d6166; font-size: .7rem; }
+
+    .search-input,
+    .filter-select,
+    .editor-input,
+    .editor-select {
+      min-height: 36px;
+      border: 1px solid #9b9da0;
+      border-top-color: #74777a;
+      border-left-color: #74777a;
+      border-radius: 8px;
+      color: #292b2f;
+      background: #fdfdfb;
+      box-shadow: inset 1px 2px 4px rgba(0, 0, 0, .2), 0 1px 0 rgba(255, 255, 255, .78);
+      font-size: .7rem;
+      font-weight: 650;
+    }
+
+    .search-input:focus,
+    .filter-select:focus,
+    .editor-input:focus,
+    .editor-select:focus {
+      border-color: #7b1b1b;
+      box-shadow:
+        inset 1px 2px 4px rgba(0, 0, 0, .17),
+        0 0 0 3px rgba(185, 35, 35, .15),
+        0 1px 0 #fff;
+    }
+
+    .search-input { padding: 0 12px 0 31px; }
+    .filter-select { min-width: 180px; padding-left: 10px; }
+
+    .button,
+    .button-refresh {
+      min-height: 36px;
+      padding: 0 12px;
+      border: 1px solid #9c9fa2;
+      border-bottom-color: #777a7d;
+      border-radius: 8px;
+      color: #303238;
+      background: linear-gradient(180deg, #fff 0, #f6f6f4 46%, #e1e2df 52%, #c9cac8 100%);
+      box-shadow:
+        inset 0 1px 0 #fff,
+        inset 0 -1px 0 rgba(0, 0, 0, .08),
+        0 2px 0 #77797b,
+        0 4px 6px rgba(0, 0, 0, .2);
+      font-size: .69rem;
+      font-weight: 800;
+      text-shadow: 0 1px 0 #fff;
+    }
+
+    .button:hover:not(:disabled),
+    .button-refresh:hover:not(:disabled) {
+      border-color: #777a7d;
+      color: #202226;
+      background: linear-gradient(180deg, #fff 0, #f9f9f7 46%, #e8e9e6 52%, #d1d2cf 100%);
+      box-shadow: inset 0 1px 0 #fff, 0 2px 0 #6e7072, 0 5px 8px rgba(0, 0, 0, .24);
+      transform: translateY(-1px);
+    }
+
+    .table-wrap {
+      background: #f5f5f2;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, .12);
+    }
+
+    table { min-width: 1060px; }
+
+    th {
+      padding: 10px;
+      color: #e7e8ea;
+      background: linear-gradient(180deg, #4c4f54, #2b2d31);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14);
+      font-size: .59rem;
+      text-shadow: 0 -1px 0 #000;
+    }
+
+    td {
+      padding: 10px;
+      border-top: 1px solid #c8c9c7;
+      color: #303238;
+      font-size: .66rem;
+    }
+
+    tbody tr { background: rgba(253, 253, 251, .88); }
+    tbody tr:nth-child(even) { background: rgba(232, 233, 230, .82); }
+    tbody tr:hover { background: #fff5e8; }
+    tbody tr.is-saving { background: #fff0cf; }
+
+    .spk-code { color: #8d1515; font-size: .72rem; text-shadow: 0 1px 0 #fff; }
+    .date-text { margin-top: 2px; font-size: .6rem; }
+    .primary-text, .order-value { font-size: .68rem; }
+    .secondary-text { margin-top: 2px; font-size: .6rem; }
+
+    .status-badge {
+      min-height: 25px;
+      padding: 0 8px;
+      border: 1px solid;
+      font-size: .58rem;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, .8);
+    }
+
+    .status-badge.pending {
+      border-color: #d2b57a;
+      color: #80500b;
+      background: linear-gradient(180deg, #fff3d6, #ead29c);
+      box-shadow: inset 0 1px 0 #fff;
+    }
+
+    .status-badge.complete {
+      border-color: #91bdaa;
+      color: #116044;
+      background: linear-gradient(180deg, #e6f5ee, #c1dfd2);
+      box-shadow: inset 0 1px 0 #fff;
+    }
+
+    .editor { grid-template-columns: minmax(100px, 1fr) 86px; min-width: 205px; }
+    .editor-input, .editor-select { min-height: 34px; padding: 0 9px; font-size: .66rem; }
+
+    .save-button {
+      min-width: 84px;
+      border-color: #821111;
+      border-bottom-color: #5d0808;
+      color: #fff;
+      background: linear-gradient(180deg, #ed5252 0, #d83232 46%, #b61d1d 52%, #8b1111 100%);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .48),
+        inset 0 -1px 0 rgba(73, 0, 0, .45),
+        0 2px 0 #650b0b,
+        0 4px 6px rgba(77, 0, 0, .28);
+      text-shadow: 0 -1px 0 #620a0a;
+    }
+
+    .save-button:hover:not(:disabled) {
+      border-color: #6f0d0d;
+      color: #fff;
+      background: linear-gradient(180deg, #f25a5a 0, #dd3636 46%, #be2020 52%, #941313 100%);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .52), 0 2px 0 #5d0808, 0 5px 8px rgba(77, 0, 0, .34);
+    }
+
+    .state-panel {
+      min-height: 300px;
+      background:
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, .08) 0, rgba(255, 255, 255, .08) 1px, transparent 2px, transparent 4px),
+        #d8d9d6;
+    }
+
+    .state-icon {
+      border: 1px solid #c99797;
+      color: #9f1d1d;
+      background: linear-gradient(145deg, #fff0f0, #e3b8b8);
+      box-shadow: inset 1px 1px 0 #fff, 0 2px 3px rgba(0, 0, 0, .2);
+    }
+
+    .state-panel h2,
+    .state-panel p { text-shadow: 0 1px 0 #fff; }
+
+    .toast {
+      border: 1px solid #91bdaa;
+      border-radius: 12px;
+      color: #155f3f;
+      background: linear-gradient(180deg, #eef9f4, #cfe8dd);
+      box-shadow: inset 0 1px 0 #fff, 0 3px 0 #6c9986, 0 10px 24px rgba(0, 0, 0, .28);
+    }
+
+    .toast.error {
+      border-color: #c99797;
+      color: #8d1515;
+      background: linear-gradient(180deg, #fff0f0, #e8c1c1);
+    }
+
+    html:fullscreen,
+    html:-webkit-full-screen,
+    html:fullscreen body,
+    html:-webkit-full-screen body,
+    body.app-focus-mode {
+      min-height: 100%;
+      background-color: #26282c;
+      background-image:
+        linear-gradient(135deg, rgba(255, 255, 255, .025) 25%, transparent 25%),
+        linear-gradient(315deg, rgba(255, 255, 255, .025) 25%, transparent 25%);
+      background-position: 0 0, 6px 6px;
+      background-size: 12px 12px;
+    }
+
+    body.app-focus-mode {
+      position: fixed;
+      z-index: 9999;
+      inset: 0;
+      overflow: auto;
+    }
+
+    @media (max-width: 980px) and (min-width: 901px) {
+      .header-inner {
+        width: min(100%, 1600px);
+        min-height: 68px;
+        padding: 0 18px;
+        flex-direction: row;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .topnav {
+        width: auto;
+        padding: 0;
+        overflow: visible;
+        justify-content: flex-end;
+      }
+
+      .app-main {
+        width: min(calc(100% - 24px), 1544px);
+        margin: 20px auto 30px;
+        padding: 22px 18px 29px;
+      }
+
+      .page-heading {
+        align-items: center;
+        flex-direction: row;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .header-inner {
+        width: min(100%, 1600px);
+        min-height: 68px;
+        padding: 0 15px;
+        flex-direction: row;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .topnav {
+        width: auto;
+        padding: 0;
+        overflow: visible;
+        justify-content: flex-end;
+      }
+
+      .nav-link {
+        width: 35px;
+        min-width: 35px;
+        padding: 0;
+      }
+
+      .nav-link span { display: none; }
+
+      .app-main {
+        width: min(calc(100% - 20px), 1544px);
+        margin: 18px auto 28px;
+        padding: 20px 16px 27px;
+      }
+
+      .page-heading { align-items: flex-start; }
+    }
+
+    @media (max-width: 760px) {
+      .brand-mark { width: 46px; height: 46px; flex-basis: 46px; }
+      .brand-name { font-size: .88rem; }
+      .brand-subtitle { display: none; }
+      .page-heading { flex-direction: column; gap: 11px; }
+      .heading-actions { width: 100%; justify-content: flex-start; }
+      .summary-grid { grid-template-columns: 1fr; gap: 10px; }
+      .summary-card { min-height: 80px; padding: 12px 14px; }
+      .workspace-toolbar { grid-template-columns: 1fr; }
+      .filter-select, .button-refresh { width: 100%; }
+    }
+
+    @media (max-width: 420px) {
+      .header-inner { padding-inline: 10px; }
+      .brand { gap: 7px; }
+      .brand-mark { width: 42px; height: 42px; flex-basis: 42px; }
+      .nav-link { width: 31px; min-width: 31px; }
+      .app-main { width: calc(100% - 14px); padding: 17px 12px 23px; }
+      .heading-icon { width: 42px; height: 42px; flex-basis: 42px; }
+    }
+  </style>
+  <style id="manager-detail-modal-theme">
+    body.detail-dialog-open {
+      overflow: hidden;
+    }
+
+    tbody tr.js-detail-row {
+      cursor: pointer;
+      outline: none;
+    }
+
+    tbody tr.js-detail-row:focus-visible {
+      position: relative;
+      z-index: 1;
+      box-shadow: inset 0 0 0 3px rgba(185, 35, 35, .42);
+    }
+
+    tbody tr.js-detail-row.is-detail-open {
+      background: #fff0d9;
+      box-shadow: inset 4px 0 0 #a51919;
+    }
+
+    tbody tr.js-detail-row td:first-child::after {
+      content: "Klik untuk detail";
+      display: block;
+      width: max-content;
+      margin-top: 5px;
+      color: #777b80;
+      font-size: .54rem;
+      font-weight: 800;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+    }
+
+    .table-wrap table {
+      min-width: 1540px;
+    }
+
+    .eta-cell {
+      min-width: 430px;
+    }
+
+    .eta-editor {
+      min-width: 420px;
+      display: grid;
+      grid-template-columns: 105px 122px 82px 72px 34px;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .eta-navigation {
+      min-height: 34px;
+      display: grid;
+      grid-template-columns: 27px minmax(0, 1fr) 27px;
+      align-items: stretch;
+      overflow: hidden;
+      border: 1px solid #8f9295;
+      border-radius: 7px;
+      background: linear-gradient(180deg, #f7f7f5, #d6d7d4);
+      box-shadow: inset 0 1px 0 #fff, 0 1px 0 rgba(255, 255, 255, .72);
+    }
+
+    .eta-nav-button {
+      width: 27px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      border: 0;
+      color: #55595e;
+      background: rgba(255, 255, 255, .38);
+      cursor: pointer;
+      font-size: .58rem;
+    }
+
+    .eta-nav-button:first-child {
+      border-right: 1px solid #aaaead;
+    }
+
+    .eta-nav-button:last-child {
+      border-left: 1px solid #aaaead;
+    }
+
+    .eta-nav-button:hover:not(:disabled) {
+      color: #8d1515;
+      background: #fff;
+    }
+
+    .eta-nav-button:disabled {
+      color: #a3a6a9;
+      cursor: default;
+      background: rgba(210, 211, 208, .58);
+    }
+
+    .eta-position {
+      min-width: 0;
+      display: grid;
+      place-items: center;
+      color: #303238;
+      font-size: .59rem;
+      font-weight: 900;
+      line-height: 1.05;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .eta-position small {
+      display: block;
+      margin-top: 2px;
+      color: #777b80;
+      font-size: .48rem;
+      font-weight: 800;
+    }
+
+    .eta-position.has-data {
+      color: #841820;
+    }
+
+    .eta-position.has-data small {
+      color: #a1262f;
+    }
+
+    .eta-position.has-draft {
+      color: #8a570d;
+    }
+
+    .eta-position.has-draft small {
+      color: #9b5c05;
+    }
+
+    .eta-date-input,
+    .eta-qty-input,
+    .eta-uom-select {
+      width: 100%;
+      min-width: 0;
+      min-height: 34px;
+      padding: 0 7px;
+      border: 1px solid #909397;
+      border-top-color: #74777a;
+      border-left-color: #74777a;
+      border-radius: 7px;
+      outline: none;
+      color: #292b2f;
+      background: #fdfdfb;
+      box-shadow: inset 1px 2px 3px rgba(0, 0, 0, .16), 0 1px 0 #fff;
+      font-size: .61rem;
+      font-weight: 750;
+    }
+
+    .eta-date-input:focus,
+    .eta-qty-input:focus,
+    .eta-uom-select:focus {
+      border-color: #7b1b1b;
+      box-shadow: inset 1px 2px 3px rgba(0, 0, 0, .14), 0 0 0 3px rgba(185, 35, 35, .14);
+    }
+
+    .eta-qty-input:disabled,
+    .eta-uom-select:disabled {
+      color: #96999d;
+      background: #d9dad7;
+      box-shadow: inset 1px 1px 2px rgba(0, 0, 0, .12);
+    }
+
+    .eta-save-button {
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      border: 1px solid #841820;
+      border-bottom-color: #5f1016;
+      border-radius: 7px;
+      color: #fff;
+      background: linear-gradient(180deg, #cf3e48, #931f29);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .34), 0 2px 0 #65141b;
+      cursor: pointer;
+      font-size: .64rem;
+    }
+
+    .eta-save-button:hover:not(:disabled) {
+      background: linear-gradient(180deg, #df4d57, #a32530);
+      transform: translateY(-1px);
+    }
+
+    .eta-save-button:disabled {
+      cursor: wait;
+      opacity: .65;
+    }
+
+    .eta-editor.is-saving {
+      opacity: .72;
+    }
+
+    .table-wrap table {
+      min-width: 1210px;
+    }
+
+    .eta-cell {
+      min-width: 112px;
+    }
+
+    .eta-open-button {
+      width: 84px;
+      min-width: 84px;
+      min-height: 36px;
+      padding: 0 7px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      border: 1px solid #315b50;
+      border-bottom-color: #1d3e35;
+      border-radius: 8px;
+      color: #fff;
+      background: linear-gradient(180deg, #4a796c 0, #37665a 48%, #30594f 52%, #274b42 100%);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .3),
+        inset 0 -1px 0 rgba(12, 42, 34, .4),
+        0 2px 0 #1d3e35,
+        0 4px 6px rgba(21, 58, 48, .22);
+      cursor: pointer;
+      text-shadow: 0 -1px 0 #18382f;
+      transition: .16s ease;
+    }
+
+    .eta-open-button:hover {
+      border-color: #38695b;
+      background: linear-gradient(180deg, #56887a 0, #407367 48%, #37665a 52%, #2d564c 100%);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .36),
+        0 2px 0 #23483e,
+        0 5px 8px rgba(21, 58, 48, .28);
+      transform: translateY(-1px);
+    }
+
+    .eta-open-button.has-data {
+      color: #fff;
+    }
+
+    .eta-open-icon {
+      width: 13px;
+      height: 16px;
+      display: inline-grid;
+      place-items: center;
+      flex: 0 0 auto;
+      font-size: .61rem;
+    }
+
+    .eta-open-label {
+      font-size: .6rem;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .eta-open-count {
+      min-width: 23px;
+      height: 19px;
+      padding: 0 4px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255, 255, 255, .34);
+      border-radius: 999px;
+      color: #fff;
+      background: rgba(14, 48, 40, .34);
+      font-size: .48rem;
+      font-weight: 900;
+      text-shadow: 0 -1px 0 rgba(10, 39, 32, .82);
+      white-space: nowrap;
+    }
+
+    body.eta-dialog-open {
+      overflow: hidden;
+    }
+
+    .eta-modal[hidden] {
+      display: none;
+    }
+
+    .eta-modal {
+      position: fixed;
+      z-index: 1100;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 22px;
+    }
+
+    .eta-modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(13, 14, 17, .8);
+      backdrop-filter: blur(7px);
+      animation: detailFadeIn .18s ease-out;
+    }
+
+    .eta-modal-dialog {
+      position: relative;
+      width: min(900px, 100%);
+      max-height: min(900px, calc(100vh - 44px));
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid #737679;
+      border-radius: 16px;
+      color: #292b2f;
+      background: #e1e2df;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .82),
+        0 5px 0 #44464a,
+        0 30px 85px rgba(0, 0, 0, .58);
+      animation: detailDialogIn .22s ease-out;
+    }
+
+    .eta-modal-header {
+      min-height: 82px;
+      padding: 17px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      border-bottom: 1px solid #17191b;
+      color: #fff;
+      background:
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, .025) 0, rgba(255, 255, 255, .025) 1px, transparent 2px, transparent 4px),
+        linear-gradient(180deg, #4d5055, #26282c);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .15);
+    }
+
+    .eta-modal-title-group {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 13px;
+    }
+
+    .eta-modal-title-icon {
+      width: 46px;
+      height: 46px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border: 1px solid #7c1820;
+      border-radius: 10px;
+      color: #fff;
+      background: linear-gradient(180deg, #d6444e, #921f29);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .38), 0 2px 0 #65141b;
+    }
+
+    .eta-modal-title {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 900;
+      letter-spacing: -.02em;
+    }
+
+    .eta-modal-subtitle {
+      margin: 4px 0 0;
+      overflow: hidden;
+      color: #c9cbd0;
+      font-size: .66rem;
+      font-weight: 650;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .eta-modal-close {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border: 1px solid #74777a;
+      border-radius: 9px;
+      color: #e9eaec;
+      background: linear-gradient(180deg, #56595e, #303237);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .15), 0 2px 0 #17181a;
+      cursor: pointer;
+    }
+
+    .eta-modal-close:hover {
+      border-color: #be5b63;
+      color: #fff;
+      background: linear-gradient(180deg, #c53b45, #841c24);
+    }
+
+    .eta-modal-body {
+      padding: 18px;
+      flex: 1 1 auto;
+      overflow: auto;
+      background:
+        linear-gradient(rgba(255, 255, 255, .72), rgba(255, 255, 255, .72)),
+        repeating-linear-gradient(135deg, #ececea 0, #ececea 4px, #e3e4e1 4px, #e3e4e1 8px);
+    }
+
+    .eta-modal-intro {
+      margin-bottom: 13px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      border: 1px solid #a7aaa9;
+      border-radius: 10px;
+      background: rgba(253, 253, 250, .94);
+      box-shadow: inset 0 1px 0 #fff, 0 2px 4px rgba(0, 0, 0, .1);
+    }
+
+    .eta-modal-eyebrow {
+      display: block;
+      color: #72777c;
+      font-size: .55rem;
+      font-weight: 900;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+    }
+
+    .eta-modal-progress {
+      display: block;
+      margin-top: 5px;
+      color: #a1262f;
+      font-size: .76rem;
+      font-weight: 900;
+    }
+
+    .eta-modal-hint {
+      max-width: 330px;
+      color: #6f747a;
+      font-size: .59rem;
+      font-weight: 700;
+      line-height: 1.45;
+      text-align: right;
+    }
+
+    .eta-schedule-head,
+    .eta-schedule-row {
+      display: grid;
+      grid-template-columns: 120px minmax(190px, 1.2fr) minmax(130px, .8fr) minmax(100px, .55fr);
+      gap: 10px;
+      align-items: center;
+    }
+
+    .eta-schedule-head {
+      padding: 0 12px 7px;
+      color: #6e7379;
+      font-size: .54rem;
+      font-weight: 900;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .eta-schedule-rows {
+      display: grid;
+      gap: 7px;
+    }
+
+    .eta-schedule-row {
+      min-height: 58px;
+      padding: 9px 11px;
+      border: 1px solid #afb2b1;
+      border-radius: 10px;
+      background: rgba(253, 253, 250, .95);
+      box-shadow: inset 0 1px 0 #fff, 0 2px 4px rgba(0, 0, 0, .1);
+      transition: .16s ease;
+    }
+
+    .eta-schedule-row.has-data {
+      border-color: #ca9298;
+      background: linear-gradient(145deg, #fffafa, #f0dfe1);
+    }
+
+    .eta-schedule-row.is-invalid {
+      border-color: #bd4747;
+      background: #fff0f0;
+      box-shadow: inset 0 0 0 1px rgba(189, 71, 71, .18), 0 2px 4px rgba(0, 0, 0, .1);
+    }
+
+    .eta-row-identity {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .eta-row-number {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border: 1px solid #83878a;
+      border-radius: 9px;
+      color: #fff;
+      background: linear-gradient(180deg, #5b5e63, #303237);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2), 0 2px 0 #1c1e21;
+      font-size: .64rem;
+      font-weight: 900;
+    }
+
+    .eta-schedule-row.has-data .eta-row-number {
+      border-color: #7c1820;
+      background: linear-gradient(180deg, #d6444e, #921f29);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), 0 2px 0 #65141b;
+    }
+
+    .eta-row-label strong,
+    .eta-row-label small {
+      display: block;
+    }
+
+    .eta-row-label strong {
+      font-size: .66rem;
+      font-weight: 900;
+    }
+
+    .eta-row-label small {
+      margin-top: 3px;
+      color: #767b80;
+      font-size: .51rem;
+      font-weight: 700;
+    }
+
+    .eta-field {
+      min-width: 0;
+      display: block;
+    }
+
+    .eta-field-label {
+      display: none;
+      margin-bottom: 5px;
+      color: #72777c;
+      font-size: .52rem;
+      font-weight: 900;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .eta-modal-input,
+    .eta-modal-select {
+      width: 100%;
+      min-width: 0;
+      min-height: 38px;
+      padding: 0 10px;
+      border: 1px solid #929599;
+      border-top-color: #737679;
+      border-left-color: #737679;
+      border-radius: 8px;
+      outline: none;
+      color: #292b2f;
+      background: #fdfdfb;
+      box-shadow: inset 1px 2px 4px rgba(0, 0, 0, .17), 0 1px 0 #fff;
+      font-size: .66rem;
+      font-weight: 750;
+    }
+
+    .eta-modal-input:focus,
+    .eta-modal-select:focus,
+    .eta-note-field textarea:focus {
+      border-color: #a1262f;
+      box-shadow: inset 1px 2px 3px rgba(0, 0, 0, .12), 0 0 0 3px rgba(180, 35, 44, .14);
+    }
+
+    .eta-modal-input:disabled,
+    .eta-modal-select:disabled {
+      color: #999ca0;
+      background: #d9dad7;
+      box-shadow: inset 1px 1px 2px rgba(0, 0, 0, .1);
+    }
+
+    .eta-note-field {
+      margin-top: 14px;
+      display: block;
+    }
+
+    .eta-note-heading {
+      margin-bottom: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #4a4f55;
+      font-size: .64rem;
+      font-weight: 900;
+    }
+
+    .eta-note-heading i {
+      margin-right: 6px;
+      color: #a1262f;
+    }
+
+    .eta-note-heading small {
+      color: #7a7f84;
+      font-size: .52rem;
+      font-weight: 800;
+    }
+
+    .eta-note-field textarea {
+      width: 100%;
+      min-height: 84px;
+      padding: 11px 12px;
+      resize: vertical;
+      border: 1px solid #929599;
+      border-top-color: #737679;
+      border-left-color: #737679;
+      border-radius: 9px;
+      outline: none;
+      color: #292b2f;
+      background: #fdfdfb;
+      box-shadow: inset 1px 2px 4px rgba(0, 0, 0, .17), 0 1px 0 #fff;
+      font-size: .66rem;
+      font-weight: 650;
+      line-height: 1.55;
+    }
+
+    .eta-modal-validation {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border: 1px solid #c26b6b;
+      border-radius: 8px;
+      color: #831717;
+      background: #fff0f0;
+      font-size: .63rem;
+      font-weight: 800;
+      line-height: 1.45;
+    }
+
+    .eta-modal-validation[hidden] {
+      display: none;
+    }
+
+    .eta-modal-footer {
+      min-height: 62px;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-top: 1px solid #999b9d;
+      background:
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, .08) 0, rgba(255, 255, 255, .08) 1px, transparent 2px, transparent 4px),
+        linear-gradient(180deg, #d9dad7, #bebfbc);
+      box-shadow: inset 0 1px 0 #fff;
+    }
+
+    .eta-modal-footer-note {
+      color: #6d7277;
+      font-size: .57rem;
+      font-weight: 700;
+    }
+
+    .eta-modal-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .eta-cancel-button {
+      min-width: 82px;
+    }
+
+    .eta-submit-button {
+      min-width: 160px;
+      border-color: #841820;
+      border-bottom-color: #5f1016;
+      color: #fff;
+      background: linear-gradient(180deg, #cf3e48, #931f29);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .36), 0 2px 0 #65141b, 0 4px 7px rgba(0, 0, 0, .18);
+      text-shadow: 0 -1px 0 #65141b;
+    }
+
+    .eta-submit-button:hover:not(:disabled) {
+      border-color: #6f141b;
+      color: #fff;
+      background: linear-gradient(180deg, #df4d57, #a32530);
+    }
+
+    @media (max-width: 760px) {
+      .eta-modal {
+        padding: 8px;
+      }
+
+      .eta-modal-dialog {
+        max-height: calc(100vh - 16px);
+        border-radius: 12px;
+      }
+
+      .eta-modal-header {
+        min-height: 72px;
+        padding: 13px;
+      }
+
+      .eta-modal-title-icon {
+        width: 40px;
+        height: 40px;
+      }
+
+      .eta-modal-body {
+        padding: 11px;
+      }
+
+      .eta-modal-intro {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .eta-modal-hint {
+        max-width: none;
+        text-align: left;
+      }
+
+      .eta-schedule-head {
+        display: none;
+      }
+
+      .eta-schedule-row {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .eta-row-identity {
+        grid-column: 1 / -1;
+      }
+
+      .eta-field-label {
+        display: block;
+      }
+
+      .eta-modal-footer-note {
+        display: none;
+      }
+
+      .eta-modal-footer {
+        justify-content: flex-end;
+      }
+    }
+
+    @media (max-width: 430px) {
+      .eta-schedule-row {
+        grid-template-columns: 1fr;
+      }
+
+      .eta-row-identity {
+        grid-column: auto;
+      }
+
+      .eta-modal-actions {
+        width: 100%;
+      }
+
+      .eta-modal-actions .button {
+        flex: 1 1 0;
+      }
+    }
+
+    .detail-modal[hidden] {
+      display: none;
+    }
+
+    .detail-modal {
+      position: fixed;
+      z-index: 1000;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 22px;
+    }
+
+    .detail-modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(13, 14, 17, .78);
+      backdrop-filter: blur(7px);
+      animation: detailFadeIn .1s ease-out;
+    }
+
+    .detail-dialog {
+      position: relative;
+      width: min(1080px, 100%);
+      max-height: min(880px, calc(100vh - 44px));
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid #777a7d;
+      border-radius: 16px;
+      color: #292b2f;
+      background: #e1e2df;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .82),
+        0 5px 0 #45474a,
+        0 28px 80px rgba(0, 0, 0, .56);
+      animation: detailDialogIn .12s ease-out;
+    }
+
+    .detail-dialog-header {
+      min-height: 82px;
+      padding: 17px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      border-bottom: 1px solid #1d1f22;
+      color: #fff;
+      background:
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, .025) 0, rgba(255, 255, 255, .025) 1px, transparent 2px, transparent 4px),
+        linear-gradient(180deg, #4d5055, #26282c);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .15);
+    }
+
+    .detail-title-group {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 13px;
+    }
+
+    .detail-title-icon {
+      width: 46px;
+      height: 46px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border: 1px solid #6f0d0d;
+      border-radius: 10px;
+      color: #fff;
+      background: linear-gradient(180deg, #ed5252, #9d1616);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .4), 0 2px 0 #560707;
+    }
+
+    .detail-dialog-title {
+      margin: 0;
+      overflow: hidden;
+      font-size: 1.06rem;
+      font-weight: 900;
+      letter-spacing: -.02em;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .detail-dialog-subtitle {
+      margin: 4px 0 0;
+      overflow: hidden;
+      color: #c9cbd0;
+      font-size: .66rem;
+      font-weight: 650;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .detail-close {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border: 1px solid #74777a;
+      border-radius: 9px;
+      color: #e9eaec;
+      background: linear-gradient(180deg, #56595e, #303237);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .15), 0 2px 0 #17181a;
+      cursor: pointer;
+    }
+
+    .detail-close:hover {
+      border-color: #bd4444;
+      color: #fff;
+      background: linear-gradient(180deg, #c83b3b, #831111);
+    }
+
+    .detail-tabs {
+      padding: 10px 14px 0;
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      border-bottom: 1px solid #a2a4a5;
+      background:
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, .1) 0, rgba(255, 255, 255, .1) 1px, transparent 2px, transparent 4px),
+        linear-gradient(180deg, #dadbd8, #c1c2bf);
+    }
+
+    .detail-tab {
+      min-height: 39px;
+      padding: 0 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex: 0 0 auto;
+      border: 1px solid #96989a;
+      border-bottom: 0;
+      border-radius: 9px 9px 0 0;
+      color: #55595e;
+      background: linear-gradient(180deg, #ececea, #c8c9c6);
+      box-shadow: inset 0 1px 0 #fff;
+      cursor: pointer;
+      font-size: .68rem;
+      font-weight: 850;
+    }
+
+    .detail-tab[aria-selected="true"] {
+      position: relative;
+      bottom: -1px;
+      color: #8d1515;
+      background: #f7f7f4;
+      box-shadow: inset 0 3px 0 #b82020, inset 0 1px 0 #fff;
+    }
+
+    .detail-dialog-body {
+      min-height: 350px;
+      flex: 1 1 auto;
+      overflow: auto;
+      background:
+        linear-gradient(rgba(255, 255, 255, .72), rgba(255, 255, 255, .72)),
+        repeating-linear-gradient(135deg, #ececea 0, #ececea 4px, #e3e4e1 4px, #e3e4e1 8px);
+    }
+
+    .detail-state {
+      min-height: 410px;
+      padding: 40px 22px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+    }
+
+    .detail-state[hidden],
+    .detail-content[hidden],
+    .detail-panel[hidden] {
+      display: none;
+    }
+
+    .detail-state-icon {
+      width: 60px;
+      height: 60px;
+      margin: 0 auto 14px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #b67e7e;
+      border-radius: 14px;
+      color: #9f1d1d;
+      background: linear-gradient(145deg, #fff0f0, #e3b8b8);
+      box-shadow: inset 1px 1px 0 #fff, 0 2px 3px rgba(0, 0, 0, .2);
+      font-size: 1.1rem;
+    }
+
+    .detail-state h3 {
+      margin: 0;
+      font-size: .98rem;
+      font-weight: 900;
+    }
+
+    .detail-state p {
+      max-width: 520px;
+      margin: 8px auto 0;
+      color: #686d73;
+      font-size: .72rem;
+      font-weight: 650;
+      line-height: 1.55;
+    }
+
+    .detail-content {
+      padding: 18px;
+    }
+
+    .detail-panel {
+      display: grid;
+      gap: 14px;
+    }
+
+    .detail-overview {
+      display: grid;
+      gap: 14px;
+    }
+
+    .detail-preview-status {
+      min-height: 64px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      border: 1px solid #9da4aa;
+      border-radius: 10px;
+      color: #42484e;
+      background: linear-gradient(180deg, #f8f9f9, #e1e4e5);
+      box-shadow: inset 1px 1px 0 #fff, 0 2px 4px rgba(0, 0, 0, .12);
+      font-size: .72rem;
+      font-weight: 750;
+      line-height: 1.45;
+    }
+
+    .detail-preview-status .spinner {
+      width: 22px;
+      height: 22px;
+      flex: 0 0 22px;
+      border-width: 3px;
+    }
+
+    .detail-overview-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    .detail-data-block {
+      overflow: hidden;
+      border: 1px solid #a7aaa9;
+      border-radius: 11px;
+      background: rgba(252, 252, 249, .94);
+      box-shadow: inset 0 1px 0 #fff, 0 2px 5px rgba(0, 0, 0, .12);
+    }
+
+    .detail-data-heading {
+      min-height: 40px;
+      padding: 0 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid #a7aaa9;
+      color: #f3f4f5;
+      background: linear-gradient(180deg, #4d5055, #292b2f);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14);
+      font-size: .68rem;
+      font-weight: 900;
+      letter-spacing: .055em;
+      text-transform: uppercase;
+    }
+
+    .detail-data-heading i {
+      color: #ef5b5b;
+    }
+
+    .detail-data-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .detail-data-item {
+      min-height: 62px;
+      padding: 11px 12px;
+      border-right: 1px solid #d0d2d0;
+      border-bottom: 1px solid #d0d2d0;
+    }
+
+    .detail-data-item:nth-child(4n) {
+      border-right: 0;
+    }
+
+    .detail-data-item:nth-last-child(-n + 4) {
+      border-bottom: 0;
+    }
+
+    .detail-data-block.size .detail-data-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .detail-data-block.size .detail-data-item {
+      min-height: 84px;
+      padding: 16px;
+      border-bottom: 0;
+      background:
+        linear-gradient(145deg, rgba(255, 255, 255, .96), rgba(239, 241, 242, .94));
+    }
+
+    .detail-data-block.size .detail-data-item:nth-child(2n) {
+      border-right: 0;
+    }
+
+    .detail-data-block.size .detail-data-label {
+      color: #5d636b;
+      font-size: .6rem;
+    }
+
+    .detail-data-block.size .detail-data-value {
+      margin-top: 9px;
+      color: #821818;
+      font-size: .92rem;
+      letter-spacing: -.015em;
+    }
+
+    .detail-data-label {
+      display: block;
+      color: #747980;
+      font-size: .55rem;
+      font-weight: 900;
+      letter-spacing: .055em;
+      text-transform: uppercase;
+    }
+
+    .detail-data-value {
+      display: block;
+      margin-top: 6px;
+      color: #292b2f;
+      font-size: .69rem;
+      font-weight: 850;
+      line-height: 1.38;
+      word-break: break-word;
+    }
+
+    .raw-material-calculation {
+      overflow: hidden;
+      border: 1px solid #9ea5ad;
+      border-radius: 11px;
+      background: #f8f9fa;
+      box-shadow: inset 0 1px 0 #fff, 0 3px 7px rgba(0, 0, 0, .13);
+    }
+
+    .calculation-block-title {
+      margin: 0;
+      padding: 13px 14px 9px;
+      color: #202b3b;
+      font-size: .71rem;
+      font-weight: 950;
+      letter-spacing: .035em;
+      text-transform: uppercase;
+    }
+
+    .calculation-category {
+      min-height: 44px;
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      border-top: 1px solid #b2c4d7;
+      border-bottom: 1px solid #9fb3c8;
+      color: #18324e;
+      background: linear-gradient(180deg, #e2edf8, #cbdced);
+      font-size: .7rem;
+      font-weight: 900;
+    }
+
+    .calculation-table {
+      display: grid;
+    }
+
+    .calculation-table-row {
+      min-height: 54px;
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      border-bottom: 1px solid #cbd0d5;
+      background: #fff;
+    }
+
+    .calculation-table-row > span {
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      line-height: 1.45;
+    }
+
+    .calculation-table-label {
+      border-right: 1px solid #cbd0d5;
+      color: #4f5966;
+      font-size: .61rem;
+      font-weight: 900;
+      letter-spacing: .055em;
+      text-transform: uppercase;
+    }
+
+    .calculation-table-value {
+      color: #152335;
+      font-family: "Consolas", "SFMono-Regular", monospace;
+      font-size: .71rem;
+      font-weight: 900;
+      overflow-wrap: anywhere;
+    }
+
+    .calculation-table-row.result {
+      background: linear-gradient(180deg, #e1f7e7, #cdeed7);
+    }
+
+    .calculation-table-row.result .calculation-table-label,
+    .calculation-table-row.result .calculation-table-value {
+      color: #0a6d2a;
+      font-size: .72rem;
+    }
+
+    .calculation-reference-line,
+    .calculation-note-line {
+      padding: 10px 14px;
+      color: #465364;
+      background: #edf1f4;
+      font-size: .61rem;
+      font-weight: 700;
+      line-height: 1.55;
+    }
+
+    .calculation-reference-line {
+      border-bottom: 1px dashed #bdc5cc;
+    }
+
+    .calculation-note-line {
+      background: #f5f6f7;
+    }
+
+    .calculation-error {
+      padding: 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      color: #784b0e;
+      background: linear-gradient(180deg, #fff7e7, #ecd8b1);
+      font-size: .68rem;
+      font-weight: 750;
+      line-height: 1.5;
+    }
+
+    .detail-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .detail-summary-card,
+    .detail-section,
+    .detail-spec-card,
+    .bs-item {
+      border: 1px solid #aaaead;
+      background: rgba(252, 252, 249, .92);
+      box-shadow: inset 0 1px 0 #fff, 0 2px 4px rgba(0, 0, 0, .11);
+    }
+
+    .detail-summary-card {
+      min-height: 92px;
+      padding: 14px;
+      border-radius: 10px;
+    }
+
+    .detail-summary-card.result {
+      border-color: #9c6969;
+      background: linear-gradient(145deg, #fff8f8, #ead0d0);
+    }
+
+    .detail-summary-card.manager {
+      border-color: #8aa897;
+      background: linear-gradient(145deg, #f5fff9, #cee4d8);
+    }
+
+    .detail-card-label {
+      display: block;
+      color: #676c72;
+      font-size: .58rem;
+      font-weight: 900;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+    }
+
+    .detail-card-value {
+      display: block;
+      margin-top: 7px;
+      color: #27292d;
+      font-size: 1.05rem;
+      font-weight: 900;
+      line-height: 1.2;
+      word-break: break-word;
+    }
+
+    .detail-card-note {
+      display: block;
+      margin-top: 5px;
+      color: #747980;
+      font-size: .59rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+
+    .detail-section {
+      padding: 15px;
+      border-radius: 11px;
+    }
+
+    .detail-section-heading {
+      margin-bottom: 12px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .detail-section-title {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #303238;
+      font-size: .78rem;
+      font-weight: 900;
+    }
+
+    .detail-section-title i {
+      color: #a51919;
+    }
+
+    .detail-section-note {
+      margin: 3px 0 0;
+      color: #747980;
+      font-size: .61rem;
+      font-weight: 650;
+      line-height: 1.45;
+    }
+
+    .calculation-chain {
+      display: grid;
+      gap: 10px;
+    }
+
+    .calculation-step {
+      display: grid;
+      grid-template-columns: 32px minmax(0, 1fr);
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .calculation-step-number {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #821111;
+      border-radius: 50%;
+      color: #fff;
+      background: linear-gradient(180deg, #d23d3d, #8d1515);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 2px 0 #5d0808;
+      font-size: .66rem;
+      font-weight: 900;
+    }
+
+    .calculation-step-body {
+      min-width: 0;
+      padding: 11px 12px;
+      border: 1px solid #babdbb;
+      border-radius: 9px;
+      background: #f4f4f1;
+      box-shadow: inset 0 1px 0 #fff;
+    }
+
+    .calculation-step-title {
+      display: block;
+      margin-bottom: 6px;
+      font-size: .67rem;
+      font-weight: 900;
+    }
+
+    .formula-symbolic,
+    .formula-values {
+      display: block;
+      overflow-wrap: anywhere;
+      line-height: 1.55;
+    }
+
+    .formula-symbolic {
+      color: #686d73;
+      font-size: .62rem;
+      font-weight: 700;
+    }
+
+    .formula-values {
+      margin-top: 4px;
+      padding: 8px 10px;
+      border-left: 3px solid #a51919;
+      border-radius: 4px;
+      color: #222429;
+      background: #fff;
+      font-family: "Consolas", "SFMono-Regular", monospace;
+      font-size: .69rem;
+      font-weight: 800;
+    }
+
+    .calculation-reference-grid,
+    .spec-grid,
+    .bs-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    .reference-item {
+      padding: 10px;
+      border: 1px solid #c0c2c0;
+      border-radius: 8px;
+      background: #f2f2ef;
+    }
+
+    .reference-label,
+    .spec-label,
+    .bs-label {
+      display: block;
+      color: #72777c;
+      font-size: .56rem;
+      font-weight: 900;
+      letter-spacing: .045em;
+      text-transform: uppercase;
+    }
+
+    .reference-value,
+    .spec-value,
+    .bs-value {
+      display: block;
+      margin-top: 5px;
+      color: #2c2e32;
+      font-size: .69rem;
+      font-weight: 850;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    .detail-alert {
+      padding: 13px 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      border: 1px solid #c59a70;
+      border-radius: 9px;
+      color: #784b0e;
+      background: linear-gradient(180deg, #fff7e7, #ecd8b1);
+      font-size: .68rem;
+      font-weight: 750;
+      line-height: 1.5;
+    }
+
+    .bs-total {
+      min-height: 76px;
+      padding: 13px 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      border: 1px solid #9c6969;
+      border-radius: 10px;
+      background: linear-gradient(145deg, #fff8f8, #ead0d0);
+      box-shadow: inset 0 1px 0 #fff, 0 2px 4px rgba(0, 0, 0, .12);
+    }
+
+    .bs-total strong {
+      color: #8d1515;
+      font-size: 1.32rem;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .bs-item {
+      min-height: 66px;
+      padding: 11px;
+      border-radius: 9px;
+    }
+
+    .bs-item.active {
+      border-color: #c59a70;
+      background: linear-gradient(145deg, #fffaf0, #efddbd);
+    }
+
+    .bs-value {
+      font-size: .82rem;
+    }
+
+    .detail-spec-card {
+      min-height: 78px;
+      padding: 12px;
+      border-radius: 9px;
+    }
+
+    .detail-dialog-footer {
+      min-height: 58px;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-top: 1px solid #999b9d;
+      background:
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, .08) 0, rgba(255, 255, 255, .08) 1px, transparent 2px, transparent 4px),
+        linear-gradient(180deg, #d9dad7, #bebfbc);
+      box-shadow: inset 0 1px 0 #fff;
+    }
+
+    .detail-footer-note {
+      color: #6d7277;
+      font-size: .59rem;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    .detail-footer-button {
+      min-width: 88px;
+    }
+
+    @keyframes detailFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes detailDialogIn {
+      from { opacity: 0; transform: translateY(15px) scale(.985); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @media (max-width: 760px) {
+      .detail-modal {
+        padding: 8px;
+      }
+
+      .detail-dialog {
+        max-height: calc(100vh - 16px);
+        border-radius: 12px;
+      }
+
+      .detail-dialog-header {
+        min-height: 72px;
+        padding: 13px;
+      }
+
+      .detail-title-icon {
+        width: 40px;
+        height: 40px;
+      }
+
+      .detail-dialog-title {
+        font-size: .9rem;
+      }
+
+      .detail-tabs {
+        padding-inline: 8px;
+      }
+
+      .detail-tab {
+        min-height: 37px;
+        padding: 0 11px;
+      }
+
+      .detail-content {
+        padding: 11px;
+      }
+
+      .detail-summary-grid,
+      .calculation-reference-grid,
+      .spec-grid,
+      .bs-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .detail-overview-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .detail-data-block.main .detail-data-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .detail-data-block.main .detail-data-item {
+        border-right: 1px solid #d0d2d0;
+        border-bottom: 1px solid #d0d2d0;
+      }
+
+      .detail-data-block.main .detail-data-item:nth-child(2n) {
+        border-right: 0;
+      }
+
+      .detail-data-block.main .detail-data-item:nth-last-child(-n + 2) {
+        border-bottom: 0;
+      }
+
+      .detail-summary-grid .detail-summary-card:first-child {
+        grid-column: 1 / -1;
+      }
+
+      .detail-section {
+        padding: 12px;
+      }
+
+      .detail-footer-note {
+        display: none;
+      }
+
+      .detail-dialog-footer {
+        justify-content: flex-end;
+      }
+    }
+
+    @media (max-width: 430px) {
+      .detail-dialog-subtitle {
+        max-width: 220px;
+      }
+
+      .detail-tab span {
+        font-size: .62rem;
+      }
+
+      .detail-summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .detail-summary-grid .detail-summary-card:first-child {
+        grid-column: auto;
+      }
+
+      .calculation-reference-grid,
+      .spec-grid,
+      .bs-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .calculation-table-row {
+        grid-template-columns: 128px minmax(0, 1fr);
+      }
+
+      .detail-data-block.main .detail-data-grid,
+      .detail-data-block.size .detail-data-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .detail-data-block.main .detail-data-item,
+      .detail-data-block.size .detail-data-item {
+        border-right: 0;
+        border-bottom: 1px solid #d0d2d0;
+      }
+
+      .detail-data-block.main .detail-data-item:not(:last-child),
+      .detail-data-block.size .detail-data-item:not(:last-child) {
+        border-bottom: 1px solid #d0d2d0;
+      }
+
+      .detail-data-block.main .detail-data-item:last-child,
+      .detail-data-block.size .detail-data-item:last-child {
+        border-bottom: 0;
+      }
+
+      .calculation-table-row > span {
+        padding: 10px;
+      }
+
+      .calculation-table-value {
+        font-size: .64rem;
+      }
+
+      .calculation-step {
+        grid-template-columns: 26px minmax(0, 1fr);
+        gap: 7px;
+      }
+
+      .calculation-step-number {
+        width: 26px;
+        height: 26px;
+      }
+
+      .formula-values {
+        font-size: .62rem;
+      }
+    }
+  </style>
+  <script src="/assets/js/gas-rpc.js?v=20260811-1"></script>
+</head>
+<body
+  class="tw:min-h-screen tw:text-polyta-ink selection:tw:bg-polyta-brand-soft selection:tw:text-polyta-brand"
+  data-ui-engine="tailwind-alpine"
+  data-page="keluar-bahan"
+  x-data="polytaPageUi('keluar-bahan')"
+  x-bind:data-ui-ready="ready ? 'true' : 'false'"
+  x-bind:data-connection="online ? 'online' : 'offline'"
+  x-on:online.window="setOnline(true)"
+  x-on:offline.window="setOnline(false)"
+>
+  <div
+  class="no-print tw:pointer-events-none tw:fixed tw:inset-x-0 tw:top-3 tw:z-[9999] tw:flex tw:justify-center tw:px-4"
+  x-cloak
+  x-show="!online"
+  x-transition.opacity.duration.200ms
+  role="status"
+  aria-live="polite"
+>
+  <div class="tw:flex tw:items-center tw:gap-2 tw:rounded-full tw:border tw:border-red-300/70 tw:bg-red-50/95 tw:px-4 tw:py-2 tw:text-xs tw:font-bold tw:text-red-800 tw:shadow-lg tw:backdrop-blur">
+    <span class="tw:h-2 tw:w-2 tw:rounded-full tw:bg-red-600" aria-hidden="true"></span>
+    Koneksi terputus — menunggu jaringan kembali
+  </div>
+</div>
+
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg class="polyta-logo" viewBox="0 0 120 120" focusable="false">
+            <defs>
+              <linearGradient id="materialLogoMetal" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#4b4e54"/>
+                <stop offset=".42" stop-color="#111216"/>
+                <stop offset="1" stop-color="#020304"/>
+              </linearGradient>
+              <linearGradient id="materialLogoBlue" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#6f8fe0"/>
+                <stop offset=".48" stop-color="#4563b3"/>
+                <stop offset="1" stop-color="#293f87"/>
+              </linearGradient>
+              <linearGradient id="materialLogoRed" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#ff5660"/>
+                <stop offset=".5" stop-color="#ef2631"/>
+                <stop offset="1" stop-color="#b90f1d"/>
+              </linearGradient>
+              <linearGradient id="materialLogoGreen" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#72d77b"/>
+                <stop offset=".48" stop-color="#40b84e"/>
+                <stop offset="1" stop-color="#168d2d"/>
+              </linearGradient>
+            </defs>
+            <path d="M14 12h50v43h42v53h-8V63H64v45H14V55h42V20H14z" fill="url(#materialLogoMetal)"/>
+            <rect x="15" y="22" width="41" height="12" rx="6" fill="url(#materialLogoBlue)"/>
+            <rect x="22" y="63" width="34" height="37" fill="url(#materialLogoRed)"/>
+            <rect x="84" y="64" width="11" height="44" rx="5.5" fill="url(#materialLogoGreen)"/>
+            <path d="M17 15h43M24 66h30M86.5 67v35" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="2" opacity=".36"/>
+          </svg>
+        </div>
+        <div>
+          <span class="brand-name">Polyta Global Mandiri</span>
+          <span class="brand-subtitle">Plastic Packaging Industry</span>
+        </div>
+      </div>
+
+      <nav class="topnav" aria-label="Navigasi utama">
+        <a class="nav-link" href="/spk-automasi/" target="_top" title="PPIC">
+          <i class="fa-solid fa-chart-pie"></i><span>PPIC</span>
+        </a>
+        <a class="nav-link active" href="/spk-automasi/keluar-bahan/" target="_top" aria-current="page" title="Keluar Bahan">
+          <i class="fa-solid fa-dolly"></i><span>Keluar Bahan</span>
+        </a>
+        <a class="nav-link" href="/spk-automasi/penarikan-data/" target="_top" title="Penarikan Data">
+          <i class="fa-solid fa-file-arrow-down"></i><span>Penarikan Data</span>
+        </a>
+        <button
+          id="btnFullscreen"
+          class="nav-link"
+          type="button"
+          aria-pressed="false"
+          title="Buka tampilan layar penuh"
+        >
+          <i id="fullscreenIcon" class="fa-solid fa-expand" aria-hidden="true"></i>
+          <span id="fullscreenLabel">Layar Penuh</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="app-main tw:transition-shadow tw:duration-300">
+    <section class="page-heading" aria-labelledby="pageTitle">
+      <div class="heading-group">
+        <div class="heading-icon" aria-hidden="true">
+          <i class="fa-solid fa-dolly"></i>
+        </div>
+        <div>
+          <p class="eyebrow">Manager PPIC</p>
+          <h1 id="pageTitle">Keluar Bahan</h1>
+          <p class="page-description">
+            Kelola ETA pembelian dan keluar bahan untuk setiap SPK.
+          </p>
+        </div>
+      </div>
+      <div class="heading-actions">
+        <button
+          id="btnToggleSummary"
+          class="button summary-toggle-button"
+          type="button"
+          aria-expanded="true"
+          aria-controls="summaryPanel"
+          title="Sembunyikan rekapan"
+        >
+          <i id="summaryToggleIcon" class="fa-solid fa-chart-simple" aria-hidden="true"></i>
+          <span id="summaryToggleLabel">Sembunyikan Rekapan</span>
+        </button>
+        <div class="role-chip">
+          <i class="fa-solid fa-user-shield" aria-hidden="true"></i>
+          <span>Halaman Manager PPIC</span>
+        </div>
+      </div>
+    </section>
+
+    <div id="summaryPanel" class="summary-collapse">
+      <div class="summary-collapse-inner">
+        <section class="summary-grid" aria-label="Ringkasan keluar bahan">
+          <article class="summary-card pending">
+            <div class="summary-icon"><i class="fa-solid fa-hourglass-half"></i></div>
+            <div>
+              <span class="summary-label">Menunggu</span>
+              <strong id="pendingCount" class="summary-value">0</strong>
+              <span class="summary-note">Belum ditentukan</span>
+            </div>
+          </article>
+          <article class="summary-card complete">
+            <div class="summary-icon"><i class="fa-solid fa-circle-check"></i></div>
+            <div>
+              <span class="summary-label">Sudah Lengkap</span>
+              <strong id="completeCount" class="summary-value">0</strong>
+              <span class="summary-note">Dapat diperbarui</span>
+            </div>
+          </article>
+          <article class="summary-card">
+            <div class="summary-icon"><i class="fa-solid fa-database"></i></div>
+            <div>
+              <span class="summary-label">Total SPK</span>
+              <strong id="totalCount" class="summary-value">0</strong>
+              <span class="summary-note">Dalam database</span>
+            </div>
+          </article>
+        </section>
+      </div>
+    </div>
+
+    <section class="workspace" aria-label="Pengelolaan keluar bahan">
+      <div class="workspace-toolbar">
+        <label class="search-wrap">
+          <span hidden>Cari data</span>
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <input
+            id="searchInput"
+            class="search-input"
+            type="search"
+            placeholder="Cari SPK, customer, artikel, atau material..."
+            autocomplete="off"
+          >
+        </label>
+        <select id="statusFilter" class="filter-select" aria-label="Filter status">
+          <option value="pending">Menunggu diatur</option>
+          <option value="complete">Sudah lengkap</option>
+          <option value="all">Semua status</option>
+        </select>
+        <button id="refreshButton" class="button button-refresh" type="button">
+          <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
+          <span>Muat Ulang</span>
+        </button>
+      </div>
+
+      <div id="loadingState" class="state-panel">
+        <div>
+          <div class="state-icon"><span class="spinner" aria-hidden="true"></span></div>
+          <h2>Memuat data SPK</h2>
+          <p>Menyiapkan antrean keluar bahan dari Database.</p>
+        </div>
+      </div>
+
+      <div id="emptyState" class="state-panel" hidden>
+        <div>
+          <div class="state-icon"><i class="fa-solid fa-inbox"></i></div>
+          <h2 id="emptyTitle">Tidak ada data</h2>
+          <p id="emptyMessage">Ubah filter atau kata pencarian untuk melihat data lainnya.</p>
+        </div>
+      </div>
+
+      <div id="errorState" class="state-panel" hidden>
+        <div>
+          <div class="state-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+          <h2>Data gagal dimuat</h2>
+          <p id="errorMessage">Terjadi gangguan saat membaca Database.</p>
+          <button id="retryButton" class="button save-button" type="button" style="margin-top: 16px;">
+            Coba Lagi
+          </button>
+        </div>
+      </div>
+
+      <div id="tableWrap" class="table-wrap" hidden>
+        <table>
+          <thead>
+            <tr>
+              <th>SPK / Tanggal</th>
+              <th>Customer / Artikel</th>
+              <th>Material</th>
+              <th>Jumlah Order</th>
+              <th>Status</th>
+              <th>Keluar Bahan</th>
+              <th>ETA Beli Bahan</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="dataBody"></tbody>
+        </table>
+      </div>
+      <div id="managerPagination" class="manager-pagination" hidden>
+        <span id="managerPaginationInfo" class="manager-pagination-info">0 data</span>
+        <div class="manager-pagination-actions">
+          <button id="managerPrevPage" class="button" type="button" aria-label="Halaman sebelumnya">
+            <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+          </button>
+          <span id="managerPaginationPage" class="manager-pagination-page">Halaman 1 / 1</span>
+          <button id="managerNextPage" class="button" type="button" aria-label="Halaman berikutnya">
+            <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="etaModal" class="eta-modal" hidden>
+    <div class="eta-modal-backdrop" data-eta-modal-close aria-hidden="true"></div>
+    <section
+      class="eta-modal-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="etaModalTitle"
+      aria-describedby="etaModalSubtitle"
+    >
+      <header class="eta-modal-header">
+        <div class="eta-modal-title-group">
+          <div class="eta-modal-title-icon" aria-hidden="true">
+            <i class="fa-solid fa-calendar-days"></i>
+          </div>
+          <div>
+            <h2 id="etaModalTitle" class="eta-modal-title">ETA Beli Bahan</h2>
+            <p id="etaModalSubtitle" class="eta-modal-subtitle">Jadwal pembelian bahan baku</p>
+          </div>
+        </div>
+        <button class="eta-modal-close" type="button" data-eta-modal-close aria-label="Tutup modal ETA">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </header>
+
+      <div class="eta-modal-body">
+        <div class="eta-modal-intro">
+          <div>
+            <span class="eta-modal-eyebrow">Jadwal Kedatangan Material</span>
+            <strong id="etaModalProgress" class="eta-modal-progress">0 dari 5 ETA terisi</strong>
+          </div>
+          <span class="eta-modal-hint">
+            Isi berurutan. ETA berikutnya tidak boleh lebih awal.
+          </span>
+        </div>
+
+        <div class="eta-schedule-head" aria-hidden="true">
+          <span>Urutan</span>
+          <span>Tanggal ETA</span>
+          <span>QTY</span>
+          <span>UOM</span>
+        </div>
+        <div id="etaScheduleRows" class="eta-schedule-rows"></div>
+
+        <label class="eta-note-field" for="etaKeterangan">
+          <span class="eta-note-heading">
+            <span>
+              <i class="fa-solid fa-note-sticky" aria-hidden="true"></i>
+              Keterangan
+            </span>
+            <small id="etaNoteCounter">0/1000</small>
+          </span>
+          <textarea
+            id="etaKeterangan"
+            maxlength="1000"
+            rows="3"
+            placeholder="Tambahkan informasi pemasok, kendala pembelian, atau catatan lainnya..."
+          ></textarea>
+        </label>
+
+        <div id="etaModalValidation" class="eta-modal-validation" role="alert" hidden></div>
+      </div>
+
+      <footer class="eta-modal-footer">
+        <span class="eta-modal-footer-note">
+          Data disimpan ke kolom CG–CV pada Database.
+        </span>
+        <div class="eta-modal-actions">
+          <button class="button eta-cancel-button" type="button" data-eta-modal-close>
+            Batal
+          </button>
+          <button id="etaSaveScheduleButton" class="button eta-submit-button" type="button">
+            <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
+            <span>Simpan Jadwal ETA</span>
+          </button>
+        </div>
+      </footer>
+    </section>
+  </div>
+
+  <div id="detailModal" class="detail-modal" hidden>
+    <div class="detail-modal-backdrop" data-detail-close aria-hidden="true"></div>
+    <section
+      class="detail-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="detailDialogTitle"
+      aria-describedby="detailDialogSubtitle"
+    >
+      <header class="detail-dialog-header">
+        <div class="detail-title-group">
+          <div class="detail-title-icon" aria-hidden="true">
+            <i class="fa-solid fa-file-lines"></i>
+          </div>
+          <div>
+            <h2 id="detailDialogTitle" class="detail-dialog-title">Detail Keluar Bahan</h2>
+            <p id="detailDialogSubtitle" class="detail-dialog-subtitle">Memuat data SPK...</p>
+          </div>
+        </div>
+        <button class="detail-close" type="button" data-detail-close aria-label="Tutup detail">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </header>
+
+      <div class="detail-dialog-body">
+        <div id="detailLoading" class="detail-state">
+          <div>
+            <div class="detail-state-icon">
+              <span class="spinner" aria-hidden="true"></span>
+            </div>
+            <h3>Menyiapkan detail SPK</h3>
+            <p>Menghitung ulang kebutuhan bahan dan membaca detail produksi.</p>
+          </div>
+        </div>
+
+        <div id="detailError" class="detail-state" hidden>
+          <div>
+            <div class="detail-state-icon">
+              <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+            </div>
+            <h3>Detail gagal dimuat</h3>
+            <p id="detailErrorMessage">Terjadi gangguan saat membaca detail SPK.</p>
+          </div>
+        </div>
+
+        <div id="detailContent" class="detail-content" hidden></div>
+      </div>
+
+      <footer class="detail-dialog-footer">
+        <span class="detail-footer-note">
+          Hasil dihitung ulang dari data SPK tersimpan dengan rumus halaman Input SPK.
+        </span>
+        <button class="button detail-footer-button" type="button" data-detail-close>
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          <span>Tutup</span>
+        </button>
+      </footer>
+    </section>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite">
+    <i id="toastIcon" class="fa-solid fa-circle-check" aria-hidden="true"></i>
+    <span id="toastMessage"></span>
+  </div>
+
+  <script>
+    let managerRecords = [];
+    let managerPage = 1;
+    let toastTimer = null;
+    let detailReturnFocus = null;
+    let detailActiveRow = null;
+    let detailActiveSpk = '';
+    let detailRequestSequence = 0;
+    let detailDataGeneration = 0;
+    let etaModalRecord = null;
+    let etaModalReturnFocus = null;
+    const detailCache = new Map();
+    const detailPrefetchPending = new Set();
+    const DETAIL_PREFETCH_LIMIT = 3;
+    const MANAGER_PAGE_SIZE = 50;
+    const SUMMARY_PREFERENCE_KEY = 'polyta-keluar-bahan-summary-collapsed';
+
+    const loadingState = document.getElementById('loadingState');
+    const emptyState = document.getElementById('emptyState');
+    const errorState = document.getElementById('errorState');
+    const tableWrap = document.getElementById('tableWrap');
+    const dataBody = document.getElementById('dataBody');
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    const refreshButton = document.getElementById('refreshButton');
+
+    document.addEventListener('DOMContentLoaded', function() {
+      initializeFullscreen_();
+      initializeSummaryToggle_();
+      initializeDetailModal_();
+      initializeEtaScheduleModal_();
+      searchInput.addEventListener('input', debounce_(function() {
+        managerPage = 1;
+        renderManagerTable_();
+      }, 150));
+      statusFilter.addEventListener('change', function() {
+        managerPage = 1;
+        renderManagerTable_();
+      });
+      document.getElementById('managerPrevPage').addEventListener('click', function() {
+        changeManagerPage_(-1);
+      });
+      document.getElementById('managerNextPage').addEventListener('click', function() {
+        changeManagerPage_(1);
+      });
+      refreshButton.addEventListener('click', function() {
+        loadManagerData_(true);
+      });
+      document.getElementById('retryButton').addEventListener('click', function() {
+        loadManagerData_(true);
+      });
+      dataBody.addEventListener('click', handleTableClick_);
+      dataBody.addEventListener('keydown', handleTableKeydown_);
+      dataBody.addEventListener('pointerover', handleDetailPrefetchIntent_);
+      dataBody.addEventListener('focusin', handleDetailPrefetchIntent_);
+      loadManagerData_(false);
+    });
+
+    function debounce_(callback, waitMs) {
+      let timer = null;
+      return function() {
+        const args = arguments;
+        const context = this;
+        window.clearTimeout(timer);
+        timer = window.setTimeout(function() {
+          callback.apply(context, args);
+        }, waitMs);
+      };
+    }
+
+    function initializeSummaryToggle_() {
+      const button = document.getElementById('btnToggleSummary');
+      const panel = document.getElementById('summaryPanel');
+      if (!button || !panel) return;
+
+      let shouldCollapse = false;
+      try {
+        shouldCollapse =
+          window.localStorage.getItem(SUMMARY_PREFERENCE_KEY) === 'true';
+      } catch (error) {
+        shouldCollapse = false;
+      }
+
+      setSummaryCollapsed_(shouldCollapse, false);
+      button.addEventListener('click', function() {
+        setSummaryCollapsed_(
+          !panel.classList.contains('is-collapsed'),
+          true
+        );
+      });
+    }
+
+    function setSummaryCollapsed_(collapsed, persistPreference) {
+      const panel = document.getElementById('summaryPanel');
+      const button = document.getElementById('btnToggleSummary');
+      const label = document.getElementById('summaryToggleLabel');
+      const icon = document.getElementById('summaryToggleIcon');
+      if (!panel || !button || !label || !icon) return;
+
+      panel.classList.toggle('is-collapsed', collapsed);
+      panel.setAttribute('aria-hidden', collapsed ? 'true' : 'false');
+      panel.inert = collapsed;
+      button.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+      button.title = collapsed
+        ? 'Tampilkan rekapan'
+        : 'Sembunyikan rekapan';
+      label.textContent = collapsed
+        ? 'Tampilkan Rekapan'
+        : 'Sembunyikan Rekapan';
+      icon.className = collapsed
+        ? 'fa-solid fa-eye'
+        : 'fa-solid fa-chart-simple';
+
+      if (persistPreference) {
+        try {
+          window.localStorage.setItem(
+            SUMMARY_PREFERENCE_KEY,
+            collapsed ? 'true' : 'false'
+          );
+        } catch (error) {
+          // Tetap bekerja pada sesi aktif jika penyimpanan browser dibatasi.
+        }
+      }
+    }
+
+    function initializeDetailModal_() {
+      const modal = document.getElementById('detailModal');
+      if (!modal) return;
+
+      modal.querySelectorAll('[data-detail-close]').forEach(function(control) {
+        control.addEventListener('click', closeDetailModal_);
+      });
+
+      document.addEventListener('keydown', function(event) {
+        if (event.key !== 'Escape' || !isDetailModalOpen_()) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        closeDetailModal_();
+      }, true);
+    }
+
+    function initializeEtaScheduleModal_() {
+      const modal = document.getElementById('etaModal');
+      const scheduleRows = document.getElementById('etaScheduleRows');
+      const noteField = document.getElementById('etaKeterangan');
+      const saveButton = document.getElementById('etaSaveScheduleButton');
+      if (!modal || !scheduleRows || !noteField || !saveButton) return;
+
+      modal.querySelectorAll('[data-eta-modal-close]').forEach(function(control) {
+        control.addEventListener('click', closeEtaScheduleModal_);
+      });
+      scheduleRows.addEventListener('input', handleEtaModalFieldChange_);
+      scheduleRows.addEventListener('change', handleEtaModalFieldChange_);
+      noteField.addEventListener('input', function() {
+        clearEtaModalValidation_();
+        syncEtaModalVisual_();
+      });
+      saveButton.addEventListener('click', saveEtaSchedule_);
+
+      document.addEventListener('keydown', function(event) {
+        if (event.key !== 'Escape' || !isEtaScheduleModalOpen_()) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        closeEtaScheduleModal_();
+      }, true);
+    }
+
+    function isEtaScheduleModalOpen_() {
+      const modal = document.getElementById('etaModal');
+      return Boolean(modal && !modal.hidden);
+    }
+
+    function openEtaScheduleModal_(record, trigger) {
+      const modal = document.getElementById('etaModal');
+      if (!modal || !record) return;
+
+      etaModalRecord = record;
+      etaModalReturnFocus = trigger || document.activeElement;
+      document.getElementById('etaModalTitle').textContent =
+        'ETA Beli Bahan · ' + displayValue_(record.spk);
+      document.getElementById('etaModalSubtitle').textContent = [
+        record.customer,
+        record.artikel,
+        record.material
+      ].filter(Boolean).join(' · ') || 'Jadwal pembelian bahan baku';
+      document.getElementById('etaScheduleRows').innerHTML =
+        renderEtaScheduleRows_(record);
+      document.getElementById('etaKeterangan').value =
+        String(record.etaBeliKeterangan || '');
+      clearEtaModalValidation_();
+      setEtaModalSaving_(false);
+      syncEtaModalVisual_();
+
+      modal.hidden = false;
+      document.body.classList.add('eta-dialog-open');
+      window.setTimeout(function() {
+        const emptyDate = modal.querySelector(
+          '.eta-schedule-row:not(.has-data) .js-eta-modal-date'
+        );
+        const firstDate = modal.querySelector('.js-eta-modal-date');
+        (emptyDate || firstDate || modal.querySelector('.eta-modal-close')).focus();
+      }, 0);
+    }
+
+    function closeEtaScheduleModal_() {
+      const modal = document.getElementById('etaModal');
+      if (!modal || modal.hidden) return;
+      if (modal.dataset.saving === 'true') return;
+
+      modal.hidden = true;
+      document.body.classList.remove('eta-dialog-open');
+      etaModalRecord = null;
+      if (etaModalReturnFocus && document.contains(etaModalReturnFocus)) {
+        etaModalReturnFocus.focus();
+      }
+      etaModalReturnFocus = null;
+    }
+
+    function renderEtaScheduleRows_(record) {
+      return normalizeEtaEntries_(record).map(function(entry, index) {
+        const hasQuantity = index < 5;
+        const uom = entry.uom || '';
+        return `
+          <div class="eta-schedule-row ${entry.eta ? 'has-data' : ''}" data-eta-index="${index}">
+            <div class="eta-row-identity">
+              <span class="eta-row-number">${index + 1}</span>
+              <span class="eta-row-label">
+                <strong>ETA ${index + 1}</strong>
+                <small>${entry.eta ? 'Terisi' : 'Belum diisi'}</small>
+              </span>
+            </div>
+            <label class="eta-field">
+              <span class="eta-field-label">Tanggal ETA</span>
+              <input
+                class="eta-modal-input js-eta-modal-date"
+                type="date"
+                value="${escapeAttr_(entry.eta)}"
+                aria-label="Tanggal ETA ${index + 1}"
+              >
+            </label>
+            <label class="eta-field">
+              <span class="eta-field-label">QTY</span>
+              <input
+                class="eta-modal-input js-eta-modal-qty"
+                type="number"
+                step="any"
+                min="0"
+                value="${hasQuantity ? escapeAttr_(entry.qty) : ''}"
+                placeholder="${hasQuantity ? 'Masukkan QTY' : '—'}"
+                aria-label="QTY ETA ${index + 1}"
+                ${hasQuantity ? '' : 'disabled'}
+              >
+            </label>
+            <label class="eta-field">
+              <span class="eta-field-label">UOM</span>
+              <select
+                class="eta-modal-select js-eta-modal-uom"
+                aria-label="UOM ETA ${index + 1}"
+                ${hasQuantity ? '' : 'disabled'}
+              >
+                ${hasQuantity
+                  ? `
+                    <option value="" ${uom === '' ? 'selected' : ''}>Pilih UOM</option>
+                    <option value="KG" ${uom === 'KG' ? 'selected' : ''}>KG</option>
+                    <option value="ROLL" ${uom === 'ROLL' ? 'selected' : ''}>ROLL</option>
+                  `
+                  : '<option value="" selected>—</option>'}
+              </select>
+            </label>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function handleEtaModalFieldChange_(event) {
+      const row = event.target.closest('.eta-schedule-row');
+      if (row) row.classList.remove('is-invalid');
+      clearEtaModalValidation_();
+      syncEtaModalVisual_();
+    }
+
+    function syncEtaModalVisual_() {
+      const rows = Array.from(document.querySelectorAll('#etaScheduleRows .eta-schedule-row'));
+      let filledCount = 0;
+
+      rows.forEach(function(row) {
+        const dateField = row.querySelector('.js-eta-modal-date');
+        const hasData = Boolean(dateField && dateField.value);
+        row.classList.toggle('has-data', hasData);
+        const status = row.querySelector('.eta-row-label small');
+        if (status) status.textContent = hasData ? 'Terisi' : 'Belum diisi';
+        if (hasData) filledCount++;
+      });
+
+      document.getElementById('etaModalProgress').textContent =
+        filledCount + ' dari 5 ETA terisi';
+      const note = document.getElementById('etaKeterangan').value;
+      document.getElementById('etaNoteCounter').textContent =
+        note.length + '/1000';
+    }
+
+    function readEtaModalSchedule_() {
+      const rows = Array.from(document.querySelectorAll('#etaScheduleRows .eta-schedule-row'));
+      const entries = rows.map(function(row, index) {
+        const dateField = row.querySelector('.js-eta-modal-date');
+        const qtyField = row.querySelector('.js-eta-modal-qty');
+        const uomField = row.querySelector('.js-eta-modal-uom');
+        return {
+          index: index + 1,
+          eta: dateField ? dateField.value : '',
+          qty: index < 5 && qtyField ? qtyField.value.trim() : '',
+          uom: index < 5 && uomField ? uomField.value : ''
+        };
+      });
+
+      return {
+        entries: entries,
+        keterangan: document.getElementById('etaKeterangan').value.trim()
+      };
+    }
+
+    function validateEtaModalSchedule_(schedule) {
+      let foundGap = false;
+      let previousDate = '';
+
+      for (let index = 0; index < schedule.entries.length; index++) {
+        const entry = schedule.entries[index];
+        const row = document.querySelector(
+          '#etaScheduleRows .eta-schedule-row[data-eta-index="' + index + '"]'
+        );
+        const dateField = row && row.querySelector('.js-eta-modal-date');
+        const qtyField = row && row.querySelector('.js-eta-modal-qty');
+        const uomField = row && row.querySelector('.js-eta-modal-uom');
+        const hasQuantity = index < 5;
+        const hasSupportingValue = hasQuantity && (entry.qty !== '' || entry.uom !== '');
+
+        if (!entry.eta) {
+          if (hasSupportingValue) {
+            return etaModalValidationError_(
+              row,
+              dateField,
+              'Isi tanggal ETA ' + (index + 1) + ' sebelum QTY dan UOM.'
+            );
+          }
+          foundGap = true;
+          continue;
+        }
+
+        if (foundGap) {
+          return etaModalValidationError_(
+            row,
+            dateField,
+            'ETA ' + (index + 1) + ' harus diisi setelah ETA sebelumnya.'
+          );
+        }
+        if (previousDate && entry.eta < previousDate) {
+          return etaModalValidationError_(
+            row,
+            dateField,
+            'Tanggal ETA ' + (index + 1) + ' tidak boleh lebih awal dari ETA sebelumnya.'
+          );
+        }
+        if (hasQuantity && !(Number(entry.qty) > 0)) {
+          return etaModalValidationError_(
+            row,
+            qtyField,
+            'QTY ETA ' + (index + 1) + ' wajib lebih dari 0.'
+          );
+        }
+        if (hasQuantity && !['KG', 'ROLL'].includes(entry.uom)) {
+          return etaModalValidationError_(
+            row,
+            uomField,
+            'Pilih UOM ETA ' + (index + 1) + ': KG atau ROLL.'
+          );
+        }
+
+        previousDate = entry.eta;
+      }
+
+      if (schedule.keterangan.length > 1000) {
+        return etaModalValidationError_(
+          null,
+          document.getElementById('etaKeterangan'),
+          'Keterangan maksimal 1.000 karakter.'
+        );
+      }
+      return true;
+    }
+
+    function etaModalValidationError_(row, control, message) {
+      if (row) row.classList.add('is-invalid');
+      const validation = document.getElementById('etaModalValidation');
+      validation.innerHTML =
+        '<i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> ' +
+        escapeHtml_(message);
+      validation.hidden = false;
+      if (control) control.focus();
+      return false;
+    }
+
+    function clearEtaModalValidation_() {
+      const validation = document.getElementById('etaModalValidation');
+      if (!validation) return;
+      validation.hidden = true;
+      validation.textContent = '';
+    }
+
+    function saveEtaSchedule_() {
+      if (!etaModalRecord) return;
+      const schedule = readEtaModalSchedule_();
+      if (!validateEtaModalSchedule_(schedule)) return;
+
+      const spk = etaModalRecord.spk;
+      setEtaModalSaving_(true);
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (!response || response.status !== 'success' || !response.data) {
+            setEtaModalSaving_(false);
+            etaModalValidationError_(
+              null,
+              null,
+              response && response.message
+                ? response.message
+                : 'Jadwal ETA gagal disimpan.'
+            );
+            return;
+          }
+
+          setEtaModalSaving_(false);
+          etaModalRecord.rowNumber =
+            Number(response.data.rowNumber) || etaModalRecord.rowNumber;
+          etaModalRecord.etaBeliBahan = response.data.entries;
+          etaModalRecord.etaBeliKeterangan = response.data.keterangan;
+          const row = Array.from(dataBody.querySelectorAll('tr')).find(function(item) {
+            return item.dataset.spk === spk;
+          });
+          const cell = row && row.querySelector('.eta-cell');
+          if (cell) cell.innerHTML = renderEtaScheduleButton_(etaModalRecord);
+          const message = response.message || 'Jadwal ETA berhasil disimpan.';
+          closeEtaScheduleModal_();
+          showToast_(message, false);
+        })
+        .withFailureHandler(function(error) {
+          setEtaModalSaving_(false);
+          etaModalValidationError_(
+            null,
+            null,
+            error && error.message
+              ? error.message
+              : 'Terjadi gangguan saat menyimpan jadwal ETA.'
+          );
+        })
+        .saveEtaBeliBahanScheduleByManager({
+          spk: spk,
+          rowNumber: Number(etaModalRecord.rowNumber) || 0,
+          entries: schedule.entries,
+          keterangan: schedule.keterangan
+        });
+    }
+
+    function setEtaModalSaving_(saving) {
+      const modal = document.getElementById('etaModal');
+      const button = document.getElementById('etaSaveScheduleButton');
+      if (!modal || !button) return;
+
+      modal.dataset.saving = saving ? 'true' : 'false';
+      modal.querySelectorAll('button, input, select, textarea').forEach(function(control) {
+        if (saving) {
+          control.dataset.etaModalWasDisabled = control.disabled ? 'true' : 'false';
+          control.disabled = true;
+        } else if (Object.prototype.hasOwnProperty.call(
+          control.dataset,
+          'etaModalWasDisabled'
+        )) {
+          control.disabled = control.dataset.etaModalWasDisabled === 'true';
+          delete control.dataset.etaModalWasDisabled;
+        }
+      });
+      button.innerHTML = saving
+        ? '<span class="spinner" style="width:14px;height:14px;border-width:2px;border-color:rgba(255,255,255,.35);border-top-color:#fff"></span><span>Menyimpan...</span>'
+        : '<i class="fa-solid fa-floppy-disk" aria-hidden="true"></i><span>Simpan Jadwal ETA</span>';
+    }
+
+    function isDetailModalOpen_() {
+      const modal = document.getElementById('detailModal');
+      return Boolean(modal && !modal.hidden);
+    }
+
+    function buildDetailPreview_(record, spk) {
+      const source = record || {};
+      return {
+        rowNumber: Number(source.rowNumber) || 0,
+        spk: source.spk || spk || '',
+        tanggal: source.tanggal || '',
+        jenisOrder: '',
+        marketing: '',
+        nomorPO: '',
+        customer: source.customer || '',
+        artikel: source.artikel || '',
+        material: source.material || '',
+        film: '',
+        modelKantong: '',
+        ukuranBlow: '',
+        ukuranJadi: '',
+        jumlahOrder: source.jumlahOrder,
+        uomOrder: source.uomOrder || '',
+        keluarBahan: source.keluarBahan,
+        uomKB: source.uomKB || '',
+        meterRoll: '',
+        etd: '',
+        spkReferensi: '',
+        bs: { items: [], total: 0, totalTersimpan: '' },
+        dimensions: {},
+        calculation: {}
+      };
+    }
+
+    function requestDetailData_(spk, record, requestId) {
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (requestId !== detailRequestSequence || !isDetailModalOpen_()) return;
+          if (!response || response.status !== 'success' || !response.data) {
+            showDetailError_(response && response.message);
+            return;
+          }
+
+          if (response.data.rowNumber) {
+            record.rowNumber =
+              Number(response.data.rowNumber) || record.rowNumber;
+          }
+          detailCache.set(spk, response.data);
+          renderDetailData_(response.data, false);
+        })
+        .withFailureHandler(function(error) {
+          if (requestId !== detailRequestSequence || !isDetailModalOpen_()) return;
+          showDetailError_(error && error.message);
+        })
+        .getKeluarBahanManagerDetail(
+          spk,
+          Number(record.rowNumber) || 0
+        );
+    }
+
+    function handleDetailPrefetchIntent_(event) {
+      const row = event.target.closest('.js-detail-row');
+      if (!row) return;
+      const record = managerRecords.find(function(item) {
+        return item.spk === row.dataset.spk;
+      });
+      if (!record) return;
+      prefetchDetailRecords_([record], detailDataGeneration);
+    }
+
+    function prefetchDetailRecords_(records, generation) {
+      if (generation !== detailDataGeneration) return;
+
+      const requests = [];
+      (Array.isArray(records) ? records : []).some(function(record) {
+        const spk = String(record && record.spk || '');
+        if (
+          spk &&
+          !detailCache.has(spk) &&
+          !detailPrefetchPending.has(spk)
+        ) {
+          detailPrefetchPending.add(spk);
+          requests.push({
+            spk: spk,
+            rowNumber: Number(record.rowNumber) || 0
+          });
+        }
+        return requests.length >= DETAIL_PREFETCH_LIMIT;
+      });
+      if (!requests.length) return;
+
+      function finishPending_() {
+        requests.forEach(function(request) {
+          detailPrefetchPending.delete(request.spk);
+        });
+      }
+
+      function fallbackActiveDetail_() {
+        const activeRequest = requests.find(function(request) {
+          return request.spk === detailActiveSpk;
+        });
+        if (!activeRequest || !isDetailModalOpen_()) return;
+        const activeRecord = managerRecords.find(function(item) {
+          return item.spk === activeRequest.spk;
+        }) || activeRequest;
+        requestDetailData_(
+          activeRequest.spk,
+          activeRecord,
+          detailRequestSequence
+        );
+      }
+
+      google.script.run
+        .withSuccessHandler(function(response) {
+          finishPending_();
+          if (generation !== detailDataGeneration) return;
+          if (!response || response.status !== 'success') {
+            fallbackActiveDetail_();
+            return;
+          }
+
+          const details = response.data || {};
+          Object.keys(details).forEach(function(spk) {
+            const detail = details[spk];
+            if (!detail) return;
+            detailCache.set(spk, detail);
+            const record = managerRecords.find(function(item) {
+              return item.spk === spk;
+            });
+            if (record && detail.rowNumber) {
+              record.rowNumber =
+                Number(detail.rowNumber) || record.rowNumber;
+            }
+          });
+
+          if (
+            detailActiveSpk &&
+            details[detailActiveSpk] &&
+            isDetailModalOpen_()
+          ) {
+            renderDetailData_(details[detailActiveSpk], false);
+          } else if (
+            detailActiveSpk &&
+            requests.some(function(request) {
+              return request.spk === detailActiveSpk;
+            }) &&
+            !detailCache.has(detailActiveSpk)
+          ) {
+            fallbackActiveDetail_();
+          }
+        })
+        .withFailureHandler(function() {
+          finishPending_();
+          if (generation !== detailDataGeneration) return;
+          fallbackActiveDetail_();
+        })
+        .getKeluarBahanManagerDetailBatch(requests);
+    }
+
+    function openDetailModal_(spk, row) {
+      const modal = document.getElementById('detailModal');
+      const record = managerRecords.find(function(item) {
+        return item.spk === spk;
+      }) || {};
+
+      detailReturnFocus = row || document.activeElement;
+      if (detailActiveRow && detailActiveRow !== row) {
+        detailActiveRow.classList.remove('is-detail-open');
+      }
+      detailActiveRow = row || null;
+      detailActiveSpk = spk;
+      if (detailActiveRow) detailActiveRow.classList.add('is-detail-open');
+
+      modal.hidden = false;
+      document.body.classList.add('detail-dialog-open');
+
+      window.setTimeout(function() {
+        const closeButton = modal.querySelector('.detail-close');
+        if (closeButton) closeButton.focus();
+      }, 0);
+
+      const requestId = ++detailRequestSequence;
+      if (detailCache.has(spk)) {
+        renderDetailData_(detailCache.get(spk), false);
+        return;
+      }
+
+      // Data daftar langsung ditampilkan pada frame pertama. Detail ukuran
+      // dan perhitungan dilengkapi setelah respons backend tersedia.
+      renderDetailData_(buildDetailPreview_(record, spk), true);
+      if (detailPrefetchPending.has(spk)) return;
+      requestDetailData_(spk, record, requestId);
+    }
+
+    function closeDetailModal_() {
+      const modal = document.getElementById('detailModal');
+      if (!modal || modal.hidden) return;
+
+      detailRequestSequence++;
+      modal.hidden = true;
+      document.body.classList.remove('detail-dialog-open');
+      if (detailActiveRow) detailActiveRow.classList.remove('is-detail-open');
+      detailActiveRow = null;
+      detailActiveSpk = '';
+
+      if (detailReturnFocus && document.contains(detailReturnFocus)) {
+        detailReturnFocus.focus();
+      }
+      detailReturnFocus = null;
+    }
+
+    function setDetailState_(state) {
+      document.getElementById('detailLoading').hidden = state !== 'loading';
+      document.getElementById('detailError').hidden = state !== 'error';
+      document.getElementById('detailContent').hidden = state !== 'content';
+    }
+
+    function showDetailError_(message) {
+      document.getElementById('detailErrorMessage').textContent =
+        message || 'Terjadi gangguan saat membaca detail SPK.';
+      setDetailState_('error');
+    }
+
+    function renderDetailData_(data, isPreview) {
+      document.getElementById('detailDialogTitle').textContent =
+        'Detail SPK ' + displayValue_(data.spk);
+      document.getElementById('detailDialogSubtitle').textContent = [
+        data.customer,
+        data.artikel,
+        data.material
+      ].filter(Boolean).join(' · ') || 'Detail kebutuhan keluar bahan';
+
+      document.getElementById('detailContent').innerHTML =
+        renderCompactDetail_(data, isPreview);
+      setDetailState_('content');
+    }
+
+    function renderCompactDetail_(data, isPreview) {
+      const mainData = [
+        { label: 'Nomor SPK', value: displayValue_(data.spk) },
+        { label: 'Tanggal SPK', value: formatDate_(data.tanggal) },
+        { label: 'Jenis Order', value: displayValue_(data.jenisOrder) },
+        { label: 'Marketing', value: displayValue_(data.marketing) },
+        { label: 'Customer', value: displayValue_(data.customer) },
+        { label: 'Nomor PO', value: displayValue_(data.nomorPO) },
+        { label: 'Artikel', value: displayValue_(data.artikel) },
+        { label: 'Material', value: displayValue_(data.material) },
+        { label: 'Model Kantong', value: displayValue_(data.modelKantong) },
+        { label: 'Jumlah Order', value: formatQuantity_(data.jumlahOrder, data.uomOrder) },
+        { label: 'ETD', value: formatDate_(data.etd) },
+        { label: 'SPK Referensi', value: displayValue_(data.spkReferensi) }
+      ];
+      const sizeData = [
+        { label: 'Ukuran Blowing', value: displayValue_(data.ukuranBlow) },
+        { label: 'Ukuran Jadi', value: displayValue_(data.ukuranJadi) }
+      ];
+
+      return `
+        <div class="detail-overview">
+          <div class="detail-overview-grid">
+            ${renderCompactDataBlock_('Data Utama', 'fa-clipboard-list', mainData, 'main')}
+            ${renderCompactDataBlock_('Ukuran', 'fa-ruler-combined', sizeData, 'size')}
+          </div>
+          ${isPreview
+            ? `
+              <div class="detail-preview-status" role="status" aria-live="polite">
+                <span class="spinner" aria-hidden="true"></span>
+                <span>Data utama sudah tersedia. Melengkapi ukuran dan perhitungan bahan di latar belakang...</span>
+              </div>
+            `
+            : renderCompactCalculation_(data)}
+        </div>
+      `;
+    }
+
+    function renderCompactDataBlock_(title, icon, items, variant) {
+      return `
+        <section
+          class="detail-data-block ${escapeAttr_(variant || '')}"
+          aria-label="${escapeAttr_(title)}"
+        >
+          <div class="detail-data-heading">
+            <i class="fa-solid ${escapeAttr_(icon)}" aria-hidden="true"></i>
+            <span>${escapeHtml_(title)}</span>
+          </div>
+          <div class="detail-data-grid">
+            ${items.map(function(item) {
+              return `
+                <div class="detail-data-item">
+                  <span class="detail-data-label">${escapeHtml_(item.label)}</span>
+                  <strong class="detail-data-value">${escapeHtml_(item.value)}</strong>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </section>
+      `;
+    }
+
+    function renderCompactCalculation_(data) {
+      const calculation = data.calculation || {};
+      const categoryTitle = calculation.ok
+        ? calculation.categoryTitle
+        : 'Perhitungan belum tersedia';
+
+      if (!calculation.ok) {
+        return `
+          <section class="raw-material-calculation" aria-label="Perhitungan bahan baku">
+            <h3 class="calculation-block-title">Perhitungan Bahan Baku</h3>
+            <div class="calculation-category">${escapeHtml_(categoryTitle)}</div>
+            <div class="calculation-error">
+              <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+              <span>${escapeHtml_(calculation.message || 'Data belum lengkap untuk dihitung.')}</span>
+            </div>
+          </section>
+        `;
+      }
+
+      const formula = buildResultFormula_(calculation);
+      const orderWithBs =
+        formatQuantity_(calculation.jumlahOrder, calculation.uomOrder) +
+        ' + ' + formatNumber_(calculation.totalBs) + '% = ' +
+        formatQuantity_(calculation.orderAfterBs, calculation.uomOrder);
+
+      return `
+        <section class="raw-material-calculation" aria-label="Perhitungan bahan baku">
+          <h3 class="calculation-block-title">Perhitungan Bahan Baku</h3>
+          <div class="calculation-category">${escapeHtml_(categoryTitle)}</div>
+          <div class="calculation-table">
+            <div class="calculation-table-row">
+              <span class="calculation-table-label">Order + BS</span>
+              <span class="calculation-table-value">${escapeHtml_(orderWithBs)}</span>
+            </div>
+            <div class="calculation-table-row">
+              <span class="calculation-table-label">${escapeHtml_(formula.label)}</span>
+              <span class="calculation-table-value">${escapeHtml_(formula.values)}</span>
+            </div>
+            <div class="calculation-table-row result">
+              <span class="calculation-table-label">Hasil</span>
+              <span class="calculation-table-value">
+                ${escapeHtml_(formatQuantity_(calculation.keluarBahan, calculation.uomKB))}
+              </span>
+            </div>
+          </div>
+          <div class="calculation-reference-line">
+            ${escapeHtml_(buildCompactCalculationReference_(calculation))}
+          </div>
+          <div class="calculation-note-line">
+            ${escapeHtml_(buildCompactCalculationNote_(data))}
+          </div>
+        </section>
+      `;
+    }
+
+    function buildCompactCalculationReference_(calculation) {
+      const references = [
+        'Panjang: ' + formatNumber_(calculation.panjang),
+        'Tebal: ' + formatNumber_(calculation.tebal),
+        'Lebar Jadi: ' + formatNumber_(calculation.lebar),
+        'PCS/KG: ' + formatNumber_(calculation.pcsPerKg),
+        'Meter/KG: ' + formatNumber_(calculation.meterPerKg),
+        'Density: ' + formatNumber_(calculation.density),
+        'Lapisan film: ' + formatNumber_(calculation.filmLayerFactor)
+      ];
+
+      if (['A-MUSTIKA', 'B', 'C', 'F'].includes(calculation.category)) {
+        references.push('Meter: ' + formatNumber_(calculation.meter));
+      }
+      if (calculation.category === 'F') {
+        references.push(
+          'Meter Roll: ' + formatNumber_(calculation.meterRoll),
+          'UP: ' + formatNumber_(calculation.up)
+        );
+      }
+      return references.join(' · ');
+    }
+
+    function buildCompactCalculationNote_(data) {
+      const notes = ['Keterangan: ' + displayValue_(data.jenisOrder)];
+      if (data.spkReferensi) notes.push('SPK sumber: ' + data.spkReferensi);
+      notes.push('Material: ' + displayValue_(data.material));
+      return notes.join(' · ');
+    }
+
+    function renderCalculationDetail_(data) {
+      const calculation = data.calculation || {};
+      const savedValue = formatQuantity_(data.keluarBahan, data.uomKB);
+      const calculatedValue = calculation.ok
+        ? formatQuantity_(calculation.keluarBahan, calculation.uomKB)
+        : 'Belum dapat dihitung';
+      const managerNote = buildManagerComparisonNote_(data, calculation);
+      const categoryValue = calculation.ok
+        ? calculation.categoryLabel
+        : 'Kategori belum valid';
+      const categoryNote = calculation.ok
+        ? calculation.categoryTitle
+        : 'Periksa kombinasi material, UOM order, dan ukuran.';
+
+      const summaryHtml = `
+        <div class="detail-summary-grid">
+          <article class="detail-summary-card result">
+            <span class="detail-card-label">Hasil Sistem</span>
+            <strong class="detail-card-value">${escapeHtml_(calculatedValue)}</strong>
+            <span class="detail-card-note">Hasil hitung ulang dari data Input SPK.</span>
+          </article>
+          <article class="detail-summary-card manager">
+            <span class="detail-card-label">Keluar Bahan PPIC</span>
+            <strong class="detail-card-value">${escapeHtml_(savedValue)}</strong>
+            <span class="detail-card-note">${escapeHtml_(managerNote)}</span>
+          </article>
+          <article class="detail-summary-card">
+            <span class="detail-card-label">Kategori Perhitungan</span>
+            <strong class="detail-card-value">${escapeHtml_(categoryValue)}</strong>
+            <span class="detail-card-note">${escapeHtml_(categoryNote)}</span>
+          </article>
+        </div>
+      `;
+
+      if (!calculation.ok) {
+        return summaryHtml + `
+          <div class="detail-alert" role="note">
+            <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+            <span>${escapeHtml_(calculation.message || 'Data belum lengkap untuk dihitung.')}</span>
+          </div>
+          ${renderOrderContextSection_(data)}
+        `;
+      }
+
+      const formula = buildResultFormula_(calculation);
+      const supportLines = buildSupportFormulaLines_(calculation, data);
+      const referenceItems = buildCalculationReferences_(calculation);
+
+      return summaryHtml + `
+        <article class="detail-section">
+          <div class="detail-section-heading">
+            <div>
+              <h3 class="detail-section-title">
+                <i class="fa-solid fa-route" aria-hidden="true"></i>
+                Alur Perhitungan
+              </h3>
+              <p class="detail-section-note">
+                Urutan dan parameter yang sama dengan perhitungan pada halaman Input SPK.
+              </p>
+            </div>
+          </div>
+          <div class="calculation-chain">
+            ${renderCalculationStep_(
+              1,
+              'Jumlah order setelah BS',
+              'Jumlah Order × (1 + Total BS ÷ 100)',
+              formatNumber_(calculation.jumlahOrder) + ' ' + calculation.uomOrder +
+                ' × (1 + ' + formatNumber_(calculation.totalBs) + ' ÷ 100) = ' +
+                formatNumber_(calculation.orderAfterBs) + ' ' + calculation.uomOrder
+            )}
+            ${renderCalculationStepHtml_(
+              2,
+              'Konversi dan aturan pendukung',
+              supportLines
+            )}
+            ${renderCalculationStep_(
+              3,
+              formula.label,
+              formula.symbolic,
+              formula.values
+            )}
+          </div>
+        </article>
+
+        <article class="detail-section">
+          <div class="detail-section-heading">
+            <div>
+              <h3 class="detail-section-title">
+                <i class="fa-solid fa-list-check" aria-hidden="true"></i>
+                Nilai Acuan Perhitungan
+              </h3>
+              <p class="detail-section-note">
+                Nilai numerik yang digunakan mesin hitung untuk SPK ini.
+              </p>
+            </div>
+          </div>
+          <div class="calculation-reference-grid">
+            ${referenceItems.map(renderReferenceItem_).join('')}
+          </div>
+        </article>
+
+        ${renderOrderContextSection_(data)}
+      `;
+    }
+
+    function renderCalculationStep_(number, title, symbolic, values) {
+      return renderCalculationStepHtml_(
+        number,
+        title,
+        `
+          <span class="formula-symbolic">${escapeHtml_(symbolic)}</span>
+          <span class="formula-values">${escapeHtml_(values)}</span>
+        `
+      );
+    }
+
+    function renderCalculationStepHtml_(number, title, contentHtml) {
+      return `
+        <div class="calculation-step">
+          <span class="calculation-step-number">${number}</span>
+          <div class="calculation-step-body">
+            <span class="calculation-step-title">${escapeHtml_(title)}</span>
+            ${contentHtml}
+          </div>
+        </div>
+      `;
+    }
+
+    function buildSupportFormulaLines_(calculation, data) {
+      const lines = [];
+      const usesPcsPerKg = ['A', 'C', 'D'].includes(calculation.category);
+      const usesMeter = ['A-MUSTIKA', 'B', 'C', 'F'].includes(calculation.category);
+
+      if (usesPcsPerKg && calculation.pcsPerKg > 0) {
+        lines.push({
+          symbolic: 'PCS/KG = 5.444 ÷ Panjang ÷ Tebal ÷ Lebar Jadi',
+          values:
+            '5.444 ÷ ' + formatNumber_(calculation.panjang) +
+            ' ÷ ' + formatNumber_(calculation.tebal) +
+            ' ÷ ' + formatNumber_(calculation.lebar) +
+            ' = ' + formatNumber_(calculation.pcsPerKg) + ' PCS/KG'
+        });
+      }
+
+      if (calculation.meterPerKg > 0) {
+        lines.push({
+          symbolic:
+            'Meter/KG = 1 ÷ (Density × ((Lebar Jadi ÷ 100) × (Tebal × 1.000) × Lapisan Film) ÷ 1.000)',
+          values:
+            '1 ÷ (' + formatNumber_(calculation.density) +
+            ' × ((' + formatNumber_(calculation.lebar) +
+            ' ÷ 100) × (' + formatNumber_(calculation.tebal) +
+            ' × 1.000) × ' + formatNumber_(calculation.filmLayerFactor) +
+            ') ÷ 1.000) = ' + formatNumber_(calculation.meterPerKg) + ' Meter/KG'
+        });
+      }
+
+      if (usesMeter && calculation.meter > 0) {
+        const material = String(data.material || '').toUpperCase();
+        let rule = '';
+        if (material.indexOf('CPP') > -1) {
+          rule = 'Material CPP → Meter tetap 6.000';
+        } else if (calculation.tebal >= 0.029) {
+          rule = 'Tebal ≥ 0,029 → Meter 3.000';
+        } else if (calculation.tebal >= 0.020) {
+          rule = 'Tebal ≥ 0,020 → Meter 4.000';
+        } else {
+          rule = 'Tebal < 0,020 → Meter 6.000';
+        }
+        lines.push({
+          symbolic: 'Aturan Meter berdasarkan material dan tebal',
+          values: rule
+        });
+      }
+
+      if (calculation.category === 'F' ? calculation.up >= 1 : calculation.upTertulis >= 1) {
+        // Angka UP yang ditulis pada Ukuran Blowing dipakai apa adanya, jadi
+        // penjelasannya pun tidak boleh menampilkan rumus pembagian.
+        lines.push(calculation.upTertulis >= 1
+          ? {
+              symbolic: 'UP tertulis pada Ukuran Blowing',
+              values: formatNumber_(calculation.upTertulis) + ' UP'
+            }
+          : {
+              symbolic: 'UP = floor(Lebar Bahan ÷ Lebar Jadi)',
+              values:
+                'floor(' + formatNumber_(calculation.lebarBahan) +
+                ' ÷ ' + formatNumber_(calculation.lebar) +
+                ') = ' + formatNumber_(calculation.up) + ' UP'
+            });
+      }
+
+      if (!lines.length) {
+        lines.push({
+          symbolic: 'Tidak memerlukan konversi tambahan',
+          values: 'Hasil setelah BS digunakan langsung.'
+        });
+      }
+
+      return lines.map(function(line) {
+        return `
+          <span class="formula-symbolic">${escapeHtml_(line.symbolic)}</span>
+          <span class="formula-values">${escapeHtml_(line.values)}</span>
+        `;
+      }).join('');
+    }
+
+    function buildResultFormula_(calculation) {
+      const afterBs = formatNumber_(calculation.orderAfterBs);
+      const result = formatNumber_(calculation.keluarBahan) + ' ' + calculation.uomKB;
+
+      // Kategori F sudah menyebut UP pada rumusnya. Untuk kategori lain, UP
+      // hanya ikut membagi bila angkanya ditulis pada Ukuran Blowing, jadi
+      // rumus yang ditampilkan harus mengikuti keadaan itu.
+      const upAktif = calculation.category !== 'F' && calculation.upTertulis > 0;
+      const upSimbol = upAktif ? ' ÷ UP' : '';
+      const upNilai = upAktif ? ' ÷ ' + formatNumber_(calculation.upTertulis) : '';
+
+      if (calculation.category === 'A' || calculation.category === 'D') {
+        return {
+          label: 'Hasil ÷ Konversi PCS/KG' + upSimbol,
+          symbolic: 'Order setelah BS ÷ PCS/KG' + upSimbol,
+          values:
+            afterBs + ' ÷ ' + formatNumber_(calculation.pcsPerKg) +
+            upNilai + ' = ' + result
+        };
+      }
+      if (calculation.category === 'B' || calculation.category === 'A-MUSTIKA') {
+        return {
+          label: 'Hasil × Panjang ÷ 100 ÷ Meter' + upSimbol,
+          symbolic: 'Order setelah BS × Panjang ÷ 100 ÷ Meter' + upSimbol,
+          values:
+            afterBs + ' × ' + formatNumber_(calculation.panjang) +
+            ' ÷ 100 ÷ ' + formatNumber_(calculation.meter) +
+            upNilai + ' = ' + result
+        };
+      }
+      if (calculation.category === 'C') {
+        return {
+          label: 'Hasil × Panjang × Konversi PCS/KG ÷ 100 ÷ Meter' + upSimbol,
+          symbolic: 'Order setelah BS × Panjang × PCS/KG ÷ 100 ÷ Meter' + upSimbol,
+          values:
+            afterBs + ' × ' + formatNumber_(calculation.panjang) +
+            ' × ' + formatNumber_(calculation.pcsPerKg) +
+            ' ÷ 100 ÷ ' + formatNumber_(calculation.meter) +
+            upNilai + ' = ' + result
+        };
+      }
+      if (calculation.category === 'E') {
+        return {
+          label: 'Hasil setelah BS' + upSimbol,
+          symbolic: 'Keluar Bahan = Order setelah BS' + upSimbol,
+          values: afterBs + ' KG' + upNilai + ' = ' + result
+        };
+      }
+      return {
+        label: 'Hasil × Meter Roll ÷ Meter ÷ UP',
+        symbolic: 'Order setelah BS × Meter Roll ÷ Meter ÷ UP',
+        values:
+          afterBs + ' × ' + formatNumber_(calculation.meterRoll) +
+          ' ÷ ' + formatNumber_(calculation.meter) +
+          ' ÷ ' + formatNumber_(calculation.up) +
+          ' = ' + result
+      };
+    }
+
+    function buildCalculationReferences_(calculation) {
+      const references = [
+        { label: 'Jumlah Order', value: formatQuantity_(calculation.jumlahOrder, calculation.uomOrder) },
+        { label: 'Total BS', value: formatNumber_(calculation.totalBs) + '%' },
+        { label: 'Order + BS', value: formatQuantity_(calculation.orderAfterBs, calculation.uomOrder) },
+        { label: 'Lebar Jadi', value: formatMeasurement_(calculation.lebar, 'cm') },
+        { label: 'Panjang', value: formatMeasurement_(calculation.panjang, 'cm') },
+        { label: 'Tebal', value: formatMeasurement_(calculation.tebal, 'mm') },
+        { label: 'Lebar Bahan', value: formatMeasurement_(calculation.lebarBahan, 'cm') },
+        { label: 'Density', value: formatNumber_(calculation.density) },
+        { label: 'Lapisan Film', value: formatNumber_(calculation.filmLayerFactor) + ' lapis' },
+        { label: 'Meter/KG', value: formatNumber_(calculation.meterPerKg) }
+      ];
+
+      if (['A', 'C', 'D'].includes(calculation.category)) {
+        references.push({
+          label: 'PCS/KG',
+          value: formatNumber_(calculation.pcsPerKg)
+        });
+      }
+      if (['A-MUSTIKA', 'B', 'C', 'F'].includes(calculation.category)) {
+        references.push({
+          label: 'Meter',
+          value: formatNumber_(calculation.meter)
+        });
+      }
+      if (calculation.category === 'F') {
+        references.push(
+          { label: 'Meter Roll', value: formatMeasurement_(calculation.meterRoll, 'meter') },
+          { label: 'UP', value: formatNumber_(calculation.up) }
+        );
+      }
+
+      return references;
+    }
+
+    function renderReferenceItem_(item) {
+      return `
+        <div class="reference-item">
+          <span class="reference-label">${escapeHtml_(item.label)}</span>
+          <strong class="reference-value">${escapeHtml_(item.value)}</strong>
+        </div>
+      `;
+    }
+
+    function renderOrderContextSection_(data) {
+      return `
+        <article class="detail-section">
+          <div class="detail-section-heading">
+            <div>
+              <h3 class="detail-section-title">
+                <i class="fa-solid fa-clipboard-list" aria-hidden="true"></i>
+                Data Dasar SPK
+              </h3>
+            </div>
+          </div>
+          <div class="calculation-reference-grid">
+            ${[
+              { label: 'Tanggal', value: formatDate_(data.tanggal) },
+              { label: 'Jenis Order', value: displayValue_(data.jenisOrder) },
+              { label: 'Nomor PO', value: displayValue_(data.nomorPO) },
+              { label: 'Jumlah Order', value: formatQuantity_(data.jumlahOrder, data.uomOrder) },
+              { label: 'Customer', value: displayValue_(data.customer) },
+              { label: 'Artikel', value: displayValue_(data.artikel) },
+              { label: 'Material', value: displayValue_(data.material) },
+              { label: 'Film', value: displayValue_(data.film) }
+            ].map(renderReferenceItem_).join('')}
+          </div>
+        </article>
+      `;
+    }
+
+    function buildManagerComparisonNote_(data, calculation) {
+      if (
+        data.keluarBahan === '' ||
+        data.keluarBahan === null ||
+        data.keluarBahan === undefined ||
+        !data.uomKB
+      ) {
+        return 'Belum ditetapkan oleh Manager PPIC.';
+      }
+      if (!calculation.ok) {
+        return 'Nilai PPIC tersimpan; hasil sistem belum dapat dihitung.';
+      }
+      if (data.uomKB !== calculation.uomKB) {
+        return 'Satuan PPIC berbeda dari satuan hasil sistem (' + calculation.uomKB + ').';
+      }
+
+      const difference = Number(data.keluarBahan) - Number(calculation.keluarBahan);
+      return 'Selisih terhadap hasil sistem: ' +
+        formatNumber_(difference) + ' ' + calculation.uomKB + '.';
+    }
+
+    function renderBsDetail_(data) {
+      const bs = data.bs || {};
+      const items = Array.isArray(bs.items) ? bs.items : [];
+      const total = Number(bs.total) || 0;
+      const activeCount = items.filter(function(item) {
+        return Number(item.percent) > 0;
+      }).length;
+
+      return `
+        <div class="bs-total">
+          <div>
+            <span class="detail-card-label">Total BS</span>
+            <span class="detail-card-note">
+              ${activeCount} dari ${items.length} proses memiliki nilai BS.
+            </span>
+          </div>
+          <strong>${escapeHtml_(formatNumber_(total))}%</strong>
+        </div>
+        <article class="detail-section">
+          <div class="detail-section-heading">
+            <div>
+              <h3 class="detail-section-title">
+                <i class="fa-solid fa-percent" aria-hidden="true"></i>
+                Rincian BS per Proses
+              </h3>
+              <p class="detail-section-note">
+                Total BS adalah penjumlahan seluruh persentase proses di bawah.
+              </p>
+            </div>
+          </div>
+          <div class="bs-grid">
+            ${items.map(function(item) {
+              const percent = Number(item.percent) || 0;
+              return `
+                <div class="bs-item ${percent > 0 ? 'active' : ''}">
+                  <span class="bs-label">${escapeHtml_(item.label)}</span>
+                  <strong class="bs-value">${escapeHtml_(formatNumber_(percent))}%</strong>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </article>
+        <div class="detail-alert" role="note">
+          <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+          <span>
+            Alur order: ${escapeHtml_(formatQuantity_(data.jumlahOrder, data.uomOrder))}
+            × (1 + ${escapeHtml_(formatNumber_(total))} ÷ 100).
+          </span>
+        </div>
+      `;
+    }
+
+    function renderSpecificationDetail_(data) {
+      const dimensions = data.dimensions || {};
+      const calculation = data.calculation || {};
+      const calculatedAvailable = calculation.ok;
+      const specs = [
+        { label: 'Ukuran Blowing', value: displayValue_(data.ukuranBlow) },
+        { label: 'Ukuran Jadi', value: displayValue_(data.ukuranJadi) },
+        { label: 'Lebar Jadi', value: formatMeasurement_(dimensions.lebarJadi, 'cm') },
+        { label: 'Panjang Jadi', value: formatMeasurement_(dimensions.panjangJadi, 'cm') },
+        { label: 'Tebal Jadi', value: formatMeasurement_(dimensions.tebalJadi, 'mm') },
+        { label: 'Lebar Bahan', value: formatMeasurement_(dimensions.lebarBahan, 'cm') },
+        { label: 'Tebal Blowing', value: formatMeasurement_(dimensions.tebalBlow, 'mm') },
+        { label: 'Meter Roll', value: formatMeasurement_(data.meterRoll, 'meter') }
+      ];
+      const conversions = [
+        {
+          label: 'Density',
+          value: formatNumber_(calculatedAvailable ? calculation.density : dimensions.densityTersimpan)
+        },
+        {
+          label: 'Lapisan Film',
+          value: calculatedAvailable
+            ? formatNumber_(calculation.filmLayerFactor) + ' lapis'
+            : '—'
+        },
+        {
+          label: 'PCS/KG',
+          value: formatNumber_(
+            calculatedAvailable ? calculation.pcsPerKg : dimensions.pcsPerKgTersimpan
+          )
+        },
+        {
+          label: 'Meter/KG',
+          value: formatNumber_(
+            calculatedAvailable ? calculation.meterPerKg : dimensions.meterPerKgTersimpan
+          )
+        },
+        {
+          label: 'Meter',
+          value: formatNumber_(calculatedAvailable ? calculation.meter : '')
+        },
+        {
+          label: 'UP',
+          value: formatNumber_(calculatedAvailable ? calculation.up : '')
+        },
+        { label: 'Material', value: displayValue_(data.material) },
+        { label: 'Jenis Film', value: displayValue_(data.film) }
+      ];
+
+      return `
+        <article class="detail-section">
+          <div class="detail-section-heading">
+            <div>
+              <h3 class="detail-section-title">
+                <i class="fa-solid fa-ruler-combined" aria-hidden="true"></i>
+                Spesifikasi Ukuran
+              </h3>
+              <p class="detail-section-note">
+                Ukuran asli dan komponen angka yang dibaca dari Ukuran Blowing serta Ukuran Jadi.
+              </p>
+            </div>
+          </div>
+          <div class="spec-grid">
+            ${specs.map(renderSpecCard_).join('')}
+          </div>
+        </article>
+        <article class="detail-section">
+          <div class="detail-section-heading">
+            <div>
+              <h3 class="detail-section-title">
+                <i class="fa-solid fa-gears" aria-hidden="true"></i>
+                Konversi Perhitungan
+              </h3>
+              <p class="detail-section-note">
+                Parameter turunan yang tersedia dari spesifikasi SPK.
+              </p>
+            </div>
+          </div>
+          <div class="spec-grid">
+            ${conversions.map(renderSpecCard_).join('')}
+          </div>
+        </article>
+        <article class="detail-section">
+          <div class="detail-section-heading">
+            <div>
+              <h3 class="detail-section-title">
+                <i class="fa-solid fa-box" aria-hidden="true"></i>
+                Identitas Produk
+              </h3>
+            </div>
+          </div>
+          <div class="spec-grid">
+            ${[
+              { label: 'Model Kantong', value: displayValue_(data.modelKantong) },
+              { label: 'Artikel', value: displayValue_(data.artikel) },
+              { label: 'Customer', value: displayValue_(data.customer) },
+              { label: 'Jumlah Order', value: formatQuantity_(data.jumlahOrder, data.uomOrder) }
+            ].map(renderSpecCard_).join('')}
+          </div>
+        </article>
+      `;
+    }
+
+    function renderSpecCard_(item) {
+      return `
+        <div class="detail-spec-card">
+          <span class="spec-label">${escapeHtml_(item.label)}</span>
+          <strong class="spec-value">${escapeHtml_(item.value)}</strong>
+        </div>
+      `;
+    }
+
+    function initializeFullscreen_() {
+      const button = document.getElementById('btnFullscreen');
+      if (!button) return;
+
+      button.addEventListener('click', toggleAppFullscreen_);
+      document.addEventListener('fullscreenchange', syncFullscreenButton_);
+      document.addEventListener('webkitfullscreenchange', syncFullscreenButton_);
+      document.addEventListener('keydown', function(event) {
+        if (
+          event.key === 'Escape' &&
+          document.body.classList.contains('app-focus-mode')
+        ) {
+          document.body.classList.remove('app-focus-mode');
+          syncFullscreenButton_();
+        }
+      });
+      syncFullscreenButton_();
+    }
+
+    function toggleAppFullscreen_() {
+      const nativeFullscreen =
+        document.fullscreenElement ||
+        document.webkitFullscreenElement;
+      const fallbackActive =
+        document.body.classList.contains('app-focus-mode');
+
+      if (nativeFullscreen) {
+        const exitFullscreen =
+          document.exitFullscreen ||
+          document.webkitExitFullscreen;
+        if (exitFullscreen) {
+          Promise.resolve(exitFullscreen.call(document)).catch(function() {
+            document.body.classList.remove('app-focus-mode');
+            syncFullscreenButton_();
+          });
+          return;
+        }
+      }
+
+      if (fallbackActive) {
+        document.body.classList.remove('app-focus-mode');
+        syncFullscreenButton_();
+        return;
+      }
+
+      const root = document.documentElement;
+      const requestFullscreen =
+        root.requestFullscreen ||
+        root.webkitRequestFullscreen;
+      if (!requestFullscreen) {
+        enableFullscreenFallback_();
+        return;
+      }
+
+      try {
+        const result = requestFullscreen.call(root);
+        if (result && typeof result.catch === 'function') {
+          result.catch(enableFullscreenFallback_);
+        }
+      } catch (error) {
+        enableFullscreenFallback_();
+      }
+    }
+
+    function enableFullscreenFallback_() {
+      document.body.classList.add('app-focus-mode');
+      syncFullscreenButton_();
+    }
+
+    function syncFullscreenButton_() {
+      const button = document.getElementById('btnFullscreen');
+      const icon = document.getElementById('fullscreenIcon');
+      const label = document.getElementById('fullscreenLabel');
+      if (!button || !icon || !label) return;
+
+      const active = Boolean(
+        document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        document.body.classList.contains('app-focus-mode')
+      );
+      button.setAttribute('aria-pressed', String(active));
+      button.title = active
+        ? 'Keluar dari layar penuh'
+        : 'Buka tampilan layar penuh';
+      icon.className = active
+        ? 'fa-solid fa-compress'
+        : 'fa-solid fa-expand';
+      label.textContent = active ? 'Keluar Penuh' : 'Layar Penuh';
+    }
+
+    function loadManagerData_(forceRefresh) {
+      detailDataGeneration++;
+      detailCache.clear();
+      detailPrefetchPending.clear();
+      setViewState_('loading');
+      refreshButton.disabled = true;
+
+      google.script.run
+        .withSuccessHandler(function(response) {
+          refreshButton.disabled = false;
+          if (!response || response.status !== 'success') {
+            showLoadError_(response && response.message);
+            return;
+          }
+
+          managerRecords = Array.isArray(response.data) ? response.data : [];
+          managerRecords.forEach(function(record) {
+            if (record && record.spk && record.detail) {
+              detailCache.set(record.spk, record.detail);
+              delete record.detail;
+            }
+          });
+          managerPage = 1;
+          updateSummary_(response.summary);
+          renderManagerTable_();
+        })
+        .withFailureHandler(function(error) {
+          refreshButton.disabled = false;
+          showLoadError_(error && error.message);
+        })
+        .getKeluarBahanManagerData(Boolean(forceRefresh));
+    }
+
+    function updateSummary_(summary) {
+      const safeSummary = summary || {};
+      document.getElementById('pendingCount').textContent = Number(safeSummary.pending) || 0;
+      document.getElementById('completeCount').textContent = Number(safeSummary.complete) || 0;
+      document.getElementById('totalCount').textContent = Number(safeSummary.total) || 0;
+    }
+
+    function filteredRecords_() {
+      const query = searchInput.value.trim().toUpperCase();
+      const filter = statusFilter.value;
+
+      return managerRecords.filter(function(item) {
+        if (filter === 'pending' && item.complete) return false;
+        if (filter === 'complete' && !item.complete) return false;
+        if (!query) return true;
+
+        return [
+          item.spk,
+          item.customer,
+          item.artikel,
+          item.material
+        ].some(function(value) {
+          return String(value || '').toUpperCase().indexOf(query) > -1;
+        });
+      });
+    }
+
+    function renderManagerTable_() {
+      const records = filteredRecords_();
+      if (!records.length) {
+        const hasSearch = searchInput.value.trim() !== '';
+        document.getElementById('emptyTitle').textContent = hasSearch
+          ? 'Data tidak ditemukan'
+          : statusFilter.value === 'pending'
+            ? 'Semua Keluar Bahan sudah diatur'
+            : 'Belum ada data pada status ini';
+        document.getElementById('emptyMessage').textContent = hasSearch
+          ? 'Periksa kembali kata pencarian atau ubah filter status.'
+          : statusFilter.value === 'pending'
+            ? 'Tidak ada SPK yang masih menunggu pengisian Manager PPIC.'
+            : 'Ubah filter untuk melihat data SPK lainnya.';
+        setViewState_('empty');
+        return;
+      }
+
+      const totalPages = Math.max(
+        1,
+        Math.ceil(records.length / MANAGER_PAGE_SIZE)
+      );
+      managerPage = Math.min(Math.max(managerPage, 1), totalPages);
+      const startIndex = (managerPage - 1) * MANAGER_PAGE_SIZE;
+      const visibleRecords = records.slice(
+        startIndex,
+        startIndex + MANAGER_PAGE_SIZE
+      );
+
+      dataBody.innerHTML = visibleRecords.map(renderRow_).join('');
+      renderManagerPagination_(
+        records.length,
+        totalPages,
+        startIndex,
+        visibleRecords.length
+      );
+      setViewState_('table');
+      if (
+        searchInput.value.trim() &&
+        visibleRecords.length <= DETAIL_PREFETCH_LIMIT
+      ) {
+        prefetchDetailRecords_(
+          visibleRecords,
+          detailDataGeneration
+        );
+      }
+    }
+
+    function renderManagerPagination_(totalRecords, totalPages, startIndex, visibleCount) {
+      const firstVisible = totalRecords ? startIndex + 1 : 0;
+      const lastVisible = startIndex + visibleCount;
+      document.getElementById('managerPaginationInfo').textContent =
+        'Menampilkan ' + firstVisible + '–' + lastVisible +
+        ' dari ' + totalRecords + ' data';
+      document.getElementById('managerPaginationPage').textContent =
+        'Halaman ' + managerPage + ' / ' + totalPages;
+      document.getElementById('managerPrevPage').disabled = managerPage <= 1;
+      document.getElementById('managerNextPage').disabled =
+        managerPage >= totalPages;
+    }
+
+    function changeManagerPage_(direction) {
+      const totalPages = Math.max(
+        1,
+        Math.ceil(filteredRecords_().length / MANAGER_PAGE_SIZE)
+      );
+      const nextPage = Math.min(
+        Math.max(managerPage + direction, 1),
+        totalPages
+      );
+      if (nextPage === managerPage) return;
+
+      managerPage = nextPage;
+      renderManagerTable_();
+      tableWrap.scrollTop = 0;
+    }
+
+    function normalizeEtaEntries_(item) {
+      const source = Array.isArray(item && item.etaBeliBahan)
+        ? item.etaBeliBahan
+        : [];
+
+      return Array.from({ length: 5 }, function(_, index) {
+        const entry = source[index] || {};
+        return {
+          index: index + 1,
+          eta: String(entry.eta || ''),
+          qty:
+            entry.qty === '' || entry.qty === null || entry.qty === undefined
+              ? ''
+              : entry.qty,
+          uom: ['KG', 'ROLL'].includes(String(entry.uom || '').toUpperCase())
+            ? String(entry.uom).toUpperCase()
+            : '',
+          hasQuantity: index < 5
+        };
+      });
+    }
+
+    function renderEtaScheduleButton_(item) {
+      const entries = normalizeEtaEntries_(item);
+      const filledEntries = entries.filter(function(entry) {
+        return Boolean(entry.eta);
+      });
+
+      return `
+        <button
+          class="eta-open-button js-open-eta"
+          type="button"
+          aria-label="Buka jadwal ETA beli bahan untuk ${escapeAttr_(item.spk)}"
+          title="Atur ETA beli bahan"
+        >
+          <span class="eta-open-icon" aria-hidden="true">
+            <i class="fa-solid fa-calendar-days"></i>
+          </span>
+          <strong class="eta-open-label">ETA</strong>
+          <span class="eta-open-count">${filledEntries.length}/5</span>
+        </button>
+      `;
+    }
+
+    function getEtaActiveIndex_(item) {
+      if (etaActiveIndexBySpk.has(item.spk)) {
+        const savedIndex = etaActiveIndexBySpk.get(item.spk);
+        if (savedIndex >= 0 && savedIndex < 5) return savedIndex;
+      }
+
+      const entries = normalizeEtaEntries_(item);
+      const firstEmpty = entries.findIndex(function(entry) {
+        return !entry.eta;
+      });
+      const activeIndex = firstEmpty === -1 ? 4 : firstEmpty;
+      etaActiveIndexBySpk.set(item.spk, activeIndex);
+      return activeIndex;
+    }
+
+    function etaDraftKey_(spk, index) {
+      return String(spk || '') + '::' + String(index);
+    }
+
+    function renderEtaEditor_(item, activeIndex) {
+      const entries = normalizeEtaEntries_(item);
+      const entry = entries[activeIndex] || entries[0];
+      const draftKey = etaDraftKey_(item.spk, activeIndex);
+      const hasDraft = etaDraftByKey.has(draftKey);
+      const value = hasDraft ? etaDraftByKey.get(draftKey) : entry;
+      const hasQuantity = activeIndex < 5;
+      const hasData = Boolean(
+        entry.eta ||
+        (hasQuantity && (entry.qty !== '' || entry.uom))
+      );
+      const positionClass = hasDraft
+        ? 'has-draft'
+        : hasData
+          ? 'has-data'
+          : '';
+      const statusText = hasDraft
+        ? 'Belum disimpan'
+        : hasData
+          ? 'Tersimpan'
+          : (activeIndex + 1) + '/5';
+      const uom = value.uom || '';
+
+      return `
+        <div class="eta-editor" data-eta-index="${activeIndex}">
+          <div class="eta-navigation">
+            <button
+              class="eta-nav-button js-eta-nav"
+              type="button"
+              data-direction="-1"
+              aria-label="Tampilkan ETA ${Math.max(1, activeIndex)}"
+              ${activeIndex === 0 ? 'disabled' : ''}
+            >
+              <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+            </button>
+            <span class="eta-position ${positionClass}">
+              ETA ${activeIndex + 1}
+              <small>${escapeHtml_(statusText)}</small>
+            </span>
+            <button
+              class="eta-nav-button js-eta-nav"
+              type="button"
+              data-direction="1"
+              aria-label="Tampilkan ETA ${Math.min(5, activeIndex + 2)}"
+              ${activeIndex === 4 ? 'disabled' : ''}
+            >
+              <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+            </button>
+          </div>
+          <input
+            class="eta-date-input js-eta-date"
+            type="date"
+            value="${escapeAttr_(value.eta || '')}"
+            aria-label="Tanggal ETA ${activeIndex + 1} untuk ${escapeAttr_(item.spk)}"
+          >
+          <input
+            class="eta-qty-input js-eta-qty"
+            type="number"
+            step="any"
+            min="0"
+            value="${hasQuantity ? escapeAttr_(value.qty) : ''}"
+            placeholder="${hasQuantity ? 'QTY' : '—'}"
+            aria-label="QTY ETA ${activeIndex + 1} untuk ${escapeAttr_(item.spk)}"
+            ${hasQuantity ? '' : 'disabled'}
+          >
+          <select
+            class="eta-uom-select js-eta-uom"
+            aria-label="UOM ETA ${activeIndex + 1} untuk ${escapeAttr_(item.spk)}"
+            ${hasQuantity ? '' : 'disabled'}
+          >
+            ${hasQuantity
+              ? `
+                <option value="" ${uom === '' ? 'selected' : ''}>UOM</option>
+                <option value="KG" ${uom === 'KG' ? 'selected' : ''}>KG</option>
+                <option value="ROLL" ${uom === 'ROLL' ? 'selected' : ''}>ROLL</option>
+              `
+              : '<option value="" selected>—</option>'}
+          </select>
+          <button
+            class="eta-save-button js-save-eta"
+            type="button"
+            aria-label="Simpan ETA ${activeIndex + 1} untuk ${escapeAttr_(item.spk)}"
+            title="Simpan ETA ${activeIndex + 1}"
+          >
+            <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
+          </button>
+        </div>
+      `;
+    }
+
+    function renderRow_(item) {
+      const statusClass = item.complete ? 'complete' : 'pending';
+      const statusIcon = item.complete ? 'fa-circle-check' : 'fa-clock';
+      const statusLabel = item.complete ? 'Sudah lengkap' : 'Menunggu';
+      const uom = item.uomKB || '';
+
+      return `
+        <tr
+          class="js-detail-row"
+          data-spk="${escapeAttr_(item.spk)}"
+          data-row-number="${escapeAttr_(Number(item.rowNumber) || 0)}"
+          tabindex="0"
+          aria-haspopup="dialog"
+          aria-label="Lihat data utama, ukuran, dan perhitungan SPK ${escapeAttr_(item.spk)}"
+          title="Klik baris untuk melihat detail SPK"
+        >
+          <td>
+            <strong class="spk-code">${escapeHtml_(item.spk)}</strong>
+            <span class="date-text">${escapeHtml_(formatDate_(item.tanggal))}</span>
+          </td>
+          <td>
+            <span class="primary-text">${escapeHtml_(displayValue_(item.customer))}</span>
+            <span class="secondary-text">${escapeHtml_(displayValue_(item.artikel))}</span>
+          </td>
+          <td>
+            <span class="primary-text">${escapeHtml_(displayValue_(item.material))}</span>
+          </td>
+          <td>
+            <span class="order-value">${escapeHtml_(formatQuantity_(item.jumlahOrder, item.uomOrder))}</span>
+          </td>
+          <td>
+            <span class="status-badge ${statusClass}">
+              <i class="fa-solid ${statusIcon}" aria-hidden="true"></i>
+              ${statusLabel}
+            </span>
+          </td>
+          <td>
+            <div class="editor">
+              <input
+                class="editor-input js-keluar-bahan"
+                type="number"
+                step="any"
+                min="0"
+                value="${escapeAttr_(item.keluarBahan)}"
+                placeholder="Jumlah"
+                aria-label="Jumlah keluar bahan untuk ${escapeAttr_(item.spk)}"
+              >
+              <select class="editor-select js-uom-kb" aria-label="UOM keluar bahan untuk ${escapeAttr_(item.spk)}">
+                <option value="" ${uom === '' ? 'selected' : ''}>UOM</option>
+                <option value="KG" ${uom === 'KG' ? 'selected' : ''}>KG</option>
+                <option value="ROLL" ${uom === 'ROLL' ? 'selected' : ''}>ROLL</option>
+              </select>
+            </div>
+          </td>
+          <td class="eta-cell">
+            ${renderEtaScheduleButton_(item)}
+          </td>
+          <td>
+            <button class="button save-button js-save-row" type="button">
+              <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
+              <span>Simpan</span>
+            </button>
+          </td>
+        </tr>
+      `;
+    }
+
+    function captureEtaDraftFromEditor_(editor) {
+      if (!editor) return;
+      const row = editor.closest('tr');
+      const spk = row ? row.dataset.spk : '';
+      const activeIndex = Number(editor.dataset.etaIndex);
+      const record = managerRecords.find(function(item) {
+        return item.spk === spk;
+      });
+      if (!record || !(activeIndex >= 0 && activeIndex < 5)) return;
+
+      const dateField = editor.querySelector('.js-eta-date');
+      const qtyField = editor.querySelector('.js-eta-qty');
+      const uomField = editor.querySelector('.js-eta-uom');
+      const draft = {
+        index: activeIndex + 1,
+        eta: dateField ? dateField.value : '',
+        qty: activeIndex < 5 && qtyField ? qtyField.value : '',
+        uom: activeIndex < 5 && uomField ? uomField.value : '',
+        hasQuantity: activeIndex < 5
+      };
+      const persisted = normalizeEtaEntries_(record)[activeIndex];
+      const unchanged =
+        draft.eta === String(persisted.eta || '') &&
+        String(draft.qty || '') === String(persisted.qty || '') &&
+        draft.uom === String(persisted.uom || '');
+      const key = etaDraftKey_(spk, activeIndex);
+
+      if (unchanged) {
+        etaDraftByKey.delete(key);
+      } else {
+        etaDraftByKey.set(key, draft);
+      }
+    }
+
+    function handleEtaDraftInput_(event) {
+      const editor = event.target.closest('.eta-editor');
+      if (editor) captureEtaDraftFromEditor_(editor);
+    }
+
+    function handleEtaNavigation_(button) {
+      const row = button.closest('tr');
+      const editor = button.closest('.eta-editor');
+      const cell = button.closest('.eta-cell');
+      const spk = row ? row.dataset.spk : '';
+      const record = managerRecords.find(function(item) {
+        return item.spk === spk;
+      });
+      if (!editor || !cell || !record) return;
+
+      captureEtaDraftFromEditor_(editor);
+      const currentIndex = Number(editor.dataset.etaIndex);
+      const direction = Number(button.dataset.direction);
+      const nextIndex = Math.max(0, Math.min(4, currentIndex + direction));
+      if (nextIndex === currentIndex) return;
+
+      etaActiveIndexBySpk.set(spk, nextIndex);
+      cell.innerHTML = renderEtaEditor_(record, nextIndex);
+      const nextFocus = cell.querySelector(
+        '.js-eta-nav[data-direction="' + direction + '"]:not(:disabled)'
+      );
+      if (nextFocus) nextFocus.focus();
+    }
+
+    function handleEtaSave_(button) {
+      const row = button.closest('tr');
+      const editor = button.closest('.eta-editor');
+      const spk = row ? row.dataset.spk : '';
+      const record = managerRecords.find(function(item) {
+        return item.spk === spk;
+      });
+      if (!editor || !record) return;
+
+      captureEtaDraftFromEditor_(editor);
+      const activeIndex = Number(editor.dataset.etaIndex);
+      const etaNumber = activeIndex + 1;
+      const hasQuantity = activeIndex < 5;
+      const dateField = editor.querySelector('.js-eta-date');
+      const qtyField = editor.querySelector('.js-eta-qty');
+      const uomField = editor.querySelector('.js-eta-uom');
+      const eta = dateField ? dateField.value : '';
+      const qtyText = hasQuantity && qtyField ? qtyField.value.trim() : '';
+      const qty = qtyText === '' ? 0 : Number(qtyText);
+      const uom = hasQuantity && uomField ? uomField.value : '';
+      const clearing = eta === '' && qtyText === '' && uom === '';
+
+      if (!clearing && !eta) {
+        if (dateField) dateField.focus();
+        showToast_('Isi tanggal ETA ' + etaNumber + '.', true);
+        return;
+      }
+      if (hasQuantity && !clearing && !(qty > 0)) {
+        if (qtyField) qtyField.focus();
+        showToast_('Isi QTY ETA ' + etaNumber + ' dengan angka lebih dari 0.', true);
+        return;
+      }
+      if (hasQuantity && !clearing && !['KG', 'ROLL'].includes(uom)) {
+        if (uomField) uomField.focus();
+        showToast_('Pilih UOM ETA ' + etaNumber + ': KG atau ROLL.', true);
+        return;
+      }
+
+      setEtaSaving_(editor, true);
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (!response || response.status !== 'success' || !response.data) {
+            setEtaSaving_(editor, false);
+            showToast_(
+              response && response.message
+                ? response.message
+                : 'ETA beli bahan gagal disimpan.',
+              true
+            );
+            return;
+          }
+
+          const entries = normalizeEtaEntries_(record);
+          record.rowNumber =
+            Number(response.data.rowNumber) || record.rowNumber;
+          entries[activeIndex] = response.data.entry;
+          record.etaBeliBahan = entries;
+          etaDraftByKey.delete(etaDraftKey_(spk, activeIndex));
+          const cell = row.querySelector('.eta-cell');
+          if (cell) cell.innerHTML = renderEtaEditor_(record, activeIndex);
+          showToast_(response.message || 'ETA beli bahan berhasil disimpan.', false);
+        })
+        .withFailureHandler(function(error) {
+          setEtaSaving_(editor, false);
+          showToast_(
+            error && error.message
+              ? error.message
+              : 'Terjadi gangguan saat menyimpan ETA beli bahan.',
+            true
+          );
+        })
+        .updateEtaBeliBahanByManager({
+          spk: spk,
+          rowNumber: Number(record.rowNumber) || 0,
+          etaIndex: etaNumber,
+          eta: eta,
+          qty: hasQuantity ? qtyText : '',
+          uom: hasQuantity ? uom : ''
+        });
+    }
+
+    function setEtaSaving_(editor, saving) {
+      if (!editor) return;
+      editor.classList.toggle('is-saving', saving);
+      editor.querySelectorAll('button, input, select').forEach(function(control) {
+        if (saving) {
+          control.dataset.etaWasDisabled = control.disabled ? 'true' : 'false';
+          control.disabled = true;
+        } else {
+          control.disabled = control.dataset.etaWasDisabled === 'true';
+          delete control.dataset.etaWasDisabled;
+        }
+      });
+
+      const saveButton = editor.querySelector('.js-save-eta');
+      if (saveButton) {
+        saveButton.innerHTML = saving
+          ? '<span class="spinner" style="width:14px;height:14px;border-width:2px;border-color:rgba(255,255,255,.35);border-top-color:#fff"></span>'
+          : '<i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>';
+      }
+    }
+
+    function handleTableClick_(event) {
+      const etaOpenButton = event.target.closest('.js-open-eta');
+      if (etaOpenButton) {
+        const etaRow = etaOpenButton.closest('tr');
+        const etaRecord = managerRecords.find(function(item) {
+          return item.spk === (etaRow ? etaRow.dataset.spk : '');
+        });
+        if (etaRecord) openEtaScheduleModal_(etaRecord, etaOpenButton);
+        return;
+      }
+
+      const button = event.target.closest('.js-save-row');
+      if (!button) {
+        if (event.target.closest('input, select, button, a, label')) return;
+        const detailRow = event.target.closest('.js-detail-row');
+        if (detailRow) openDetailModal_(detailRow.dataset.spk || '', detailRow);
+        return;
+      }
+
+      const row = button.closest('tr');
+      const spk = row ? row.dataset.spk : '';
+      const quantityField = row && row.querySelector('.js-keluar-bahan');
+      const uomField = row && row.querySelector('.js-uom-kb');
+      const quantity = quantityField ? Number(quantityField.value) : 0;
+      const uom = uomField ? uomField.value : '';
+
+      if (!(quantity > 0)) {
+        if (quantityField) quantityField.focus();
+        showToast_('Isi Keluar Bahan dengan angka lebih dari 0.', true);
+        return;
+      }
+      if (!['KG', 'ROLL'].includes(uom)) {
+        if (uomField) uomField.focus();
+        showToast_('Pilih UOM KG atau ROLL.', true);
+        return;
+      }
+
+      setRowSaving_(row, button, true);
+      google.script.run
+        .withSuccessHandler(function(response) {
+          setRowSaving_(row, button, false);
+          if (!response || response.status !== 'success') {
+            showToast_(
+              response && response.message
+                ? response.message
+                : 'Keluar Bahan gagal disimpan.',
+              true
+            );
+            return;
+          }
+
+          const record = managerRecords.find(function(item) {
+            return item.spk === spk;
+          });
+          if (record) {
+            record.rowNumber =
+              Number(response.data.rowNumber) || record.rowNumber;
+            record.keluarBahan = response.data.keluarBahan;
+            record.uomKB = response.data.uomKB;
+            record.complete = true;
+          }
+          detailDataGeneration++;
+          detailPrefetchPending.clear();
+          detailCache.delete(spk);
+          recalculateSummary_();
+          renderManagerTable_();
+          showToast_(response.message || 'Keluar Bahan berhasil disimpan.', false);
+        })
+        .withFailureHandler(function(error) {
+          setRowSaving_(row, button, false);
+          showToast_(
+            error && error.message
+              ? error.message
+              : 'Terjadi gangguan saat menyimpan data.',
+            true
+          );
+        })
+        .updateKeluarBahanByManager({
+          spk: spk,
+          rowNumber: Number(
+            row && row.dataset.rowNumber
+          ) || 0,
+          keluarBahan: quantityField.value,
+          uomKB: uom
+        });
+    }
+
+    function handleTableKeydown_(event) {
+      if (!['Enter', ' '].includes(event.key)) return;
+      if (event.target.closest('input, select, button, a, label')) return;
+
+      const row = event.target.closest('.js-detail-row');
+      if (!row) return;
+      event.preventDefault();
+      openDetailModal_(row.dataset.spk || '', row);
+    }
+
+    function recalculateSummary_() {
+      const complete = managerRecords.filter(function(item) {
+        return item.complete;
+      }).length;
+      updateSummary_({
+        total: managerRecords.length,
+        complete: complete,
+        pending: managerRecords.length - complete
+      });
+    }
+
+    function setRowSaving_(row, button, saving) {
+      if (row) row.classList.toggle('is-saving', saving);
+      if (!button) return;
+      button.disabled = saving;
+      button.innerHTML = saving
+        ? '<span class="spinner" style="width:16px;height:16px;border-width:2px;border-color:rgba(255,255,255,.35);border-top-color:#fff"></span><span>Menyimpan</span>'
+        : '<i class="fa-solid fa-floppy-disk" aria-hidden="true"></i><span>Simpan</span>';
+    }
+
+    function setViewState_(state) {
+      loadingState.hidden = state !== 'loading';
+      emptyState.hidden = state !== 'empty';
+      errorState.hidden = state !== 'error';
+      tableWrap.hidden = state !== 'table';
+      document.getElementById('managerPagination').hidden = state !== 'table';
+    }
+
+    function showLoadError_(message) {
+      document.getElementById('errorMessage').textContent =
+        message || 'Terjadi gangguan saat membaca Database.';
+      setViewState_('error');
+    }
+
+    function showToast_(message, isError) {
+      const toast = document.getElementById('toast');
+      const icon = document.getElementById('toastIcon');
+      document.getElementById('toastMessage').textContent = message;
+      toast.classList.toggle('error', Boolean(isError));
+      icon.className = 'fa-solid ' + (isError ? 'fa-circle-exclamation' : 'fa-circle-check');
+      toast.classList.add('show');
+
+      if (toastTimer) window.clearTimeout(toastTimer);
+      toastTimer = window.setTimeout(function() {
+        toast.classList.remove('show');
+      }, 4200);
+    }
+
+    function formatDate_(value) {
+      if (!value) return 'Tanggal —';
+      const match = String(value).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (!match) return String(value);
+      return match[3] + '/' + match[2] + '/' + match[1];
+    }
+
+    function formatQuantity_(quantity, uom) {
+      if (quantity === '' || quantity === null || quantity === undefined) return '—';
+      const number = Number(quantity);
+      if (!Number.isFinite(number)) return '—';
+      return new Intl.NumberFormat('id-ID', {
+        maximumFractionDigits: 2
+      }).format(number) + (uom ? ' ' + String(uom) : '');
+    }
+
+    function formatNumber_(value) {
+      if (value === '' || value === null || value === undefined) return '—';
+      const number = Number(value);
+      if (!Number.isFinite(number)) return '—';
+      return new Intl.NumberFormat('id-ID', {
+        maximumFractionDigits: 2
+      }).format(number);
+    }
+
+    function formatMeasurement_(value, unit) {
+      const formatted = formatNumber_(value);
+      return formatted === '—' ? formatted : formatted + (unit ? ' ' + unit : '');
+    }
+
+    function displayValue_(value) {
+      const text = String(value === null || value === undefined ? '' : value).trim();
+      return text || '—';
+    }
+
+    function escapeHtml_(value) {
+      return String(value === null || value === undefined ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function escapeAttr_(value) {
+      return escapeHtml_(value);
+    }
+  </script>
+</body>
+</html>

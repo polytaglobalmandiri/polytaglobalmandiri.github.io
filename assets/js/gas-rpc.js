@@ -2,30 +2,69 @@
   "use strict";
 
   var API_URL = "https://script.google.com/macros/s/AKfycbzEml-brh_-SmKAsvd-1iFy6nelvc9YENtn-bkjD1T6UUgX7QNBE0ycjU02QEfY-91aXQ/exec";
+  var requestSequence = 0;
 
   function callServer(method, args) {
-    return fetch(API_URL, {
-      method: "POST",
-      credentials: "omit",
-      redirect: "follow",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ method: method, args: args })
-    }).then(function (response) {
-      if (!response.ok) throw new Error("Server GAS merespons HTTP " + response.status + ".");
-      return response.text();
-    }).then(function (text) {
-      var payload;
-      try {
-        payload = JSON.parse(text);
-      } catch (error) {
-        throw new Error("Respons GAS tidak dapat dibaca. Pastikan deployment Web App dapat diakses.");
+    return new Promise(function (resolve, reject) {
+      requestSequence += 1;
+      var requestId = "spk-" + Date.now().toString(36) + "-" + requestSequence.toString(36);
+      var frameName = "polytaGasRpcFrame-" + requestId;
+      var iframe = document.createElement("iframe");
+      var form = document.createElement("form");
+      var input = document.createElement("input");
+      var host = document.body || document.documentElement;
+      var settled = false;
+
+      iframe.name = frameName;
+      iframe.title = "";
+      iframe.hidden = true;
+      iframe.setAttribute("aria-hidden", "true");
+
+      form.method = "POST";
+      form.action = API_URL;
+      form.target = frameName;
+      form.hidden = true;
+
+      input.type = "hidden";
+      input.name = "payload";
+      input.value = JSON.stringify({ requestId: requestId, method: method, args: args });
+      form.appendChild(input);
+
+      function cleanup() {
+        window.removeEventListener("message", receiveMessage);
+        window.clearTimeout(timeoutId);
+        if (form.parentNode) form.parentNode.removeChild(form);
+        if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
       }
-      if (!payload || payload.ok !== true) {
-        throw new Error(payload && payload.error && payload.error.message
-          ? payload.error.message
-          : "Permintaan ke GAS gagal.");
+
+      function receiveMessage(event) {
+        var data = event.data;
+        if (settled || event.source !== iframe.contentWindow || !data ||
+            data.source !== "polyta-spk-gas-rpc" || data.requestId !== requestId) return;
+
+        settled = true;
+        cleanup();
+        var payload = data.payload;
+        if (!payload || payload.ok !== true) {
+          reject(new Error(payload && payload.error && payload.error.message
+            ? payload.error.message
+            : "Permintaan ke GAS gagal."));
+          return;
+        }
+        resolve(payload.result);
       }
-      return payload.result;
+
+      var timeoutId = window.setTimeout(function () {
+        if (settled) return;
+        settled = true;
+        cleanup();
+        reject(new Error("Server GAS belum merespons. Silakan coba kembali."));
+      }, 360000);
+
+      window.addEventListener("message", receiveMessage);
+      host.appendChild(iframe);
+      host.appendChild(form);
+      form.submit();
     });
   }
 

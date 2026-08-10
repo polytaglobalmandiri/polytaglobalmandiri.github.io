@@ -55,7 +55,7 @@ function convertTemplate(sourceName) {
     );
   }
 
-  const rpcScript = '  <script src="/assets/js/gas-rpc.js?v=20260811-1"></script>\n';
+  const rpcScript = '  <script src="/assets/js/gas-rpc.js?v=20260811-2"></script>\n';
   html = html.replace("</head>", rpcScript + "</head>");
   return html;
 }

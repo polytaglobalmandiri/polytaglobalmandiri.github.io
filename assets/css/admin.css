@@ -313,9 +313,7 @@ pre.out {
   .adm-bar__meta .adm-badge { display: none; }
   .adm-bar__meta .adm-status { font-size: 0; gap: 0; }
   .adm-bar__meta .adm-status i { width: 10px; height: 10px; }
-  .adm-bar__tools .btn:not(.adm-portal-home) { display: none; }
-  .adm-portal-home { width: 36px; height: 34px; padding: 0; justify-content: center; }
-  .adm-portal-home span { display: none; }
+  .adm-bar__tools .btn { display: none; }
   .adm-actions { align-items: stretch; flex-direction: column; }
   .adm-actions__buttons { display: grid; grid-template-columns: 1fr 1fr; }
   .adm-actions__buttons .btn { justify-content: center; }

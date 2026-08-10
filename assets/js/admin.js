@@ -60,7 +60,7 @@
   ];
 
   /* Nama glif yang boleh dipilih — tidak termasuk ikon antarmuka */
-  var UI_ONLY = ["search", "pin", "pinOn", "arrow", "home", "sun", "moon", "menu", "top", "close"];
+  var UI_ONLY = ["search", "pin", "pinOn", "arrow", "sun", "moon", "menu", "top", "close"];
   var GLYPHS = Object.keys(ICON).filter(function (k) { return UI_ONLY.indexOf(k) === -1; }).sort();
 
   /* ------------------------------------------------------------ Keadaan */
@@ -437,7 +437,7 @@
 
     var tools = el("div", "adm-bar__tools");
     tools.appendChild(buildThemeSwitch());
-    tools.appendChild(mkBtn(ICON.home + "<span>Portal Utama</span>", "btn btn--ghost adm-portal-home", function () { location.href = "../"; }));
+    tools.appendChild(mkBtn("Lihat situs", "btn btn--ghost", function () { location.href = "../"; }));
 
     inner.appendChild(tools);
     bar.appendChild(inner);

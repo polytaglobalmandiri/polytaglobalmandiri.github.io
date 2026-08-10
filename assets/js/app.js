@@ -786,9 +786,9 @@
       entries.forEach(function (en) {
         if (en.isIntersecting) { en.target.classList.add("is-in"); io.unobserve(en.target); }
       });
-    }, { rootMargin: "0px 0px -8% 0px", threshold: .06 });
+    }, { rootMargin: "0px 0px -4% 0px", threshold: .04 });
     nodes.forEach(function (n, i) {
-      n.style.transitionDelay = Math.min(i * 55, 330) + "ms";
+      n.style.transitionDelay = Math.min(i * 45, 240) + "ms";
       io.observe(n);
     });
 
@@ -824,15 +824,42 @@
     var btn = el("button", "iconbtn", ICON.top);
     btn.type = "button";
     btn.setAttribute("aria-label", "Kembali ke atas");
-    btn.style.cssText = "position:fixed;right:20px;bottom:20px;z-index:70;width:42px;height:42px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;transform:translateY(8px)";
-    btn.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+    btn.style.cssText = "position:fixed;right:20px;bottom:20px;z-index:70;width:42px;height:42px;opacity:0;pointer-events:none;transition:opacity .3s var(--ease-ui),transform .3s var(--ease-spring);transform:translateY(10px) scale(.96)";
+    btn.addEventListener("click", function () {
+      var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+    });
     document.body.appendChild(btn);
+    var ticking = false;
     window.addEventListener("scroll", function () {
-      var on = window.scrollY > 420;
-      btn.style.opacity = on ? "1" : "0";
-      btn.style.pointerEvents = on ? "auto" : "none";
-      btn.style.transform = on ? "none" : "translateY(8px)";
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(function () {
+        var on = window.scrollY > 420;
+        btn.style.opacity = on ? "1" : "0";
+        btn.style.pointerEvents = on ? "auto" : "none";
+        btn.style.transform = on ? "none" : "translateY(10px) scale(.96)";
+        ticking = false;
+      });
     }, { passive: true });
+  }
+
+  /* Fallback transisi halaman untuk browser tanpa View Transitions. */
+  function wirePageTransitions() {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    window.addEventListener("pageshow", function () { document.body.classList.remove("is-page-leaving"); });
+    document.addEventListener("click", function (e) {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest ? e.target.closest("a[href]") : null;
+      if (!a || a.target === "_blank" || a.hasAttribute("download")) return;
+      var url;
+      try { url = new URL(a.href, location.href); } catch (err) { return; }
+      if (url.origin !== location.origin || (url.pathname === location.pathname && url.search === location.search)) return;
+      if (document.startViewTransition) return;
+      e.preventDefault();
+      document.body.classList.add("is-page-leaving");
+      setTimeout(function () { location.href = url.href; }, 165);
+    });
   }
 
   /* Dibuka agar halaman administrator dapat memakai ulang pustaka ikon
@@ -844,7 +871,7 @@
     /* Halaman tanpa atribut data-page — misalnya halaman administrator —
        hanya meminjam pustaka ikon di atas; tidak ada yang perlu dirender. */
     var pageId = document.body.dataset.page;
-    if (!pageId) return;
+    if (!pageId) { wirePageTransitions(); return; }
 
     var page = SITE.pages[pageId];
     if (!page) return;
@@ -881,6 +908,7 @@
     wireReveal();
     wireTilt();
     wireBackTop();
+    wirePageTransitions();
 
     window.addEventListener("storage", function (e) {
       if (e.key === PIN_KEY) syncPinnedUI();

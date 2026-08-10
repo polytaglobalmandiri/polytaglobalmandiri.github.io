@@ -41,6 +41,20 @@ a { color: inherit; text-decoration: none; }
   --accent-hi: #e63b52;
   --accent-rgb: 200, 16, 46;
 
+  /* Warna semantik menu — tetap di dalam palet merek Polyta */
+  --menu-red:       #c8102e;
+  --menu-red-deep:  #861026;
+  --menu-graphite:  #3d3d46;
+  --menu-steel:     #72727e;
+  --menu-red-muted: #a13b4d;
+  --menu-green:     #18794e;
+  --menu-blue:      #1c6fb8;
+  --menu-cyan:      #117f8c;
+  --menu-purple:    #7048a8;
+  --menu-orange:    #b8560a;
+  --menu-gold:      #8a6109;
+  --menu-indigo:    #4b5fa8;
+
   /* Enamel merah (lencana, plat merek) */
   --seal-a: #ff9aa2;
   --seal-b: #cf1428;
@@ -76,6 +90,13 @@ a { color: inherit; text-decoration: none; }
   --mat-black:  linear-gradient(160deg, #5c5c66, #232328 55%, #0d0d10);
   --mat-steel:  linear-gradient(160deg, #dcdce4, #9a9aa7 55%, #5a5a66);
   --mat-white:  linear-gradient(160deg, #f4f4f8, #cdcdd6 55%, #85858f);
+  --mat-green:  linear-gradient(160deg, #63d79c, #188653 55%, #0b4d2d);
+  --mat-blue:   linear-gradient(160deg, #70bfff, #2479c7 55%, #104678);
+  --mat-cyan:   linear-gradient(160deg, #69d9e5, #168c9b 55%, #07525c);
+  --mat-purple: linear-gradient(160deg, #c096f3, #7d4db6 55%, #482773);
+  --mat-orange: linear-gradient(160deg, #ffb267, #df701d 55%, #8b3807);
+  --mat-gold:   linear-gradient(160deg, #ffe077, #d69a19 55%, #875806);
+  --mat-indigo: linear-gradient(160deg, #9cafff, #536bc4 55%, #2d397d);
 
   --radius:   14px;
   --radius-s: 10px;
@@ -98,6 +119,10 @@ a { color: inherit; text-decoration: none; }
     --ink: #f6f6f8; --ink-soft: #b6b6c0; --ink-mute: #85858f;
     --accent: #ff4757; --accent-lo: #a3101f; --accent-hi: #ff8892;
     --accent-rgb: 255, 71, 87;
+    --menu-red: #ff5968; --menu-red-deep: #d43b4c;
+    --menu-graphite: #c2c2ca; --menu-steel: #9c9ca8; --menu-red-muted: #e07b86;
+    --menu-green: #63d79c; --menu-blue: #70bfff; --menu-cyan: #69d9e5;
+    --menu-purple: #c9a7f5; --menu-orange: #ffad60; --menu-gold: #ffda67; --menu-indigo: #a7b7ff;
     --hi-strong: rgba(255,255,255,.15);
     --hi-soft:   rgba(255,255,255,.07);
     --lo-soft:   rgba(0,0,0,.5);
@@ -126,6 +151,10 @@ a { color: inherit; text-decoration: none; }
   --ink: #f6f6f8; --ink-soft: #b6b6c0; --ink-mute: #85858f;
   --accent: #ff4757; --accent-lo: #a3101f; --accent-hi: #ff8892;
   --accent-rgb: 255, 71, 87;
+  --menu-red: #ff5968; --menu-red-deep: #d43b4c;
+  --menu-graphite: #c2c2ca; --menu-steel: #9c9ca8; --menu-red-muted: #e07b86;
+  --menu-green: #63d79c; --menu-blue: #70bfff; --menu-cyan: #69d9e5;
+  --menu-purple: #c9a7f5; --menu-orange: #ffad60; --menu-gold: #ffda67; --menu-indigo: #a7b7ff;
   --hi-strong: rgba(255,255,255,.15);
   --hi-soft:   rgba(255,255,255,.07);
   --lo-soft:   rgba(0,0,0,.5);
@@ -287,16 +316,16 @@ body::after {
 }
 .nav__link:hover {
   color: var(--ink);
-  background: linear-gradient(180deg, rgba(255,255,255,.6), rgba(255,255,255,.12));
-  border-color: rgba(255,255,255,.5);
-  box-shadow: 0 1px 2px rgba(0,0,0,.14), inset 0 1px 0 rgba(255,255,255,.8);
+  background: linear-gradient(180deg, var(--panel-a), var(--panel-b));
+  border-color: var(--panel-edge);
+  box-shadow: 0 1px 2px rgba(0,0,0,.14), inset 0 1px 0 var(--hi-strong);
 }
 .nav__link:active { transform: translateY(1px); }
 .nav__link.is-active {
-  color: var(--ink);
-  background: linear-gradient(180deg, rgba(0,0,0,.10), rgba(255,255,255,.28));
-  border-color: rgba(0,0,0,.18);
-  box-shadow: var(--sh-press);
+  color: #fff;
+  background: linear-gradient(180deg, var(--accent-hi), var(--accent) 55%, var(--accent-lo));
+  border-color: var(--accent-lo);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.38), 0 2px 5px rgba(0,0,0,.28);
 }
 .nav__link.is-active::after {
   content: "";
@@ -586,11 +615,13 @@ main { padding-bottom: 3.5rem; }
 
 /* ------------------------------------------------------- 9. TILE TAUTAN */
 .tile {
+  --tile-accent: var(--menu-red);
   position: relative;
   display: flex; align-items: center; gap: .8rem;
   padding: .9rem 2.3rem .9rem .9rem;
   border-radius: var(--radius);
   border: 1px solid var(--panel-edge);
+  border-left: 4px solid var(--tile-accent);
   background: linear-gradient(180deg, var(--panel-a) 0%, var(--panel-b) 100%);
   box-shadow: var(--sh-raised);
   transition: transform .16s cubic-bezier(.2,.7,.3,1), box-shadow .16s, border-color .16s;
@@ -609,12 +640,12 @@ main { padding-bottom: 3.5rem; }
 }
 .tile:hover {
   transform: translateY(-3px);
-  border-color: var(--accent);
+  border-color: var(--tile-accent);
   box-shadow:
     inset 0 1px 0 var(--hi-strong),
     0 2px 3px rgba(40,33,24,.2),
-    0 14px 26px -8px rgba(40,33,24,.32),
-    0 0 0 3px rgba(var(--accent-rgb), .18);
+    0 14px 26px -8px rgba(var(--tile-rgb, var(--accent-rgb)), .28),
+    0 0 0 3px rgba(var(--tile-rgb, var(--accent-rgb)), .20);
 }
 .tile:active { transform: translateY(1px) scale(.995); box-shadow: var(--sh-press); }
 .tile:focus-visible { outline: 3px solid var(--accent-hi); outline-offset: 3px; }
@@ -628,31 +659,32 @@ main { padding-bottom: 3.5rem; }
     inset 0 1px 0 rgba(255,255,255,.55),
     inset 0 -2px 4px rgba(0,0,0,.35),
     0 2px 4px rgba(0,0,0,.28);
+  transition: transform .18s cubic-bezier(.2,.8,.3,1), filter .18s;
 }
+.tile:hover .tile__icon { transform: translateY(-1px) rotate(-2deg) scale(1.06); filter: saturate(1.1) brightness(1.04); }
 .tile__icon svg { width: 19px; height: 19px; filter: drop-shadow(0 1px 1px rgba(0,0,0,.35)); }
-/* Delapan kombinasi material + warna guratan, tetap dalam merah-hitam-putih.
-   Jenis dibedakan lewat bahan plat dan kontras guratan, bukan lewat rona. */
-.t-sheets   .tile__icon { background: var(--mat-red);    color: #fff; }
-.t-drive    .tile__icon { background: var(--mat-black);  color: #ff5964; }
-.t-onedrive .tile__icon { background: var(--mat-steel);  color: #17171c; }
-.t-form     .tile__icon { background: var(--mat-white);  color: #c8102e; }
-.t-script   .tile__icon { background: var(--mat-red-dk); color: #fff; }
-.t-slides   .tile__icon { background: var(--mat-black);  color: #fff; }
-.t-site     .tile__icon { background: var(--mat-steel);  color: #c8102e; }
-.t-folder   .tile__icon { background: var(--mat-red-dk); color: #ffd2d6; }
+/* Warna semantik: jenis layanan langsung terbaca tanpa kehilangan efek enamel. */
+.t-sheets   .tile__icon { background: var(--mat-green);  color: #fff; }
+.t-drive    .tile__icon { background: var(--mat-indigo); color: #fff; }
+.t-onedrive .tile__icon { background: var(--mat-blue);   color: #fff; }
+.t-form     .tile__icon { background: var(--mat-purple); color: #fff; }
+.t-script   .tile__icon { background: var(--mat-orange); color: #fff; }
+.t-slides   .tile__icon { background: var(--mat-gold);   color: #2d2100; }
+.t-site     .tile__icon { background: var(--mat-cyan);   color: #fff; }
+.t-folder   .tile__icon { background: var(--mat-indigo); color: #fff; }
 
-/* Plat terang perlu bayangan guratan yang berlawanan agar tetap terbaca */
-.t-onedrive .tile__icon svg,
-.t-form     .tile__icon svg,
-.t-site     .tile__icon svg { filter: drop-shadow(0 1px 1px rgba(255,255,255,.7)); }
-.t-onedrive .tile__icon,
-.t-form     .tile__icon,
-.t-site     .tile__icon {
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.85),
-    inset 0 -2px 4px rgba(40,40,52,.45),
-    0 2px 4px rgba(15,15,22,.32);
-}
+/* Aksen sisi dan teks tipe memakai keluarga warna yang sama dengan plat ikon. */
+.tile.t-sheets   { --tile-accent: var(--menu-green);  --tile-rgb: 24, 121, 78; }
+.tile.t-drive    { --tile-accent: var(--menu-indigo); --tile-rgb: 75, 95, 168; }
+.tile.t-onedrive { --tile-accent: var(--menu-blue);   --tile-rgb: 28, 111, 184; }
+.tile.t-form     { --tile-accent: var(--menu-purple); --tile-rgb: 112, 72, 168; }
+.tile.t-script   { --tile-accent: var(--menu-orange); --tile-rgb: 184, 86, 10; }
+.tile.t-slides   { --tile-accent: var(--menu-gold);   --tile-rgb: 138, 97, 9; }
+.tile.t-site     { --tile-accent: var(--menu-cyan);   --tile-rgb: 17, 127, 140; }
+.tile.t-folder   { --tile-accent: var(--menu-indigo); --tile-rgb: 75, 95, 168; }
+
+/* Plat emas perlu bayangan guratan yang berlawanan agar tetap terbaca. */
+.t-slides .tile__icon svg { filter: drop-shadow(0 1px 1px rgba(255,255,255,.55)); }
 
 .tile__body { display: block; min-width: 0; }
 .tile__label {
@@ -664,7 +696,8 @@ main { padding-bottom: 3.5rem; }
   display: block;
   margin-top: .18rem;
   font-size: .64rem; letter-spacing: .14em; text-transform: uppercase;
-  color: var(--ink-mute);
+  color: var(--tile-accent);
+  font-weight: 700;
 }
 .tile.is-unset .tile__meta { color: #9c5560; }
 :root[data-theme="dark"] .tile.is-unset .tile__meta { color: #ad787e; }
@@ -689,14 +722,20 @@ main { padding-bottom: 3.5rem; }
 .tile__pin:active { transform: translateY(1px); }
 .tile__pin.is-on { color: var(--accent); }
 .tile__pin svg { width: 14px; height: 14px; }
+@media (hover: none) { .tile__pin { opacity: .72; } }
 
 /* Kartu departemen (beranda) */
 .dept {
+  --dept-accent: var(--accent);
+  --dept-hi: var(--accent-hi);
+  --dept-lo: var(--accent-lo);
+  --dept-rgb: var(--accent-rgb);
   position: relative;
   display: block;
   padding: 1.4rem 1.4rem 1.25rem;
   border-radius: var(--radius-l);
   border: 1px solid var(--panel-edge);
+  border-top: 4px solid var(--dept-accent);
   background: linear-gradient(180deg, var(--panel-a), var(--panel-b));
   box-shadow: var(--sh-raised);
   overflow: hidden;
@@ -715,12 +754,12 @@ main { padding-bottom: 3.5rem; }
 }
 .dept:hover {
   transform: translateY(-5px);
-  border-color: var(--accent);
+  border-color: var(--dept-accent);
   box-shadow:
     inset 0 1px 0 var(--hi-strong),
     0 4px 6px rgba(40,33,24,.18),
     0 24px 40px -14px rgba(40,33,24,.4),
-    0 0 0 3px rgba(var(--accent-rgb), .18);
+    0 0 0 3px rgba(var(--dept-rgb), .18);
 }
 .dept:active { transform: translateY(-1px) scale(.995); }
 .dept__badge {
@@ -729,14 +768,16 @@ main { padding-bottom: 3.5rem; }
   display: grid; place-items: center;
   font-family: var(--font-dis); font-weight: 800; font-size: .92rem; letter-spacing: .04em;
   color: #fff;
-  background: linear-gradient(160deg, var(--seal-a), var(--seal-b) 48%, var(--seal-c));
+  background: linear-gradient(160deg, var(--dept-hi), var(--dept-accent) 48%, var(--dept-lo));
   text-shadow: 0 1px 1px rgba(70,4,12,.75);
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.75),
     inset 0 -3px 6px rgba(70,4,12,.6),
     0 3px 5px rgba(20,4,8,.35),
     0 10px 18px -8px rgba(20,4,8,.55);
+  transition: transform .2s cubic-bezier(.2,.8,.3,1), filter .2s;
 }
+.dept:hover .dept__badge { transform: rotate(-3deg) scale(1.06); filter: saturate(1.08) brightness(1.03); }
 .dept__name {
   display: block; position: relative;
   margin-top: 1rem;
@@ -753,10 +794,16 @@ main { padding-bottom: 3.5rem; }
   margin-top: 1rem;
   display: inline-flex; align-items: center; gap: .45rem;
   font-size: .7rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase;
-  color: var(--accent);
+  color: var(--dept-accent);
 }
 .dept__go svg { width: 14px; height: 14px; transition: transform .2s; }
 .dept:hover .dept__go svg { transform: translateX(4px); }
+.dept--marketing  { --dept-accent: #d43a72; --dept-hi: #f07aa4; --dept-lo: #86163f; --dept-rgb: 212, 58, 114; }
+.dept--ppic       { --dept-accent: #2479c7; --dept-hi: #70bfff; --dept-lo: #104678; --dept-rgb: 36, 121, 199; }
+.dept--purchasing { --dept-accent: #d07018; --dept-hi: #ffb267; --dept-lo: #7d3908; --dept-rgb: 208, 112, 24; }
+.dept--produksi   { --dept-accent: #188653; --dept-hi: #63d79c; --dept-lo: #0b4d2d; --dept-rgb: 24, 134, 83; }
+.dept--finance    { --dept-accent: #7d4db6; --dept-hi: #c096f3; --dept-lo: #482773; --dept-rgb: 125, 77, 182; }
+.dept--bantuan    { --dept-accent: #168c9b; --dept-hi: #69d9e5; --dept-lo: #07525c; --dept-rgb: 22, 140, 155; }
 .dept__count {
   position: absolute; top: 1.4rem; right: 1.3rem;
   font-family: var(--font-mono); font-size: .66rem;

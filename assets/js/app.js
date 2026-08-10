@@ -633,7 +633,7 @@
     var grid = el("div", "grid grid--dept");
     SITE.pages.beranda.departments.forEach(function (d) {
       var n = pageItems(d.id).length;
-      var a = el("a", "dept");
+      var a = el("a", "dept dept--" + d.id);
       a.href = link(d.path);
       a.dataset.label = String(d.label).toLowerCase() + " " + String(d.desc).toLowerCase();
       a.innerHTML =

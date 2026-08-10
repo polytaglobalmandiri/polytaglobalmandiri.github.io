@@ -550,7 +550,12 @@
   }
 
   function buildItem(section, it, ii) {
-    var wrap = el("div", "item");
+    var wrap = el("div", "item item--" + (it.type || "folder"));
+
+    function paintItemTheme() {
+      TYPES.forEach(function (t) { wrap.classList.remove("item--" + t.id); });
+      wrap.classList.add("item--" + (it.type || "folder"));
+    }
 
     var top = el("div", "item__top");
     top.appendChild(el("span", "item__no", String(ii + 1)));
@@ -587,7 +592,7 @@
     g.appendChild(fieldText("URL", it.url || "", function (v) { it.url = v.trim(); touch(); },
       it.url ? "" : "Kosong berarti tampil sebagai “URL belum diatur”.", "https://…"));
     g.appendChild(fieldSelect("Tersimpan di", TYPES, it.type || "folder", function (v) {
-      it.type = v; paintPick(); touch();
+      it.type = v; paintPick(); paintItemTheme(); touch();
     }));
     wrap.appendChild(g);
 

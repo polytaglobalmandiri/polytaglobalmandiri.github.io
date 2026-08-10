@@ -107,6 +107,27 @@ Lalu buka <http://localhost:5500>.
 
 ---
 
+## Panel Administrator
+
+Buka `/admin/` pada alamat situs, misalnya <http://localhost:5500/admin/> ketika
+menjalankan portal secara lokal. Panel ini dapat digunakan untuk:
+
+- menambah, menghapus, menggandakan, dan mengurutkan tautan;
+- menambah, menghapus, dan mengurutkan seksi menu;
+- mengubah nama, URL, jenis penyimpanan, dan ikon setiap tautan;
+- mengubah teks umum situs dan label navigasi;
+- menyimpan draf otomatis pada perangkat;
+- mengunduh atau menyalin hasil sebagai `assets/js/data.js`;
+- menerbitkan perubahan langsung ke GitHub dengan personal access token.
+
+Portal ini merupakan situs statis, sehingga panel administrator tidak memakai akun
+atau basis data tersendiri. Orang tanpa izin GitHub dapat membuka editor dan membuat
+draf di perangkatnya, tetapi tidak dapat mengubah situs yang tayang. Penerbitan langsung
+memerlukan fine-grained token GitHub dengan izin **Contents: Read and write** yang
+dibatasi hanya untuk repositori portal.
+
+---
+
 ## Fitur
 
 - **Tema terang / gelap** lewat sakelar fisik di kanan atas; pilihan tersimpan di perangkat

@@ -794,9 +794,17 @@
     }, { passive: true });
   }
 
+  /* Dibuka agar halaman administrator dapat memakai ulang pustaka ikon
+     dan label tipe tanpa menyalinnya. */
+  window.PGM = { ICON: ICON, TYPE_LABEL: TYPE_LABEL };
+
   /* ------------------------------------------------------------ Boot */
   function init() {
-    var pageId = document.body.dataset.page || "beranda";
+    /* Halaman tanpa atribut data-page — misalnya halaman administrator —
+       hanya meminjam pustaka ikon di atas; tidak ada yang perlu dirender. */
+    var pageId = document.body.dataset.page;
+    if (!pageId) return;
+
     var page = SITE.pages[pageId];
     if (!page) return;
 

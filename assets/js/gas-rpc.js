@@ -39,7 +39,7 @@
 
       function receiveMessage(event) {
         var data = event.data;
-        if (settled || event.source !== iframe.contentWindow || !data ||
+        if (settled || !data ||
             data.source !== "polyta-spk-gas-rpc" || data.requestId !== requestId) return;
 
         settled = true;

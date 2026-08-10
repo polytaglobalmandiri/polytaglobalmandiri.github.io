@@ -47,13 +47,6 @@ a { color: inherit; text-decoration: none; }
   --menu-graphite:  #3d3d46;
   --menu-steel:     #72727e;
   --menu-red-muted: #a13b4d;
-  --menu-green:     #18794e;
-  --menu-blue:      #1c6fb8;
-  --menu-cyan:      #117f8c;
-  --menu-purple:    #7048a8;
-  --menu-orange:    #b8560a;
-  --menu-gold:      #8a6109;
-  --menu-indigo:    #4b5fa8;
 
   /* Enamel merah (lencana, plat merek) */
   --seal-a: #ff9aa2;
@@ -90,13 +83,6 @@ a { color: inherit; text-decoration: none; }
   --mat-black:  linear-gradient(160deg, #5c5c66, #232328 55%, #0d0d10);
   --mat-steel:  linear-gradient(160deg, #dcdce4, #9a9aa7 55%, #5a5a66);
   --mat-white:  linear-gradient(160deg, #f4f4f8, #cdcdd6 55%, #85858f);
-  --mat-green:  linear-gradient(160deg, #63d79c, #188653 55%, #0b4d2d);
-  --mat-blue:   linear-gradient(160deg, #70bfff, #2479c7 55%, #104678);
-  --mat-cyan:   linear-gradient(160deg, #69d9e5, #168c9b 55%, #07525c);
-  --mat-purple: linear-gradient(160deg, #c096f3, #7d4db6 55%, #482773);
-  --mat-orange: linear-gradient(160deg, #ffb267, #df701d 55%, #8b3807);
-  --mat-gold:   linear-gradient(160deg, #ffe077, #d69a19 55%, #875806);
-  --mat-indigo: linear-gradient(160deg, #9cafff, #536bc4 55%, #2d397d);
 
   --radius:   14px;
   --radius-s: 10px;
@@ -121,8 +107,6 @@ a { color: inherit; text-decoration: none; }
     --accent-rgb: 255, 71, 87;
     --menu-red: #ff5968; --menu-red-deep: #d43b4c;
     --menu-graphite: #c2c2ca; --menu-steel: #9c9ca8; --menu-red-muted: #e07b86;
-    --menu-green: #63d79c; --menu-blue: #70bfff; --menu-cyan: #69d9e5;
-    --menu-purple: #c9a7f5; --menu-orange: #ffad60; --menu-gold: #ffda67; --menu-indigo: #a7b7ff;
     --hi-strong: rgba(255,255,255,.15);
     --hi-soft:   rgba(255,255,255,.07);
     --lo-soft:   rgba(0,0,0,.5);
@@ -153,8 +137,6 @@ a { color: inherit; text-decoration: none; }
   --accent-rgb: 255, 71, 87;
   --menu-red: #ff5968; --menu-red-deep: #d43b4c;
   --menu-graphite: #c2c2ca; --menu-steel: #9c9ca8; --menu-red-muted: #e07b86;
-  --menu-green: #63d79c; --menu-blue: #70bfff; --menu-cyan: #69d9e5;
-  --menu-purple: #c9a7f5; --menu-orange: #ffad60; --menu-gold: #ffda67; --menu-indigo: #a7b7ff;
   --hi-strong: rgba(255,255,255,.15);
   --hi-soft:   rgba(255,255,255,.07);
   --lo-soft:   rgba(0,0,0,.5);
@@ -663,28 +645,35 @@ main { padding-bottom: 3.5rem; }
 }
 .tile:hover .tile__icon { transform: translateY(-1px) rotate(-2deg) scale(1.06); filter: saturate(1.1) brightness(1.04); }
 .tile__icon svg { width: 19px; height: 19px; filter: drop-shadow(0 1px 1px rgba(0,0,0,.35)); }
-/* Warna semantik: jenis layanan langsung terbaca tanpa kehilangan efek enamel. */
-.t-sheets   .tile__icon { background: var(--mat-green);  color: #fff; }
-.t-drive    .tile__icon { background: var(--mat-indigo); color: #fff; }
-.t-onedrive .tile__icon { background: var(--mat-blue);   color: #fff; }
-.t-form     .tile__icon { background: var(--mat-purple); color: #fff; }
-.t-script   .tile__icon { background: var(--mat-orange); color: #fff; }
-.t-slides   .tile__icon { background: var(--mat-gold);   color: #2d2100; }
-.t-site     .tile__icon { background: var(--mat-cyan);   color: #fff; }
-.t-folder   .tile__icon { background: var(--mat-indigo); color: #fff; }
+/* Palet ikon ringkas: merah, arang, putih, dan baja seperti tema awal. */
+.t-sheets   .tile__icon { background: var(--mat-red);    color: #fff; }
+.t-drive    .tile__icon { background: var(--mat-black);  color: #ff5964; }
+.t-onedrive .tile__icon { background: var(--mat-steel);  color: #17171c; }
+.t-form     .tile__icon { background: var(--mat-white);  color: #c8102e; }
+.t-script   .tile__icon { background: var(--mat-red-dk); color: #fff; }
+.t-slides   .tile__icon { background: var(--mat-black);  color: #fff; }
+.t-site     .tile__icon { background: var(--mat-steel);  color: #c8102e; }
+.t-folder   .tile__icon { background: var(--mat-red-dk); color: #ffd2d6; }
 
 /* Aksen sisi dan teks tipe memakai keluarga warna yang sama dengan plat ikon. */
-.tile.t-sheets   { --tile-accent: var(--menu-green);  --tile-rgb: 24, 121, 78; }
-.tile.t-drive    { --tile-accent: var(--menu-indigo); --tile-rgb: 75, 95, 168; }
-.tile.t-onedrive { --tile-accent: var(--menu-blue);   --tile-rgb: 28, 111, 184; }
-.tile.t-form     { --tile-accent: var(--menu-purple); --tile-rgb: 112, 72, 168; }
-.tile.t-script   { --tile-accent: var(--menu-orange); --tile-rgb: 184, 86, 10; }
-.tile.t-slides   { --tile-accent: var(--menu-gold);   --tile-rgb: 138, 97, 9; }
-.tile.t-site     { --tile-accent: var(--menu-cyan);   --tile-rgb: 17, 127, 140; }
-.tile.t-folder   { --tile-accent: var(--menu-indigo); --tile-rgb: 75, 95, 168; }
+.tile.t-sheets   { --tile-accent: var(--menu-red);       --tile-rgb: 200, 16, 46; }
+.tile.t-drive    { --tile-accent: var(--menu-graphite);  --tile-rgb: 61, 61, 70; }
+.tile.t-onedrive { --tile-accent: var(--menu-steel);     --tile-rgb: 114, 114, 126; }
+.tile.t-form     { --tile-accent: var(--menu-red-muted); --tile-rgb: 161, 59, 77; }
+.tile.t-script   { --tile-accent: var(--menu-red-deep);  --tile-rgb: 134, 16, 38; }
+.tile.t-slides   { --tile-accent: var(--menu-graphite);  --tile-rgb: 61, 61, 70; }
+.tile.t-site     { --tile-accent: var(--menu-steel);     --tile-rgb: 114, 114, 126; }
+.tile.t-folder   { --tile-accent: var(--menu-red-deep);  --tile-rgb: 134, 16, 38; }
 
-/* Plat emas perlu bayangan guratan yang berlawanan agar tetap terbaca. */
-.t-slides .tile__icon svg { filter: drop-shadow(0 1px 1px rgba(255,255,255,.55)); }
+/* Plat terang perlu bayangan guratan yang berlawanan agar tetap terbaca. */
+.t-onedrive .tile__icon svg,
+.t-form     .tile__icon svg,
+.t-site     .tile__icon svg { filter: drop-shadow(0 1px 1px rgba(255,255,255,.7)); }
+.t-onedrive .tile__icon,
+.t-form     .tile__icon,
+.t-site     .tile__icon {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.85), inset 0 -2px 4px rgba(40,40,52,.45), 0 2px 4px rgba(15,15,22,.32);
+}
 
 .tile__body { display: block; min-width: 0; }
 .tile__label {

@@ -162,7 +162,7 @@ select.inp { cursor: pointer; }
 
 /* ----------------------------------------------------------- 7. ITEM */
 .item {
-  --item-accent: var(--menu-indigo);
+  --item-accent: var(--menu-red-deep);
   display: grid; gap: .6rem;
   padding: .7rem;
   margin-bottom: .6rem;
@@ -178,14 +178,14 @@ select.inp { cursor: pointer; }
   background: linear-gradient(180deg, rgba(255,255,255,.2), rgba(0,0,0,.04));
   box-shadow: inset 0 1px 0 var(--hi-strong), 0 0 0 3px rgba(var(--accent-rgb), .10);
 }
-.item--sheets   { --item-accent: var(--menu-green); }
-.item--drive    { --item-accent: var(--menu-indigo); }
-.item--onedrive { --item-accent: var(--menu-blue); }
-.item--form     { --item-accent: var(--menu-purple); }
-.item--script   { --item-accent: var(--menu-orange); }
-.item--slides   { --item-accent: var(--menu-gold); }
-.item--site     { --item-accent: var(--menu-cyan); }
-.item--folder   { --item-accent: var(--menu-indigo); }
+.item--sheets   { --item-accent: var(--menu-red); }
+.item--drive    { --item-accent: var(--menu-graphite); }
+.item--onedrive { --item-accent: var(--menu-steel); }
+.item--form     { --item-accent: var(--menu-red-muted); }
+.item--script   { --item-accent: var(--menu-red-deep); }
+.item--slides   { --item-accent: var(--menu-graphite); }
+.item--site     { --item-accent: var(--menu-steel); }
+.item--folder   { --item-accent: var(--menu-red-deep); }
 .item:last-child { margin-bottom: 0; }
 .item__top { display: flex; align-items: center; gap: .6rem; }
 .item__no { font-family: var(--font-mono); font-size: .7rem; color: var(--ink-mute); min-width: 1.6rem; }
@@ -211,15 +211,15 @@ select.inp { cursor: pointer; }
 }
 .pick__sw svg { width: 15px; height: 15px; }
 
-/* Bahan dan warna mengikuti tipe yang sama dengan kartu di situs. */
-.pick__sw.t-sheets   { background: var(--mat-green);  color: #fff; }
-.pick__sw.t-drive    { background: var(--mat-indigo); color: #fff; }
-.pick__sw.t-onedrive { background: var(--mat-blue);   color: #fff; }
-.pick__sw.t-form     { background: var(--mat-purple); color: #fff; }
-.pick__sw.t-script   { background: var(--mat-orange); color: #fff; }
-.pick__sw.t-slides   { background: var(--mat-gold);   color: #2d2100; }
-.pick__sw.t-site     { background: var(--mat-cyan);   color: #fff; }
-.pick__sw.t-folder   { background: var(--mat-indigo); color: #fff; }
+/* Bahan dan warna mengikuti palet ikon ringkas di situs. */
+.pick__sw.t-sheets   { background: var(--mat-red);    color: #fff; }
+.pick__sw.t-drive    { background: var(--mat-black);  color: #ff5964; }
+.pick__sw.t-onedrive { background: var(--mat-steel);  color: #17171c; }
+.pick__sw.t-form     { background: var(--mat-white);  color: #c8102e; }
+.pick__sw.t-script   { background: var(--mat-red-dk); color: #fff; }
+.pick__sw.t-slides   { background: var(--mat-black);  color: #fff; }
+.pick__sw.t-site     { background: var(--mat-steel);  color: #c8102e; }
+.pick__sw.t-folder   { background: var(--mat-red-dk); color: #ffd2d6; }
 
 /* Petak pemilih ikon */
 .pop {

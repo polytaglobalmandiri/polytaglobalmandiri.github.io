@@ -98,6 +98,10 @@ Lalu buka <http://localhost:5500>.
 
 ## Publikasi ke GitHub
 
+> 📘 Panduan lengkap beserta pemecahan masalah tersedia di
+> **[PANDUAN-GITHUB.md](PANDUAN-GITHUB.md)** — termasuk pengaturan identitas git,
+> autentikasi token, dan penanganan konflik saat push pertama.
+
 Repositori lokal sudah diinisialisasi dan commit pertama sudah dibuat.
 Langkah berikutnya:
 

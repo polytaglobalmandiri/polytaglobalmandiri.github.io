@@ -282,6 +282,10 @@ const SITE = {
         {
           q: "Apa fungsi tombol pin pada setiap tautan?",
           a: "Tombol pin menyimpan tautan favorit Anda ke bagian Akses Cepat di halaman Beranda. Data pin tersimpan di perangkat Anda sendiri dan tidak dibagikan."
+        },
+        {
+          q: "Adakah pintasan papan ketik untuk mempercepat pencarian?",
+          a: "Ada. Tekan tombol garis miring <b>/</b> di mana saja pada halaman untuk langsung melompat ke kolom pencarian, tanpa perlu mengarahkan tetikus. Tekan <b>Esc</b> untuk mengosongkan kolom dan keluar darinya."
         }
       ]
     }

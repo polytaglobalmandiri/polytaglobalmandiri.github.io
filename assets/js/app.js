@@ -46,7 +46,7 @@
   /* Berkas aset dirujuk apa adanya — tanpa penambahan index.html */
   function asset(path) { return ROOT + path; }
 
-  var LOGO = "assets/img/logo-3d.svg";
+  var LOGO = "assets/img/logo-polyta.png";
 
   var store = {
     get: function (k, fb) {
@@ -510,11 +510,15 @@
   function buildConsole(scopeLabel) {
     var wrap = el("div", "wrap");
     var box = el("div", "console reveal");
+    /* Pintasan "/" tetap berfungsi, tetapi tidak lagi ditampilkan sebagai
+       lencana di dalam kolom. Petunjuknya dipindah ke atribut title agar
+       tetap dapat ditemukan tanpa mengotori tampilan. */
     box.innerHTML =
       '<label class="field">' +
         ICON.search +
-        '<input type="search" id="q" autocomplete="off" placeholder="Cari ' + esc(scopeLabel) + '&hellip;" aria-label="Cari tautan">' +
-        "<kbd>/</kbd>" +
+        '<input type="search" id="q" autocomplete="off"' +
+        ' placeholder="Cari ' + esc(scopeLabel) + '&hellip;"' +
+        ' aria-label="Cari tautan" title="Tekan / untuk melompat ke kolom pencarian">' +
       "</label>" +
       '<span class="console__count" id="qcount"></span>';
     wrap.appendChild(box);

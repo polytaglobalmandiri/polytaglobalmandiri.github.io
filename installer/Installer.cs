@@ -7,19 +7,37 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Microsoft.Win32;
 
+#if ADMIN
+[assembly: AssemblyTitle("POLYTA GLOBAL MANDIRI Administrator Installer")]
+[assembly: AssemblyDescription("Installer panel administrator POLYTA GLOBAL MANDIRI")]
+[assembly: AssemblyProduct("POLYTA GLOBAL MANDIRI Administrator")]
+#else
 [assembly: AssemblyTitle("POLYTA GLOBAL MANDIRI Portal Installer")]
 [assembly: AssemblyDescription("Installer portal internal POLYTA GLOBAL MANDIRI")]
-[assembly: AssemblyCompany("POLYTA GLOBAL MANDIRI")]
 [assembly: AssemblyProduct("POLYTA GLOBAL MANDIRI Portal")]
+#endif
+[assembly: AssemblyCompany("POLYTA GLOBAL MANDIRI")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
 internal static class Installer
 {
-    private const string AppName = "POLYTA GLOBAL MANDIRI Portal";
     private const string Publisher = "POLYTA GLOBAL MANDIRI";
+#if ADMIN
+    private const string AppName = "POLYTA GLOBAL MANDIRI Administrator";
+    private const string PortalUrl = "https://polytaglobalmandiri.github.io/admin/";
+    private const string UninstallKeyName = @"Software\Microsoft\Windows\CurrentVersion\Uninstall\PolytaGlobalMandiriAdministrator";
+    private const string InstallFolderName = "Polyta Global Mandiri Admin";
+    private const string InstalledExecutableName = "Polyta Administrator.exe";
+    private const string ShortcutDescription = "Buka panel administrator POLYTA GLOBAL MANDIRI";
+#else
+    private const string AppName = "POLYTA GLOBAL MANDIRI Portal";
     private const string PortalUrl = "https://polytaglobalmandiri.github.io/";
     private const string UninstallKeyName = @"Software\Microsoft\Windows\CurrentVersion\Uninstall\PolytaGlobalMandiriPortal";
+    private const string InstallFolderName = "Polyta Global Mandiri";
+    private const string InstalledExecutableName = "Polyta Portal.exe";
+    private const string ShortcutDescription = "Buka portal internal POLYTA GLOBAL MANDIRI";
+#endif
 
     [STAThread]
     private static int Main(string[] args)
@@ -75,7 +93,7 @@ internal static class Installer
         if (testMode)
         {
             string root = Path.GetFullPath(testRoot);
-            installDirectory = Path.Combine(root, "Programs", "Polyta Global Mandiri");
+            installDirectory = Path.Combine(root, "Programs", InstallFolderName);
             desktopDirectory = Path.Combine(root, "Desktop");
             startMenuDirectory = Path.Combine(root, "Start Menu", "Programs", Publisher);
         }
@@ -93,7 +111,7 @@ internal static class Installer
         Directory.CreateDirectory(desktopDirectory);
         Directory.CreateDirectory(startMenuDirectory);
 
-        string installedExecutable = Path.Combine(installDirectory, "Polyta Portal.exe");
+        string installedExecutable = Path.Combine(installDirectory, InstalledExecutableName);
         string currentExecutable = Assembly.GetExecutingAssembly().Location;
         if (!String.Equals(currentExecutable, installedExecutable, StringComparison.OrdinalIgnoreCase))
         {
@@ -110,7 +128,7 @@ internal static class Installer
         {
             RegisterUninstaller(installedExecutable);
             MessageBox.Show(
-                "Portal berhasil dipasang. Pintasan tersedia di Desktop dan Start Menu.",
+                AppName + " berhasil dipasang. Pintasan tersedia di Desktop dan Start Menu.",
                 AppName,
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
@@ -135,7 +153,7 @@ internal static class Installer
         string expectedDirectory = Path.GetFullPath(Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "Programs",
-            "Polyta Global Mandiri"));
+            InstallFolderName));
 
         if (!String.Equals(Path.GetFullPath(installDirectory), expectedDirectory, StringComparison.OrdinalIgnoreCase))
         {
@@ -151,9 +169,11 @@ internal static class Installer
             Publisher);
 
         DeleteFileIfPresent(desktopShortcut);
-        if (Directory.Exists(startMenuDirectory))
+        string startMenuShortcut = Path.Combine(startMenuDirectory, AppName + ".lnk");
+        DeleteFileIfPresent(startMenuShortcut);
+        if (Directory.Exists(startMenuDirectory) && Directory.GetFileSystemEntries(startMenuDirectory).Length == 0)
         {
-            Directory.Delete(startMenuDirectory, true);
+            Directory.Delete(startMenuDirectory);
         }
 
         Registry.CurrentUser.DeleteSubKeyTree(UninstallKeyName, false);
@@ -169,7 +189,7 @@ internal static class Installer
         });
 
         MessageBox.Show(
-            "Portal telah dihapus dari komputer ini.",
+            AppName + " telah dihapus dari komputer ini.",
             "Uninstall selesai",
             MessageBoxButtons.OK,
             MessageBoxIcon.Information);
@@ -214,7 +234,7 @@ internal static class Installer
             shortcut.Arguments = target.Arguments;
             shortcut.WorkingDirectory = workingDirectory;
             shortcut.IconLocation = iconExecutable + ",0";
-            shortcut.Description = "Buka portal internal POLYTA GLOBAL MANDIRI";
+            shortcut.Description = ShortcutDescription;
             shortcut.Save();
             Marshal.FinalReleaseComObject(shortcut);
         }
@@ -249,7 +269,7 @@ internal static class Installer
         return Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "Programs",
-            "Polyta Global Mandiri");
+            InstallFolderName);
     }
 
     private static bool HasArgument(string[] args, string expected)

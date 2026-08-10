@@ -1,6 +1,11 @@
 # Installer Windows Portal POLYTA
 
-Installer mandiri ini membuat pintasan **POLYTA GLOBAL MANDIRI Portal** pada Desktop dan Start Menu. Portal dibuka seperti aplikasi melalui Microsoft Edge; jika Edge tidak tersedia, pintasan akan memakai browser bawaan Windows.
+Tersedia dua installer mandiri yang membuat pintasan pada Desktop dan Start Menu:
+
+- `Polyta-Portal-Setup.exe` membuka portal utama untuk pengguna.
+- `Polyta-Admin-Setup.exe` membuka panel administrator secara langsung.
+
+Keduanya dibuka seperti aplikasi melalui Microsoft Edge; jika Edge tidak tersedia, pintasan akan memakai browser bawaan Windows. Portal dan administrator dipasang serta dapat dihapus secara terpisah.
 
 ## Membangun installer
 
@@ -10,7 +15,7 @@ Jalankan dari PowerShell pada root repositori:
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\installer\build-installer.ps1
 ```
 
-Hasil build berada di `release\Polyta-Portal-Setup.exe`.
+Hasil build berada di `release\Polyta-Portal-Setup.exe` dan `release\Polyta-Admin-Setup.exe`.
 
 ## Perilaku instalasi
 

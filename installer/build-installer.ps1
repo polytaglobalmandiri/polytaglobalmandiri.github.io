@@ -6,7 +6,8 @@ $projectRoot = Split-Path -Parent $PSScriptRoot
 $temporaryRoot = [System.IO.Path]::GetFullPath([System.IO.Path]::GetTempPath())
 $buildDirectory = Join-Path $temporaryRoot 'PolytaInstallerBuild'
 $releaseDirectory = Join-Path $projectRoot 'release'
-$outputFile = Join-Path $releaseDirectory 'Polyta-Portal-Setup.exe'
+$portalOutputFile = Join-Path $releaseDirectory 'Polyta-Portal-Setup.exe'
+$adminOutputFile = Join-Path $releaseDirectory 'Polyta-Admin-Setup.exe'
 $logoFile = Join-Path $projectRoot 'assets\img\logo-polyta.png'
 $sourceFile = Join-Path $PSScriptRoot 'Installer.cs'
 $compilerCandidates = @(
@@ -70,32 +71,45 @@ try {
     $bitmap.Dispose()
 }
 
-if (Test-Path -LiteralPath $outputFile) {
-    Remove-Item -LiteralPath $outputFile -Force
+function Build-Installer {
+    param(
+        [Parameter(Mandatory)][string]$OutputFile,
+        [string]$Define
+    )
+
+    if (Test-Path -LiteralPath $OutputFile) {
+        Remove-Item -LiteralPath $OutputFile -Force
+    }
+
+    $compilerArguments = @(
+        '/nologo',
+        '/target:winexe',
+        '/optimize+',
+        ('/out:"{0}"' -f $OutputFile),
+        ('/win32icon:"{0}"' -f $iconFile),
+        '/reference:System.dll',
+        '/reference:System.Core.dll',
+        '/reference:System.Drawing.dll',
+        '/reference:System.Windows.Forms.dll',
+        '/reference:Microsoft.CSharp.dll'
+    )
+    if ($Define) {
+        $compilerArguments += ('/define:{0}' -f $Define)
+    }
+    $compilerArguments += ('"{0}"' -f $sourceFile)
+
+    $compilerOutput = & $compiler $compilerArguments 2>&1
+    if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $OutputFile)) {
+        $compilerOutput | ForEach-Object { Write-Error $_ }
+        throw "Build installer gagal. Exit code compiler: $LASTEXITCODE"
+    }
+
+    $artifact = Get-Item -LiteralPath $OutputFile
+    $hash = Get-FileHash -LiteralPath $OutputFile -Algorithm SHA256
+    Write-Host "Installer berhasil dibuat: $($artifact.FullName)"
+    Write-Host "Ukuran: $($artifact.Length) byte"
+    Write-Host "SHA-256: $($hash.Hash)"
 }
 
-$compilerArguments = @(
-    '/nologo',
-    '/target:winexe',
-    '/optimize+',
-    ('/out:"{0}"' -f $outputFile),
-    ('/win32icon:"{0}"' -f $iconFile),
-    '/reference:System.dll',
-    '/reference:System.Core.dll',
-    '/reference:System.Drawing.dll',
-    '/reference:System.Windows.Forms.dll',
-    '/reference:Microsoft.CSharp.dll',
-    ('"{0}"' -f $sourceFile)
-)
-
-$compilerOutput = & $compiler $compilerArguments 2>&1
-if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $outputFile)) {
-    $compilerOutput | ForEach-Object { Write-Error $_ }
-    throw "Build installer gagal. Exit code compiler: $LASTEXITCODE"
-}
-
-$artifact = Get-Item -LiteralPath $outputFile
-$hash = Get-FileHash -LiteralPath $outputFile -Algorithm SHA256
-Write-Host "Installer berhasil dibuat: $($artifact.FullName)"
-Write-Host "Ukuran: $($artifact.Length) byte"
-Write-Host "SHA-256: $($hash.Hash)"
+Build-Installer -OutputFile $portalOutputFile
+Build-Installer -OutputFile $adminOutputFile -Define 'ADMIN'

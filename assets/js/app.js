@@ -27,6 +27,22 @@
   /* Konten data.js sudah memuat entitas HTML yang disengaja (mis. &amp;) */
   function raw(s) { return s == null ? "" : String(s); }
 
+  /* ------------------------------------------------------------ Rute
+     Situs berbasis folder agar alamatnya bersih: /marketing/ bukan
+     /marketing.html. Beranda berada di akar, halaman lain satu tingkat
+     di bawahnya, sehingga awalan berbeda per halaman.
+
+     Saat dibuka langsung dari file:// (klik ganda, tanpa server), peramban
+     tidak mengenal index.html implisit — jadi nama berkasnya ditambahkan.
+     Di GitHub Pages hal itu tidak diperlukan dan alamat tetap rapi. */
+  var ROOT = "./";
+  var IS_FILE = location.protocol === "file:";
+
+  function link(path) {
+    var p = ROOT + (path || "");
+    return IS_FILE ? p + "index.html" : p;
+  }
+
   var store = {
     get: function (k, fb) {
       try { var v = localStorage.getItem(k); return v == null ? fb : JSON.parse(v); }
@@ -174,9 +190,8 @@
     var bar = el("header", "topbar");
     var inner = el("div", "wrap topbar__in");
 
-    var home = SITE.nav[0].file;
     var brand = el("a", "brand");
-    brand.href = home;
+    brand.href = link("");
     brand.innerHTML =
       '<span class="brand__plate">' + ICON.logo + "</span>" +
       '<span class="brand__txt">' +
@@ -191,7 +206,7 @@
     SITE.nav.forEach(function (n) {
       var li = el("li");
       var a = el("a", "nav__link" + (n.id === active ? " is-active" : ""), raw(n.label));
-      a.href = n.file;
+      a.href = link(n.path);
       if (n.id === active) a.setAttribute("aria-current", "page");
       li.appendChild(a);
       ul.appendChild(li);
@@ -312,9 +327,10 @@
   function buildTile(pageId, item) {
     var type = item.type || "folder";
     var id = pinId(pageId, item.label);
-    var hasUrl = !!item.url;
+    var isRefresh = item.url === "#refresh";
+    var hasUrl = !!item.url && !isRefresh;
 
-    var a = el("a", "tile t-" + type + (hasUrl ? "" : " is-unset"));
+    var a = el("a", "tile t-" + type + (hasUrl || isRefresh ? "" : " is-unset"));
     a.href = hasUrl ? item.url : "#";
     a.dataset.label = String(item.label).toLowerCase();
     a.dataset.pin = id;
@@ -326,7 +342,9 @@
       '<span class="tile__icon">' + (ICON[type] || ICON.folder) + "</span>" +
       '<span class="tile__body">' +
         '<span class="tile__label">' + raw(item.label) + "</span>" +
-        '<span class="tile__meta">' + (hasUrl ? esc(TYPE_LABEL[type] || "Tautan") : "URL belum diatur") + "</span>" +
+        '<span class="tile__meta">' +
+          (isRefresh ? "Muat ulang halaman" : hasUrl ? esc(TYPE_LABEL[type] || "Tautan") : "URL belum diatur") +
+        "</span>" +
       "</span>";
 
     var pin = el("button", "tile__pin" + (isPinned(id) ? " is-on" : ""), isPinned(id) ? ICON.pinOn : ICON.pin);
@@ -343,7 +361,12 @@
     });
     a.appendChild(pin);
 
-    if (!hasUrl) {
+    if (isRefresh) {
+      a.addEventListener("click", function (e) {
+        e.preventDefault();
+        location.reload();
+      });
+    } else if (!hasUrl) {
       a.addEventListener("click", function (e) {
         e.preventDefault();
         toast("Tautan “" + item.label + "” belum diatur di assets/js/data.js");
@@ -410,7 +433,7 @@
     SITE.pages.beranda.departments.forEach(function (d) {
       var n = pageItems(d.id).length;
       var a = el("a", "dept");
-      a.href = d.file;
+      a.href = link(d.path);
       a.dataset.label = String(d.label).toLowerCase() + " " + String(d.desc).toLowerCase();
       a.innerHTML =
         '<span class="dept__count">' + n + " tautan</span>" +
@@ -575,6 +598,9 @@
     var pageId = document.body.dataset.page || "beranda";
     var page = SITE.pages[pageId];
     if (!page) return;
+
+    /* Beranda ada di akar, halaman departemen satu tingkat di bawahnya */
+    ROOT = pageId === "beranda" ? "./" : "../";
 
     document.title = SITE.name + " — " + String(page.title).replace(/&amp;/g, "&");
 

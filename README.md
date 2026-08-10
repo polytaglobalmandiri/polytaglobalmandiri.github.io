@@ -13,12 +13,12 @@ Tanpa framework, tanpa dependensi, tanpa proses build — cukup HTML, CSS, dan J
 ```
 .
 ├── index.html          # BERANDA — direktori departemen + indeks seluruh tautan
-├── marketing.html      # MARKETING
-├── ppic.html           # PPIC
-├── purchasing.html     # PURCHASING
-├── produksi.html       # PRODUKSI
-├── finance.html        # FINANCE
-├── bantuan.html        # BANTUAN — panduan + FAQ
+├── marketing/index.html    # /marketing/
+├── ppic/index.html         # /ppic/
+├── purchasing/index.html   # /purchasing/
+├── produksi/index.html     # /produksi/
+├── finance/index.html      # /finance/
+├── bantuan/index.html      # /bantuan/  — panduan + FAQ
 ├── assets/
 │   ├── css/skeuo.css   # Seluruh sistem desain skeuomorphic
 │   ├── js/data.js      # ★ SEMUA KONTEN & TAUTAN DIATUR DI SINI
@@ -31,6 +31,10 @@ Tanpa framework, tanpa dependensi, tanpa proses build — cukup HTML, CSS, dan J
 
 Setiap halaman HTML sengaja dibuat tipis. Navigasi, header, kartu tautan, dan footer
 di-render oleh `assets/js/app.js` berdasarkan atribut `data-page` pada `<body>`.
+
+**Mengapa berbasis folder?** Agar alamatnya bersih tanpa akhiran `.html` —
+`/marketing/` alih-alih `/marketing.html`. GitHub Pages otomatis menyajikan
+`index.html` di dalam setiap folder.
 
 ---
 

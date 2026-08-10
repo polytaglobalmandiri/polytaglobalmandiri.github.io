@@ -17,15 +17,17 @@ const SITE = {
     "Untuk akses folder dari cloud pastikan anda sudah memiliki akses file tersebut, apabila ada perubahan dan perizinan silakan hubungi administrator!",
   footer: "Dikembangkan dan dikelola oleh: Team POLYTA GLOBAL MANDIRI",
 
-  /* Urutan menu navigasi */
+  /* Urutan menu navigasi.
+     `path` adalah folder halaman — dibuat berbasis folder agar alamatnya bersih
+     tanpa akhiran .html, misalnya /marketing/ bukan /marketing.html */
   nav: [
-    { id: "beranda",    label: "BERANDA",    file: "index.html" },
-    { id: "marketing",  label: "MARKETING",  file: "marketing.html" },
-    { id: "ppic",       label: "PPIC",       file: "ppic.html" },
-    { id: "purchasing", label: "PURCHASING", file: "purchasing.html" },
-    { id: "produksi",   label: "PRODUKSI",   file: "produksi.html" },
-    { id: "finance",    label: "FINANCE",    file: "finance.html" },
-    { id: "bantuan",    label: "BANTUAN",    file: "bantuan.html" }
+    { id: "beranda",    label: "BERANDA",    path: "" },
+    { id: "marketing",  label: "MARKETING",  path: "marketing/" },
+    { id: "ppic",       label: "PPIC",       path: "ppic/" },
+    { id: "purchasing", label: "PURCHASING", path: "purchasing/" },
+    { id: "produksi",   label: "PRODUKSI",   path: "produksi/" },
+    { id: "finance",    label: "FINANCE",    path: "finance/" },
+    { id: "bantuan",    label: "BANTUAN",    path: "bantuan/" }
   ],
 
   pages: {
@@ -38,12 +40,12 @@ const SITE = {
         "Pengguna hanya diperkenankan mengakses data yang telah diberikan izin. " +
         "Untuk permintaan akses tambahan atau perubahan perizinan, harap menghubungi administrator.",
       departments: [
-        { id: "marketing",  code: "MKT",  label: "MARKETING",  file: "marketing.html",  desc: "Folder tim, laporan, dan tautan operasional pemasaran." },
-        { id: "ppic",       code: "PPIC", label: "PPIC",       file: "ppic.html",       desc: "Manajemen SPK, database OTS, back-up produksi, dashboard." },
-        { id: "purchasing", code: "PUR",  label: "PURCHASING", file: "purchasing.html", desc: "Purchase order dan perbandingan harga supplier." },
-        { id: "produksi",   code: "PRD",  label: "PRODUKSI",   file: "produksi.html",   desc: "Input problem, dokumentasi foto, dan data production issue." },
-        { id: "finance",    code: "FIN",  label: "FINANCE",    file: "finance.html",    desc: "Arsip laporan piutang, hutang, dan kas pabrik." },
-        { id: "bantuan",    code: "HLP",  label: "BANTUAN",    file: "bantuan.html",    desc: "Panduan penggunaan portal dan kontak administrator." }
+        { id: "marketing",  code: "MKT",  label: "MARKETING",  path: "marketing/",  desc: "Folder tim, laporan, dan tautan operasional pemasaran." },
+        { id: "ppic",       code: "PPIC", label: "PPIC",       path: "ppic/",       desc: "Manajemen SPK, database OTS, back-up produksi, dashboard." },
+        { id: "purchasing", code: "PUR",  label: "PURCHASING", path: "purchasing/", desc: "Purchase order dan perbandingan harga supplier." },
+        { id: "produksi",   code: "PRD",  label: "PRODUKSI",   path: "produksi/",   desc: "Input problem, dokumentasi foto, dan data production issue." },
+        { id: "finance",    code: "FIN",  label: "FINANCE",    path: "finance/",    desc: "Arsip laporan piutang, hutang, dan kas pabrik." },
+        { id: "bantuan",    code: "HLP",  label: "BANTUAN",    path: "bantuan/",    desc: "Panduan penggunaan portal dan kontak administrator." }
       ]
     },
 
@@ -186,7 +188,7 @@ const SITE = {
             { label: "Sparepart",     url: "", type: "form" },
             { label: "Purchasing",    url: "", type: "form" },
             { label: "Panel Listrik", url: "", type: "form" },
-            { label: "Refresh",       url: "produksi.html", type: "site" }
+            { label: "Refresh",       url: "#refresh", type: "site" }
           ]
         },
         {

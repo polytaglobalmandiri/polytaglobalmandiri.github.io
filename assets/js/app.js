@@ -844,6 +844,28 @@
     }, { passive: true });
   }
 
+  /* Header tetap menempel di atas. Kelas ini hanya mengubah kedalaman visual,
+     tanpa mengubah ukuran header sehingga posisi navigasi tidak bergeser. */
+  function wireStickyHeader() {
+    var ticking = false;
+
+    function paint() {
+      var bar = $(".topbar");
+      if (bar) bar.classList.toggle("is-stuck", window.scrollY > 8);
+      ticking = false;
+    }
+
+    function requestPaint() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(paint);
+    }
+
+    window.addEventListener("scroll", requestPaint, { passive: true });
+    window.addEventListener("load", requestPaint, { once: true });
+    requestPaint();
+  }
+
   /* Fallback transisi halaman untuk browser tanpa View Transitions. */
   function wirePageTransitions() {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -868,6 +890,8 @@
 
   /* ------------------------------------------------------------ Boot */
   function init() {
+    wireStickyHeader();
+
     /* Halaman tanpa atribut data-page — misalnya halaman administrator —
        hanya meminjam pustaka ikon di atas; tidak ada yang perlu dirender. */
     var pageId = document.body.dataset.page;

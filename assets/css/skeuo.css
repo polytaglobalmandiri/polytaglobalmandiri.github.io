@@ -172,7 +172,12 @@ body {
   background:
     radial-gradient(120% 90% at 50% -10%, var(--bg-a) 0%, var(--bg-b) 55%, var(--bg-c) 100%)
     fixed;
-  overflow-x: hidden;
+  /* `clip` mencegah limpahan horizontal tanpa membentuk scroll container
+     baru yang dapat memutus perilaku sticky pada header. */
+  overflow-x: clip;
+}
+@supports not (overflow: clip) {
+  body { overflow-x: hidden; }
 }
 
 /* Transisi lintas halaman untuk browser modern, dengan fallback di bawah. */
@@ -237,7 +242,12 @@ body::after {
 
 /* ---------------------------------------------------------- 5. TOPBAR */
 .topbar {
-  position: sticky; top: 0; z-index: 60;
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  isolation: isolate;
   background:
     linear-gradient(180deg, var(--metal-a) 0%, var(--metal-b) 46%, var(--metal-c) 54%, var(--metal-b) 100%);
   border-bottom: 1px solid var(--metal-d);
@@ -246,6 +256,7 @@ body::after {
     inset 0 -2px 4px rgba(0,0,0,.14),
     0 4px 10px rgba(40,33,24,.22),
     0 14px 30px -12px rgba(40,33,24,.35);
+  transition: border-color var(--motion-ui) var(--ease-ui), box-shadow var(--motion-ui) var(--ease-ui);
 }
 .topbar::before {
   /* serat logam sikat horizontal */
@@ -258,6 +269,26 @@ body::after {
       rgba(0,0,0,.02) 3px 5px);
   opacity: .5; pointer-events: none;
 }
+.topbar::after {
+  content: "";
+  position: absolute;
+  right: 0; bottom: -1px; left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, var(--accent) 20%, var(--accent-hi) 50%, var(--accent) 80%, transparent 100%);
+  opacity: 0;
+  transform: scaleX(.82);
+  pointer-events: none;
+  transition: opacity var(--motion-ui) var(--ease-ui), transform var(--motion-ui) var(--ease-ui);
+}
+.topbar.is-stuck {
+  border-bottom-color: rgba(var(--accent-rgb), .42);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.85),
+    inset 0 -2px 4px rgba(0,0,0,.16),
+    0 5px 12px rgba(20,18,18,.26),
+    0 18px 34px -14px rgba(20,18,18,.5);
+}
+.topbar.is-stuck::after { opacity: .72; transform: scaleX(1); }
 .topbar__in {
   position: relative;
   display: flex; align-items: center; gap: 1rem;

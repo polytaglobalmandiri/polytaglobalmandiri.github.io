@@ -237,20 +237,26 @@ body::after {
 
 /* Merek */
 .brand { display: flex; align-items: center; gap: .75rem; min-width: 0; }
+/* Plat porselen putih di kedua tema — logo bergaris hitam butuh dasar terang
+   agar tetap terbaca, baik di topbar terang maupun gelap. */
 .brand__plate {
   flex: none;
-  width: 46px; height: 46px;
+  width: 48px; height: 48px;
+  padding: 4px;
   display: grid; place-items: center;
-  border-radius: 12px;
-  color: #fff;
-  background: linear-gradient(160deg, var(--seal-a), var(--seal-b) 45%, var(--seal-c));
+  border-radius: 13px;
+  border: 1px solid rgba(110,110,128,.4);
+  background: linear-gradient(160deg, #ffffff, #f1f1f5 52%, #d6d6de);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.7),
-    inset 0 -2px 4px rgba(70,4,12,.6),
-    0 2px 3px rgba(20,4,8,.4),
-    0 6px 14px -4px rgba(20,4,8,.5);
+    inset 0 1px 0 rgba(255,255,255,1),
+    inset 0 -2px 4px rgba(60,60,78,.26),
+    0 2px 3px rgba(10,10,16,.32),
+    0 6px 14px -4px rgba(10,10,16,.42);
 }
-.brand__plate svg { width: 28px; height: 28px; filter: drop-shadow(0 1px 1px rgba(70,4,12,.6)); }
+.brand__plate img {
+  width: 100%; height: 100%;
+  object-fit: contain;
+}
 .brand__txt { min-width: 0; }
 .brand__name {
   display: block;
@@ -809,7 +815,15 @@ main { padding-bottom: 3.5rem; }
   font-size: .78rem; color: var(--ink-soft);
 }
 .foot__mark { display: flex; align-items: center; gap: .6rem; font-weight: 650; }
-.foot__mark svg { width: 20px; height: 20px; color: var(--accent); }
+.foot__mark img {
+  flex: none;
+  width: 26px; height: 26px; padding: 2px;
+  object-fit: contain;
+  border-radius: 7px;
+  border: 1px solid rgba(110,110,128,.4);
+  background: linear-gradient(160deg, #ffffff, #e9e9ef);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,1), 0 1px 2px rgba(10,10,16,.3);
+}
 
 /* ---------------------------------------------------------- 13. TOAST */
 .toast-wrap {
@@ -861,8 +875,7 @@ main { padding-bottom: 3.5rem; }
 }
 @media (max-width: 560px) {
   .wrap { width: min(1180px, 100% - 1.6rem); }
-  .brand__plate { width: 40px; height: 40px; border-radius: 11px; }
-  .brand__plate svg { width: 24px; height: 24px; }
+  .brand__plate { width: 42px; height: 42px; border-radius: 11px; padding: 3px; }
   .brand__name {
     font-size: .8rem; letter-spacing: .08em;
     overflow: hidden; text-overflow: ellipsis;

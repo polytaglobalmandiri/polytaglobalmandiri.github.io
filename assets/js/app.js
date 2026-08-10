@@ -43,6 +43,11 @@
     return IS_FILE ? p + "index.html" : p;
   }
 
+  /* Berkas aset dirujuk apa adanya — tanpa penambahan index.html */
+  function asset(path) { return ROOT + path; }
+
+  var LOGO = "assets/img/logo-polyta.png";
+
   var store = {
     get: function (k, fb) {
       try { var v = localStorage.getItem(k); return v == null ? fb : JSON.parse(v); }
@@ -55,9 +60,6 @@
 
   /* ------------------------------------------------------------- Ikon */
   var ICON = {
-    logo:
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' +
-      '<path d="M12 2.6 20.4 7v10L12 21.4 3.6 17V7z"/><path d="M8.6 16V8.4h3.7a2.6 2.6 0 0 1 0 5.2H8.6"/></svg>',
     sheets:
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' +
       '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 9h16M4 15h16M10 9v12M16 9v12"/></svg>',
@@ -193,7 +195,7 @@
     var brand = el("a", "brand");
     brand.href = link("");
     brand.innerHTML =
-      '<span class="brand__plate">' + ICON.logo + "</span>" +
+      '<span class="brand__plate"><img src="' + asset(LOGO) + '" alt="" width="438" height="438"></span>' +
       '<span class="brand__txt">' +
         '<span class="brand__name">' + raw(SITE.name) + "</span>" +
         '<span class="brand__sub">Portal Akses Internal</span>' +
@@ -256,7 +258,8 @@
     var f = el("footer", "foot");
     f.innerHTML =
       '<div class="wrap foot__in">' +
-        '<span class="foot__mark">' + ICON.logo + "<span>" + raw(SITE.footer) + "</span></span>" +
+        '<span class="foot__mark"><img src="' + asset(LOGO) + '" alt="" width="438" height="438"><span>' +
+          raw(SITE.footer) + "</span></span>" +
         '<span>&copy; ' + new Date().getFullYear() + " " + raw(SITE.name) + " &middot; Akses berbasis peran</span>" +
       "</div>";
     return f;

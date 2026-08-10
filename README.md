@@ -49,18 +49,40 @@ Buka [assets/js/data.js](assets/js/data.js), lalu isi properti `url`:
 { label: "Schedule Design", url: "https://docs.google.com/spreadsheets/d/xxxx", type: "sheets" },
 ```
 
-**Tipe yang tersedia** (menentukan ikon dan warna):
+### Dua penanda visual
 
-| `type`     | Digunakan untuk        |
-|------------|------------------------|
-| `sheets`   | Google Spreadsheet     |
-| `drive`    | Folder Google Drive    |
-| `onedrive` | Folder OneDrive / 1drv |
-| `form`     | Google Form            |
-| `script`   | Google Apps Script     |
-| `slides`   | Google Slides          |
-| `site`     | Halaman internal       |
-| `folder`   | Folder umum            |
+Setiap tautan punya dua penanda yang **berbeda maksudnya**, sehingga satu keping
+menyampaikan dua hal sekaligus: apa isinya, dan di layanan mana ia tersimpan.
+
+**`type` — di mana tersimpan.** Menentukan warna dan bahan plat:
+
+| `type`     | Digunakan untuk        | Bahan plat     |
+|------------|------------------------|----------------|
+| `sheets`   | Google Spreadsheet     | enamel merah   |
+| `drive`    | Folder Google Drive    | enamel hitam   |
+| `onedrive` | Folder OneDrive / 1drv | baja sikat     |
+| `form`     | Google Form            | porselen putih |
+| `script`   | Google Apps Script     | merah tua      |
+| `slides`   | Google Slides          | enamel hitam   |
+| `site`     | Halaman internal       | baja sikat     |
+| `folder`   | Folder umum            | merah tua      |
+
+**`icon` — apa isinya.** Menentukan gambar di atas plat. Bila dikosongkan, gambar
+mengikuti `type`. Daftar lengkapnya ada pada objek `ICON` di
+[assets/js/app.js](assets/js/app.js):
+
+```
+person users chart gauge up down calendar clock truck car road badge shield
+check target box warehouse cylinder database wallet coins receipt tag scale
+cart clip list doc clipboard archive layers share nut gear wrench bolt
+factory camera printer wind fold slit scissors droplet flask chip sliders
+download book warn
+```
+
+Contoh penetapan yang dipakai sekarang: nama orang → `person`, laporan → `chart`,
+jadwal → `calendar`, pengiriman → `truck`, stok → `box`, gudang → `warehouse`,
+roll → `cylinder`, tinta → `droplet`, sparepart → `nut`, panel listrik → `bolt`,
+foto → `camera`, cutting → `scissors`, printing → `printer`.
 
 Menambah tombol baru cukup menambah objek pada array `items`. Menambah seksi baru cukup
 menambah objek pada array `sections`. Tidak ada file lain yang perlu disentuh.

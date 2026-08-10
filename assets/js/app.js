@@ -46,7 +46,7 @@
   /* Berkas aset dirujuk apa adanya — tanpa penambahan index.html */
   function asset(path) { return ROOT + path; }
 
-  var LOGO = "assets/img/logo-polyta.png";
+  var LOGO = "assets/img/logo-3d.svg";
 
   var store = {
     get: function (k, fb) {

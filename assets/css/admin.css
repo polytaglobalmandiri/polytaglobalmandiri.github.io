@@ -3,20 +3,10 @@
    Semua token warna, bayangan, dan tipografi diwarisi dari berkas itu.
    ===================================================================== */
 
-/* ---------------------------------------------------------- 1. RANGKA */
-.adm-bar {
-  position: sticky; top: 0; z-index: 60;
-  background: linear-gradient(180deg, var(--metal-a) 0%, var(--metal-b) 46%, var(--metal-c) 54%, var(--metal-b) 100%);
-  border-bottom: 1px solid var(--metal-d);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.85), inset 0 -2px 4px rgba(0,0,0,.14), 0 4px 10px rgba(40,33,24,.22), 0 14px 30px -12px rgba(40,33,24,.35);
-}
-.adm-bar::before {
-  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .5;
-  background: repeating-linear-gradient(90deg, rgba(255,255,255,.20) 0 1px, rgba(0,0,0,.035) 1px 2px, rgba(255,255,255,.06) 2px 3px, rgba(0,0,0,.02) 3px 5px);
-}
-.adm-bar__in { position: relative; display: flex; align-items: center; gap: .9rem; padding-block: .7rem; flex-wrap: wrap; }
+/* ---------------------------------------------------------- 1. RANGKA
+   Header memakai komponen .topbar yang sama dengan portal utama. */
+.adm-bar__in { gap: 1rem; flex-wrap: nowrap; }
 .adm-brand { flex: none; }
-.adm-brand .brand__plate { width: 46px; height: 46px; }
 .adm-bar__meta { display: grid; justify-items: start; gap: .28rem; }
 .adm-badge {
   display: inline-flex; align-items: center; gap: .45rem;
@@ -27,6 +17,19 @@
   box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 1px 3px rgba(0,0,0,.35);
 }
 .adm-bar__tools { margin-left: auto; display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+.adm-switch { flex: none; }
+
+.adm-actions {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  margin-top: 1.2rem; padding: .75rem .85rem;
+  border-radius: var(--radius); border: 1px solid var(--panel-edge);
+  background: linear-gradient(180deg, var(--panel-a), var(--panel-b));
+  box-shadow: var(--sh-raised);
+}
+.adm-actions__copy { display: grid; gap: .16rem; min-width: 0; }
+.adm-actions__copy strong { font-family: var(--font-dis); font-size: .8rem; letter-spacing: .06em; text-transform: uppercase; }
+.adm-actions__copy span { font-size: .7rem; color: var(--ink-mute); }
+.adm-actions__buttons { display: flex; align-items: center; justify-content: flex-end; gap: .45rem; flex-wrap: wrap; }
 
 /* ---------------------------------------------------------- 2. TOMBOL */
 .btn {
@@ -300,6 +303,8 @@ pre.out {
   .adm-bar__meta .adm-badge { display: none; }
   .adm-bar__meta .adm-status { font-size: 0; gap: 0; }
   .adm-bar__meta .adm-status i { width: 10px; height: 10px; }
-  .adm-bar__tools { width: 100%; }
-  .btn { flex: 1 1 auto; justify-content: center; }
+  .adm-bar__tools .btn { display: none; }
+  .adm-actions { align-items: stretch; flex-direction: column; }
+  .adm-actions__buttons { display: grid; grid-template-columns: 1fr 1fr; }
+  .adm-actions__buttons .btn { justify-content: center; }
 }

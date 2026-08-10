@@ -397,6 +397,7 @@
 
     var wrap = el("div", "wrap");
     wrap.id = "konten";
+    wrap.appendChild(buildActions());
     wrap.appendChild(buildTabs());
     wrap.appendChild(buildProblems());
 
@@ -413,8 +414,8 @@
   }
 
   function buildBar() {
-    var bar = el("header", "adm-bar");
-    var inner = el("div", "wrap adm-bar__in");
+    var bar = el("header", "topbar adm-bar");
+    var inner = el("div", "wrap topbar__in adm-bar__in");
 
     var brand = el("a", "brand adm-brand");
     brand.href = "../";
@@ -435,15 +436,49 @@
     inner.appendChild(meta);
 
     var tools = el("div", "adm-bar__tools");
-
+    tools.appendChild(buildThemeSwitch());
     tools.appendChild(mkBtn("Lihat situs", "btn btn--ghost", function () { location.href = "../"; }));
-    tools.appendChild(mkBtn("Muat ulang dari situs", "btn btn--ghost", resetDraft));
-    tools.appendChild(mkBtn("Unduh data.js", "btn", downloadFile));
-    tools.appendChild(mkBtn("Salin", "btn", copyFile));
-    tools.appendChild(mkBtn("Terbitkan ke GitHub", "btn btn--primary", openPublish));
 
     inner.appendChild(tools);
     bar.appendChild(inner);
+    return bar;
+  }
+
+  function buildThemeSwitch() {
+    function current() {
+      var selected = document.documentElement.getAttribute("data-theme");
+      return selected || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    }
+
+    var sw = el("button", "switch adm-switch");
+    sw.type = "button";
+    sw.setAttribute("aria-label", "Ganti mode terang atau gelap");
+    sw.innerHTML = '<span class="switch__led"></span><span class="switch__knob">' +
+      (current() === "dark" ? ICON.moon : ICON.sun) + "</span>";
+    sw.addEventListener("click", function () {
+      var next = current() === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      try { localStorage.setItem("pgm:theme", JSON.stringify(next)); } catch (e) {}
+      $(".switch__knob", sw).innerHTML = next === "dark" ? ICON.moon : ICON.sun;
+    });
+    return sw;
+  }
+
+  function buildActions() {
+    var bar = el("section", "adm-actions");
+    bar.setAttribute("aria-label", "Tindakan administrator");
+
+    var copy = el("div", "adm-actions__copy");
+    copy.appendChild(el("strong", null, "Kelola Konten Portal"));
+    copy.appendChild(el("span", null, "Sunting menu lalu terbitkan perubahan ke GitHub."));
+    bar.appendChild(copy);
+
+    var buttons = el("div", "adm-actions__buttons");
+    buttons.appendChild(mkBtn("Muat ulang", "btn btn--ghost", resetDraft));
+    buttons.appendChild(mkBtn("Unduh data.js", "btn", downloadFile));
+    buttons.appendChild(mkBtn("Salin", "btn", copyFile));
+    buttons.appendChild(mkBtn("Terbitkan ke GitHub", "btn btn--primary", openPublish));
+    bar.appendChild(buttons);
     return bar;
   }
 

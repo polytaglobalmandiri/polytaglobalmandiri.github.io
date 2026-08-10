@@ -870,7 +870,7 @@
   }
 
   function openPublish() {
-    var body = el("div");
+    var body = el("div", "publish-form");
 
     var note = el("div", "note");
     note.innerHTML =

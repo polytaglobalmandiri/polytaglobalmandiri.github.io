@@ -260,6 +260,12 @@ select.inp { cursor: pointer; }
 .dlg__body { padding: .9rem; overflow-y: auto; display: grid; gap: .8rem; }
 .dlg__foot { display: flex; gap: .5rem; justify-content: flex-end; padding: .8rem .9rem; border-top: 1px solid var(--panel-edge); flex-wrap: wrap; }
 
+.publish-form { display: grid; gap: 1rem; }
+.publish-form .note { margin: 0; }
+.publish-form .note + .note { margin-top: .15rem; }
+.publish-form > .hint { margin-top: 0; }
+.publish-form > .hint:empty { display: none; }
+
 .confirm-card { display: grid; grid-template-columns: auto 1fr; align-items: start; gap: .85rem; }
 .confirm-card__icon {
   width: 44px; height: 44px; display: grid; place-items: center; border-radius: 14px;
@@ -307,4 +313,5 @@ pre.out {
   .adm-actions { align-items: stretch; flex-direction: column; }
   .adm-actions__buttons { display: grid; grid-template-columns: 1fr 1fr; }
   .adm-actions__buttons .btn { justify-content: center; }
+  .publish-form { gap: .8rem; }
 }

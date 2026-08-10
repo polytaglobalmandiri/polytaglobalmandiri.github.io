@@ -9,26 +9,34 @@ Kondisi saat ini:
 |-----|--------|
 | Repositori lokal | ✅ Sudah dibuat (`git init`) |
 | Branch | ✅ `main` |
-| Commit | ✅ 2 commit sudah ada |
-| Remote GitHub | ❌ Belum disambungkan |
-| Identitas git (nama/email) | ❌ Belum diatur |
+| Commit | ✅ 3 commit sudah ada |
+| Remote GitHub | ❌ Belum disambungkan — **lanjut ke Langkah 1** |
+| Identitas git (nama/email) | ✅ Sudah diatur |
 | Penyimpan kredensial | ✅ Aktif (Git Credential Manager) |
 
 ---
 
-## Langkah 0 — Atur identitas git (wajib, sekali saja)
+## Langkah 0 — Identitas git ✅ selesai
 
-Tanpa ini, `git commit` akan gagal dengan pesan *"Please tell me who you are"*.
+Sudah diatur secara global pada mesin ini:
 
-```powershell
-git config --global user.name "Nama Anda"
-git config --global user.email "matchapoii@gmail.com"
+```
+user.name   = Team POLYTA GLOBAL MANDIRI
+user.email  = zulfi.polyta@gmail.com
 ```
 
-Gunakan email yang **sama dengan email akun GitHub** Anda supaya commit tercatat
-atas nama Anda dan muncul di grafik kontribusi.
+Email tersebut sama dengan email akun GitHub Anda, sehingga setiap commit akan
+terhubung ke akun Anda dan muncul di grafik kontribusi. Ketiga commit yang sudah
+ada juga telah ditulis ulang memakai identitas ini.
 
-Verifikasi:
+Bila suatu saat perlu diubah:
+
+```powershell
+git config --global user.name "Nama Baru"
+git config --global user.email "email@baru.com"
+```
+
+Verifikasi kapan saja:
 
 ```powershell
 git config --global user.name

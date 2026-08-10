@@ -1,9 +1,166 @@
-# Panduan Custom Domain untuk GitHub Pages
+# Panduan Alamat Situs
 
-Mengganti alamat `zulfipolyta-design.github.io/polytaglobalmandiri` menjadi
-domain perusahaan sendiri, misalnya `portal.polytaglobalmandiri.com`.
+Ada dua cara membuat alamat portal terlihat profesional:
 
-Repo: [zulfipolyta-design/polytaglobalmandiri](https://github.com/zulfipolyta-design/polytaglobalmandiri)
+| Cara | Hasil | Biaya |
+|------|-------|-------|
+| **[Bagian I](#bagian-i--rapikan-alamat-githubio-gratis)** — rapikan alamat `.github.io` | `polytaglobalmandiri.github.io` | **Gratis** |
+| **[Bagian II](#bagian-ii--custom-domain-berbayar)** — domain perusahaan sendiri | `portal.polytaglobalmandiri.com` | ± Rp 200–500 rb/tahun |
+
+Keduanya bisa dikerjakan bertahap: rapikan dulu yang gratis, beli domain kemudian.
+Alamat `.github.io` akan tetap berfungsi sebagai cadangan meski custom domain aktif.
+
+---
+
+# BAGIAN I — Rapikan Alamat .github.io (Gratis)
+
+## Cara kerjanya
+
+Alamat `.github.io` **bukan** pengaturan yang bisa diketik bebas. Bentuknya selalu:
+
+```
+https://NAMA-AKUN.github.io/NAMA-REPO/
+```
+
+Jadi `polyta.github.io` hanya bisa dimiliki oleh akun GitHub yang namanya persis
+`polyta` — dan nama itu **sudah dipakai akun lain**, sehingga tidak dapat diambil.
+
+Ada satu pengecualian penting: bila **nama repo dibuat sama persis** dengan
+`NAMA-AKUN.github.io`, GitHub memperlakukannya sebagai *user site* dan alamatnya
+menjadi bersih tanpa embel-embel nama repo:
+
+```
+https://polytaglobalmandiri.github.io          ← rapi (user site)
+https://polytaglobalmandiri.github.io/portal/  ← ada tambahan (project site)
+```
+
+Itulah yang akan kita capai lewat dua penggantian nama di bawah.
+
+**Kondisi sekarang → tujuan:**
+
+| | Sekarang | Setelah selesai |
+|-|----------|-----------------|
+| Nama akun | `zulfipolyta-design` | `polytaglobalmandiri` |
+| Nama repo | `polytaglobalmandiri` | `polytaglobalmandiri.github.io` |
+| Alamat situs | *(Pages belum aktif)* | `https://polytaglobalmandiri.github.io` |
+
+---
+
+## Langkah 1 — Ganti nama akun GitHub
+
+1. Buka <https://github.com/settings/admin>
+   (atau: klik foto profil → **Settings** → menu kiri **Account** →
+   bagian *Change username*)
+2. Klik **Change username**
+3. Ketik: `polytaglobalmandiri`
+4. GitHub menampilkan peringatan — baca bagian di bawah ini dulu, lalu konfirmasi
+
+### Yang perlu diketahui sebelum mengganti nama
+
+**✅ Aman / tetap berjalan**
+
+- Seluruh repositori, isi, dan riwayat commit tetap utuh
+- Commit tetap tercatat atas nama Anda, karena penautan memakai **email**
+  (`zulfi.polyta@gmail.com`), bukan username
+- Tautan lama ke repo otomatis dialihkan ke nama baru
+- Remote git lama masih berfungsi lewat pengalihan — tapi tetap sebaiknya
+  diperbarui (lihat Langkah 3)
+
+**⚠️ Perlu diperhatikan**
+
+- Nama `zulfipolyta-design` **langsung bebas diklaim siapa saja** setelah diganti.
+  Bila ada pihak lain mengambilnya, seluruh pengalihan tautan lama berhenti bekerja.
+- Bila username lama pernah ditulis di dokumen, presentasi, atau dibagikan ke
+  rekan kerja, alamat tersebut perlu diperbarui.
+- Tautan ke **halaman profil** lama (`github.com/zulfipolyta-design`) tidak
+  dialihkan — hanya tautan repositori yang dialihkan.
+
+---
+
+## Langkah 2 — Ganti nama repositori
+
+Setelah nama akun berhasil diganti:
+
+1. Buka <https://github.com/polytaglobalmandiri/polytaglobalmandiri/settings>
+2. Di bagian paling atas (*Repository name*), ubah menjadi:
+   ```
+   polytaglobalmandiri.github.io
+   ```
+   Tulis persis seperti itu — **huruf kecil semua**, memakai titik, dan diakhiri
+   `.github.io`. Salah satu huruf saja berbeda, alamat bersihnya tidak akan aktif.
+3. Klik **Rename**
+
+---
+
+## Langkah 3 — Perbarui remote di komputer
+
+Alamat repo sudah berubah, jadi remote lokal perlu disesuaikan:
+
+```powershell
+git remote set-url origin https://github.com/polytaglobalmandiri/polytaglobalmandiri.github.io.git
+git remote -v
+git pull
+```
+
+---
+
+## Langkah 4 — Aktifkan Pages
+
+1. Buka repo → **Settings** → menu kiri **Pages**
+2. *Source* → **Deploy from a branch**
+3. Branch **`main`**, folder **`/ (root)`** → **Save**
+4. Tunggu 1–2 menit, lalu muat ulang halaman
+
+Alamat portal akan tampil di bagian atas:
+
+```
+https://polytaglobalmandiri.github.io
+```
+
+HTTPS aktif otomatis untuk alamat `.github.io` — tidak perlu diatur.
+
+> **Catatan:** *user site* (repo bernama `NAMA-AKUN.github.io`) pada akun gratis
+> mensyaratkan repositori bersifat **publik**. Repo ini sudah publik, jadi tidak
+> ada yang perlu diubah.
+
+---
+
+## Pemecahan Masalah — Bagian I
+
+### ❌ Alamat masih menampilkan `/polytaglobalmandiri` di belakang
+
+Nama repo belum persis `polytaglobalmandiri.github.io`. Periksa ejaannya di
+**Settings → Repository name** — harus huruf kecil semua dan memakai titik,
+bukan tanda hubung.
+
+### ❌ Muncul halaman 404 setelah Pages diaktifkan
+
+Tunggu 2–5 menit; penayangan pertama butuh waktu. Bila masih 404, pastikan pada
+**Settings → Pages** folder yang dipilih adalah **`/ (root)`**, bukan `/docs`.
+
+### ❌ `git push` error `repository not found`
+
+Remote masih memakai alamat lama. Jalankan ulang perintah pada Langkah 3.
+
+### ❌ Situs tampil polos tanpa warna dan ikon
+
+File `.nojekyll` hilang dari akar repo. File itu mencegah GitHub memproses situs
+lewat Jekyll — tanpanya, folder `assets/` bisa diabaikan. File tersebut sudah
+disertakan di proyek ini; jangan dihapus.
+
+---
+
+# BAGIAN II — Custom Domain (Berbayar)
+
+Bagian ini untuk mengganti alamat menjadi domain perusahaan sendiri, misalnya
+`portal.polytaglobalmandiri.com`.
+
+Boleh dikerjakan kapan saja setelah Bagian I selesai — atau dilewati sama sekali
+bila alamat `.github.io` sudah dirasa cukup.
+
+> Pada seluruh contoh di bawah, nilai CNAME tertulis
+> `polytaglobalmandiri.github.io`. Bila Bagian I **belum** dikerjakan, ganti
+> menjadi nama akun Anda yang berlaku saat ini.
 
 ---
 
@@ -88,15 +245,15 @@ Cukup **satu record**:
 
 | Type | Name / Host | Value / Points to | TTL |
 |------|-------------|-------------------|-----|
-| `CNAME` | `portal` | `zulfipolyta-design.github.io` | Automatic / 3600 |
+| `CNAME` | `portal` | `polytaglobalmandiri.github.io` | Automatic / 3600 |
 
 Catatan penulisan:
 
 - Kolom **Name** diisi `portal` saja, **bukan** `portal.polytaglobalmandiri.com`.
   Sebagian besar panel menambahkan nama domain secara otomatis.
-- Kolom **Value** diisi `zulfipolyta-design.github.io` — **tanpa** `https://`,
+- Kolom **Value** diisi `polytaglobalmandiri.github.io` — **tanpa** `https://`,
   **tanpa** nama repo, dan **tanpa** garis miring di akhir. Sebagian panel
-  meminta titik di akhir (`zulfipolyta-design.github.io.`) — ikuti format yang
+  meminta titik di akhir (`polytaglobalmandiri.github.io.`) — ikuti format yang
   ditampilkan panel tersebut.
 
 ### 🅱️ Bila memakai domain apex (Pilihan A)
@@ -123,7 +280,7 @@ Lalu tambahkan **satu CNAME** agar `www` ikut berfungsi:
 
 | Type | Name | Value |
 |------|------|-------|
-| `CNAME` | `www` | `zulfipolyta-design.github.io` |
+| `CNAME` | `www` | `polytaglobalmandiri.github.io` |
 
 > Alamat IP di atas diverifikasi dari dokumentasi resmi GitHub. Bila suatu saat
 > situs tiba-tiba tidak dapat diakses padahal sebelumnya normal, cek kembali
@@ -211,7 +368,7 @@ Untuk domain apex:
 Resolve-DnsName polytaglobalmandiri.com -Type A
 ```
 
-Hasilnya harus menunjukkan `zulfipolyta-design.github.io` atau salah satu dari
+Hasilnya harus menunjukkan `polytaglobalmandiri.github.io` atau salah satu dari
 empat IP `185.199.10x.153` di atas.
 
 > Perintah `dig` yang disebut dokumentasi GitHub tidak tersedia bawaan di Windows.
@@ -221,7 +378,7 @@ Untuk melihat penyebaran DNS di berbagai negara: <https://dnschecker.org>
 
 ---
 
-## Pemecahan Masalah
+## Pemecahan Masalah — Bagian II
 
 ### ❌ "Domain does not resolve to the GitHub Pages server"
 

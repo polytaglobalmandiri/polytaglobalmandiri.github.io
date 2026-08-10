@@ -102,8 +102,9 @@ Lalu buka <http://localhost:5500>.
 > **[PANDUAN-GITHUB.md](PANDUAN-GITHUB.md)** — termasuk pengaturan identitas git,
 > autentikasi token, dan penanganan konflik saat push pertama.
 >
-> 🌐 Untuk memakai alamat domain perusahaan sendiri (misalnya
-> `portal.polytaglobalmandiri.com`), lihat **[PANDUAN-DOMAIN.md](PANDUAN-DOMAIN.md)**.
+> 🌐 Untuk merapikan alamat situs — baik yang gratis
+> (`polytaglobalmandiri.github.io`) maupun domain perusahaan sendiri
+> (`portal.polytaglobalmandiri.com`) — lihat **[PANDUAN-DOMAIN.md](PANDUAN-DOMAIN.md)**.
 
 Repositori lokal sudah diinisialisasi dan commit pertama sudah dibuat.
 Langkah berikutnya:

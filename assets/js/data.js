@@ -38,12 +38,12 @@ const SITE = {
         "Pengguna hanya diperkenankan mengakses data yang telah diberikan izin. " +
         "Untuk permintaan akses tambahan atau perubahan perizinan, harap menghubungi administrator.",
       departments: [
-        { id: "marketing",  label: "MARKETING",  file: "marketing.html",  desc: "Folder tim, laporan, dan tautan operasional pemasaran." },
-        { id: "ppic",       label: "PPIC",       file: "ppic.html",       desc: "Manajemen SPK, database OTS, back-up produksi, dashboard." },
-        { id: "purchasing", label: "PURCHASING", file: "purchasing.html", desc: "Purchase order dan perbandingan harga supplier." },
-        { id: "produksi",   label: "PRODUKSI",   file: "produksi.html",   desc: "Input problem, dokumentasi foto, dan data production issue." },
-        { id: "finance",    label: "FINANCE",    file: "finance.html",    desc: "Arsip laporan piutang, hutang, dan kas pabrik." },
-        { id: "bantuan",    label: "BANTUAN",    file: "bantuan.html",    desc: "Panduan penggunaan portal dan kontak administrator." }
+        { id: "marketing",  code: "MKT",  label: "MARKETING",  file: "marketing.html",  desc: "Folder tim, laporan, dan tautan operasional pemasaran." },
+        { id: "ppic",       code: "PPIC", label: "PPIC",       file: "ppic.html",       desc: "Manajemen SPK, database OTS, back-up produksi, dashboard." },
+        { id: "purchasing", code: "PUR",  label: "PURCHASING", file: "purchasing.html", desc: "Purchase order dan perbandingan harga supplier." },
+        { id: "produksi",   code: "PRD",  label: "PRODUKSI",   file: "produksi.html",   desc: "Input problem, dokumentasi foto, dan data production issue." },
+        { id: "finance",    code: "FIN",  label: "FINANCE",    file: "finance.html",    desc: "Arsip laporan piutang, hutang, dan kas pabrik." },
+        { id: "bantuan",    code: "HLP",  label: "BANTUAN",    file: "bantuan.html",    desc: "Panduan penggunaan portal dan kontak administrator." }
       ]
     },
 

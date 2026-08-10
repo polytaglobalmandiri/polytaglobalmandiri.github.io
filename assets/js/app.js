@@ -115,7 +115,12 @@
     return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   }
 
-  applyTheme(store.get(THEME_KEY, null));
+  /* Hormati atribut yang sudah dipasang skrip anti-kedip di <head>;
+     hanya timpa bila ada pilihan tersimpan. */
+  (function () {
+    var saved = store.get(THEME_KEY, null);
+    if (saved) applyTheme(saved);
+  })();
 
   /* ------------------------------------------------------------ Toast */
   var toastWrap;
@@ -258,9 +263,7 @@
       '<i class="screw screw--bl"></i><i class="screw screw--br"></i>' +
       '<div class="hero__in">' +
         "<div>" +
-          '<span class="eyebrow"><i class="dot-led"></i>' +
-            (isHome ? "Sistem Aktif" : raw(p.title)) +
-          "</span>" +
+          '<span class="eyebrow"><i class="dot-led"></i>Sistem Aktif</span>' +
           "<h1>" +
             (isHome ? '<span class="thin">' + raw(SITE.name) + "</span>" : '<span class="thin">' + raw(p.title) + "</span>") +
             '<span class="engrave">' + raw(p.heading) + "</span>" +
@@ -411,7 +414,7 @@
       a.dataset.label = String(d.label).toLowerCase() + " " + String(d.desc).toLowerCase();
       a.innerHTML =
         '<span class="dept__count">' + n + " tautan</span>" +
-        '<span class="dept__badge">' + esc(d.label.slice(0, 2)) + "</span>" +
+        '<span class="dept__badge">' + esc(d.code || d.label.slice(0, 3)) + "</span>" +
         '<span class="dept__name engrave">' + raw(d.label) + "</span>" +
         '<span class="dept__desc">' + raw(d.desc) + "</span>" +
         '<span class="dept__go">Buka ' + ICON.arrow + "</span>";
@@ -523,6 +526,11 @@
       n.style.transitionDelay = Math.min(i * 55, 330) + "ms";
       io.observe(n);
     });
+
+    /* Jaring pengaman: apa pun yang terjadi, konten tidak boleh tetap tersembunyi. */
+    setTimeout(function () {
+      nodes.forEach(function (n) { n.classList.add("is-in"); });
+    }, 1600);
   }
 
   /* Kemiringan halus mengikuti kursor — memperkuat kesan objek fisik */

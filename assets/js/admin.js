@@ -111,6 +111,7 @@
     (((draft.pages || {}).beranda || {}).departments || []).forEach(function (x) {
       var fallback = defaults[x.id];
       if (x.image == null) x.image = fallback ? fallback.image : "assets/img/departments/marketing.webp";
+      delete x.code;
     });
     return draft;
   }
@@ -202,7 +203,7 @@
       if (p.departments) {
         o.push("      departments: [");
         o.push(p.departments.map(function (x) {
-          return "        { id: " + qPlain(x.id) + ", code: " + qPlain(x.code) + ", label: " + q(x.label) +
+          return "        { id: " + qPlain(x.id) + ", label: " + q(x.label) +
                  ", path: " + qPlain(x.path) + ", desc: " + q(x.desc) +
                  ", image: " + qPlain(x.image || "") + " }";
         }).join(",\n"));
@@ -621,7 +622,6 @@
         namePreview.textContent = v || "(tanpa nama)";
         touch();
       }));
-      g.appendChild(fieldText("Kode lencana", x.code, function (v) { x.code = v; touch(); }));
       g.appendChild(fieldText("Alamat tujuan", x.path, function (v) { x.path = v.trim(); touch(); },
         "Contoh: marketing/ atau https://example.com"));
       g.appendChild(fieldText("Keterangan", x.desc, function (v) { x.desc = v; touch(); }));
@@ -637,7 +637,6 @@
       var sequence = p.departments.length + 1;
       p.departments.push({
         id: "departemen-" + sequence,
-        code: "NEW",
         label: "DEPARTEMEN BARU",
         path: "#",
         desc: "Keterangan singkat departemen.",

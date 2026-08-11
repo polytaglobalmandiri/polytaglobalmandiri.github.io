@@ -771,12 +771,8 @@ main { padding-bottom: 3.5rem; }
 /* Kartu departemen (beranda) */
 .dept {
   --dept-accent: var(--accent);
-  --dept-hi: var(--accent-hi);
-  --dept-lo: var(--accent-lo);
   --dept-rgb: var(--accent-rgb);
   --dept-ink: var(--dept-accent);
-  --dept-badge-ink: #fff;
-  --dept-badge-shadow: 0 1px 1px rgba(20,4,8,.75);
   position: relative;
   display: flex; flex-direction: column;
   min-height: 350px;
@@ -825,22 +821,6 @@ main { padding-bottom: 3.5rem; }
 }
 .dept:hover::after { opacity: .9; transform: scale(1.08); }
 .dept:active { transform: translateY(-1px) scale(.995); }
-.dept__badge {
-  position: relative;
-  width: 54px; height: 54px; border-radius: 16px;
-  display: grid; place-items: center;
-  font-family: var(--font-dis); font-weight: 800; font-size: .92rem; letter-spacing: .04em;
-  color: var(--dept-badge-ink);
-  background: linear-gradient(160deg, var(--dept-hi), var(--dept-accent) 48%, var(--dept-lo));
-  text-shadow: var(--dept-badge-shadow);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.75),
-    inset 0 -3px 6px rgba(70,4,12,.6),
-    0 3px 5px rgba(20,4,8,.35),
-    0 10px 18px -8px rgba(20,4,8,.55);
-  transition: transform var(--motion-ui) var(--ease-spring), filter var(--motion-ui) var(--ease-ui), box-shadow var(--motion-ui) var(--ease-ui);
-}
-.dept:hover .dept__badge { transform: rotate(-2deg) scale(1.07); filter: saturate(1.08) brightness(1.04); box-shadow: inset 0 1px 0 rgba(255,255,255,.78), inset 0 -3px 6px rgba(70,4,12,.48), 0 7px 14px rgba(var(--dept-rgb), .32); }
 .dept__visual {
   position: relative;
   display: block;
@@ -917,12 +897,12 @@ main { padding-bottom: 3.5rem; }
 .dept__go svg { width: 14px; height: 14px; transition: transform var(--motion-ui) var(--ease-spring); }
 .dept:hover .dept__go { background: rgba(var(--dept-rgb), .14); border-color: rgba(var(--dept-rgb), .42); transform: translateX(2px); }
 .dept:hover .dept__go svg { transform: translateX(4px); }
-.dept--marketing  { --dept-accent: #c8102e; --dept-hi: #ef7183; --dept-lo: #7d0a17; --dept-rgb: 200, 16, 46; }
-.dept--ppic       { --dept-accent: #36363e; --dept-hi: #73737f; --dept-lo: #111116; --dept-rgb: 54, 54, 62; }
-.dept--purchasing { --dept-accent: #72727e; --dept-hi: #f7f7fa; --dept-lo: #50505a; --dept-rgb: 114, 114, 126; --dept-ink: #5e5e69; --dept-badge-ink: #17171c; --dept-badge-shadow: 0 1px 0 rgba(255,255,255,.85); }
-.dept--produksi   { --dept-accent: #8f1027; --dept-hi: #d9576c; --dept-lo: #4f0713; --dept-rgb: 143, 16, 39; }
-.dept--finance    { --dept-accent: #24242a; --dept-hi: #62626d; --dept-lo: #09090c; --dept-rgb: 36, 36, 42; }
-.dept--bantuan    { --dept-accent: #8b8b96; --dept-hi: #ffffff; --dept-lo: #62626e; --dept-rgb: 139, 139, 150; --dept-ink: #666671; --dept-badge-ink: #17171c; --dept-badge-shadow: 0 1px 0 rgba(255,255,255,.9); }
+.dept--marketing  { --dept-accent: #c8102e; --dept-rgb: 200, 16, 46; }
+.dept--ppic       { --dept-accent: #36363e; --dept-rgb: 54, 54, 62; }
+.dept--purchasing { --dept-accent: #72727e; --dept-rgb: 114, 114, 126; --dept-ink: #5e5e69; }
+.dept--produksi   { --dept-accent: #8f1027; --dept-rgb: 143, 16, 39; }
+.dept--finance    { --dept-accent: #24242a; --dept-rgb: 36, 36, 42; }
+.dept--bantuan    { --dept-accent: #8b8b96; --dept-rgb: 139, 139, 150; --dept-ink: #666671; }
 :root[data-theme="dark"] .dept--marketing,
 :root[data-theme="dark"] .dept--produksi { --dept-ink: #ff697a; }
 :root[data-theme="dark"] .dept--ppic,
@@ -938,13 +918,20 @@ main { padding-bottom: 3.5rem; }
   :root:not([data-theme="light"]) .dept--bantuan { --dept-ink: #d4d4dc; }
 }
 .dept__count {
-  position: absolute; top: 1.4rem; right: 1.3rem;
-  font-family: var(--font-mono); font-size: .66rem;
-  padding: .2rem .55rem; border-radius: 999px;
-  color: var(--dept-ink); font-weight: 700;
-  border: 1px solid rgba(var(--dept-rgb), .26);
-  background: linear-gradient(180deg, rgba(255,255,255,.45), rgba(var(--dept-rgb), .08));
-  box-shadow: var(--sh-sunken);
+  position: absolute; z-index: 3; top: .58rem; right: .58rem;
+  display: inline-flex; align-items: center; gap: .38rem;
+  font-family: var(--font-mono); font-size: .64rem;
+  padding: .28rem .55rem; border-radius: 999px;
+  color: #fff; font-weight: 800;
+  border: 1px solid rgba(255,255,255,.2);
+  background: rgba(13,14,17,.78);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 4px 12px rgba(0,0,0,.38);
+  backdrop-filter: blur(7px);
+  pointer-events: none;
+}
+.dept__count::before {
+  content: ""; width: 6px; height: 6px; flex: none; border-radius: 50%;
+  background: var(--dept-accent); box-shadow: 0 0 7px rgba(var(--dept-rgb), .82);
 }
 
 /* --------------------------------------------------------- 10. FAQ */

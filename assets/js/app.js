@@ -690,8 +690,7 @@
       var a = el("a", "dept dept--" + deptClass);
       a.href = managedUrl(d.path);
       a.dataset.label = String(d.label).toLowerCase() + " " + String(d.desc).toLowerCase();
-      a.appendChild(el("span", "dept__count", n + " tautan"));
-      a.appendChild(el("span", "dept__badge", esc(d.code || String(d.label).slice(0, 3))));
+      var count = el("span", "dept__count", n + " tautan");
       if (d.image) {
         var visual = el("span", "dept__visual");
         var image = el("img", "dept__image");
@@ -701,10 +700,14 @@
         image.height = 420;
         image.loading = "lazy";
         image.decoding = "async";
-        image.addEventListener("error", function () { visual.classList.add("is-empty"); });
+        image.addEventListener("error", function () {
+          a.insertBefore(count, visual);
+          visual.classList.add("is-empty");
+        });
         visual.appendChild(image);
+        visual.appendChild(count);
         a.appendChild(visual);
-      }
+      } else a.appendChild(count);
       a.appendChild(el("span", "dept__name engrave", raw(d.label)));
       a.appendChild(el("span", "dept__desc", raw(d.desc)));
       a.appendChild(el("span", "dept__go", "Buka " + ICON.arrow));

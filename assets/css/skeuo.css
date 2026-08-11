@@ -868,13 +868,14 @@ main { padding-bottom: 3.5rem; }
   position: absolute; z-index: 1;
   inset: -5%;
   display: block;
-  animation: deptCameraDrift 9s ease-in-out infinite alternate;
   transform-origin: 50% 52%;
   will-change: transform;
 }
-.dept:nth-child(2n) .dept__media { animation-duration: 10.8s; animation-delay: -3.1s; }
-.dept:nth-child(3n) .dept__media { animation-duration: 12.4s; animation-delay: -6.2s; animation-direction: alternate-reverse; }
+.dept__media:not(.is-playing) { animation: deptCameraDrift 9s ease-in-out infinite alternate; }
+.dept:nth-child(2n) .dept__media:not(.is-playing) { animation-duration: 10.8s; animation-delay: -3.1s; }
+.dept:nth-child(3n) .dept__media:not(.is-playing) { animation-duration: 12.4s; animation-delay: -6.2s; animation-direction: alternate-reverse; }
 .dept__image {
+  position: absolute; inset: 0;
   width: 100%; height: 100%;
   display: block;
   object-fit: cover;
@@ -884,6 +885,10 @@ main { padding-bottom: 3.5rem; }
   transition: transform 150ms linear, filter var(--motion-ui) var(--ease-ui);
   will-change: transform;
 }
+.dept__image--poster { opacity: 1; transition: opacity 420ms var(--ease-ui), transform 150ms linear, filter var(--motion-ui) var(--ease-ui); }
+.dept__image--motion { opacity: 0; transition: opacity 520ms var(--ease-ui), transform 150ms linear, filter var(--motion-ui) var(--ease-ui); }
+.dept__media.is-playing .dept__image--poster { opacity: 0; }
+.dept__media.is-playing .dept__image--motion { opacity: 1; }
 .dept:hover .dept__visual {
   border-color: rgba(var(--dept-rgb), .65);
   transform: translateZ(28px) rotateX(var(--dept-tilt-x)) rotateY(var(--dept-tilt-y));

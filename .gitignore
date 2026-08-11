@@ -18,3 +18,5 @@ dist/
 installer/.build/
 .cache/
 *.log
+__pycache__/
+*.pyc

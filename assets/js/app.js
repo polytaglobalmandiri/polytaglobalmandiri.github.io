@@ -58,6 +58,12 @@
     return asset(value);
   }
 
+  function managedDepartmentAnimation(path) {
+    var value = String(path || "").trim();
+    if (!/^assets\/img\/departments\/[a-z0-9_-]+\.webp$/i.test(value)) return "";
+    return managedImage(value.replace(/\.webp$/i, "-animated.webp"));
+  }
+
   var LOGO = "assets/img/logo-polyta.png";
 
   var store = {
@@ -695,6 +701,7 @@
         var image = el("img", "dept__image");
         image.src = managedImage(d.image);
         image.alt = "";
+        image.classList.add("dept__image--poster");
         image.width = 420;
         image.height = 420;
         image.loading = "lazy";
@@ -704,6 +711,26 @@
           visual.classList.add("is-empty");
         });
         media.appendChild(image);
+        var animationSource = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? ""
+          : managedDepartmentAnimation(d.image);
+        if (animationSource) {
+          var motionImage = el("img", "dept__image dept__image--motion");
+          motionImage.src = animationSource;
+          motionImage.alt = "";
+          motionImage.width = 420;
+          motionImage.height = 236;
+          motionImage.loading = "lazy";
+          motionImage.decoding = "async";
+          motionImage.fetchPriority = "low";
+          motionImage.addEventListener("load", function () {
+            media.classList.add("is-playing");
+          });
+          motionImage.addEventListener("error", function () {
+            motionImage.remove();
+          });
+          media.appendChild(motionImage);
+        }
         visual.appendChild(media);
         visual.appendChild(count);
         a.appendChild(visual);

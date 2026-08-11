@@ -443,9 +443,7 @@
     var f = el("footer", "foot");
     f.innerHTML =
       '<div class="wrap foot__in">' +
-        '<span class="foot__mark"><img src="' + asset(LOGO) + '" alt="" width="438" height="438"><span>' +
-          raw(SITE.footer) + "</span></span>" +
-        '<span>&copy; ' + new Date().getFullYear() + " " + raw(SITE.name) + " &middot; Akses berbasis peran</span>" +
+        '<span class="foot__text">' + raw(SITE.footer) + "</span>" +
       "</div>";
     return f;
   }

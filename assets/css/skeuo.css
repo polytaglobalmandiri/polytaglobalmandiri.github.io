@@ -776,7 +776,7 @@ main { padding-bottom: 3.5rem; }
   position: relative;
   display: flex; flex-direction: column;
   min-height: 350px;
-  padding: 1.4rem 1.4rem 1.25rem;
+  padding: 1.05rem 1.1rem 1rem;
   border-radius: var(--radius-l);
   border: 1px solid var(--panel-edge);
   border-top: 4px solid var(--dept-accent);
@@ -824,8 +824,8 @@ main { padding-bottom: 3.5rem; }
 .dept__visual {
   position: relative;
   display: block;
-  height: 128px;
-  margin-top: .8rem;
+  height: 168px;
+  margin-top: 0;
   overflow: hidden;
   border-radius: 15px;
   border: 1px solid rgba(var(--dept-rgb), .34);
@@ -873,18 +873,18 @@ main { padding-bottom: 3.5rem; }
 }
 .dept__name {
   display: block; position: relative;
-  margin-top: 1rem;
+  margin-top: .58rem;
   font-family: var(--font-dis); font-weight: 800;
-  font-size: 1.15rem; letter-spacing: .09em;
+  font-size: 1.08rem; letter-spacing: .075em; line-height: 1.16;
 }
 .dept__desc {
   display: block; position: relative;
-  margin-top: .4rem; min-height: 3.2em;
-  font-size: .86rem; color: var(--ink-soft);
+  margin-top: .2rem; min-height: 2.7em;
+  font-size: .8rem; line-height: 1.4; color: var(--ink-soft);
 }
 .dept__go {
   position: relative;
-  margin-top: auto; padding: .55rem .72rem;
+  margin-top: .62rem; padding: .46rem .68rem;
   align-self: flex-start;
   display: inline-flex; align-items: center; gap: .45rem;
   font-size: .7rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase;

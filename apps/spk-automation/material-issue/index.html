@@ -500,15 +500,6 @@
       white-space: nowrap;
     }
 
-    .date-text {
-      display: block;
-      margin-top: 4px;
-      color: var(--muted);
-      font-size: .66rem;
-      font-weight: 650;
-      white-space: nowrap;
-    }
-
     .primary-text,
     .secondary-text {
       display: block;
@@ -1209,7 +1200,6 @@
     tbody tr.is-saving { background: #fff0cf; }
 
     .spk-code { color: #8d1515; font-size: .72rem; text-shadow: 0 1px 0 #fff; }
-    .date-text { margin-top: 2px; font-size: .6rem; }
     .primary-text, .order-value { font-size: .68rem; }
     .secondary-text { margin-top: 2px; font-size: .6rem; }
 
@@ -1393,18 +1383,6 @@
     tbody tr.js-detail-row.is-detail-open {
       background: #fff0d9;
       box-shadow: inset 4px 0 0 #a51919;
-    }
-
-    tbody tr.js-detail-row td:first-child::after {
-      content: "Klik untuk detail";
-      display: block;
-      width: max-content;
-      margin-top: 5px;
-      color: #777b80;
-      font-size: .54rem;
-      font-weight: 800;
-      letter-spacing: .03em;
-      text-transform: uppercase;
     }
 
     .table-wrap table {
@@ -3029,7 +3007,7 @@
     }
     @media print { .polyta-portal-home { display: none !important; } }
   </style>
-  <link rel="stylesheet" href="../responsive.css?v=20260812-9">
+  <link rel="stylesheet" href="../responsive.css?v=20260812-10">
 </head>
 <body
   class="tw:min-h-screen tw:text-polyta-ink selection:tw:bg-polyta-brand-soft selection:tw:text-polyta-brand"
@@ -3225,7 +3203,7 @@
         <table>
           <thead>
             <tr>
-              <th>SPK / Tanggal</th>
+              <th>SPK</th>
               <th>Pelanggan / Artikel</th>
               <th>Bahan</th>
               <th>Jumlah Pesanan</th>
@@ -5091,11 +5069,9 @@
           tabindex="0"
           aria-haspopup="dialog"
           aria-label="Lihat data utama, ukuran, dan perhitungan SPK ${escapeAttr_(item.spk)}"
-          title="Klik baris untuk melihat rincian SPK"
         >
           <td>
             <strong class="spk-code">${escapeHtml_(item.spk)}</strong>
-            <span class="date-text">${escapeHtml_(formatDate_(item.tanggal))}</span>
           </td>
           <td>
             <span class="primary-text">${escapeHtml_(displayValue_(item.customer))}</span>

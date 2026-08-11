@@ -3974,7 +3974,7 @@
       </div>
       <div>
         <strong>Polyta Global Mandiri</strong>
-        <span>Plastic Packaging Industry</span>
+        <span>Industri Kemasan Plastik</span>
       </div>
     </div>
 
@@ -3984,7 +3984,7 @@
     </div>
 
     <div class="toolbar-actions">
-      <a class="toolbar-button dashboard" href="/apps/spk-automation/" target="_top">&#8962; PPIC</a>
+      <a class="toolbar-button dashboard" href="/apps/spk-automation/" target="_top">&#8962; Dasbor PPIC</a>
       <a class="toolbar-button dashboard polyta-portal-home no-print" href="/" target="_top" title="Kembali ke portal utama">
         <i class="fa-solid fa-house" aria-hidden="true"></i><span>Portal Utama</span>
       </a>
@@ -4022,27 +4022,27 @@
         : 'release';
 
     const PROCESS_DEFINITIONS = [
-      { key: 'mixer', label: 'Mixer' },
-      { key: 'blowing', label: 'Blowing' },
-      { key: 'printing', label: 'Printing' },
-      { key: 'slitting', label: 'Slitting' },
-      { key: 'folding', label: 'Folding' },
-      { key: 'gusset', label: 'Gusset' }
+      { key: 'mixer', label: 'Pencampuran' },
+      { key: 'blowing', label: 'Peniupan' },
+      { key: 'printing', label: 'Pencetakan' },
+      { key: 'slitting', label: 'Pembelahan' },
+      { key: 'folding', label: 'Pelipatan' },
+      { key: 'gusset', label: 'Pembentukan Lipatan' }
     ];
 
     const BS_DEFINITIONS = [
-      { key: 'blowing', label: 'Blowing' },
-      { key: 'printing', label: 'Printing' },
-      { key: 'slitting', label: 'Slitting' },
-      { key: 'folding', label: 'Folding' },
-      { key: 'gusset', label: 'Gusset' },
-      { key: 'sheet', label: 'Sheet' },
+      { key: 'blowing', label: 'Peniupan' },
+      { key: 'printing', label: 'Pencetakan' },
+      { key: 'slitting', label: 'Pembelahan' },
+      { key: 'folding', label: 'Pelipatan' },
+      { key: 'gusset', label: 'Pembentukan Lipatan' },
+      { key: 'sheet', label: 'Lembaran' },
       { key: 'pon', label: 'Pon' },
-      { key: 'tshirt', label: 'T-Shirt' },
-      { key: 'bottomSeal', label: 'Bottom Seal' },
-      { key: 'sideSeal', label: 'Side Seal' },
-      { key: 'handle', label: 'Handle' },
-      { key: 'sheetSlitting', label: 'Sheet Slitting' }
+      { key: 'tshirt', label: 'Kantong Kaos' },
+      { key: 'bottomSeal', label: 'Segel Bawah' },
+      { key: 'sideSeal', label: 'Segel Samping' },
+      { key: 'handle', label: 'Pegangan' },
+      { key: 'sheetSlitting', label: 'Pembelahan Lembaran' }
     ];
 
     const printRootEl = document.getElementById('printRoot');
@@ -4604,7 +4604,7 @@
                 <div class="mini-logo">${buildPolytaLogo_()}</div>
                 <div>
                   <strong>PT POLYTA GLOBAL MANDIRI</strong>
-                  <span>Plastic Packaging Industry</span>
+                  <span>Industri Kemasan Plastik</span>
                 </div>
               </div>
               <div class="po-title">
@@ -4629,20 +4629,20 @@
                 ${/* Data Utama menyisakan identitas order dan sisi komersial.
                       Seluruh data berdimensi dipindah ke kelompok Ukuran di
                       bawah agar operator membacanya dalam satu tempat. */''}
-                ${fieldLine_('No. SPK', data.spk)}
-                ${fieldLine_('Customer', data.customer)}
+                ${fieldLine_('Nomor SPK', data.spk)}
+                ${fieldLine_('Pelanggan', data.customer)}
                 ${fieldLine_('Artikel', data.artikel)}
-                ${fieldLine_('Order', quantityWithUom_(data.jumlahOrder, data.uomOrder))}
+                ${fieldLine_('Pesanan', quantityWithUom_(data.jumlahOrder, data.uomOrder))}
                 ${fieldLine_('Stok', data.stokOst || '')}
                 ${fieldLine_('Keluar Bahan', quantityWithUom_(data.keluarBahan, data.uomKB))}
-                ${fieldLine_('Material', data.material)}
+                ${fieldLine_('Bahan', data.material)}
                 ${fieldLine_('Warna', data.keteranganWarna)}
                 ${fieldLine_('Bahan', data.keteranganBahan)}
                 </div>
 
                 <div class="po-subtitle">Ukuran</div>
                 ${fieldLine_('Ukuran Jadi', data.ukuranJadi)}
-                ${fieldLine_('Ukuran Blowing', data.ukuranBlow)}
+                ${fieldLine_('Ukuran Peniupan', data.ukuranBlow)}
                 ${fieldLine_('L x P x T', joinNonEmpty_([
                   component.lebar,
                   component.panjang,
@@ -4689,8 +4689,8 @@
                 <h2>Komposisi Bahan</h2>
                 <div class="po-panel-head">
                 <div class="order-type po-order-status">
-                  <span class="${isRepeatOrder_(data) ? 'is-active' : ''}">Repeat Order</span>
-                  <span class="${isRepeatOrder_(data) ? '' : 'is-active'}">New Order</span>
+                  <span class="${isRepeatOrder_(data) ? 'is-active' : ''}">Pesanan Ulang</span>
+                  <span class="${isRepeatOrder_(data) ? '' : 'is-active'}">Pesanan Baru</span>
                 </div>
                 <table class="grid-table po-composition-table">
                   <thead>
@@ -4786,7 +4786,7 @@
               <div class="mini-logo">${buildPolytaLogo_()}</div>
               <div>
                 <strong>PT POLYTA GLOBAL MANDIRI</strong>
-                <small>Plastic Packaging Industry</small>
+                <small>Industri Kemasan Plastik</small>
               </div>
             </div>
             ${releaseStamp_(data)}
@@ -4795,22 +4795,22 @@
           <div class="master-header-grid">
             <div class="master-info">
               <div class="order-type">
-                <span class="${isRepeatOrder_(data) ? 'is-active' : ''}">Repeat Order</span>
-                <span class="${isRepeatOrder_(data) ? '' : 'is-active'}">New Order</span>
+                <span class="${isRepeatOrder_(data) ? 'is-active' : ''}">Pesanan Ulang</span>
+                <span class="${isRepeatOrder_(data) ? '' : 'is-active'}">Pesanan Baru</span>
               </div>
               ${/* Nomor PO customer sudah tampil pada baris judul lembar ini,
                     jadi tidak diulang lagi sebagai field di bawahnya. */''}
               ${fieldLine_('Tgl SPK', formatDate_(data.tanggal))}
               ${fieldLine_('No. SPK', data.spk)}
-              ${fieldLine_('Customer', data.customer)}
+              ${fieldLine_('Pelanggan', data.customer)}
               ${fieldLine_('Artikel', data.artikel)}
-              ${fieldLine_('Material', data.material)}
+              ${fieldLine_('Bahan', data.material)}
               ${fieldLine_('PCS / KG', formatNumber_(data.pcsPerKg, 2))}
               ${fieldLine_('Ukuran Jadi', data.ukuranJadi)}
             </div>
 
             <div class="master-info">
-              ${fieldLine_('Jumlah Order', orderWithKgEquivalent_(data))}
+              ${fieldLine_('Jumlah Pesanan', orderWithKgEquivalent_(data))}
               ${fieldLine_('Tanggal Kirim', formatDate_(data.etd))}
               ${fieldLine_('Jumlah Bahan', quantityWithUom_(data.keluarBahan, data.uomKB))}
               ${fieldLine_('Toleransi', formatPercent_(data.toleransi))}
@@ -4854,7 +4854,7 @@
       return `
         <section class="process-section">
           <div class="process-title">
-            <strong>MIXER</strong>
+            <strong>PENCAMPURAN</strong>
             <span>Komposisi dan pemakaian bahan baku</span>
           </div>
           <div class="mixer-layout">
@@ -4908,7 +4908,7 @@
           </div>
           <div class="process-fields cols-4">
             ${processField_('Mesin', formValue_(data, form, 'mesin-blowing'))}
-            ${processField_('Ukuran Blowing', data.ukuranBlow)}
+            ${processField_('Ukuran Peniupan', data.ukuranBlow)}
             ${processField_('Microne', component.tebalBlow)}
             ${processField_('Ket', data.film)}
             ${processField_('Kode Item', data.kodeItem)}
@@ -4995,7 +4995,7 @@
               </thead>
               <tbody>${blankRows_(14, 9)}</tbody>
               <tfoot>
-                <tr><th colspan="5">Total Hasil</th><td colspan="4">BS / NG Printing</td><td colspan="5">BS / NG Polos</td></tr>
+                <tr><th colspan="5">Total Hasil</th><td colspan="4">BS / NG Pencetakan</td><td colspan="5">BS / NG Polos</td></tr>
               </tfoot>
             </table>
             <div>
@@ -5024,9 +5024,9 @@
     // Ukuran Jadi; Ukuran Jadi adalah ukuran produk akhir dan tidak
     // menggambarkan ukuran yang dikerjakan divisi ini.
     const CONVERSION_FIELD_MAP = {
-      slitting: { label: 'Ukuran Slitting', ukuran: 'ukuranSlitting' },
+      slitting: { label: 'Ukuran Pembelahan', ukuran: 'ukuranSlitting' },
       folding: { label: 'Ukuran Lipat', ukuran: 'ukuranFolding' },
-      gusset: { label: 'Ukuran Gusset', ukuran: 'ukuranGusset', extraLabel: 'Lebar Gusset', extra: 'lebarGusset' }
+      gusset: { label: 'Ukuran Lipatan', ukuran: 'ukuranGusset', extraLabel: 'Lebar Lipatan', extra: 'lebarGusset' }
     };
 
     function buildConversionSection_(data, form) {
@@ -5046,7 +5046,7 @@
             ${processField_(map.extraLabel || 'Lebar Bahan', map.extra ? formValue_(data, form, map.extra) : dimensionText_(data, 'lebar', 2))}
             ${processField_('Target BS', formatPercent_(bsValue))}
             ${processField_('BS (KG)', targetBsKg_(data, bsValue))}
-            ${processField_('BS Sheet', formatPercent_(formBs_(data, form, 'sheet')))}
+            ${processField_('BS Lembaran', formatPercent_(formBs_(data, form, 'sheet')))}
             ${processField_('Model Kantong', data.modelKantong)}
             ${processField_('Keterangan', formNote_(data, form))}
           </div>
@@ -5065,7 +5065,7 @@
         <section class="process-section">
           <div class="process-title">
             <strong>${escapeHtml_((form.pageLabel || cuttingTitle_(data)).toUpperCase())}</strong>
-            <span>Kontrol finishing, packing, berat, dan hasil</span>
+            <span>Kendali penyelesaian, pengepakan, berat, dan hasil</span>
           </div>
           <div class="cutting-top">
             <div class="cutting-fields">
@@ -5568,6 +5568,6 @@
     }
   </script>
   <script src="../responsive-header.js?v=20260811-1"></script>
-  <script src="../i18n.js?v=20260811-1"></script>
+  <script src="../i18n.js?v=20260811-2"></script>
 </body>
 </html>

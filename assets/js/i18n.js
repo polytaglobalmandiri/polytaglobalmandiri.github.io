@@ -2,12 +2,73 @@
   "use strict";
 
   var STORAGE_KEY = "pgm:language";
+  var ID = {
+    "MARKETING": "PEMASARAN",
+    "PURCHASING": "PEMBELIAN",
+    "PRODUCTION": "PRODUKSI",
+    "FINANCE": "KEUANGAN",
+    "SUPPORT": "BANTUAN",
+    "MARKETING TEAM": "TIM PEMASARAN",
+    "PPIC TEAM": "TIM PPIC",
+    "PURCHASING TEAM": "TIM PEMBELIAN",
+    "PRODUCTION TEAM": "TIM PRODUKSI",
+    "FINANCE TEAM": "TIM KEUANGAN",
+    "Dashboard": "Dasbor",
+    "Dashboard PPIC": "Dasbor PPIC",
+    "Marketing": "Pemasaran",
+    "Purchasing": "Pembelian",
+    "Production": "Produksi",
+    "Finance": "Keuangan",
+    "Support": "Bantuan",
+    "Customer": "Pelanggan",
+    "Brand": "Merek",
+    "Folder": "Direktori",
+    "File": "Berkas",
+    "Report": "Laporan",
+    "Refresh": "Segarkan",
+    "Database": "Basis Data",
+    "Master Data": "Data Induk",
+    "Back Up": "Cadangan",
+    "Sparepart": "Suku Cadang",
+    "Warehouse": "Gudang",
+    "Quality Control": "Kendali Mutu"
+  };
   var EN = {
     "Portal Akses Internal": "Internal Access Portal",
     "Portal Administrator": "Administrator Portal",
     "Beranda": "Home",
     "Seluruh Tautan": "All Links",
     "Bantuan": "Support",
+    "PEMASARAN": "MARKETING",
+    "PEMBELIAN": "PURCHASING",
+    "PRODUKSI": "PRODUCTION",
+    "KEUANGAN": "FINANCE",
+    "BANTUAN": "SUPPORT",
+    "TIM PEMASARAN": "MARKETING TEAM",
+    "TIM PPIC": "PPIC TEAM",
+    "TIM PEMBELIAN": "PURCHASING TEAM",
+    "TIM PRODUKSI": "PRODUCTION TEAM",
+    "TIM KEUANGAN": "FINANCE TEAM",
+    "Dasbor": "Dashboard",
+    "Dasbor PPIC": "PPIC Dashboard",
+    "Pemasaran": "Marketing",
+    "Pembelian": "Purchasing",
+    "Produksi": "Production",
+    "Keuangan": "Finance",
+    "Bahasa Indonesia": "Indonesian",
+    "Bahasa Inggris": "English",
+    "Pelanggan": "Customer",
+    "Merek": "Brand",
+    "Direktori": "Folder",
+    "Berkas": "File",
+    "Laporan": "Reports",
+    "Segarkan": "Refresh",
+    "Basis Data": "Database",
+    "Data Induk": "Master Data",
+    "Cadangan": "Backup",
+    "Suku Cadang": "Spare Parts",
+    "Gudang": "Warehouse",
+    "Kendali Mutu": "Quality Control",
     "Administrator": "Administrator",
     "Portal Utama": "Main Portal",
     "Kembali ke portal utama": "Return to main portal",
@@ -47,6 +108,12 @@
     "Input problem, dokumentasi foto, dan data production issue.": "Issue input, photo documentation, and production issue data.",
     "Arsip laporan piutang, hutang, dan kas pabrik.": "Receivables, payables, and factory cash report archives.",
     "Panduan penggunaan portal dan kontak administrator.": "Portal usage guide and administrator contact.",
+    "Direktori tim, laporan, dan tautan operasional pemasaran.": "Team folders, reports, and marketing operational links.",
+    "Pengelolaan SPK, basis data OTS, cadangan produksi, dan dasbor.": "SPK management, OTS database, production backup, and dashboard.",
+    "Pesanan pembelian dan perbandingan harga pemasok.": "Purchase orders and supplier price comparisons.",
+    "Pelaporan kendala, dokumentasi foto, dan data masalah produksi.": "Issue reporting, photo documentation, and production issue data.",
+    "Arsip laporan piutang, utang, dan kas pabrik.": "Receivables, payables, and factory cash report archives.",
+    "Panduan penggunaan portal dan kontak pengelola.": "Portal usage guide and administrator contact.",
     "Dashboard PPIC": "PPIC Dashboard",
     "Penarikan data": "Data Retrieval",
     "Manajemen Bahan": "Material Management",
@@ -64,6 +131,53 @@
     "Data Production Issue": "Production Issue Data",
     "Archived Report Finance": "Archived Finance Reports",
     "Panduan": "Guide",
+    "Direktori & Berkas Pemasaran": "Marketing Folders & Files",
+    "Direktori dan Berkas Pemasaran": "Marketing Folders & Files",
+    "Direktori pribadi anggota tim": "Personal folders for team members",
+    "Laporan Pemasaran": "Marketing Reports",
+    "Tautan Pemasaran": "Marketing Links",
+    "Lembar kerja dan direktori operasional": "Operational spreadsheets and folders",
+    "Jadwal Desain": "Design Schedule",
+    "Kendaraan Pemasaran": "Marketing Vehicles",
+    "Jadwal Peniupan dan Pencetakan": "Blowing and Printing Schedule",
+    "Sisa Pesanan": "Order Balance",
+    "Pengiriman Pemasaran Harian": "Daily Marketing Deliveries",
+    "Perencanaan Produksi & Pengendalian Persediaan": "Production Planning & Inventory Control",
+    "Basis Data SPK dan OTS": "SPK and OTS Database",
+    "Pengiriman Harian Pemasaran": "Daily Marketing Deliveries",
+    "Persediaan Rol Dalam Proses": "Work-in-Process Roll Inventory",
+    "Persediaan Rol Gudang": "Warehouse Roll Inventory",
+    "Daftar Pemesanan Bahan Baku": "Raw Material Order List",
+    "Tinta dan Silinder": "Ink and Cylinders",
+    "Persediaan Tersedia": "Available Inventory",
+    "Direktori Bersama": "Shared Folder",
+    "Cadangan Seluruh Data Produksi": "Complete Production Data Backup",
+    "PENIUPAN": "BLOWING",
+    "PENCETAKAN": "PRINTING",
+    "PELIPATAN": "FOLDING",
+    "PEMBELAHAN": "SLITTING",
+    "PEMBENTUKAN LIPATAN": "GUSSET",
+    "PEMOTONGAN": "CUTTING",
+    "DASBOR ANALISIS": "ANALYTICS DASHBOARD",
+    "Ambil Data Tertunda": "Retrieve Outstanding Data",
+    "Penarikan data berdasarkan pekerjaan tertunda": "Data retrieval based on outstanding work",
+    "AMBIL DATA": "RETRIEVE DATA",
+    "Formulir Isian": "Input Forms",
+    "Perintah Kerja Hanover": "Hanover Work Order",
+    "Laporan Pembelian": "Purchasing Reports",
+    "Perbandingan Harga Pemasok": "Supplier Price Comparison",
+    "Pelaporan Kendala Produksi": "Production Issue Reporting",
+    "Foto Kendala Produksi": "Production Issue Photos",
+    "Foto Suku Cadang": "Spare Parts Photos",
+    "Foto Pembelian": "Purchasing Photos",
+    "Data Kendala Produksi": "Production Issue Data",
+    "Masalah Produksi": "Production Issues",
+    "Pengendalian Produksi": "Production Control",
+    "Arsip Teknik": "Engineering Archive",
+    "Kendala SDM dan Umum": "HR and General Affairs Issues",
+    "Dokumen SOP": "SOP Documents",
+    "Barang Dalam Proses": "Work in Process",
+    "Arsip Laporan Keuangan": "Archived Finance Reports",
     "Dokumen penjualan, database customer, dan aktivitas marketing.": "Sales documents, customer database, and marketing activities.",
     "Perencanaan produksi, kebutuhan material, dan kontrol persediaan.": "Production planning, material requirements, and inventory control.",
     "Pengadaan barang, vendor, PO, dan pemantauan pembelian.": "Procurement, vendors, purchase orders, and purchasing monitoring.",
@@ -130,12 +244,13 @@
   }
 
   function translate(value) {
-    if (language !== "en") return value;
     var leading = (value.match(/^\s*/) || [""])[0];
     var trailing = (value.match(/\s*$/) || [""])[0];
     var clean = value.trim();
     if (!clean) return value;
-    return leading + (EN[clean] || pattern(clean)) + trailing;
+    var canonical = ID[clean] || clean;
+    if (language !== "en") return leading + canonical + trailing;
+    return leading + (EN[canonical] || pattern(canonical)) + trailing;
   }
 
   function skipped(element) {
@@ -195,7 +310,13 @@
     document.documentElement.lang = language;
     document.documentElement.dataset.language = language;
     document.title = language === "en"
-      ? originalTitle.replace("Beranda", "Home").replace("Administrator", "Administrator")
+      ? originalTitle
+          .replace("Beranda", "Home")
+          .replace("Pemasaran", "Marketing")
+          .replace("Pembelian", "Purchasing")
+          .replace("Produksi", "Production")
+          .replace("Keuangan", "Finance")
+          .replace("Bantuan", "Support")
       : originalTitle;
     render(document.body);
     updateButtons();
@@ -208,8 +329,7 @@
     var group = document.createElement("div");
     group.className = "language-switcher";
     group.setAttribute("role", "group");
-    group.setAttribute("data-i18n-ignore", "");
-    [{ code: "id", label: "ID", title: "Bahasa Indonesia" }, { code: "en", label: "EN", title: "English" }]
+    [{ code: "id", label: "ID", title: "Bahasa Indonesia" }, { code: "en", label: "EN", title: "Bahasa Inggris" }]
       .forEach(function (item) {
         var button = document.createElement("button");
         button.type = "button";

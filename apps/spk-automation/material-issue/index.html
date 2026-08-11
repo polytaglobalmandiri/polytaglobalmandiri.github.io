@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#202226">
-  <title>Keluar Bahan | Manager PPIC</title>
+  <title>Keluar Bahan | Manajer PPIC</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='22' fill='%23f4f4f1'/%3E%3Cpath fill='%23111216' d='M14 12h50v43h42v53h-8V63H64v45H14V55h42V20H14z'/%3E%3Crect x='15' y='22' width='41' height='12' rx='6' fill='%234563b3'/%3E%3Crect x='22' y='63' width='34' height='37' fill='%23ef2631'/%3E%3Crect x='84' y='64' width='11' height='44' rx='5.5' fill='%2340b84e'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -3112,13 +3112,13 @@
         </div>
         <div>
           <span class="brand-name">Polyta Global Mandiri</span>
-          <span class="brand-subtitle">Plastic Packaging Industry</span>
+          <span class="brand-subtitle">Industri Kemasan Plastik</span>
         </div>
       </div>
 
       <nav class="topnav" aria-label="Navigasi utama">
         <a class="nav-link" href="/apps/spk-automation/" target="_top" title="PPIC">
-          <i class="fa-solid fa-chart-pie"></i><span>PPIC</span>
+          <i class="fa-solid fa-chart-pie"></i><span>Dasbor PPIC</span>
         </a>
         <a class="nav-link active" href="/apps/spk-automation/material-issue/" target="_top" aria-current="page" title="Keluar Bahan">
           <i class="fa-solid fa-dolly"></i><span>Keluar Bahan</span>
@@ -3149,7 +3149,7 @@
           <i class="fa-solid fa-dolly"></i>
         </div>
         <div>
-          <p class="eyebrow">Manager PPIC</p>
+          <p class="eyebrow">Manajer PPIC</p>
           <h1 id="pageTitle">Keluar Bahan</h1>
           <p class="page-description">
             Kelola ETA pembelian dan keluar bahan untuk setiap SPK.
@@ -3170,7 +3170,7 @@
         </button>
         <div class="role-chip">
           <i class="fa-solid fa-user-shield" aria-hidden="true"></i>
-          <span>Halaman Manager PPIC</span>
+          <span>Halaman Manajer PPIC</span>
         </div>
       </div>
     </section>
@@ -3199,7 +3199,7 @@
             <div>
               <span class="summary-label">Total SPK</span>
               <strong id="totalCount" class="summary-value">0</strong>
-              <span class="summary-note">Dalam database</span>
+              <span class="summary-note">Dalam basis data</span>
             </div>
           </article>
         </section>
@@ -3234,7 +3234,7 @@
         <div>
           <div class="state-icon"><span class="spinner" aria-hidden="true"></span></div>
           <h2>Memuat data SPK</h2>
-          <p>Menyiapkan antrean keluar bahan dari Database.</p>
+          <p>Menyiapkan antrean keluar bahan dari Basis Data.</p>
         </div>
       </div>
 
@@ -3250,7 +3250,7 @@
         <div>
           <div class="state-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
           <h2>Data gagal dimuat</h2>
-          <p id="errorMessage">Terjadi gangguan saat membaca Database.</p>
+          <p id="errorMessage">Terjadi gangguan saat membaca Basis Data.</p>
           <button id="retryButton" class="button save-button" type="button" style="margin-top: 16px;">
             Coba Lagi
           </button>
@@ -3262,9 +3262,9 @@
           <thead>
             <tr>
               <th>SPK / Tanggal</th>
-              <th>Customer / Artikel</th>
-              <th>Material</th>
-              <th>Jumlah Order</th>
+              <th>Pelanggan / Artikel</th>
+              <th>Bahan</th>
+              <th>Jumlah Pesanan</th>
               <th>Status</th>
               <th>Keluar Bahan</th>
               <th>ETA Beli Bahan</th>
@@ -3316,7 +3316,7 @@
       <div class="eta-modal-body">
         <div class="eta-modal-intro">
           <div>
-            <span class="eta-modal-eyebrow">Jadwal Kedatangan Material</span>
+            <span class="eta-modal-eyebrow">Jadwal Kedatangan Bahan</span>
             <strong id="etaModalProgress" class="eta-modal-progress">0 dari 5 ETA terisi</strong>
           </div>
           <span class="eta-modal-hint">
@@ -3383,7 +3383,7 @@
             <i class="fa-solid fa-file-lines"></i>
           </div>
           <div>
-            <h2 id="detailDialogTitle" class="detail-dialog-title">Detail Keluar Bahan</h2>
+            <h2 id="detailDialogTitle" class="detail-dialog-title">Rincian Keluar Bahan</h2>
             <p id="detailDialogSubtitle" class="detail-dialog-subtitle">Memuat data SPK...</p>
           </div>
         </div>
@@ -3398,8 +3398,8 @@
             <div class="detail-state-icon">
               <span class="spinner" aria-hidden="true"></span>
             </div>
-            <h3>Menyiapkan detail SPK</h3>
-            <p>Menghitung ulang kebutuhan bahan dan membaca detail produksi.</p>
+            <h3>Menyiapkan rincian SPK</h3>
+            <p>Menghitung ulang kebutuhan bahan dan membaca rincian produksi.</p>
           </div>
         </div>
 
@@ -3408,8 +3408,8 @@
             <div class="detail-state-icon">
               <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
             </div>
-            <h3>Detail gagal dimuat</h3>
-            <p id="detailErrorMessage">Terjadi gangguan saat membaca detail SPK.</p>
+            <h3>Rincian gagal dimuat</h3>
+            <p id="detailErrorMessage">Terjadi gangguan saat membaca rincian SPK.</p>
           </div>
         </div>
 
@@ -4136,13 +4136,13 @@
 
     function showDetailError_(message) {
       document.getElementById('detailErrorMessage').textContent =
-        message || 'Terjadi gangguan saat membaca detail SPK.';
+        message || 'Terjadi gangguan saat membaca rincian SPK.';
       setDetailState_('error');
     }
 
     function renderDetailData_(data, isPreview) {
       document.getElementById('detailDialogTitle').textContent =
-        'Detail SPK ' + displayValue_(data.spk);
+        'Rincian SPK ' + displayValue_(data.spk);
       document.getElementById('detailDialogSubtitle').textContent = [
         data.customer,
         data.artikel,
@@ -4158,19 +4158,19 @@
       const mainData = [
         { label: 'Nomor SPK', value: displayValue_(data.spk) },
         { label: 'Tanggal SPK', value: formatDate_(data.tanggal) },
-        { label: 'Jenis Order', value: displayValue_(data.jenisOrder) },
-        { label: 'Marketing', value: displayValue_(data.marketing) },
-        { label: 'Customer', value: displayValue_(data.customer) },
+        { label: 'Jenis Pesanan', value: displayValue_(data.jenisOrder) },
+        { label: 'Pemasaran', value: displayValue_(data.marketing) },
+        { label: 'Pelanggan', value: displayValue_(data.customer) },
         { label: 'Nomor PO', value: displayValue_(data.nomorPO) },
         { label: 'Artikel', value: displayValue_(data.artikel) },
-        { label: 'Material', value: displayValue_(data.material) },
+        { label: 'Bahan', value: displayValue_(data.material) },
         { label: 'Model Kantong', value: displayValue_(data.modelKantong) },
-        { label: 'Jumlah Order', value: formatQuantity_(data.jumlahOrder, data.uomOrder) },
+        { label: 'Jumlah Pesanan', value: formatQuantity_(data.jumlahOrder, data.uomOrder) },
         { label: 'ETD', value: formatDate_(data.etd) },
         { label: 'SPK Referensi', value: displayValue_(data.spkReferensi) }
       ];
       const sizeData = [
-        { label: 'Ukuran Blowing', value: displayValue_(data.ukuranBlow) },
+        { label: 'Ukuran Peniupan', value: displayValue_(data.ukuranBlow) },
         { label: 'Ukuran Jadi', value: displayValue_(data.ukuranJadi) }
       ];
 
@@ -4247,7 +4247,7 @@
           <div class="calculation-category">${escapeHtml_(categoryTitle)}</div>
           <div class="calculation-table">
             <div class="calculation-table-row">
-              <span class="calculation-table-label">Order + BS</span>
+              <span class="calculation-table-label">Pesanan + BS</span>
               <span class="calculation-table-value">${escapeHtml_(orderWithBs)}</span>
             </div>
             <div class="calculation-table-row">
@@ -4297,7 +4297,7 @@
     function buildCompactCalculationNote_(data) {
       const notes = ['Keterangan: ' + displayValue_(data.jenisOrder)];
       if (data.spkReferensi) notes.push('SPK sumber: ' + data.spkReferensi);
-      notes.push('Material: ' + displayValue_(data.material));
+      notes.push('Bahan: ' + displayValue_(data.material));
       return notes.join(' · ');
     }
 
@@ -4320,7 +4320,7 @@
           <article class="detail-summary-card result">
             <span class="detail-card-label">Hasil Sistem</span>
             <strong class="detail-card-value">${escapeHtml_(calculatedValue)}</strong>
-            <span class="detail-card-note">Hasil hitung ulang dari data Input SPK.</span>
+            <span class="detail-card-note">Hasil hitung ulang dari data pembuatan SPK.</span>
           </article>
           <article class="detail-summary-card manager">
             <span class="detail-card-label">Keluar Bahan PPIC</span>
@@ -4366,7 +4366,7 @@
             ${renderCalculationStep_(
               1,
               'Jumlah order setelah BS',
-              'Jumlah Order × (1 + Total BS ÷ 100)',
+              'Jumlah Pesanan × (1 + Total BS ÷ 100)',
               formatNumber_(calculation.jumlahOrder) + ' ' + calculation.uomOrder +
                 ' × (1 + ' + formatNumber_(calculation.totalBs) + ' ÷ 100) = ' +
                 formatNumber_(calculation.orderAfterBs) + ' ' + calculation.uomOrder
@@ -4462,7 +4462,7 @@
         const material = String(data.material || '').toUpperCase();
         let rule = '';
         if (material.indexOf('CPP') > -1) {
-          rule = 'Material CPP → Meter tetap 6.000';
+          rule = 'Bahan CPP → Meter tetap 6.000';
         } else if (calculation.tebal >= 0.029) {
           rule = 'Tebal ≥ 0,029 → Meter 3.000';
         } else if (calculation.tebal >= 0.020) {
@@ -4481,7 +4481,7 @@
         // penjelasannya pun tidak boleh menampilkan rumus pembagian.
         lines.push(calculation.upTertulis >= 1
           ? {
-              symbolic: 'UP tertulis pada Ukuran Blowing',
+              symbolic: 'UP tertulis pada Ukuran Peniupan',
               values: formatNumber_(calculation.upTertulis) + ' UP'
             }
           : {
@@ -4569,9 +4569,9 @@
 
     function buildCalculationReferences_(calculation) {
       const references = [
-        { label: 'Jumlah Order', value: formatQuantity_(calculation.jumlahOrder, calculation.uomOrder) },
+        { label: 'Jumlah Pesanan', value: formatQuantity_(calculation.jumlahOrder, calculation.uomOrder) },
         { label: 'Total BS', value: formatNumber_(calculation.totalBs) + '%' },
-        { label: 'Order + BS', value: formatQuantity_(calculation.orderAfterBs, calculation.uomOrder) },
+        { label: 'Pesanan + BS', value: formatQuantity_(calculation.orderAfterBs, calculation.uomOrder) },
         { label: 'Lebar Jadi', value: formatMeasurement_(calculation.lebar, 'cm') },
         { label: 'Panjang', value: formatMeasurement_(calculation.panjang, 'cm') },
         { label: 'Tebal', value: formatMeasurement_(calculation.tebal, 'mm') },
@@ -4628,10 +4628,10 @@
               { label: 'Tanggal', value: formatDate_(data.tanggal) },
               { label: 'Jenis Order', value: displayValue_(data.jenisOrder) },
               { label: 'Nomor PO', value: displayValue_(data.nomorPO) },
-              { label: 'Jumlah Order', value: formatQuantity_(data.jumlahOrder, data.uomOrder) },
-              { label: 'Customer', value: displayValue_(data.customer) },
+              { label: 'Jumlah Pesanan', value: formatQuantity_(data.jumlahOrder, data.uomOrder) },
+              { label: 'Pelanggan', value: displayValue_(data.customer) },
               { label: 'Artikel', value: displayValue_(data.artikel) },
-              { label: 'Material', value: displayValue_(data.material) },
+              { label: 'Bahan', value: displayValue_(data.material) },
               { label: 'Film', value: displayValue_(data.film) }
             ].map(renderReferenceItem_).join('')}
           </div>
@@ -4717,7 +4717,7 @@
       const calculation = data.calculation || {};
       const calculatedAvailable = calculation.ok;
       const specs = [
-        { label: 'Ukuran Blowing', value: displayValue_(data.ukuranBlow) },
+        { label: 'Ukuran Peniupan', value: displayValue_(data.ukuranBlow) },
         { label: 'Ukuran Jadi', value: displayValue_(data.ukuranJadi) },
         { label: 'Lebar Jadi', value: formatMeasurement_(dimensions.lebarJadi, 'cm') },
         { label: 'Panjang Jadi', value: formatMeasurement_(dimensions.panjangJadi, 'cm') },
@@ -4757,7 +4757,7 @@
           label: 'UP',
           value: formatNumber_(calculatedAvailable ? calculation.up : '')
         },
-        { label: 'Material', value: displayValue_(data.material) },
+        { label: 'Bahan', value: displayValue_(data.material) },
         { label: 'Jenis Film', value: displayValue_(data.film) }
       ];
 
@@ -4770,7 +4770,7 @@
                 Spesifikasi Ukuran
               </h3>
               <p class="detail-section-note">
-                Ukuran asli dan komponen angka yang dibaca dari Ukuran Blowing serta Ukuran Jadi.
+                Ukuran asli dan komponen angka yang dibaca dari Ukuran Peniupan serta Ukuran Jadi.
               </p>
             </div>
           </div>
@@ -4807,8 +4807,8 @@
             ${[
               { label: 'Model Kantong', value: displayValue_(data.modelKantong) },
               { label: 'Artikel', value: displayValue_(data.artikel) },
-              { label: 'Customer', value: displayValue_(data.customer) },
-              { label: 'Jumlah Order', value: formatQuantity_(data.jumlahOrder, data.uomOrder) }
+              { label: 'Pelanggan', value: displayValue_(data.customer) },
+              { label: 'Jumlah Pesanan', value: formatQuantity_(data.jumlahOrder, data.uomOrder) }
             ].map(renderSpecCard_).join('')}
           </div>
         </article>
@@ -5563,7 +5563,7 @@
 
     function showLoadError_(message) {
       document.getElementById('errorMessage').textContent =
-        message || 'Terjadi gangguan saat membaca Database.';
+        message || 'Terjadi gangguan saat membaca Basis Data.';
       setViewState_('error');
     }
 
@@ -5630,6 +5630,6 @@
     }
   </script>
   <script src="../responsive-header.js?v=20260811-1"></script>
-  <script src="../i18n.js?v=20260811-1"></script>
+  <script src="../i18n.js?v=20260811-2"></script>
 </body>
 </html>

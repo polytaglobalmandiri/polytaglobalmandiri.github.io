@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Input SPK | Polyta Global Mandiri</title>
+  <title>Pembuatan SPK | Polyta Global Mandiri</title>
   <meta name="theme-color" content="#202226">
   <base target="_top">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='22' fill='%23f4f4f1'/%3E%3Cpath fill='%23111216' d='M14 12h50v43h42v53h-8V63H64v45H14V55h42V20H14z'/%3E%3Crect x='15' y='22' width='41' height='12' rx='6' fill='%234563b3'/%3E%3Crect x='22' y='63' width='34' height='37' fill='%23ef2631'/%3E%3Crect x='84' y='64' width='11' height='44' rx='5.5' fill='%2340b84e'/%3E%3C/svg%3E">
@@ -4789,12 +4789,12 @@
         </div>
         <div>
           <span class="app-brand-name">Polyta Global Mandiri</span>
-          <span class="app-brand-subtitle">Plastic Packaging Industry</span>
+          <span class="app-brand-subtitle">Industri Kemasan Plastik</span>
         </div>
       </div>
       <nav class="app-nav" aria-label="Navigasi utama">
         <a class="app-nav-link" href="/apps/spk-automation/" target="_top" title="PPIC">
-          <i class="fa-solid fa-chart-pie"></i><span>PPIC</span>
+          <i class="fa-solid fa-chart-pie"></i><span>Dasbor PPIC</span>
         </a>
         <a class="app-nav-link" href="/apps/spk-automation/material-issue/" target="_top" title="Keluar Bahan Manager PPIC">
           <i class="fa-solid fa-dolly"></i><span>Keluar Bahan</span>
@@ -4839,13 +4839,13 @@
             </span>
             <span class="identity-heading-copy">
               <span class="form-group-title">Data Utama</span>
-              <span class="identity-subtitle">Identitas order dan nomor SPK</span>
+              <span class="identity-subtitle">Identitas pesanan dan nomor SPK</span>
             </span>
           </div>
 
-          <div class="order-type-segment" role="group" aria-label="Jenis order">
-            <button type="button" id="orderTypeNew" class="order-type-option active" data-spk-order-type="New Order" aria-pressed="true" onclick="setOrderType_('New Order')">New Order</button>
-            <button type="button" id="orderTypeRepeat" class="order-type-option" data-spk-order-type="Repeat Order" aria-pressed="false" onclick="setOrderType_('Repeat Order')">Repeat Order</button>
+          <div class="order-type-segment" role="group" aria-label="Jenis pesanan">
+            <button type="button" id="orderTypeNew" class="order-type-option active" data-spk-order-type="New Order" aria-pressed="true" onclick="setOrderType_('New Order')">Pesanan Baru</button>
+            <button type="button" id="orderTypeRepeat" class="order-type-option" data-spk-order-type="Repeat Order" aria-pressed="false" onclick="setOrderType_('Repeat Order')">Pesanan Ulang</button>
           </div>
 
           <!-- New Order butuh satu nomor; Repeat Order butuh dua: SPK sumber
@@ -4892,7 +4892,7 @@
               </div>
             </div>
             <div class="spk-inline">
-              <label class="field-label" for="spkRepeat">SPK Repeat Baru</label>
+              <label class="field-label" for="spkRepeat">SPK Ulang Baru</label>
               <div class="spk-wrapper">
                 <input type="text" id="spkRepeat" class="field-input" placeholder="Contoh: G26.105" autocomplete="off">
                   <div class="spk-status-icon" id="spkRepeatStatusIcon">
@@ -4913,17 +4913,17 @@
         <div class="form-grid">
           <!-- Baris 1: pemesan dan artikel -->
           <div class="form-cell">
-            <label class="field-label">Customer</label>
+            <label class="field-label">Pelanggan</label>
             <input type="text" id="customer" class="field-input" required placeholder="Nama perusahaan pemesan">
           </div>
           <div class="form-cell">
-            <label class="field-label">No. PO Customer</label>
+            <label class="field-label">Nomor PO Pelanggan</label>
             <input type="text" id="nomorPO" class="field-input" placeholder="Nomor PO dari customer">
           </div>
           <div class="form-cell">
-            <label class="field-label">Marketing</label>
+            <label class="field-label">Pemasaran</label>
             <select id="marketing" class="field-input">
-              <option value="">Pilih marketing</option>
+              <option value="">Pilih pemasaran</option>
               <option value="Sri Yamtinah">Sri Yamtinah</option>
               <option value="Siti Juheriah">Siti Juheriah</option>
               <option value="Mutiara">Mutiara</option>
@@ -4936,7 +4936,7 @@
             </select>
           </div>
           <div class="form-cell">
-            <label class="field-label">Artikel / Brand</label>
+            <label class="field-label">Artikel / Merek</label>
             <input type="text" id="artikel" class="field-input" placeholder="Nama artikel atau brand produk">
           </div>
 
@@ -4975,13 +4975,13 @@
               </select>
               <select id="film" class="field-input input-pair-uom" onchange="syncMaterialDerivedFields_()">
                 <option value="">Film</option>
-                <option value="SHEET">SHEET</option>
+                <option value="SHEET">LEMBARAN</option>
                 <option value="TUBE">TUBE</option>
               </select>
             </div>
           </div>
           <div class="form-cell">
-            <label class="field-label">Order</label>
+            <label class="field-label">Pesanan</label>
             <div class="input-pair">
               <input type="number" step="any" id="jumlahOrder" class="field-input" placeholder="Jumlah">
               <select id="uomOrder" class="field-input input-pair-uom">
@@ -5045,7 +5045,7 @@
             <input type="number" min="0" step="any" id="toleransi" class="field-input" placeholder="Kosongkan bila PASS">
           </div>
 
-          <!-- Baris 5: penyesuaian kebutuhan bahan. Stok memotong Jumlah Order sehingga
+          <!-- Baris 5: penyesuaian kebutuhan bahan. Stok memotong Jumlah Pesanan sehingga
                sesatuan dengannya; OTS dan WIP menyesuaikan hasil perhitungan
                yang satuannya KG. -->
           <div class="form-cell">
@@ -5054,7 +5054,7 @@
           </div>
           <div class="form-cell">
             <label class="field-label">Stok <span class="field-label-hint" id="stokUomHint">(PCS)</span></label>
-            <input type="number" min="0" step="any" id="stok" class="field-input" placeholder="Mengurangi Jumlah Order" oninput="recalculateRawMaterial_()">
+            <input type="number" min="0" step="any" id="stok" class="field-input" placeholder="Mengurangi Jumlah Pesanan" oninput="recalculateRawMaterial_()">
           </div>
           <div class="form-cell">
             <label class="field-label">OTS <span class="field-label-hint">(KG)</span></label>
@@ -5084,7 +5084,7 @@
                  Database. Kolom tersembunyi ini menjaga agar seluruh kode dan
                  validasi yang sudah ada tetap membacanya dari satu tempat. -->
             <input type="hidden" id="etd">
-            <p class="partial-hint">Tahap pertama adalah tanggal kirim utama (ETD). Ketik tanggal singkat seperti <strong>6/8</strong>. Pilih <strong>Full</strong> agar tahap itu mengambil sisa order secara otomatis, atau <strong>Custom</strong> untuk mengisi jumlahnya sendiri.</p>
+            <p class="partial-hint">Tahap pertama adalah tanggal kirim utama (ETD). Ketik tanggal singkat seperti <strong>6/8</strong>. Pilih <strong>Penuh</strong> agar tahap itu mengambil sisa pesanan secara otomatis, atau <strong>Khusus</strong> untuk mengisi jumlahnya sendiri.</p>
           </div>
         </div>
         </div>
@@ -5104,7 +5104,7 @@
 
         <div class="routing-tabs-shell">
           <div id="routingProcessTabs" class="routing-process-tabs" role="tablist" aria-label="Pilih proses produksi"></div>
-          <p class="routing-tabs-hint">Klik proses untuk menambahkannya sebagai langkah berikutnya. Proses yang sama boleh dipilih lagi &mdash; misalnya Gusset, Folding, Slitting, lalu Folding sekali lagi. Urutan dapat digeser dan tiap langkah diedit lewat kartunya di bawah.</p>
+          <p class="routing-tabs-hint">Klik proses untuk menambahkannya sebagai langkah berikutnya. Proses yang sama boleh dipilih lagi &mdash; misalnya Pembentukan Lipatan, Pelipatan, Pembelahan, lalu Pelipatan sekali lagi. Urutan dapat digeser dan tiap langkah disunting lewat kartunya di bawah.</p>
 
           <!-- Dipertahankan sebagai jembatan nilai untuk kode lama; kontrol
                visualnya kini langsung memakai tab proses. -->
@@ -5132,7 +5132,7 @@
           <!-- ---------- MIXER ---------- -->
           <section class="route-panel" id="route-mixer" aria-label="Mixer" hidden>
             <div class="route-panel-head">
-              <span class="route-panel-title">Mixer</span>
+              <span class="route-panel-title">Pencampuran</span>
               <span class="route-panel-meta">Komposisi bahan baku</span>
             </div>
             <div class="form-grid route-fields route-fields--split">
@@ -5153,12 +5153,12 @@
           <!-- ---------- BLOWING ---------- -->
           <section class="route-panel" id="route-blowing" aria-label="Blowing" hidden>
             <div class="route-panel-head">
-              <span class="route-panel-title">Blowing</span>
+              <span class="route-panel-title">Peniupan</span>
               <span class="route-panel-meta">Ukuran, threat, dan mode cetak</span>
             </div>
             <div class="form-grid route-fields route-fields--blowing">
               <div class="form-cell">
-                <label class="field-label">Ukuran Blowing</label>
+                <label class="field-label">Ukuran Peniupan</label>
                 <input type="text" id="ukuranBlow" class="field-input" placeholder="Contoh: 78 X 0.05">
               </div>
               <div class="form-cell">
@@ -5188,8 +5188,8 @@
               <div class="form-cell">
                 <label class="field-label">Mode Cetak</label>
                 <select id="blowingModeCetak" class="field-input" onchange="syncWarnaVisibility_()">
-                  <option value="NON PRINT">Non Print</option>
-                  <option value="INLINE">Inline</option>
+                  <option value="NON PRINT">Tanpa Cetak</option>
+                  <option value="INLINE">Langsung</option>
                 </select>
               </div>
               <div class="form-cell">
@@ -5208,7 +5208,7 @@
           <!-- ---------- PRINTING ---------- -->
           <section class="route-panel" id="route-printing" aria-label="Printing" hidden>
             <div class="route-panel-head">
-              <span class="route-panel-title">Printing</span>
+              <span class="route-panel-title">Pencetakan</span>
               <span class="route-panel-meta">Warna, tinta, dan silinder</span>
             </div>
             <div class="form-grid route-fields route-fields--split">
@@ -5229,19 +5229,19 @@
             <div id="warnaHost-printing" class="warna-host"></div>
             <div class="route-note">
               <label class="field-label" for="ket-printing">Keterangan</label>
-              <textarea id="ket-printing" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Printing."></textarea>
+              <textarea id="ket-printing" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Pencetakan."></textarea>
             </div>
           </section>
 
           <!-- ---------- FOLDING ---------- -->
           <section class="route-panel" id="route-folding" aria-label="Folding" hidden>
             <div class="route-panel-head">
-              <span class="route-panel-title">Folding</span>
+              <span class="route-panel-title">Pelipatan</span>
               <span class="route-panel-meta">Ukuran lipat</span>
             </div>
             <div class="form-grid route-fields route-fields--sizes">
               <div class="form-cell">
-                <label class="field-label">Ukuran Folding</label>
+                <label class="field-label">Ukuran Pelipatan</label>
                 <input type="text" id="ukuranFolding" class="field-input" placeholder="Contoh: 35 + 5 LIDAH X 0.05">
               </div>
               <div class="form-cell">
@@ -5264,12 +5264,12 @@
           <!-- ---------- SLITTING ---------- -->
           <section class="route-panel" id="route-slitting" aria-label="Slitting" hidden>
             <div class="route-panel-head">
-              <span class="route-panel-title">Slitting</span>
+              <span class="route-panel-title">Pembelahan</span>
               <span class="route-panel-meta">Ukuran potong memanjang</span>
             </div>
             <div class="form-grid route-fields route-fields--sizes">
               <div class="form-cell">
-                <label class="field-label">Ukuran Slitting</label>
+                <label class="field-label">Ukuran Pembelahan</label>
                 <input type="text" id="ukuranSlitting" class="field-input" placeholder="Contoh: 35 X 0.05">
               </div>
               <div class="form-cell">
@@ -5292,12 +5292,12 @@
           <!-- ---------- GUSSET ---------- -->
           <section class="route-panel" id="route-gusset" aria-label="Gusset" hidden>
             <div class="route-panel-head">
-              <span class="route-panel-title">Gusset</span>
+              <span class="route-panel-title">Pembentukan Lipatan</span>
               <span class="route-panel-meta">Ukuran lipatan samping</span>
             </div>
             <div class="form-grid route-fields route-fields--sizes">
               <div class="form-cell">
-                <label class="field-label">Ukuran Gusset</label>
+                <label class="field-label">Ukuran Lipatan</label>
                 <input type="text" id="ukuranGusset" class="field-input" placeholder="Contoh: 35 / 23 X 0.05">
               </div>
               <div class="form-cell">
@@ -5305,7 +5305,7 @@
                 <input type="number" step="any" min="0" max="100" id="bs-gusset" class="field-input" placeholder="0" value="0" oninput="hitungTotalBs()">
               </div>
               <div class="form-cell">
-                <label class="field-label">Lebar Gusset</label>
+                <label class="field-label">Lebar Lipatan</label>
                 <input type="text" id="lebarGusset" class="field-input" placeholder="Contoh: 12 atau 6 + 6">
               </div>
               <div class="form-cell">
@@ -5324,20 +5324,20 @@
           <!-- ---------- CUTTING / FINISHING ---------- -->
           <section class="route-panel" id="route-cutting" aria-label="Cutting" hidden>
             <div class="route-panel-head">
-              <span class="route-panel-title">Cutting &mdash; Finishing</span>
-              <span class="route-panel-meta">Alur akhir dan packing</span>
+              <span class="route-panel-title">Pemotongan &mdash; Penyelesaian</span>
+              <span class="route-panel-meta">Alur akhir dan pengepakan</span>
             </div>
 
-            <label class="field-label">Jenis Finishing</label>
+                  <label class="field-label">Jenis Penyelesaian</label>
             <div class="finishing-choice-grid" id="finishingChoiceGrid">
-              <button type="button" class="finishing-choice" data-finishing="BOTTOM SEAL" onclick="setFinishingChoice_('BOTTOM SEAL')">Bottom Seal</button>
-              <button type="button" class="finishing-choice" data-finishing="SIDE SEAL" onclick="setFinishingChoice_('SIDE SEAL')">Side Seal</button>
+              <button type="button" class="finishing-choice" data-finishing="BOTTOM SEAL" onclick="setFinishingChoice_('BOTTOM SEAL')">Segel Bawah</button>
+              <button type="button" class="finishing-choice" data-finishing="SIDE SEAL" onclick="setFinishingChoice_('SIDE SEAL')">Segel Samping</button>
               <button type="button" class="finishing-choice" data-finishing="TSHIRT" onclick="setFinishingChoice_('TSHIRT')">T-Shirt</button>
             </div>
             <select id="finishing" class="is-hidden" aria-hidden="true" tabindex="-1">
               <option value="-">-</option>
-              <option value="BOTTOM SEAL">Bottom Seal</option>
-              <option value="SIDE SEAL">Side Seal</option>
+              <option value="BOTTOM SEAL">Segel Bawah</option>
+              <option value="SIDE SEAL">Segel Samping</option>
               <option value="TSHIRT">T-Shirt</option>
             </select>
 
@@ -5346,12 +5346,12 @@
             <div id="cuttingDetail" class="routing-subpanel" hidden>
               <div class="form-grid route-fields route-fields--cutting">
                 <div class="form-cell">
-                  <label class="field-label">Handle/Pon</label>
+                  <label class="field-label">Pegangan/Pon</label>
                   <!-- Pon dan Handle saling meniadakan, dan pilihan di sini
                        menentukan BS mana yang ikut dihitung. -->
                   <select id="handlePm" class="field-input" onchange="hitungTotalBs()">
                     <option value="-">-</option>
-                    <option value="HANDLE">Handle</option>
+                    <option value="HANDLE">Pegangan</option>
                     <option value="PON">Pon</option>
                   </select>
                 </div>
@@ -5361,18 +5361,18 @@
                   <select id="mesin-cutting" class="field-input"></select>
                 </div>
                 <div class="form-cell">
-                  <label class="field-label">Jenis Packing</label>
+                  <label class="field-label">Jenis Pengepakan</label>
                   <select id="jenisPacking" class="field-input">
-                    <option value="">Pilih jenis packing</option>
+                    <option value="">Pilih jenis pengepakan</option>
                     <option value="KARUNG">Karung</option>
                     <option value="DUS">Dus</option>
                     <option value="INNER">Inner</option>
                   </select>
                 </div>
                 <div class="form-cell">
-                  <label class="field-label">Packing</label>
+                  <label class="field-label">Pengepakan</label>
                   <select id="packing" class="field-input" onchange="updatePackingDetailVisibility_()">
-                    <option value="">Pilih bentuk packing</option>
+                    <option value="">Pilih bentuk pengepakan</option>
                     <option value="BAG">Bag</option>
                     <option value="ROLL">Roll</option>
                   </select>
@@ -5410,7 +5410,7 @@
                 <summary>Target BS tambahan</summary>
                 <div class="form-grid route-fields route-fields--bs">
                   <div class="form-cell">
-                    <label class="field-label">BS Sheet Slitting (%)</label>
+                    <label class="field-label">BS Pembelahan Lembaran (%)</label>
                     <input type="number" step="any" min="0" max="100" id="bs-sheetSlitting" class="field-input" placeholder="0" value="0" oninput="hitungTotalBs()">
                   </div>
                   <div class="form-cell">
@@ -5418,7 +5418,7 @@
                     <input type="number" step="any" min="0" max="100" id="bs-pon" class="field-input" placeholder="0" value="0" oninput="hitungTotalBs()">
                   </div>
                   <div class="form-cell">
-                    <label class="field-label">BS Handle (%)</label>
+                    <label class="field-label">BS Pegangan (%)</label>
                     <input type="number" step="any" min="0" max="100" id="bs-handle" class="field-input" placeholder="0" value="0" oninput="hitungTotalBs()">
                   </div>
                 </div>
@@ -5426,11 +5426,11 @@
 
               <div id="finishingNoteArea" class="finishing-note-area">
                 <div id="finishing-note-bottomSeal" class="finishing-note-panel" data-finishing-note="BOTTOM SEAL" hidden>
-                  <label class="field-label" for="ket-bottomSeal">Keterangan Bottom Seal</label>
+                  <label class="field-label" for="ket-bottomSeal">Keterangan Segel Bawah</label>
                   <textarea id="ket-bottomSeal" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Bottom Seal."></textarea>
                 </div>
                 <div id="finishing-note-sideSeal" class="finishing-note-panel" data-finishing-note="SIDE SEAL" hidden>
-                  <label class="field-label" for="ket-sideSeal">Keterangan Side Seal</label>
+                  <label class="field-label" for="ket-sideSeal">Keterangan Segel Samping</label>
                   <textarea id="ket-sideSeal" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Side Seal."></textarea>
                 </div>
                 <div id="finishing-note-tshirt" class="finishing-note-panel" data-finishing-note="TSHIRT" hidden>
@@ -5473,7 +5473,7 @@
               <input type="number" step="any" min="0" id="bahanDensityDisplay" class="field-input" data-bahan-ukuran="density" placeholder="0,00" oninput="commitBahanUkuran_()">
             </div>
           </div>
-          <p class="bahan-ukuran-hint">Kolom kosong terisi otomatis dari Ukuran Blowing, Ukuran Jadi, dan Jenis Bahan. Begitu diketik, angka Anda yang dipakai untuk menghitung PCS/KG dan Keluar Bahan.</p>
+          <p class="bahan-ukuran-hint">Kolom kosong terisi otomatis dari Ukuran Peniupan, Ukuran Jadi, dan Jenis Bahan. Begitu diketik, angka Anda yang dipakai untuk menghitung PCS/KG dan Keluar Bahan.</p>
         </div>
 
         <div id="routingEditorActions" class="routing-editor-actions" hidden>
@@ -5487,7 +5487,7 @@
           <div class="routing-saved-head">
             <div>
               <span class="routing-saved-eyebrow">Routing tersusun</span>
-              <h3 id="routingSavedTitle">Detail Proses Produksi</h3>
+              <h3 id="routingSavedTitle">Rincian Proses Produksi</h3>
             </div>
             <span class="routing-saved-count"><span id="routingSavedCount">0</span> langkah</span>
           </div>
@@ -5504,7 +5504,7 @@
       <div id="bsSheetArea" class="bs-sheet-block" hidden>
         <div class="form-grid route-fields route-fields--bs">
           <div class="form-cell">
-            <label class="field-label">BS Sheet (%)</label>
+            <label class="field-label">BS Lembaran (%)</label>
             <input type="number" step="any" min="0" max="100" id="bs-sheet" class="field-input" placeholder="0" value="0" oninput="hitungTotalBs()">
           </div>
         </div>
@@ -5542,7 +5542,7 @@
             <small id="calcSheetCategory">Kategori &mdash;</small>
           </div>
           <div class="calculation-sheet-row">
-            <div class="calculation-sheet-label">Order + BS</div>
+            <div class="calculation-sheet-label">Pesanan + BS</div>
             <div id="calcOrderLine" class="calculation-sheet-value">&mdash;</div>
           </div>
           <div class="calculation-sheet-row">
@@ -5553,11 +5553,11 @@
             <div class="calculation-sheet-result-label">Hasil</div>
             <strong id="calcResult" class="calculation-sheet-result-value">&mdash;</strong>
           </div>
-          <div id="calcReferenceDetail" class="calculation-sheet-reference">Lengkapi Jenis Bahan, Ukuran, dan Order.</div>
+          <div id="calcReferenceDetail" class="calculation-sheet-reference">Lengkapi jenis bahan, ukuran, dan pesanan.</div>
           <div id="calcOrderTypeNote" class="calculation-sheet-reference">Note: OPP - CPP - Kirim Roll, Mohon atur ukuran panjang sesuai meter kebutuhan!</div>
           <div class="calculation-sheet-info-grid">
             <div class="calculation-sheet-info">
-              <span>Ukuran Blowing</span>
+              <span>Ukuran Peniupan</span>
               <strong id="calcUkuranBlowing">&mdash;</strong>
             </div>
             <div class="calculation-sheet-info">
@@ -5574,7 +5574,7 @@
             </div>
           </div>
         </div>
-        <p id="calculationMessage" class="calculation-message">Lengkapi Jenis Bahan, Ukuran, dan Order.</p>
+        <p id="calculationMessage" class="calculation-message">Lengkapi jenis bahan, ukuran, dan pesanan.</p>
       </details>
 
       <!-- ==========================================================
@@ -5645,52 +5645,52 @@
     const PROSES_LIST = [
       {
         key: 'mixer',
-        label: 'Mixer',
-        noteLabel: 'Keterangan Mixer',
-        placeholder: 'Contoh: urutan pencampuran, waktu mixing, atau instruksi khusus Mixer.'
+        label: 'Pencampuran',
+        noteLabel: 'Keterangan Pencampuran',
+        placeholder: 'Contoh: urutan pencampuran, waktu pencampuran, atau instruksi khusus.'
       },
       {
         key: 'blowing',
-        label: 'Blowing',
-        noteLabel: 'Keterangan Blowing',
-        placeholder: 'Contoh: setting mesin, warna, ketebalan, atau instruksi khusus Blowing.'
+        label: 'Peniupan',
+        noteLabel: 'Keterangan Peniupan',
+        placeholder: 'Contoh: pengaturan mesin, warna, ketebalan, atau instruksi khusus Peniupan.'
       },
       {
         key: 'printing',
-        label: 'Printing',
-        noteLabel: 'Keterangan Printing',
-        placeholder: 'Contoh: warna tinta, posisi cetak, standar artwork, atau instruksi Printing.'
+        label: 'Pencetakan',
+        noteLabel: 'Keterangan Pencetakan',
+        placeholder: 'Contoh: warna tinta, posisi cetak, standar desain, atau instruksi Pencetakan.'
       },
       {
         key: 'slitting',
-        label: 'Slitting',
-        noteLabel: 'Keterangan Slitting',
-        placeholder: 'Contoh: ukuran potong, jumlah jalur, atau instruksi khusus Slitting.'
+        label: 'Pembelahan',
+        noteLabel: 'Keterangan Pembelahan',
+        placeholder: 'Contoh: ukuran potong, jumlah jalur, atau instruksi khusus Pembelahan.'
       },
       {
         key: 'folding',
-        label: 'Folding',
-        noteLabel: 'Keterangan Folding',
-        placeholder: 'Contoh: arah lipatan, ukuran lipat, atau instruksi khusus Folding.'
+        label: 'Pelipatan',
+        noteLabel: 'Keterangan Pelipatan',
+        placeholder: 'Contoh: arah lipatan, ukuran lipat, atau instruksi khusus Pelipatan.'
       },
       {
         key: 'gusset',
-        label: 'Gusset',
-        noteLabel: 'Keterangan Gusset',
-        placeholder: 'Contoh: ukuran gusset, posisi, atau instruksi khusus Gusset.'
+        label: 'Pembentukan Lipatan',
+        noteLabel: 'Keterangan Pembentukan Lipatan',
+        placeholder: 'Contoh: ukuran lipatan, posisi, atau instruksi khusus Pembentukan Lipatan.'
       }
     ];
 
     // Cutting bukan bagian PROSES_LIST karena di Database ia diwakili
     // kolom Finishing, bukan salah satu kolom proses T:Y.
     const ROUTING_LIST = [
-      { key: 'mixer', label: 'Mixer' },
-      { key: 'blowing', label: 'Blowing' },
-      { key: 'printing', label: 'Printing' },
-      { key: 'folding', label: 'Folding' },
-      { key: 'slitting', label: 'Slitting' },
-      { key: 'gusset', label: 'Gusset' },
-      { key: 'cutting', label: 'Cutting' }
+      { key: 'mixer', label: 'Pencampuran' },
+      { key: 'blowing', label: 'Peniupan' },
+      { key: 'printing', label: 'Pencetakan' },
+      { key: 'folding', label: 'Pelipatan' },
+      { key: 'slitting', label: 'Pembelahan' },
+      { key: 'gusset', label: 'Pembentukan Lipatan' },
+      { key: 'cutting', label: 'Pemotongan' }
     ];
 
     // Auto-isi dari Ukuran Jadi tetap hanya menyentuh kolom Ukuran yang lama.
@@ -5717,18 +5717,18 @@
     };
 
     const BS_LIST = [
-      { key: 'blowing', label: 'Blowing' },
-      { key: 'printing', label: 'Printing' },
-      { key: 'slitting', label: 'Slitting' },
-      { key: 'folding', label: 'Folding' },
-      { key: 'gusset', label: 'Gusset' },
-      { key: 'sheet', label: 'Sheet' },
+      { key: 'blowing', label: 'Peniupan' },
+      { key: 'printing', label: 'Pencetakan' },
+      { key: 'slitting', label: 'Pembelahan' },
+      { key: 'folding', label: 'Pelipatan' },
+      { key: 'gusset', label: 'Pembentukan Lipatan' },
+      { key: 'sheet', label: 'Lembaran' },
       { key: 'pon', label: 'Pon' },
-      { key: 'tshirt', label: 'T-Shirt' },
-      { key: 'bottomSeal', label: 'Bottom Seal' },
-      { key: 'sideSeal', label: 'Side Seal' },
-      { key: 'handle', label: 'Handle' },
-      { key: 'sheetSlitting', label: 'Sheet Slitting' }
+      { key: 'tshirt', label: 'Kantong Kaos' },
+      { key: 'bottomSeal', label: 'Segel Bawah' },
+      { key: 'sideSeal', label: 'Segel Samping' },
+      { key: 'handle', label: 'Pegangan' },
+      { key: 'sheetSlitting', label: 'Pembelahan Lembaran' }
     ];
 
     // BS Sheet berlaku untuk Folding, Slitting, dan Gusset. Elemen inputnya
@@ -6233,7 +6233,7 @@
         return {
           error: true,
           fieldId: 'material',
-          message: 'Material memuat CPP dan OPP sekaligus. Pilih salah satu di Data Utama.'
+          message: 'Bahan memuat CPP dan OPP sekaligus. Pilih salah satu di Data Utama.'
         };
       }
       if (uom === 'PCS' && isCpp) {
@@ -6288,7 +6288,7 @@
       return {
         error: true,
         fieldId: 'material',
-        message: 'Material dan UOM belum masuk kategori A-F. Periksa Material di Data Utama.'
+        message: 'Bahan dan UOM belum masuk kategori A-F. Periksa Bahan di Data Utama.'
       };
     }
 
@@ -6301,7 +6301,7 @@
       const jumlahOrder = parseCalculationNumber_(document.getElementById('jumlahOrder').value);
       const uomOrder = document.getElementById('uomOrder').value.toUpperCase();
       // Stok yang sudah ada memotong jumlah yang perlu diproduksi. Satuannya
-      // sama dengan Jumlah Order karena keduanya menghitung barang jadi.
+      // sama dengan Jumlah Pesanan karena keduanya menghitung barang jadi.
       const stok = parseCalculationNumber_(getFieldValue_('stok'));
       const ots = parseCalculationNumber_(getFieldValue_('ots'));
       const wip = parseCalculationNumber_(getFieldValue_('wip'));
@@ -6371,7 +6371,7 @@
           ...base,
           incomplete: true,
           fieldId: 'material',
-          message: 'Isi Material pada tab Data Utama.'
+          message: 'Isi Bahan pada tab Data Utama.'
         };
       }
 
@@ -6400,7 +6400,7 @@
           ...categorizedBase,
           incomplete: true,
           fieldId: 'jumlahOrder',
-          message: 'Isi Jumlah Order lebih dari 0.'
+          message: 'Isi Jumlah Pesanan lebih dari 0.'
         };
       }
 
@@ -6605,7 +6605,7 @@
           formulaLine =
             number(result.orderAfterBs) + ' KG' + upValueSuffix + ' = ' +
             (result.ok ? resultNumber(result.keluarBahan) + ' KG' : '—');
-          references.push('Tidak memakai konversi; hasil sama dengan Order + BS.');
+          references.push('Tidak memakai konversi; hasil sama dengan Pesanan + BS.');
         } else if (category.code === 'F') {
           formulaLabel = 'Hasil × Meter Roll ÷ Meter ÷ UP';
           formulaLine =
@@ -6668,7 +6668,7 @@
           : '—',
         referenceLine: references.length
           ? references.join(' · ')
-          : 'Kategori ditentukan dari Material dan UOM Order.',
+          : 'Kategori ditentukan dari Bahan dan UOM Pesanan.',
         orderTypeNote: getCalculationOrderTypeNote_(),
         ukuranBlowing: document.getElementById('ukuranBlow').value.trim() || '—',
         jenisFilm: document.getElementById('film').value.trim() || '—',
@@ -6734,7 +6734,7 @@
       recalculateRawMaterial_();
     }
 
-    // Label satuan Stok mengikuti UOM Order karena keduanya menghitung barang
+    // Label satuan Stok mengikuti UOM Pesanan karena keduanya menghitung barang
     // jadi yang sama.
     function syncStokUomHint_() {
       const hint = document.getElementById('stokUomHint');
@@ -6936,7 +6936,7 @@
         }
 
         if (targetUi.field.value.trim() === '') {
-          missing.push(mode === 'repeat' ? 'Nomor SPK Repeat Baru' : 'Nomor SPK New Order');
+          missing.push(mode === 'repeat' ? 'Nomor SPK Ulang Baru' : 'Nomor SPK New Order');
           targetUi.field.classList.add('wizard-invalid');
         }
         if (tanggal.value === '') {
@@ -6944,11 +6944,11 @@
           tanggal.classList.add('wizard-invalid');
         }
         if (customer.value.trim() === '') {
-          missing.push('Customer');
+          missing.push('Pelanggan');
           customer.classList.add('wizard-invalid');
         }
         if (material.value.trim() === '') {
-          missing.push('Material');
+          missing.push('Bahan');
           material.classList.add('wizard-invalid');
         }
         if (etd.value === '') {
@@ -7028,14 +7028,14 @@
 
         if (!(jumlahOrder > 0)) {
           jumlahOrderField.classList.add('wizard-invalid');
-          if (showAlert) showValidationAlert_('Data Utama Belum Lengkap', 'Jumlah Order wajib lebih dari 0.');
+          if (showAlert) showValidationAlert_('Data Utama Belum Lengkap', 'Jumlah Pesanan wajib lebih dari 0.');
           jumlahOrderField.focus();
           return false;
         }
 
         if (!['PCS', 'KG', 'ROLL'].includes(uomOrderField.value)) {
           uomOrderField.classList.add('wizard-invalid');
-          if (showAlert) showValidationAlert_('UOM Order Belum Valid', 'Pilih PCS, KG, atau ROLL.');
+          if (showAlert) showValidationAlert_('UOM Pesanan Belum Valid', 'Pilih PCS, KG, atau ROLL.');
           uomOrderField.focus();
           return false;
         }
@@ -8772,9 +8772,9 @@
       if (BS_SHEET_ROUTING_KEYS.indexOf(key) > -1) {
         add('Mesin', stepFieldText_(step, 'mesin-' + key));
         add('Ukuran', stepFieldText_(step, AUTOMATIC_ROUTE_SIZE_FIELDS[key]));
-        if (key === 'gusset') add('Lebar Gusset', stepFieldText_(step, 'lebarGusset'));
+        if (key === 'gusset') add('Lebar Lipatan', stepFieldText_(step, 'lebarGusset'));
         add('Target BS', stepBsText_(step, key));
-        add('BS Sheet', stepBsText_(step, 'sheet'));
+        add('BS Lembaran', stepBsText_(step, 'sheet'));
       }
       if (key === 'mixer') add('Mesin', stepFieldText_(step, 'mesin-mixer'));
       if (key === 'cutting') {
@@ -9275,7 +9275,7 @@
     // mengambil sisa order yang belum dipesan tahap Custom mana pun, sehingga
     // Admin tidak perlu menghitung sendiri. Bila lebih dari satu tahap memakai
     // Full, sisanya dibagi rata di antara mereka dan jumlah seluruh tahap tetap
-    // sama dengan Jumlah Order.
+    // sama dengan Jumlah Pesanan.
     const MAX_PENGIRIMAN = 12;
     const JADWAL_MODE_FULL = 'FULL';
     const JADWAL_MODE_CUSTOM = 'CUSTOM';
@@ -9484,7 +9484,7 @@
         // Order, Keluar Bahan, dan Jenis Bahan di Data Utama.
         const kolomNilai = isCustom
           ? `<input type="number" min="0" step="any" class="field-input" value="${escapeAttr_(row.jumlah)}" placeholder="0" aria-label="Jumlah tahap ${index + 1}" oninput="updatePengiriman(${row.id},'jumlah',this.value)">`
-          : `<input type="text" class="field-input is-readonly" data-jadwal-full="${row.id}" value="${escapeAttr_(nilaiFull === null ? '' : formatCalculationNumber_(nilaiFull, 2, 0))}" placeholder="Ikut Jumlah Order" readonly tabindex="-1" aria-label="Jumlah tahap ${index + 1}, mengikuti sisa order">`;
+          : `<input type="text" class="field-input is-readonly" data-jadwal-full="${row.id}" value="${escapeAttr_(nilaiFull === null ? '' : formatCalculationNumber_(nilaiFull, 2, 0))}" placeholder="Ikut Jumlah Pesanan" readonly tabindex="-1" aria-label="Jumlah tahap ${index + 1}, mengikuti sisa order">`;
 
         // Tombol hapus ditaruh di ujung baris label kolom Nilai, bukan pada
         // baris judul tersendiri, sehingga tinggi tiap tahap berkurang satu
@@ -9503,8 +9503,8 @@
               <div class="form-cell">
                 <label class="field-label">Jumlah</label>
                 <div class="jadwal-segment" role="group" aria-label="Jumlah tahap ${index + 1}">
-                  <button type="button" class="jadwal-segment-option${isCustom ? '' : ' active'}" aria-pressed="${!isCustom}" onclick="setJadwalMode_(${row.id}, 'FULL')">Full</button>
-                  <button type="button" class="jadwal-segment-option${isCustom ? ' active' : ''}" aria-pressed="${isCustom}" onclick="setJadwalMode_(${row.id}, 'CUSTOM')">Custom</button>
+                  <button type="button" class="jadwal-segment-option${isCustom ? '' : ' active'}" aria-pressed="${!isCustom}" onclick="setJadwalMode_(${row.id}, 'FULL')">Penuh</button>
+                  <button type="button" class="jadwal-segment-option${isCustom ? ' active' : ''}" aria-pressed="${isCustom}" onclick="setJadwalMode_(${row.id}, 'CUSTOM')">Khusus</button>
                 </div>
               </div>
               <div class="form-cell">
@@ -9899,6 +9899,6 @@
     });
   </script>
   <script src="../responsive-header.js?v=20260811-1"></script>
-  <script src="../i18n.js?v=20260811-1"></script>
+  <script src="../i18n.js?v=20260811-2"></script>
 </body>
 </html>

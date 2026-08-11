@@ -4,7 +4,7 @@ import path from "node:path";
 const sourceDirectory = process.argv[2];
 const projectRoot = path.resolve(import.meta.dirname, "..");
 const outputRoot = path.join(projectRoot, "spk-automasi");
-const siteRoot = "/spk-automasi/";
+const siteRoot = "/apps/spk-automation/";
 
 if (!sourceDirectory || !fs.existsSync(sourceDirectory)) {
   throw new Error("Berikan direktori hasil clone proyek GAS sebagai argumen pertama.");

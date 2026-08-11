@@ -50,13 +50,13 @@
 
   var TYPES = [
     { id: "sheets",   label: "Google Spreadsheet" },
-    { id: "drive",    label: "Folder Google Drive" },
-    { id: "onedrive", label: "Folder OneDrive" },
+    { id: "drive",    label: "Direktori Google Drive" },
+    { id: "onedrive", label: "Direktori OneDrive" },
     { id: "form",     label: "Google Form" },
     { id: "script",   label: "Aplikasi Web / Apps Script" },
     { id: "slides",   label: "Google Slides" },
     { id: "site",     label: "Halaman internal" },
-    { id: "folder",   label: "Folder umum" }
+    { id: "folder",   label: "Direktori umum" }
   ];
 
   /* Nama glif yang boleh dipilih — tidak termasuk ikon antarmuka */
@@ -550,7 +550,7 @@
     var c2 = card("Label menu navigasi", null, []);
     var b2 = $(".card__body", c2);
     b2.appendChild(el("p", "hint",
-      "Hanya labelnya yang dapat diubah. Alamat folder tiap halaman terikat pada " +
+      "Hanya labelnya yang dapat diubah. Alamat direktori tiap halaman terikat pada " +
       "struktur berkas, sehingga tidak disunting dari sini."));
     d.nav.forEach(function (n) {
       var row = el("div", "field-row field-row--2");

@@ -304,9 +304,9 @@
   };
 
   var TYPE_LABEL = {
-    sheets: "Spreadsheet", drive: "Google Drive", onedrive: "OneDrive",
-    form: "Formulir", script: "Aplikasi Web", slides: "Presentasi",
-    site: "Halaman", folder: "Folder"
+    sheets: "Lembar Kerja", drive: "Google Drive", onedrive: "OneDrive",
+    form: "Formulir", script: "Aplikasi Daring", slides: "Presentasi",
+    site: "Laman", folder: "Direktori"
   };
 
   /* ------------------------------------------------------------ Tema */
@@ -687,7 +687,7 @@
     sec.innerHTML =
       '<div class="section__head">' +
         '<h2 class="section__title engrave">Direktori Departemen</h2>' +
-        '<span class="section__hint">Pilih departemen untuk melihat daftar folder dan berkas</span>' +
+        '<span class="section__hint">Pilih departemen untuk melihat daftar direktori dan berkas</span>' +
       "</div>";
     var grid = el("div", "grid grid--dept");
     SITE.pages.beranda.departments.forEach(function (d) {

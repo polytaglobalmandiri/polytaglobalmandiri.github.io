@@ -1993,12 +1993,12 @@
         </div>
         <div>
           <span class="app-brand-name">Polyta Global Mandiri</span>
-          <span class="app-brand-subtitle">Plastic Packaging Industry</span>
+          <span class="app-brand-subtitle">Industri Kemasan Plastik</span>
         </div>
       </div>
       <nav class="app-nav" aria-label="Navigasi utama">
         <a class="app-nav-link" href="/apps/spk-automation/" target="_top" title="PPIC">
-          <i class="fa-solid fa-chart-pie"></i><span>PPIC</span>
+          <i class="fa-solid fa-chart-pie"></i><span>Dasbor PPIC</span>
         </a>
         <a class="app-nav-link" href="/apps/spk-automation/material-issue/" target="_top" title="Keluar Bahan Manager PPIC">
           <i class="fa-solid fa-dolly"></i><span>Keluar Bahan</span>
@@ -2029,7 +2029,7 @@
         <div>
           <p class="eyebrow">Sinkronisasi Data</p>
           <h1 id="pageTitle">Penarikan Data</h1>
-          <p class="page-description">Cari nomor SPK, periksa status Database, lalu tarik seluruh folder atau satu file tertentu.</p>
+          <p class="page-description">Cari nomor SPK, periksa keadaan Basis Data, lalu tarik seluruh direktori atau satu berkas tertentu.</p>
         </div>
       </div>
       <div class="connection-chip">
@@ -2043,7 +2043,7 @@
         <div class="panel-header">
           <div>
             <h2 id="guideTitle" class="panel-title">Alur Penarikan</h2>
-            <p class="panel-caption">Pilih scope penarikan yang dibutuhkan</p>
+            <p class="panel-caption">Pilih cakupan penarikan yang dibutuhkan</p>
           </div>
           <i class="fa-solid fa-list-check" aria-hidden="true"></i>
         </div>
@@ -2053,28 +2053,28 @@
             <span class="guide-number">01</span>
             <div>
               <strong>Pilih direktori</strong>
-              <span>Buka subfolder hingga mencapai folder yang berisi file SPK.</span>
+              <span>Buka subdirektori hingga mencapai direktori yang berisi berkas SPK.</span>
             </div>
           </div>
           <div class="guide-step">
             <span class="guide-number">02</span>
             <div>
               <strong>Cari dan periksa</strong>
-              <span>Gunakan pencarian SPK dan lihat tanda apakah file sudah tersimpan.</span>
+              <span>Gunakan pencarian SPK dan lihat tanda apakah berkas sudah tersimpan.</span>
             </div>
           </div>
           <div class="guide-step">
             <span class="guide-number">03</span>
             <div>
               <strong>Mulai penarikan</strong>
-              <span>Tarik semua file dalam folder atau gunakan tombol Tarik pada satu file SPK.</span>
+              <span>Tarik semua berkas dalam direktori atau gunakan tombol Tarik pada satu berkas SPK.</span>
             </div>
           </div>
         </div>
 
         <div class="guide-note">
           <i class="fa-solid fa-forward-fast" aria-hidden="true"></i>
-          <span>Kedua mode berjalan incremental: SPK lama tidak ditimpa. SPK baru ditambahkan dan disusun dari kecil ke besar; rumus, Release, serta keterangan manual tetap dilindungi.</span>
+          <span>Kedua mode berjalan bertahap: SPK lama tidak ditimpa. SPK baru ditambahkan dan disusun dari kecil ke besar; rumus, keadaan terbit, serta keterangan manual tetap dilindungi.</span>
         </div>
       </aside>
 
@@ -2082,13 +2082,13 @@
         <div class="panel-header">
           <div>
             <h2 id="explorerTitle" class="panel-title">Direktori Sumber</h2>
-            <p class="panel-caption">Navigasikan folder, cari SPK, dan periksa status</p>
+            <p class="panel-caption">Telusuri direktori, cari SPK, dan periksa keadaan</p>
           </div>
           <i class="fa-brands fa-google-drive" aria-hidden="true"></i>
         </div>
 
         <div class="explorer-body">
-          <div id="breadcrumbArea" class="breadcrumb-well" aria-label="Lokasi folder">
+          <div id="breadcrumbArea" class="breadcrumb-well" aria-label="Lokasi direktori">
             <span>Menghubungkan ke Drive...</span>
           </div>
           <div id="folderArea" class="folder-area" aria-live="polite"></div>
@@ -2115,12 +2115,12 @@
             <input type="checkbox" id="modeLengkapi" onchange="syncExtractionControls_()">
             <span>
               <strong>Mode Lengkapi Data Lama</strong>
-              Isi warna tinta, keterangan artikel, keterangan divisi, dan kode item untuk SPK yang sudah ada di Database. Hanya sel yang masih kosong yang diisi; kolom lain dan hasil edit manual tidak disentuh.
+              Isi warna tinta, keterangan artikel, keterangan divisi, dan kode barang untuk SPK yang sudah ada di Basis Data. Hanya sel yang masih kosong yang diisi; kolom lain dan hasil sunting manual tidak disentuh.
             </span>
           </label>
           <button id="btnTarik" class="action-button" type="button" onclick="ekstrakDataFolder()" disabled>
             <i class="fa-solid fa-file-import"></i>
-            Tarik semua file dari direktori ini
+            Tarik semua berkas dari direktori ini
           </button>
         </div>
       </section>
@@ -2418,7 +2418,7 @@
           '<div class="empty-state">' +
             '<div class="empty-icon"><i class="fa-regular fa-folder-open" aria-hidden="true"></i></div>' +
             '<strong>Tidak ada sumber SPK</strong>' +
-            '<span>Folder ini tidak memiliki subfolder atau file Google Sheets/Excel yang didukung.</span>' +
+            '<span>Direktori ini tidak memiliki subdirektori atau berkas Google Sheets/Excel yang didukung.</span>' +
           '</div>';
         return;
       }
@@ -2549,7 +2549,7 @@
           warning.className = 'database-status-warning';
           warning.innerHTML =
             '<i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>' +
-            '<span>Status Database tidak dapat dibaca. File tetap bisa ditarik dan akan diperiksa saat proses berjalan.</span>';
+            '<span>Keadaan Basis Data tidak dapat dibaca. Berkas tetap bisa ditarik dan akan diperiksa saat proses berjalan.</span>';
           fileSection.appendChild(warning);
         }
 
@@ -3545,6 +3545,6 @@
     }
   </script>
   <script src="../responsive-header.js?v=20260811-1"></script>
-  <script src="../i18n.js?v=20260811-1"></script>
+  <script src="../i18n.js?v=20260811-2"></script>
 </body>
 </html>

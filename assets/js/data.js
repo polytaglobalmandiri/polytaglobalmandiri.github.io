@@ -19,42 +19,42 @@ const SITE = {
   short: "PGM",
   tagline: "Portal Akses Data &amp; Dokumen Internal",
   notice:
-    "Untuk akses folder dari cloud pastikan anda sudah memiliki akses file tersebut, apabila ada perubahan dan perizinan silakan hubungi administrator!",
-  footer: "Dikembangkan dan dikelola oleh: Team POLYTA GLOBAL MANDIRI",
+    "Untuk mengakses direktori penyimpanan daring, pastikan Anda sudah memiliki izin terhadap berkas tersebut. Apabila ada perubahan atau kendala perizinan, silakan hubungi administrator!",
+  footer: "Dikembangkan dan dikelola oleh: Tim POLYTA GLOBAL MANDIRI",
 
   /* Urutan menu navigasi. `path` adalah folder halaman, dibuat berbasis
      folder agar alamatnya bersih tanpa akhiran .html */
   nav: [
     { id: "beranda", label: "BERANDA", path: "" },
-    { id: "marketing", label: "MARKETING", path: "pages/marketing/" },
+    { id: "marketing", label: "PEMASARAN", path: "pages/marketing/" },
     { id: "ppic", label: "PPIC", path: "pages/ppic/" },
-    { id: "purchasing", label: "PURCHASING", path: "pages/purchasing/" },
-    { id: "production", label: "PRODUCTION", path: "pages/production/" },
-    { id: "finance", label: "FINANCE", path: "pages/finance/" },
-    { id: "support", label: "SUPPORT", path: "pages/support/" }
+    { id: "purchasing", label: "PEMBELIAN", path: "pages/purchasing/" },
+    { id: "production", label: "PRODUKSI", path: "pages/production/" },
+    { id: "finance", label: "KEUANGAN", path: "pages/finance/" },
+    { id: "support", label: "BANTUAN", path: "pages/support/" }
   ],
 
   pages: {
     beranda: {
       title: "BERANDA",
       heading: "Pusat Akses Terpadu",
-      lead: "Pusat tautan menuju folder dan berkas cloud seluruh departemen. Akses dibatasi berdasarkan peran masing-masing pengguna.",
+      lead: "Pusat tautan menuju direktori dan berkas daring seluruh departemen. Akses dibatasi berdasarkan peran masing-masing pengguna.",
       departments: [
-        { id: "marketing", label: "MARKETING", path: "pages/marketing/", desc: "Folder tim, laporan, dan tautan operasional pemasaran.", image: "assets/img/departments/marketing.webp" },
-        { id: "ppic", label: "PPIC", path: "pages/ppic/", desc: "Manajemen SPK, database OTS, back-up produksi, dashboard.", image: "assets/img/departments/ppic.webp" },
-        { id: "purchasing", label: "PURCHASING", path: "pages/purchasing/", desc: "Purchase order dan perbandingan harga supplier.", image: "assets/img/departments/purchasing.webp" },
-        { id: "production", label: "PRODUCTION", path: "pages/production/", desc: "Input problem, dokumentasi foto, dan data production issue.", image: "assets/img/departments/production.webp" },
-        { id: "finance", label: "FINANCE", path: "pages/finance/", desc: "Arsip laporan piutang, hutang, dan kas pabrik.", image: "assets/img/departments/finance.webp" },
-        { id: "support", label: "SUPPORT", path: "pages/support/", desc: "Panduan penggunaan portal dan kontak administrator.", image: "assets/img/departments/support.webp" }
+        { id: "marketing", label: "PEMASARAN", path: "pages/marketing/", desc: "Direktori tim, laporan, dan tautan operasional pemasaran.", image: "assets/img/departments/marketing.webp" },
+        { id: "ppic", label: "PPIC", path: "pages/ppic/", desc: "Pengelolaan SPK, basis data OTS, cadangan produksi, dan dasbor.", image: "assets/img/departments/ppic.webp" },
+        { id: "purchasing", label: "PEMBELIAN", path: "pages/purchasing/", desc: "Pesanan pembelian dan perbandingan harga pemasok.", image: "assets/img/departments/purchasing.webp" },
+        { id: "production", label: "PRODUKSI", path: "pages/production/", desc: "Pelaporan kendala, dokumentasi foto, dan data masalah produksi.", image: "assets/img/departments/production.webp" },
+        { id: "finance", label: "KEUANGAN", path: "pages/finance/", desc: "Arsip laporan piutang, utang, dan kas pabrik.", image: "assets/img/departments/finance.webp" },
+        { id: "support", label: "BANTUAN", path: "pages/support/", desc: "Panduan penggunaan portal dan kontak pengelola.", image: "assets/img/departments/support.webp" }
       ]
     },
     marketing: {
-      title: "MARKETING TEAM",
-      heading: "Folder &amp; File Marketing",
+      title: "TIM PEMASARAN",
+      heading: "Direktori &amp; Berkas Pemasaran",
       sections: [
         {
-          title: "Folder - File Marketing",
-          hint: "Folder personal anggota tim",
+          title: "Direktori dan Berkas Pemasaran",
+          hint: "Direktori pribadi anggota tim",
           items: [
             { label: "Sri Yamtinah", url: "", type: "sheets", icon: "person" },
             { label: "Mutiara", url: "", type: "onedrive", icon: "person" },
@@ -68,27 +68,27 @@ const SITE = {
           ]
         },
         {
-          title: "Report Marketing",
+          title: "Laporan Pemasaran",
           hint: "Arsip laporan dan lampiran",
           items: [
-            { label: "Laporan Marketing", url: "", type: "onedrive", icon: "chart" },
+            { label: "Laporan Pemasaran", url: "", type: "onedrive", icon: "chart" },
             { label: "Lampiran PO", url: "", type: "onedrive", icon: "clip" },
             { label: "Lampiran PHJ", url: "", type: "onedrive", icon: "clip" }
           ]
         },
         {
-          title: "Link Marketing",
-          hint: "Spreadsheet dan folder operasional",
+          title: "Tautan Pemasaran",
+          hint: "Lembar kerja dan direktori operasional",
           items: [
-            { label: "Schedule Design", url: "", type: "sheets", icon: "calendar" },
+            { label: "Jadwal Desain", url: "", type: "sheets", icon: "calendar" },
             { label: "PH - KP - SPK", url: "", type: "sheets", icon: "doc" },
-            { label: "Mobil Marketing", url: "", type: "sheets", icon: "car" },
+            { label: "Kendaraan Pemasaran", url: "", type: "sheets", icon: "car" },
             { label: "Izin dan Legalitas", url: "", type: "drive", icon: "badge" },
-            { label: "Schedule Blowing Printing", url: "", type: "drive", icon: "calendar" },
+            { label: "Jadwal Peniupan dan Pencetakan", url: "", type: "drive", icon: "calendar" },
             { label: "Stok Barang Jadi", url: "", type: "drive", icon: "box" },
             { label: "Target Tagihan Piutang", url: "", type: "drive", icon: "target" },
-            { label: "Order Balance", url: "", type: "drive", icon: "scale" },
-            { label: "Pengiriman Marketing Harian", url: "", type: "drive", icon: "truck" },
+            { label: "Sisa Pesanan", url: "", type: "drive", icon: "scale" },
+            { label: "Pengiriman Pemasaran Harian", url: "", type: "drive", icon: "truck" },
             { label: "PO Harga Terbaru", url: "", type: "onedrive", icon: "tag" },
             { label: "OTS Mustika", url: "", type: "onedrive", icon: "list" }
           ]
@@ -96,136 +96,136 @@ const SITE = {
       ]
     },
     ppic: {
-      title: "PPIC TEAM",
-      heading: "Production Planning &amp; Inventory Control",
+      title: "TIM PPIC",
+      heading: "Perencanaan Produksi &amp; Pengendalian Persediaan",
       sections: [
         {
           title: "Manajemen SPK",
           hint: "Sistem otomasi surat perintah kerja",
           items: [
-            { label: "Dashboard PPIC", url: "/apps/spk-automation/", type: "script", icon: "gauge" },
+            { label: "Dasbor PPIC", url: "/apps/spk-automation/", type: "script", icon: "gauge" },
             { label: "Penarikan data", url: "/apps/spk-automation/data-retrieval/", type: "script", icon: "download" },
             { label: "Manajemen Bahan", url: "/apps/spk-automation/material-issue/", type: "script", icon: "box" }
           ]
         },
         {
-          title: "Database SPK dan OTS",
+          title: "Basis Data SPK dan OTS",
           hint: "Basis data perencanaan dan persediaan",
           items: [
-            { label: "Master Data", url: "", type: "sheets", icon: "database" },
-            { label: "Pengiriman Harian Marketing", url: "", type: "sheets", icon: "truck" },
+            { label: "Data Induk", url: "", type: "sheets", icon: "database" },
+            { label: "Pengiriman Harian Pemasaran", url: "", type: "sheets", icon: "truck" },
             { label: "LHP - SPK Selesai", url: "", type: "sheets", icon: "check" },
-            { label: "WIP Stok Roll", url: "", type: "sheets", icon: "cylinder" },
-            { label: "Stok WH Roll", url: "", type: "sheets", icon: "warehouse" },
+            { label: "Persediaan Rol Dalam Proses", url: "", type: "sheets", icon: "cylinder" },
+            { label: "Persediaan Rol Gudang", url: "", type: "sheets", icon: "warehouse" },
             { label: "Stok Barang Jadi", url: "", type: "sheets", icon: "box" },
-            { label: "Schedule Blowing Printing", url: "", type: "sheets", icon: "calendar" },
-            { label: "List Pemesanan Bahan Baku", url: "", type: "sheets", icon: "list" },
-            { label: "Tinta dan Cylinder", url: "", type: "sheets", icon: "droplet" },
-            { label: "Outstanding on Hand", url: "", type: "sheets", icon: "clock" },
+            { label: "Jadwal Peniupan dan Pencetakan", url: "", type: "sheets", icon: "calendar" },
+            { label: "Daftar Pemesanan Bahan Baku", url: "", type: "sheets", icon: "list" },
+            { label: "Tinta dan Silinder", url: "", type: "sheets", icon: "droplet" },
+            { label: "Persediaan Tersedia", url: "", type: "sheets", icon: "clock" },
             { label: "Stok Bahan Baku Resin", url: "", type: "sheets", icon: "flask" },
-            { label: "Sparepart", url: "", type: "sheets", icon: "nut" },
-            { label: "Folder Sharing", url: "", type: "drive", icon: "share" }
+            { label: "Suku Cadang", url: "", type: "sheets", icon: "nut" },
+            { label: "Direktori Bersama", url: "", type: "drive", icon: "share" }
           ]
         },
         {
-          title: "Back Up Seluruh Data Produksi",
+          title: "Cadangan Seluruh Data Produksi",
           hint: "Arsip per lini proses",
           items: [
-            { label: "BLOWING", url: "", type: "drive", icon: "wind" },
-            { label: "PRINTING", url: "", type: "drive", icon: "printer" },
-            { label: "FOLDING", url: "", type: "drive", icon: "fold" },
-            { label: "SLITTING", url: "", type: "drive", icon: "slit" },
-            { label: "GUSSET", url: "", type: "drive", icon: "layers" },
-            { label: "CUTTING", url: "", type: "drive", icon: "scissors" }
+            { label: "PENIUPAN", url: "", type: "drive", icon: "wind" },
+            { label: "PENCETAKAN", url: "", type: "drive", icon: "printer" },
+            { label: "PELIPATAN", url: "", type: "drive", icon: "fold" },
+            { label: "PEMBELAHAN", url: "", type: "drive", icon: "slit" },
+            { label: "PEMBENTUKAN LIPATAN", url: "", type: "drive", icon: "layers" },
+            { label: "PEMOTONGAN", url: "", type: "drive", icon: "scissors" }
           ]
         },
         {
-          title: "Dashboard",
+          title: "Dasbor",
           hint: "Visualisasi kinerja produksi",
           items: [
-            { label: "DASHBOARD ANALISYS", url: "", type: "script", icon: "gauge" }
+            { label: "DASBOR ANALISIS", url: "", type: "script", icon: "gauge" }
           ]
         },
         {
-          title: "Get Data By Outstanding",
-          hint: "Penarikan data berdasarkan outstanding",
+          title: "Ambil Data Tertunda",
+          hint: "Penarikan data berdasarkan pekerjaan tertunda",
           items: [
-            { label: "RETRIEVE DATA", url: "", type: "script", icon: "download" }
+            { label: "AMBIL DATA", url: "", type: "script", icon: "download" }
           ]
         },
         {
-          title: "Form Input",
+          title: "Formulir Isian",
           hint: "Formulir pengisian data",
           items: [
-            { label: "Hanover Work Order", url: "", type: "form", icon: "clipboard" }
+            { label: "Perintah Kerja Hanover", url: "", type: "form", icon: "clipboard" }
           ]
         }
       ]
     },
     purchasing: {
-      title: "PURCHASING TEAM",
+      title: "TIM PEMBELIAN",
       heading: "Pengadaan &amp; Perbandingan Harga",
       sections: [
         {
-          title: "Report Purchasing",
+          title: "Laporan Pembelian",
           hint: "Dokumen pengadaan berjalan",
           items: [
             { label: "PO 2026", url: "", type: "sheets", icon: "receipt" },
-            { label: "Perbandingan Harga Supplier", url: "", type: "sheets", icon: "scale" },
+            { label: "Perbandingan Harga Pemasok", url: "", type: "sheets", icon: "scale" },
             { label: "Perbandingan Harga Tinta", url: "", type: "sheets", icon: "droplet" }
           ]
         }
       ]
     },
     production: {
-      title: "PRODUCTION TEAM",
+      title: "TIM PRODUKSI",
       heading: "Pelaporan &amp; Pengendalian Produksi",
       sections: [
         {
-          title: "Input Problem Produksi",
+          title: "Pelaporan Kendala Produksi",
           hint: "Laporkan kendala sesuai bagian",
           items: [
             { label: "Produksi", url: "", type: "form", icon: "factory" },
             { label: "Teknik", url: "", type: "form", icon: "wrench" },
-            { label: "Sparepart", url: "", type: "form", icon: "nut" },
-            { label: "Purchasing", url: "", type: "form", icon: "cart" },
+            { label: "Suku Cadang", url: "", type: "form", icon: "nut" },
+            { label: "Pembelian", url: "", type: "form", icon: "cart" },
             { label: "Panel Listrik", url: "", type: "form", icon: "bolt" },
-            { label: "Refresh", url: "#refresh", type: "site" }
+            { label: "Segarkan", url: "#refresh", type: "site" }
           ]
         },
         {
-          title: "Foto Problem Produksi",
+          title: "Foto Kendala Produksi",
           hint: "Dokumentasi visual per bagian",
           items: [
             { label: "Foto Produksi", url: "", type: "drive", icon: "camera" },
             { label: "Foto Teknik", url: "", type: "drive", icon: "camera" },
-            { label: "Foto Sparepart", url: "", type: "drive", icon: "camera" },
-            { label: "Foto Purchasing", url: "", type: "drive", icon: "camera" },
+            { label: "Foto Suku Cadang", url: "", type: "drive", icon: "camera" },
+            { label: "Foto Pembelian", url: "", type: "drive", icon: "camera" },
             { label: "Foto Panel Listrik", url: "", type: "drive", icon: "camera" }
           ]
         },
         {
-          title: "Data Production Issue",
+          title: "Data Kendala Produksi",
           hint: "Basis data dan aplikasi pengendalian",
           items: [
-            { label: "Production Problem", url: "", type: "sheets", icon: "warn" },
-            { label: "Production Control", url: "", type: "script", icon: "sliders" },
-            { label: "Engineering Archived", url: "", type: "script", icon: "archive" },
-            { label: "Quality Control", url: "", type: "drive", icon: "shield" },
-            { label: "HR - GA Issue", url: "", type: "script", icon: "users" },
-            { label: "Warehouse", url: "", type: "script", icon: "warehouse" },
-            { label: "Document SOP", url: "", type: "script", icon: "doc" },
-            { label: "Work In Proses", url: "", type: "script", icon: "layers" }
+            { label: "Masalah Produksi", url: "", type: "sheets", icon: "warn" },
+            { label: "Pengendalian Produksi", url: "", type: "script", icon: "sliders" },
+            { label: "Arsip Teknik", url: "", type: "script", icon: "archive" },
+            { label: "Kendali Mutu", url: "", type: "drive", icon: "shield" },
+            { label: "Kendala SDM dan Umum", url: "", type: "script", icon: "users" },
+            { label: "Gudang", url: "", type: "script", icon: "warehouse" },
+            { label: "Dokumen SOP", url: "", type: "script", icon: "doc" },
+            { label: "Barang Dalam Proses", url: "", type: "script", icon: "layers" }
           ]
         }
       ]
     },
     finance: {
-      title: "FINANCE TEAM",
+      title: "TIM KEUANGAN",
       heading: "Arsip Laporan Keuangan",
       sections: [
         {
-          title: "Archived Report Finance",
+          title: "Arsip Laporan Keuangan",
           hint: "Rekapitulasi berkala",
           items: [
             { label: "Rekap Piutang", url: "", type: "sheets", icon: "up" },
@@ -237,7 +237,7 @@ const SITE = {
       ]
     },
     support: {
-      title: "SUPPORT",
+      title: "BANTUAN",
       heading: "Panduan Penggunaan Portal",
       sections: [
         {
@@ -250,12 +250,12 @@ const SITE = {
       ],
       faq: [
         {
-          q: "Saya tidak bisa membuka salah satu folder, apa yang harus dilakukan?",
-          a: "Pastikan Anda telah masuk (login) dengan akun perusahaan yang benar. Bila tetap ditolak, berarti akun Anda belum memiliki izin pada folder tersebut — hubungi administrator untuk pengajuan akses."
+          q: "Saya tidak bisa membuka salah satu direktori, apa yang harus dilakukan?",
+          a: "Pastikan Anda telah masuk dengan akun perusahaan yang benar. Bila tetap ditolak, berarti akun Anda belum memiliki izin pada direktori tersebut — hubungi administrator untuk pengajuan akses."
         },
         {
           q: "Bagaimana cara mengajukan perubahan perizinan?",
-          a: "Kirimkan permintaan kepada administrator dengan menyebutkan nama file/folder, jenis akses yang diminta (lihat atau edit), serta alasan kebutuhannya."
+          a: "Kirimkan permintaan kepada administrator dengan menyebutkan nama berkas atau direktori, jenis akses yang diminta (lihat atau sunting), serta alasan kebutuhannya."
         },
         {
           q: "Tautan mana yang boleh saya akses?",

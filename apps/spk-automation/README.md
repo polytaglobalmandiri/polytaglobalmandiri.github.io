@@ -1,6 +1,6 @@
-# SPK Automate
+# Otomasi SPK
 
-Frontend SPK Automate di-host oleh GitHub Pages pada `/spk-automasi/`, sedangkan logika bisnis dan akses Spreadsheet tetap berjalan pada Google Apps Script.
+Antarmuka Otomasi SPK diterbitkan melalui GitHub Pages pada `/apps/spk-automation/`, sedangkan logika bisnis dan akses lembar kerja tetap berjalan pada Google Apps Script.
 
 ## Arsitektur
 

@@ -103,9 +103,9 @@ const SITE = {
           title: "Manajemen SPK",
           hint: "Sistem otomasi surat perintah kerja",
           items: [
-            { label: "Dashboard PPIC", url: "../../apps/spk-automation/", type: "script", icon: "gauge" },
-            { label: "Penarikan data", url: "../../apps/spk-automation/data-retrieval/", type: "script", icon: "download" },
-            { label: "Manajemen Bahan", url: "../../apps/spk-automation/material-issue/", type: "script", icon: "box" }
+            { label: "Dashboard PPIC", url: "/apps/spk-automation/", type: "script", icon: "gauge" },
+            { label: "Penarikan data", url: "/apps/spk-automation/data-retrieval/", type: "script", icon: "download" },
+            { label: "Manajemen Bahan", url: "/apps/spk-automation/material-issue/", type: "script", icon: "box" }
           ]
         },
         {

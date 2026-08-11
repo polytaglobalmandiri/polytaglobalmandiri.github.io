@@ -834,3 +834,64 @@
 
   .spk-menu-label { display: none; }
 }
+
+/* Shared ID / EN language selector. */
+.spk-language-switcher {
+  display: inline-grid;
+  grid-template-columns: repeat(2, 32px);
+  flex: 0 0 auto;
+  padding: 3px;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 9px;
+  background: linear-gradient(180deg, #24262b, #14161a);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,.52), 0 1px 0 rgba(255,255,255,.08);
+}
+
+.spk-language-switcher button {
+  display: grid;
+  width: 32px;
+  height: 28px;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  border-radius: 6px;
+  color: #aeb2b8;
+  background: transparent;
+  font: inherit;
+  font-size: .62rem;
+  font-weight: 900;
+  letter-spacing: .06em;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: color .16s ease, background .16s ease, box-shadow .16s ease;
+}
+
+.spk-language-switcher button:hover,
+.spk-language-switcher button:focus-visible {
+  color: #fff;
+  outline: 1px solid rgba(255,255,255,.32);
+  outline-offset: -1px;
+}
+
+.spk-language-switcher button.is-active {
+  color: #fff;
+  background: linear-gradient(180deg, #dc3541, #9d1720);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.26), 0 2px 5px rgba(0,0,0,.3);
+}
+
+body[data-page="cetak-spk"] .toolbar-actions > .spk-language-switcher {
+  align-self: center;
+}
+
+@media screen and (max-width: 900px) {
+  .spk-responsive-header .spk-language-switcher { margin-left: auto; }
+}
+
+@media screen and (max-width: 420px) {
+  .spk-language-switcher {
+    grid-template-columns: repeat(2, 29px);
+    padding: 2px;
+  }
+
+  .spk-language-switcher button { width: 29px; height: 30px; }
+}

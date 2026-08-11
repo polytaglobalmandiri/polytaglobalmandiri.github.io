@@ -934,8 +934,8 @@
     var page = SITE.pages[pageId];
     if (!page) return;
 
-    /* Beranda ada di akar, halaman departemen satu tingkat di bawahnya */
-    ROOT = pageId === "beranda" ? "./" : "../";
+    /* ROOT sudah dihitung dari lokasi app.js. Ini tetap benar meski halaman
+       dipindahkan lebih dalam, misalnya pages/ppic/ pada struktur baru. */
 
     document.title = SITE.name + " — " + String(page.title).replace(/&amp;/g, "&");
 

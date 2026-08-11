@@ -248,6 +248,7 @@
     "Bahasa Indonesia": "Indonesian",
     "Bahasa Inggris": "English",
     "Industri Kemasan Plastik": "Plastic Packaging Industry",
+    "Portal Akses Internal": "Internal Access Portal",
     "Ringkasan PPIC": "PPIC Overview",
     "Dashboard PPIC": "PPIC Dashboard",
     "Keluar Bahan": "Material Issue",

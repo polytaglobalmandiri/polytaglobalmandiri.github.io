@@ -434,7 +434,7 @@
     brand.href = "../";
     brand.setAttribute("aria-label", "Kembali ke portal POLYTA GLOBAL MANDIRI");
     brand.innerHTML =
-      '<span class="brand__plate"><img src="../assets/img/logo-polyta-3d.png?v=20260811-1" alt="" width="512" height="512"></span>' +
+      '<span class="brand__plate"><img src="../assets/img/logo-polyta.png" alt="" width="438" height="438"></span>' +
       '<span class="brand__txt">' +
         '<span class="brand__name">' + esc((state.data && state.data.name) || "POLYTA GLOBAL MANDIRI") + "</span>" +
         '<span class="brand__sub">Portal Administrator</span>' +

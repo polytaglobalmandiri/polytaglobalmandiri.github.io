@@ -58,7 +58,7 @@
     return asset(value);
   }
 
-  var LOGO = "assets/img/logo-polyta-3d.png?v=20260811-1";
+  var LOGO = "assets/img/logo-polyta.png";
 
   var store = {
     get: function (k, fb) {

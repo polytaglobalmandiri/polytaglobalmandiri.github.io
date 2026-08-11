@@ -541,10 +541,10 @@
     var c = card("Identitas situs", null, []);
     var b = $(".card__body", c);
     b.appendChild(fieldText("Nama situs", d.name, function (v) { d.name = v; touch(); }));
-    b.appendChild(fieldText("Tagline", d.tagline, function (v) { d.tagline = v; touch(); }));
+    b.appendChild(fieldText("Slogan", d.tagline, function (v) { d.tagline = v; touch(); }));
     b.appendChild(fieldArea("Teks pemberitahuan akses", d.notice, function (v) { d.notice = v; touch(); },
       "Muncul sebagai strip merah di setiap halaman."));
-    b.appendChild(fieldText("Teks footer", d.footer, function (v) { d.footer = v; touch(); }));
+    b.appendChild(fieldText("Teks kaki halaman", d.footer, function (v) { d.footer = v; touch(); }));
     box.appendChild(c);
 
     var c2 = card("Label menu navigasi", null, []);
@@ -957,8 +957,8 @@
     body.appendChild(warn);
 
     var fRepo = fieldText("Repositori", guessRepo(), function () {}, "Bentuk: pemilik/nama-repo", "pemilik/nama-repo");
-    var fMsg = fieldText("Pesan commit", "Perbarui daftar tautan lewat panel administrator", function () {});
-    var fTok = fieldText("Personal Access Token", getToken(), function () {}, null, "github_pat_… atau ghp_…");
+    var fMsg = fieldText("Pesan perubahan", "Perbarui daftar tautan lewat panel administrator", function () {});
+    var fTok = fieldText("Token Akses Pribadi", getToken(), function () {}, null, "github_pat_… atau ghp_…");
     $("input", fTok).type = "password";
 
     body.appendChild(fRepo);

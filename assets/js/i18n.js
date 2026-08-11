@@ -224,6 +224,120 @@
     "Perubahan belum diterbitkan": "Unpublished Changes"
   };
 
+  /* Pasangan untuk seluruh teks kanonis Portal dan Administrator. Teks
+     operasional selalu ditulis dalam Bahasa Indonesia pada sumber data. */
+  Object.assign(EN, {
+    "Portal Akses Data & Dokumen Internal": "Internal Data & Document Access Portal",
+    "Untuk mengakses direktori penyimpanan daring, pastikan Anda sudah memiliki izin terhadap berkas tersebut. Apabila ada perubahan atau kendala perizinan, silakan hubungi administrator!": "To access online storage directories, make sure you have permission to use the relevant files. Contact the administrator if permissions change or access problems occur.",
+    "Dikembangkan dan dikelola oleh: Tim POLYTA GLOBAL MANDIRI": "Developed and managed by: POLYTA GLOBAL MANDIRI Team",
+    "BERANDA": "HOME",
+    "PPIC": "PPIC",
+    "Pusat Akses Terpadu": "Integrated Access Center",
+    "Pusat tautan menuju direktori dan berkas daring seluruh departemen. Akses dibatasi berdasarkan peran masing-masing pengguna.": "Central access to online directories and files across all departments. Access is restricted according to each user's role.",
+    "Arsip laporan dan lampiran": "Report and attachment archive",
+    "Lampiran PO": "PO Attachments",
+    "Lampiran PHJ": "PHJ Attachments",
+    "PH - KP - SPK": "PH - KP - SPK",
+    "Izin dan Legalitas": "Permits and Legal Documents",
+    "Stok Barang Jadi": "Finished Goods Inventory",
+    "Target Tagihan Piutang": "Receivables Billing Target",
+    "PO Harga Terbaru": "Latest Price PO",
+    "OTS Mustika": "OTS Mustika",
+    "Sistem otomasi surat perintah kerja": "Work order automation system",
+    "Basis data perencanaan dan persediaan": "Planning and inventory database",
+    "LHP - SPK Selesai": "LHP - Completed SPKs",
+    "Stok Bahan Baku Resin": "Resin Raw Material Inventory",
+    "Arsip per lini proses": "Archive by process line",
+    "Visualisasi kinerja produksi": "Production performance visualization",
+    "Formulir pengisian data": "Data entry forms",
+    "Pengadaan & Perbandingan Harga": "Procurement & Price Comparison",
+    "Dokumen pengadaan berjalan": "Active procurement documents",
+    "PO 2026": "Purchase Orders 2026",
+    "Perbandingan Harga Tinta": "Ink Price Comparison",
+    "Pelaporan & Pengendalian Produksi": "Production Reporting & Control",
+    "Laporkan kendala sesuai bagian": "Report issues by department",
+    "Teknik": "Engineering",
+    "Panel Listrik": "Electrical Panel",
+    "Dokumentasi visual per bagian": "Visual documentation by department",
+    "Foto Produksi": "Production Photos",
+    "Foto Teknik": "Engineering Photos",
+    "Foto Panel Listrik": "Electrical Panel Photos",
+    "Basis data dan aplikasi pengendalian": "Database and control applications",
+    "Rekapitulasi berkala": "Periodic summaries",
+    "Rekap Piutang": "Receivables Summary",
+    "Rekap Hutang": "Payables Summary",
+    "Pemakaian E-Tol": "E-Toll Usage",
+    "Pemakaian Kas Pabrik": "Factory Cash Usage",
+    "Panduan Penggunaan Portal": "Portal User Guide",
+    "Materi presentasi penggunaan portal": "Portal usage presentation",
+    "Klik untuk melihat panduan": "Select to view the guide",
+    "Saya tidak bisa membuka salah satu direktori, apa yang harus dilakukan?": "I cannot open a directory. What should I do?",
+    "Pastikan Anda telah masuk dengan akun perusahaan yang benar. Bila tetap ditolak, berarti akun Anda belum memiliki izin pada direktori tersebut — hubungi administrator untuk pengajuan akses.": "Make sure you are signed in with the correct company account. If access is still denied, contact the administrator to request permission for that directory.",
+    "Bagaimana cara mengajukan perubahan perizinan?": "How do I request a permission change?",
+    "Kirimkan permintaan kepada administrator dengan menyebutkan nama berkas atau direktori, jenis akses yang diminta (lihat atau sunting), serta alasan kebutuhannya.": "Send the administrator the file or directory name, the requested access level (view or edit), and the reason it is needed.",
+    "Tautan mana yang boleh saya akses?": "Which links may I access?",
+    "Akses dibatasi berdasarkan peran. Setiap departemen hanya memiliki izin atas data pada halaman departemennya masing-masing, kecuali diberikan izin tambahan.": "Access is role-based. Each department may only use data on its own page unless additional permission has been granted.",
+    "Apa fungsi tombol pin pada setiap tautan?": "What does the pin button on each link do?",
+    "Tombol pin menyimpan tautan favorit Anda ke bagian Akses Cepat di halaman Beranda. Data pin tersimpan di perangkat Anda sendiri dan tidak dibagikan.": "The pin button saves a favorite link to Quick Access on the Home page. Pinned links are stored only on your device and are not shared.",
+    "Adakah pintasan papan ketik untuk mempercepat pencarian?": "Is there a keyboard shortcut for search?",
+    "Ada. Tekan tombol garis miring / di mana saja pada halaman untuk langsung melompat ke kolom pencarian, tanpa perlu mengarahkan tetikus. Tekan Esc untuk mengosongkan kolom dan keluar darinya.": "Yes. Press / anywhere on the page to focus the search field. Press Esc to clear the field and leave it.",
+    "Buka menu": "Open menu",
+    "Navigasi utama": "Main navigation",
+    "Ganti mode terang / gelap": "Switch light / dark mode",
+    "Tutup pemberitahuan": "Close notice",
+    "Seksi": "Sections",
+    "Tautan": "Links",
+    "Disematkan": "Pinned",
+    "Cari tautan": "Search links",
+    "Tekan / untuk melompat ke kolom pencarian": "Press / to focus the search field",
+    "Muat ulang halaman": "Reload page",
+    "URL belum diatur": "URL not configured",
+    "Disematkan ke Akses Cepat": "Pinned to Quick Access",
+    "Sematan dilepas": "Pin removed",
+    "Pilih departemen untuk melihat daftar direktori dan berkas": "Select a department to view directories and files",
+    "Buka": "Open",
+    "Pemberitahuan disembunyikan di perangkat ini": "Notice hidden on this device",
+    "Tagline": "Tagline",
+    "Slogan": "Tagline",
+    "Teks pemberitahuan akses": "Access notice text",
+    "Teks footer": "Footer text",
+    "Teks kaki halaman": "Footer text",
+    "Judul besar": "Main heading",
+    "Kalimat pengantar": "Introductory sentence",
+    "Gambar 3D": "3D image",
+    "Judul halaman (remah jejak)": "Page title (breadcrumb)",
+    "Keterangan singkat": "Short description",
+    "Tersimpan di": "Stored in",
+    "Draf dibuang, isi disamakan dengan situs": "Draft discarded and restored to the live site",
+    "data.js diunduh — timpa berkas lama di assets/js/": "data.js downloaded — replace the previous file in assets/js/",
+    "Isi data.js disalin ke papan klip": "data.js content copied to the clipboard",
+    "Salin seluruh teks di bawah, lalu timpa isi assets/js/data.js": "Copy all text below, then replace the contents of assets/js/data.js",
+    "Berkas berubah di GitHub sejak dimuat. Muat ulang halaman, lalu coba lagi.": "The file changed on GitHub after it was loaded. Reload the page and try again.",
+    "Kelola kartu yang tampil di Beranda. Gambar dapat memakai aset bawaan (assets/img/departments/nama.webp) atau URL gambar publik.": "Manage the cards shown on Home. Images may use built-in assets (assets/img/departments/name.webp) or a public image URL.",
+    "Personal Access Token": "Personal Access Token",
+    "Pesan commit": "Commit message",
+    "Token Akses Pribadi": "Personal Access Token",
+    "Pesan perubahan": "Commit message",
+    "Ingat token di perangkat ini": "Remember the token on this device",
+    "Unduh data.js": "Download data.js",
+    "Salin": "Copy",
+    "Nama": "Name",
+    "Alamat tujuan": "Destination address",
+    "Keterangan": "Description",
+    "Judul seksi": "Section title",
+    "Nama tautan": "Link name",
+    "Kembali ke portal POLYTA GLOBAL MANDIRI": "Return to the POLYTA GLOBAL MANDIRI portal",
+    "Tindakan administrator": "Administrator actions",
+    "Perubahan tersimpan otomatis sebagai draf di perangkat ini.": "Changes are saved automatically as a draft on this device.",
+    "Hanya labelnya yang dapat diubah. Alamat direktori tiap halaman terikat pada halaman tersebut agar tautan tidak rusak.": "Only labels can be changed. Each page directory is fixed to prevent broken links.",
+    "Hanya labelnya yang dapat diubah. Alamat direktori tiap halaman terikat pada struktur berkas, sehingga tidak disunting dari sini.": "Only labels can be changed. Each page directory follows the file structure and cannot be edited here.",
+    "Alamat": "Address",
+    "Identitas situs": "Site identity",
+    "Kartu departemen": "Department cards",
+    "Teks halaman": "Page text",
+    "Teks halaman Beranda": "Home page text"
+  });
+
   var language = readLanguage();
   var textState = new WeakMap();
   var attrState = new WeakMap();
@@ -240,6 +354,16 @@
     var match;
     if ((match = value.match(/^(\d+)\s+item$/i))) return match[1] + " items";
     if ((match = value.match(/^(\d+)\s+tautan$/i))) return match[1] + " links";
+    if ((match = value.match(/^(\d+)\s*\/\s*(\d+)\s+cocok$/i))) return match[1] + " / " + match[2] + " matches";
+    if ((match = value.match(/^Cari\s+(.+?)(?:…|\.\.\.)$/i))) {
+      var scope = match[1];
+      return "Search " + (EN[scope] || EN[scope.toUpperCase()] || scope);
+    }
+    if ((match = value.match(/^Lepaskan\s+(.+)\s+dari Akses Cepat$/i))) return "Remove " + match[1] + " from Quick Access";
+    if ((match = value.match(/^Sematkan\s+(.+)\s+ke Akses Cepat$/i))) return "Pin " + match[1] + " to Quick Access";
+    if ((match = value.match(/^Tautan “(.+)” belum diatur di assets\/js\/data\.js$/i))) return "Link “" + match[1] + "” is not configured in assets/js/data.js";
+    if ((match = value.match(/^Nama tautan ganda: “(.+)”\. Sematan \(pin\) memakai nama sebagai penanda, sehingga dua tautan bernama sama akan saling tertukar\.$/i))) return "Duplicate link name: “" + match[1] + "”. Pins use the name as their identifier, so links with the same name will conflict.";
+    if ((match = value.match(/^URL “(.+)” tidak diawali https:\/\/ — periksa kembali\.$/i))) return "The URL for “" + match[1] + "” does not begin with https:// — please check it.";
     return value;
   }
 

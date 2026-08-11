@@ -3998,7 +3998,7 @@
         <span id="fullscreenLabel">Layar Penuh</span>
       </button>
       <button id="printButton" class="toolbar-button primary" type="button" disabled>
-        Cetak &amp; Tandai Release
+        Cetak dan Tandai Terbit
       </button>
     </div>
   </header>
@@ -4175,7 +4175,7 @@
 
     window.addEventListener('afterprint', function () {
       if (PRINT_MODE === 'release' && currentPrintData && currentPrintData.release === 'YA') {
-        setToolbarStatus_('Dokumen telah ditandai Release = YA.', 'ready');
+        setToolbarStatus_('Dokumen telah ditandai Terbit = YA.', 'ready');
       }
     });
 
@@ -4223,10 +4223,10 @@
       printButtonEl.disabled = PRINT_MODE !== 'release';
       setToolbarStatus_(
         PRINT_MODE === 'view'
-          ? 'Mode Lihat Saja. Release tidak diubah.'
+          ? 'Mode Lihat Saja. Keadaan terbit tidak diubah.'
           : currentPrintData.release === 'YA'
-            ? 'Paket SPK sudah pernah di-release dan siap dicetak ulang.'
-            : 'Paket siap. Release menjadi YA setelah tombol cetak ditekan.',
+            ? 'Paket SPK sudah pernah diterbitkan dan siap dicetak ulang.'
+            : 'Paket siap. Keadaan terbit menjadi YA setelah tombol cetak ditekan.',
         'ready'
       );
     }
@@ -4241,8 +4241,8 @@
       }
 
       releaseRequestInFlight = true;
-      printButtonEl.textContent = 'MENANDAI RELEASE...';
-      setToolbarStatus_('Memperbarui kolom BV (Release)...', '');
+      printButtonEl.textContent = 'MENANDAI TERBIT...';
+      setToolbarStatus_('Memperbarui kolom BV (Terbit)...', '');
 
       // Dialog cetak dibuka lebih dulu, penandaan Release berjalan paralel.
       // Menunggu jawaban server dulu membuat tombol terasa lambat 1-4 detik
@@ -4254,25 +4254,25 @@
         .withSuccessHandler(function (response) {
           releaseRequestInFlight = false;
           printButtonEl.disabled = false;
-          printButtonEl.textContent = 'CETAK & TANDAI RELEASE';
+          printButtonEl.textContent = 'CETAK DAN TANDAI TERBIT';
 
           if (!response || response.status !== 'success') {
             setToolbarStatus_(
-              response && response.message ? response.message : 'Status Release gagal diperbarui.',
+              response && response.message ? response.message : 'Keadaan terbit gagal diperbarui.',
               'error'
             );
             return;
           }
 
           applyReleaseToUi_('YA');
-          setToolbarStatus_(response.message || 'Release berhasil diperbarui.', 'ready');
+          setToolbarStatus_(response.message || 'Keadaan terbit berhasil diperbarui.', 'ready');
         })
         .withFailureHandler(function (error) {
           releaseRequestInFlight = false;
           printButtonEl.disabled = false;
-          printButtonEl.textContent = 'CETAK & TANDAI RELEASE';
+          printButtonEl.textContent = 'CETAK DAN TANDAI TERBIT';
           setToolbarStatus_(
-            error && error.message ? error.message : 'Status Release gagal diperbarui.',
+            error && error.message ? error.message : 'Keadaan terbit gagal diperbarui.',
             'error'
           );
         })
@@ -4283,7 +4283,7 @@
       if (!currentPrintData) return;
       currentPrintData.release = release;
       const released = release === 'YA';
-      const releaseLabel = released ? 'RELEASE' : 'NON RELEASE';
+      const releaseLabel = released ? 'TERBIT' : 'BELUM TERBIT';
 
       document.querySelectorAll('[data-release-badge]').forEach(function (badge) {
         badge.classList.toggle('is-released', released);
@@ -4291,7 +4291,7 @@
         badge.innerHTML = '<span>' + releaseLabel + '</span>';
       });
       document.querySelectorAll('[data-release-footer]').forEach(function (footer) {
-        footer.textContent = 'Status: ' + releaseLabel;
+        footer.textContent = 'Keadaan: ' + releaseLabel;
       });
     }
 
@@ -4414,7 +4414,7 @@
       const upper = packing.toUpperCase();
       if (upper === 'BAG') {
         const ball = String(formValue_(data, form, 'packingOuterBall') || '').trim();
-        return ball === '' ? packing : packing + ' · ' + ball + ' ball/outer';
+        return ball === '' ? packing : packing + ' · ' + ball + ' bal/kemasan luar';
       }
       if (upper === 'ROLL') {
         const nilai = String(formValue_(data, form, 'packingRollNilai') || '').trim();
@@ -4447,7 +4447,7 @@
       const order = formatPercent_(data.toleransi);
       const produksi = Number(data.toleransiProduksi);
       if (!Number.isFinite(produksi) || produksi <= 0) return order;
-      return order + ' / prod ' + formatPercent_(produksi);
+      return order + ' / produksi ' + formatPercent_(produksi);
     }
 
     // Bila ada jadwal bertahap, jumlah tahapnya disebut di samping tanggal.
@@ -4680,7 +4680,7 @@
 
                 <div class="po-subtitle">Spesifikasi</div>
                 ${fieldLine_('Bahan / Film', bahanFilmText_(data))}
-                ${fieldLine_('Density', formatNumber_(data.density, 2))}
+                ${fieldLine_('Massa Jenis', formatNumber_(data.density, 2))}
                 ${fieldLine_('PCS / KG', pcsPerKgText_(data))}
                 ${fieldLine_('Toleransi', toleransiText_(data))}
               </section>
@@ -4715,7 +4715,7 @@
                 <div class="po-subtitle">Administrasi</div>
                 ${fieldLine_('Tanggal Kirim', tanggalKirimText_(data))}
                 ${fieldLine_('SPK Ref.', data.spkReferensi)}
-                ${fieldLine_('Marketing', data.marketing)}
+                ${fieldLine_('Pemasaran', data.marketing)}
                 ${fieldLine_('Kode Item', data.kodeItem)}
               </section>
             </div>
@@ -4735,10 +4735,10 @@
               ${poSignature_('Dibuat', 'Admin')}
               ${poSignature_('Mengetahui', 'Kepala Blowing')}
               ${poSignature_('Diperiksa', 'Asmen PPIC')}
-              ${poSignature_('Diverifikasi', 'Manager PPIC')}
-              ${poSignature_('Diverifikasi', 'Manager QC / QA')}
-              ${poSignature_('Disetujui', 'Senior Manager')}
-              ${poSignature_('Disahkan', 'General Manager')}
+              ${poSignature_('Diverifikasi', 'Manajer PPIC')}
+              ${poSignature_('Diverifikasi', 'Manajer Kendali Mutu / Jaminan Mutu')}
+              ${poSignature_('Disetujui', 'Manajer Senior')}
+              ${poSignature_('Disahkan', 'Manajer Umum')}
             </div>
           </div>
           ${pageFooter_(data, 'PO Produksi', pageNumber, totalPages, generatedText)}
@@ -4776,8 +4776,8 @@
               <strong>SPK PRODUKSI</strong>
             </div>
             <div class="master-code">
-              ${/* Lembar SPK asli selalu menulis "No. Po Customer" beserta nomor
-                    PO customer, tanpa memandang UOM order. Sebelumnya order
+              ${/* Lembar SPK asli selalu menulis "Nomor PO Pelanggan" beserta nomor
+                    PO pelanggan, tanpa memandang UOM pesanan. Sebelumnya pesanan
                     ROLL dan KG keliru menampilkan Artikel di sini. */''}
               <span>Nomor PO</span>
               <strong>${escapeHtml_(displayValue_(data.nomorPO))}</strong>
@@ -4814,9 +4814,9 @@
               ${fieldLine_('Tanggal Kirim', formatDate_(data.etd))}
               ${fieldLine_('Jumlah Bahan', quantityWithUom_(data.keluarBahan, data.uomKB))}
               ${fieldLine_('Toleransi', formatPercent_(data.toleransi))}
-              ${fieldLine_('Kg / Roll', kgPerRollText_(data))}
-              ${fieldLine_('Meter / Roll', meterPerRollText_(data))}
-              ${fieldLine_('Marketing', data.marketing)}
+              ${fieldLine_('Kg / Gulungan', kgPerRollText_(data))}
+              ${fieldLine_('Meter / Gulungan', meterPerRollText_(data))}
+              ${fieldLine_('Pemasaran', data.marketing)}
               ${fieldLine_('PO Sebelumnya', data.spkReferensi)}
             </div>
 
@@ -4885,7 +4885,7 @@
                   <th colspan="7">Jenis Bahan Baku / Batch Aktual</th>
                 </tr>
                 <tr>
-                  <th>Shift / Operator</th>
+                  <th>Giliran Kerja / Operator</th>
                   ${materialHeaders}
                 </tr>
               </thead>
@@ -4921,7 +4921,7 @@
             ${processField_('Gram. Min.', formatNumber_(gramatur.min, 2))}
             ${processField_('Threat', formValue_(data, form, 'blowingThreat'))}
             ${processField_('Mode Cetak', formValue_(data, form, 'blowingModeCetak'))}
-            ${processField_('Density', formatNumber_(data.density, 2))}
+            ${processField_('Massa Jenis', formatNumber_(data.density, 2))}
           </div>
           <div class="process-table-wrap">
             ${buildRollLogTable_(9)}
@@ -4983,14 +4983,14 @@
             <table class="grid-table roll-log printing-main">
               <thead>
                 <tr>
-                  <th rowspan="2">No. Roll</th><th rowspan="2">Tgl</th>
+                  <th rowspan="2">No. Gulungan</th><th rowspan="2">Tgl</th>
                   <th colspan="2">Hasil</th><th colspan="2">Jam</th><th rowspan="2">Ket.</th>
-                  <th rowspan="2">No. Roll</th><th rowspan="2">Tgl</th>
+                  <th rowspan="2">No. Gulungan</th><th rowspan="2">Tgl</th>
                   <th colspan="2">Hasil</th><th colspan="2">Jam</th><th rowspan="2">Ket.</th>
                 </tr>
                 <tr>
-                  <th>Shift</th><th>KG</th><th>Start</th><th>Finish</th>
-                  <th>Shift</th><th>KG</th><th>Start</th><th>Finish</th>
+                  <th>Giliran Kerja</th><th>KG</th><th>Mulai</th><th>Selesai</th>
+                  <th>Giliran Kerja</th><th>KG</th><th>Mulai</th><th>Selesai</th>
                 </tr>
               </thead>
               <tbody>${blankRows_(14, 9)}</tbody>
@@ -5075,8 +5075,8 @@
               ${processField_('Model Kantong', data.modelKantong)}
               ${processField_('Jenis Potongan', data.jenisPotongan)}
               ${processField_('Handle / Pon', handlePm)}
-              ${processField_('Jenis Packing', formValue_(data, form, 'jenisPacking'))}
-              ${processField_('Packing', packingDetailText_(data, form))}
+              ${processField_('Jenis Pengepakan', formValue_(data, form, 'jenisPacking'))}
+              ${processField_('Pengepakan', packingDetailText_(data, form))}
               ${processField_('Target BS', formatPercent_(bsValue))}
               ${processField_('BS (KG)', targetBsKg_(data, bsValue))}
               ${processField_('Keterangan', formNote_(data, form))}
@@ -5117,14 +5117,14 @@
         <table class="grid-table roll-log">
           <thead>
             <tr>
-              <th rowspan="2">No. Roll</th><th rowspan="2">Tgl</th>
+              <th rowspan="2">No. Gulungan</th><th rowspan="2">Tgl</th>
               <th colspan="2">Hasil</th><th colspan="2">Jam</th><th rowspan="2">Ket.</th>
-              <th rowspan="2">No. Roll</th><th rowspan="2">Tgl</th>
+              <th rowspan="2">No. Gulungan</th><th rowspan="2">Tgl</th>
               <th colspan="2">Hasil</th><th colspan="2">Jam</th><th rowspan="2">Ket.</th>
             </tr>
             <tr>
-              <th>Shift</th><th>KG</th><th>Start</th><th>Finish</th>
-              <th>Shift</th><th>KG</th><th>Start</th><th>Finish</th>
+              <th>Giliran Kerja</th><th>KG</th><th>Mulai</th><th>Selesai</th>
+              <th>Giliran Kerja</th><th>KG</th><th>Mulai</th><th>Selesai</th>
             </tr>
           </thead>
           <tbody>${blankRows_(14, rowCount)}</tbody>
@@ -5135,7 +5135,7 @@
     function buildConversionLogTable_(uom, rowCount) {
       const unit = String(uom || 'KG').toUpperCase();
       const groupHeader = `
-        <th>Tgl / Operator</th><th>Roll Awal</th><th>Hasil ${escapeHtml_(unit)}</th>
+        <th>Tgl / Operator</th><th>Gulungan Awal</th><th>Hasil ${escapeHtml_(unit)}</th>
       `;
       return `
         <table class="grid-table fold-log">
@@ -5148,7 +5148,7 @@
     function buildCuttingLogTable_(uom, rowCount) {
       const unit = String(uom || 'KG').toUpperCase();
       const groupHeader = `
-        <th>Roll Awal / Tgl</th><th>Shift</th><th>Hasil ${escapeHtml_(unit)}</th>
+        <th>Gulungan Awal / Tgl</th><th>Giliran Kerja</th><th>Hasil ${escapeHtml_(unit)}</th>
       `;
       return `
         <table class="grid-table cutting-log">
@@ -5330,7 +5330,7 @@
     }
 
     function processSignatures_(form) {
-      const division = form.key === 'cutting' ? 'Finishing' : form.label;
+      const division = form.key === 'cutting' ? 'Penyelesaian' : form.label;
       // Tiap lembar alur perlu pengesahan kepala divisi yang mengerjakannya,
       // ditempatkan setelah Admin seperti pada lembar SPK asli yang memuat
       // baris KA.BLOWING, KA.PRODUKSI, dan seterusnya.
@@ -5338,10 +5338,10 @@
         { approval: 'Dibuat', role: 'Admin' },
         { approval: 'Mengetahui', role: 'Kepala ' + division },
         { approval: 'Diperiksa', role: 'Asmen PPIC' },
-        { approval: 'Diverifikasi', role: 'Manager PPIC' },
-        { approval: 'Diverifikasi', role: 'Manager QC / QA' },
-        { approval: 'Disetujui', role: 'Senior Manager' },
-        { approval: 'Disahkan', role: 'General Manager' }
+        { approval: 'Diverifikasi', role: 'Manajer PPIC' },
+        { approval: 'Diverifikasi', role: 'Manajer Kendali Mutu / Jaminan Mutu' },
+        { approval: 'Disetujui', role: 'Manajer Senior' },
+        { approval: 'Disahkan', role: 'Manajer Umum' }
       ];
 
       return `
@@ -5362,7 +5362,7 @@
 
     function releaseStamp_(data) {
       const released = data.release === 'YA';
-      const releaseLabel = released ? 'RELEASE' : 'NON RELEASE';
+      const releaseLabel = released ? 'TERBIT' : 'BELUM TERBIT';
       return `
         <div class="release-stamp ${released ? 'is-released' : 'is-non-release'}" data-release-badge>
           <span>${releaseLabel}</span>
@@ -5375,7 +5375,7 @@
         <footer class="page-footer">
           <span>SPK ${escapeHtml_(displayValue_(data.spk))} - ${escapeHtml_(formLabel)}</span>
           <span>Halaman ${pageNumber} dari ${totalPages} - ${escapeHtml_(generatedText)}</span>
-          <span data-release-footer>Status: ${data.release === 'YA' ? 'RELEASE' : 'NON RELEASE'}</span>
+          <span data-release-footer>Keadaan: ${data.release === 'YA' ? 'TERBIT' : 'BELUM TERBIT'}</span>
         </footer>
       `;
     }
@@ -5528,7 +5528,7 @@
           slitting: 'Lebar hasil slitting mengikuti ukuran dan toleransi SPK.',
           folding: 'Periksa ukuran lipatan pada awal dan setiap pergantian roll.',
           gusset: 'Cek kedalaman gusset pada awal roll.',
-          bottomSeal: 'Seal harus rata, kuat, dan tidak berkerut.',
+      bottomSeal: 'Segel harus rata, kuat, dan tidak berkerut.',
           sideSeal: '',
           tshirt: ''
         },
@@ -5568,6 +5568,6 @@
     }
   </script>
   <script src="../responsive-header.js?v=20260811-1"></script>
-  <script src="../i18n.js?v=20260811-2"></script>
+  <script src="../i18n.js?v=20260811-3"></script>
 </body>
 </html>

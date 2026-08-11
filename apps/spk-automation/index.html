@@ -9324,7 +9324,7 @@
                 <a class="nav-link-app active" href="/apps/spk-automation/" target="_top" aria-current="page" title="PPIC">
                     <i class="fa-solid fa-chart-pie"></i><span>Dasbor PPIC</span>
                 </a>
-                <a class="nav-link-app" href="/apps/spk-automation/material-issue/" target="_top" title="Keluar Bahan Manager PPIC">
+                <a class="nav-link-app" href="/apps/spk-automation/material-issue/" target="_top" title="Keluar Bahan Manajer PPIC">
                     <i class="fa-solid fa-dolly"></i><span>Keluar Bahan</span>
                 </a>
                 <a class="nav-link-app" href="/apps/spk-automation/data-retrieval/" target="_top" title="Penarikan Data">
@@ -9373,11 +9373,11 @@
                         <i class="fa-solid fa-square-plus"></i>
                         <span>Buat SPK</span>
                     </button>
-                    <button id="btnInputCustomer" class="button" type="button" title="Tambah customer ke master">
+                    <button id="btnInputCustomer" class="button" type="button" title="Tambah pelanggan ke data induk">
                         <i class="fa-solid fa-user-plus"></i>
                         <span>Pelanggan</span>
                     </button>
-                    <button id="btnInputBrand" class="button" type="button" title="Tambah brand ke master">
+                    <button id="btnInputBrand" class="button" type="button" title="Tambah merek ke data induk">
                         <i class="fa-solid fa-tags"></i>
                         <span>Merek</span>
                     </button>
@@ -9464,7 +9464,7 @@
                 <div class="panel-header">
                     <div>
                         <h2 class="panel-title">Volume KG</h2>
-                        <p class="panel-caption">PCS ÷ PCS/KG · ROLL × Meter Roll ÷ Meter/KG</p>
+                        <p class="panel-caption">PCS ÷ PCS/KG · GULUNGAN × Meter Gulungan ÷ Meter/KG</p>
                     </div>
                     <span id="uomCount" class="panel-chip">0/0 SPK</span>
                 </div>
@@ -9504,7 +9504,7 @@
                         <label for="globalSearch">Pencarian cepat</label>
                         <div class="search-wrap">
                             <i class="fa-solid fa-magnifying-glass"></i>
-                            <input id="globalSearch" class="form-control" type="search" placeholder="Cari SPK, customer, artikel, ukuran, atau material..." autocomplete="off">
+                            <input id="globalSearch" class="form-control" type="search" placeholder="Cari SPK, pelanggan, artikel, ukuran, atau bahan..." autocomplete="off">
                         </div>
                     </div>
 
@@ -9535,9 +9535,9 @@
                     </div>
 
                     <div class="field">
-                        <label for="filterRelease">Status</label>
+                        <label for="filterRelease">Keadaan</label>
                         <select id="filterRelease" class="form-select">
-                            <option value="">Semua status</option>
+                            <option value="">Semua keadaan</option>
                             <option value="KB">Keluar bahan belum diisi</option>
                             <option value="YA">Sudah dicetak</option>
                             <option value="Tidak">Belum dicetak</option>
@@ -9545,15 +9545,15 @@
                     </div>
 
                     <div class="toolbar-actions">
-                        <button id="clearFilters" class="button filter-reset" type="button" title="Reset pencarian dan filter" disabled>
-                            <i class="fa-solid fa-arrow-rotate-left"></i> Reset
+                        <button id="clearFilters" class="button filter-reset" type="button" title="Atur ulang pencarian dan penyaring" disabled>
+                            <i class="fa-solid fa-arrow-rotate-left"></i> Atur Ulang
                         </button>
                     </div>
                 </div>
 
                 <div class="filter-summary">
                     <span id="filterSummaryText">Menampilkan seluruh data produksi.</span>
-                    <button id="clearFiltersInline" class="clear-link" type="button" hidden>Hapus semua filter</button>
+                    <button id="clearFiltersInline" class="clear-link" type="button" hidden>Hapus semua penyaring</button>
                 </div>
 
                 <div class="table-scroll">
@@ -9570,7 +9570,7 @@
                                 <th>Bahan</th>
                                 <th>Jumlah</th>
                                 <th>UOM</th>
-                                <th>Status</th>
+                                <th>Keadaan</th>
                                 <th>Kelola</th>
                             </tr>
                         </thead>
@@ -9649,7 +9649,7 @@
                             </div>
                         </section>
 
-                        <div class="nav detail-tabs" role="tablist" aria-label="Kelompok detail SPK">
+                        <div class="nav detail-tabs" role="tablist" aria-label="Kelompok rincian SPK">
                             <button
                                 id="detailOverviewTab"
                                 class="detail-tab-button active"
@@ -9749,7 +9749,7 @@
                                             </span>
                                             <div>
                                                 <h3>Alur Produksi</h3>
-                                                <p>Status divisi yang digunakan pada SPK ini</p>
+                                                <p>Keadaan divisi yang digunakan pada SPK ini</p>
                                             </div>
                                         </div>
                                         <span id="detailProcessCount" class="detail-section-chip">0 proses aktif</span>
@@ -9860,7 +9860,7 @@
                 <div class="modal-footer detail-modal-footer">
                     <span class="detail-footer-hint">
                         <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
-                        Detail dibaca langsung dari baris SPK di Database.
+                        Rincian dibaca langsung dari baris SPK di Basis Data.
                     </span>
                     <div class="detail-footer-actions">
                         <button type="button" class="button" data-bs-dismiss="modal">Tutup</button>
@@ -9937,7 +9937,7 @@
                             type="button"
                         >
                             <span class="manage-choice-icon"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i></span>
-                            <strong>Edit Data</strong>
+                            <strong>Sunting Data</strong>
                             <p>Perbarui data utama, spesifikasi produk, jumlah pesanan, dan jadwal kirim.</p>
                         </button>
                     </div>
@@ -9954,7 +9954,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <div>
-                        <h2 class="modal-title" id="editSpkModalLabel">Edit Data SPK <span id="editModalSpk"></span></h2>
+                        <h2 class="modal-title" id="editSpkModalLabel">Sunting Data SPK <span id="editModalSpk"></span></h2>
                         <p class="modal-subtitle">Perubahan akan langsung disimpan ke lembar Basis Data</p>
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
@@ -9968,7 +9968,7 @@
 
                     <div id="editError" class="error-state edit-modal-state" hidden>
                         <span class="error-icon"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></span>
-                        <strong>Data edit tidak dapat dimuat</strong>
+                        <strong>Data sunting tidak dapat dimuat</strong>
                         <span id="editErrorMessage">Terjadi kesalahan saat membaca SPK.</span>
                         <button id="editRetryButton" class="button button-primary mt-3" type="button">
                             <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
@@ -9979,7 +9979,7 @@
                     <form id="editSpkForm" class="edit-form" autocomplete="off" hidden>
                         <p class="edit-inline-note">
                             <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
-                            <span>Nomor SPK dan status terbit dikunci. Data proses produksi, BS, komposisi bahan, dan ETA pembelian tidak akan berubah.</span>
+                            <span>Nomor SPK dan keadaan terbit dikunci. Data proses produksi, BS, komposisi bahan, dan ETA pembelian tidak akan berubah.</span>
                         </p>
 
                         <section class="edit-section" aria-labelledby="editIdentityTitle">
@@ -10061,7 +10061,7 @@
                                     <input id="editModelKantong" name="modelKantong" class="form-control" type="text" maxlength="120">
                                 </div>
                                 <div class="edit-field">
-                                    <label for="editUkuranBlow">Ukuran Blow <span class="edit-required">*</span></label>
+                                    <label for="editUkuranBlow">Ukuran Peniupan <span class="edit-required">*</span></label>
                                     <input id="editUkuranBlow" name="ukuranBlow" class="form-control" type="text" maxlength="120" required>
                                     <p class="edit-field-help">Pertahankan pola ukuran yang sudah digunakan pada pembuatan SPK.</p>
                                 </div>
@@ -10080,7 +10080,7 @@
                         <section class="edit-section" aria-labelledby="editDeliveryTitle">
                             <h3 id="editDeliveryTitle" class="edit-section-title">
                                 <i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i>
-                                Order dan Pengiriman
+                                Pesanan dan Pengiriman
                             </h3>
                             <div class="edit-form-grid">
                                 <div class="edit-field">
@@ -10092,11 +10092,11 @@
                                     <select id="editUomOrder" name="uomOrder" class="form-select" required>
                                         <option value="PCS">PCS</option>
                                         <option value="KG">KG</option>
-                                        <option value="ROLL">ROLL</option>
+                                        <option value="ROLL">GULUNGAN</option>
                                     </select>
                                 </div>
                                 <div id="editMeterRollField" class="edit-field" hidden>
-                                    <label for="editMeterRoll">Meter / Roll <span class="edit-required">*</span></label>
+                                    <label for="editMeterRoll">Meter / Gulungan <span class="edit-required">*</span></label>
                                     <input id="editMeterRoll" name="meterRoll" class="form-control" type="number" min="0.000001" step="any">
                                 </div>
                                 <div class="edit-field">
@@ -10108,7 +10108,7 @@
                                     <select id="editUomKB" name="uomKB" class="form-select">
                                         <option value="">Pilih UOM</option>
                                         <option value="KG">KG</option>
-                                        <option value="ROLL">ROLL</option>
+                                        <option value="ROLL">GULUNGAN</option>
                                     </select>
                                 </div>
                                 <div class="edit-field">
@@ -10261,7 +10261,7 @@
           </div>
           <div class="form-cell">
             <label class="field-label">Nomor PO Pelanggan</label>
-            <input type="text" id="nomorPO" class="field-input" placeholder="Nomor PO dari customer">
+            <input type="text" id="nomorPO" class="field-input" placeholder="Nomor PO dari pelanggan">
           </div>
           <div class="form-cell">
             <label class="field-label">Pemasaran</label>
@@ -10280,7 +10280,7 @@
           </div>
           <div class="form-cell">
             <label class="field-label">Artikel / Merek</label>
-            <input type="text" id="artikel" class="field-input" placeholder="Nama artikel atau brand produk">
+            <input type="text" id="artikel" class="field-input" placeholder="Nama artikel atau merek produk">
           </div>
 
           <!-- Baris 2: identitas dan ukuran barang -->
@@ -10330,7 +10330,7 @@
               <select id="uomOrder" class="field-input input-pair-uom">
                 <option value="PCS">PCS</option>
                 <option value="KG">KG</option>
-                <option value="ROLL">ROLL</option>
+                <option value="ROLL">GULUNGAN</option>
               </select>
             </div>
           </div>
@@ -10341,7 +10341,7 @@
               <select id="uomKB" class="field-input input-pair-uom">
                 <option value="">UOM</option>
                 <option value="KG">KG</option>
-                <option value="ROLL">ROLL</option>
+                <option value="ROLL">GULUNGAN</option>
               </select>
             </div>
           </div>
@@ -10359,8 +10359,8 @@
 
           <!-- Baris 4: konversi roll, jenis potongan, sumber bahan, dan toleransi kirim -->
           <div class="form-cell">
-            <label class="field-label">Meter / Roll</label>
-            <input type="number" step="any" min="0" id="meterRoll" class="field-input" placeholder="Panjang per roll">
+            <label class="field-label">Meter / Gulungan</label>
+            <input type="number" step="any" min="0" id="meterRoll" class="field-input" placeholder="Panjang per gulungan">
           </div>
           <div class="form-cell">
             <label class="field-label">Jenis Potongan</label>
@@ -10441,7 +10441,7 @@
           <span class="form-group-icon" aria-hidden="true">
             <svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 6.878V6a2.25 2.25 0 012.25-2.25h7.5A2.25 2.25 0 0118 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 004.5 9v.878m13.5-3A2.25 2.25 0 0119.5 9v.878m0 0a2.246 2.246 0 00-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0121 12v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6c0-.98.626-1.813 1.5-2.122"></path></svg>
           </span>
-          <span class="form-group-title">Routing &mdash; Proses Produksi</span>
+          <span class="form-group-title">Urutan Proses Produksi</span>
           <span class="form-group-hint">Susun urutan bebas &mdash; satu proses boleh dipakai berkali-kali</span>
         </div>
 
@@ -10473,7 +10473,7 @@
         <div class="routing-panels">
 
           <!-- ---------- MIXER ---------- -->
-          <section class="route-panel" id="route-mixer" aria-label="Mixer" hidden>
+          <section class="route-panel" id="route-mixer" aria-label="Pencampuran" hidden>
             <div class="route-panel-head">
               <span class="route-panel-title">Pencampuran</span>
               <span class="route-panel-meta">Komposisi bahan baku</span>
@@ -10489,15 +10489,15 @@
             <div class="routing-total">Total komposisi: <strong id="totalKomposisiDisplay">0 KG &middot; 0%</strong></div>
             <div class="route-note">
               <label class="field-label" for="ket-mixer">Keterangan</label>
-              <textarea id="ket-mixer" maxlength="300" class="field-input alur-note-input" placeholder="Urutan pencampuran, waktu mixing, atau instruksi khusus Mixer."></textarea>
+              <textarea id="ket-mixer" maxlength="300" class="field-input alur-note-input" placeholder="Urutan pencampuran, waktu pencampuran, atau instruksi khusus."></textarea>
             </div>
           </section>
 
           <!-- ---------- BLOWING ---------- -->
-          <section class="route-panel" id="route-blowing" aria-label="Blowing" hidden>
+          <section class="route-panel" id="route-blowing" aria-label="Peniupan" hidden>
             <div class="route-panel-head">
               <span class="route-panel-title">Peniupan</span>
-              <span class="route-panel-meta">Ukuran, threat, dan mode cetak</span>
+              <span class="route-panel-meta">Ukuran, perlakuan, dan mode cetak</span>
             </div>
             <div class="form-grid route-fields route-fields--blowing">
               <div class="form-cell">
@@ -10511,7 +10511,7 @@
                 <input type="text" id="blowingFilmDisplay" class="field-input is-readonly" readonly tabindex="-1" placeholder="Pilih di Data Utama">
               </div>
               <div class="form-cell">
-                <label class="field-label">Density <span class="field-label-hint">(dari Jenis Bahan)</span></label>
+                <label class="field-label">Massa Jenis <span class="field-label-hint">(dari Jenis Bahan)</span></label>
                 <input type="text" id="blowingDensityDisplay" class="field-input is-readonly" readonly tabindex="-1" placeholder="Pilih di Data Utama">
               </div>
               <div class="form-cell">
@@ -10520,12 +10520,12 @@
               </div>
 
               <div class="form-cell">
-                <label class="field-label">Threat</label>
+                <label class="field-label">Perlakuan</label>
                 <select id="blowingThreat" class="field-input">
-                  <option value="NON THREAT">Non Threat</option>
-                  <option value="THREAT 1 SISI">Threat 1 Sisi</option>
-                  <option value="THREAT 2 SISI">Threat 2 Sisi</option>
-                  <option value="THREAT POTONG">Threat Potong</option>
+                  <option value="NON THREAT">Tanpa Perlakuan</option>
+                  <option value="THREAT 1 SISI">Perlakuan 1 Sisi</option>
+                  <option value="THREAT 2 SISI">Perlakuan 2 Sisi</option>
+                  <option value="THREAT POTONG">Perlakuan Potong</option>
                 </select>
               </div>
               <div class="form-cell">
@@ -10544,12 +10544,12 @@
             <div id="warnaHost-blowing" class="warna-host"></div>
             <div class="route-note">
               <label class="field-label" for="ket-blowing">Keterangan</label>
-              <textarea id="ket-blowing" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Blowing."></textarea>
+              <textarea id="ket-blowing" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Peniupan."></textarea>
             </div>
           </section>
 
           <!-- ---------- PRINTING ---------- -->
-          <section class="route-panel" id="route-printing" aria-label="Printing" hidden>
+          <section class="route-panel" id="route-printing" aria-label="Pencetakan" hidden>
             <div class="route-panel-head">
               <span class="route-panel-title">Pencetakan</span>
               <span class="route-panel-meta">Warna, tinta, dan silinder</span>
@@ -10577,7 +10577,7 @@
           </section>
 
           <!-- ---------- FOLDING ---------- -->
-          <section class="route-panel" id="route-folding" aria-label="Folding" hidden>
+          <section class="route-panel" id="route-folding" aria-label="Pelipatan" hidden>
             <div class="route-panel-head">
               <span class="route-panel-title">Pelipatan</span>
               <span class="route-panel-meta">Ukuran lipat</span>
@@ -10600,12 +10600,12 @@
             <div id="bsSheetHost-folding" class="bs-sheet-host"></div>
             <div class="route-note">
               <label class="field-label" for="ket-folding">Keterangan</label>
-              <textarea id="ket-folding" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Folding."></textarea>
+              <textarea id="ket-folding" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Pelipatan."></textarea>
             </div>
           </section>
 
           <!-- ---------- SLITTING ---------- -->
-          <section class="route-panel" id="route-slitting" aria-label="Slitting" hidden>
+          <section class="route-panel" id="route-slitting" aria-label="Pembelahan" hidden>
             <div class="route-panel-head">
               <span class="route-panel-title">Pembelahan</span>
               <span class="route-panel-meta">Ukuran potong memanjang</span>
@@ -10628,12 +10628,12 @@
             <div id="bsSheetHost-slitting" class="bs-sheet-host"></div>
             <div class="route-note">
               <label class="field-label" for="ket-slitting">Keterangan</label>
-              <textarea id="ket-slitting" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Slitting."></textarea>
+              <textarea id="ket-slitting" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Pembelahan."></textarea>
             </div>
           </section>
 
           <!-- ---------- GUSSET ---------- -->
-          <section class="route-panel" id="route-gusset" aria-label="Gusset" hidden>
+          <section class="route-panel" id="route-gusset" aria-label="Pembentukan Lipatan" hidden>
             <div class="route-panel-head">
               <span class="route-panel-title">Pembentukan Lipatan</span>
               <span class="route-panel-meta">Ukuran lipatan samping</span>
@@ -10660,12 +10660,12 @@
             <div id="bsSheetHost-gusset" class="bs-sheet-host"></div>
             <div class="route-note">
               <label class="field-label" for="ket-gusset">Keterangan</label>
-              <textarea id="ket-gusset" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Gusset."></textarea>
+              <textarea id="ket-gusset" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Pembentukan Lipatan."></textarea>
             </div>
           </section>
 
           <!-- ---------- CUTTING / FINISHING ---------- -->
-          <section class="route-panel" id="route-cutting" aria-label="Cutting" hidden>
+          <section class="route-panel" id="route-cutting" aria-label="Pemotongan" hidden>
             <div class="route-panel-head">
               <span class="route-panel-title">Pemotongan &mdash; Penyelesaian</span>
               <span class="route-panel-meta">Alur akhir dan pengepakan</span>
@@ -10675,13 +10675,13 @@
             <div class="finishing-choice-grid" id="finishingChoiceGrid">
               <button type="button" class="finishing-choice" data-finishing="BOTTOM SEAL" onclick="setFinishingChoice_('BOTTOM SEAL')">Segel Bawah</button>
               <button type="button" class="finishing-choice" data-finishing="SIDE SEAL" onclick="setFinishingChoice_('SIDE SEAL')">Segel Samping</button>
-              <button type="button" class="finishing-choice" data-finishing="TSHIRT" onclick="setFinishingChoice_('TSHIRT')">T-Shirt</button>
+              <button type="button" class="finishing-choice" data-finishing="TSHIRT" onclick="setFinishingChoice_('TSHIRT')">Kantong Kaos</button>
             </div>
             <select id="finishing" class="is-hidden" aria-hidden="true" tabindex="-1">
               <option value="-">-</option>
               <option value="BOTTOM SEAL">Segel Bawah</option>
               <option value="SIDE SEAL">Segel Samping</option>
-              <option value="TSHIRT">T-Shirt</option>
+              <option value="TSHIRT">Kantong Kaos</option>
             </select>
 
             <div id="bahanUkuranHost-cutting" class="bahan-ukuran-host"></div>
@@ -10709,28 +10709,28 @@
                     <option value="">Pilih jenis pengepakan</option>
                     <option value="KARUNG">Karung</option>
                     <option value="DUS">Dus</option>
-                    <option value="INNER">Inner</option>
+                    <option value="INNER">Dalam</option>
                   </select>
                 </div>
                 <div class="form-cell">
                   <label class="field-label">Pengepakan</label>
                   <select id="packing" class="field-input" onchange="updatePackingDetailVisibility_()">
                     <option value="">Pilih bentuk pengepakan</option>
-                    <option value="BAG">Bag</option>
-                    <option value="ROLL">Roll</option>
+                    <option value="BAG">Kantong</option>
+                    <option value="ROLL">Gulungan</option>
                   </select>
                 </div>
                 <div class="form-cell" id="packingBagCell" hidden>
-                  <label class="field-label">Outer (Ball)</label>
-                  <input type="number" min="0" step="any" id="packingOuterBall" class="field-input" placeholder="Berapa ball per outer">
+                  <label class="field-label">Luar (Bal)</label>
+                  <input type="number" min="0" step="any" id="packingOuterBall" class="field-input" placeholder="Jumlah bal pada kemasan luar">
                 </div>
                 <div class="form-cell" id="packingRollCell" hidden>
-                  <label class="field-label">Isi per Roll</label>
+                  <label class="field-label">Isi per Gulungan</label>
                   <div class="input-pair">
                     <input type="number" min="0" step="any" id="packingRollNilai" class="field-input" placeholder="Nilai">
                     <select id="packingRollUom" class="field-input input-pair-uom">
                       <option value="">UOM</option>
-                      <option value="ROLL">ROLL</option>
+                      <option value="ROLL">GULUNGAN</option>
                       <option value="KG">KG</option>
                     </select>
                   </div>
@@ -10770,15 +10770,15 @@
               <div id="finishingNoteArea" class="finishing-note-area">
                 <div id="finishing-note-bottomSeal" class="finishing-note-panel" data-finishing-note="BOTTOM SEAL" hidden>
                   <label class="field-label" for="ket-bottomSeal">Keterangan Segel Bawah</label>
-                  <textarea id="ket-bottomSeal" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Bottom Seal."></textarea>
+                  <textarea id="ket-bottomSeal" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Segel Bawah."></textarea>
                 </div>
                 <div id="finishing-note-sideSeal" class="finishing-note-panel" data-finishing-note="SIDE SEAL" hidden>
                   <label class="field-label" for="ket-sideSeal">Keterangan Segel Samping</label>
-                  <textarea id="ket-sideSeal" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Side Seal."></textarea>
+                  <textarea id="ket-sideSeal" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Segel Samping."></textarea>
                 </div>
                 <div id="finishing-note-tshirt" class="finishing-note-panel" data-finishing-note="TSHIRT" hidden>
                   <label class="field-label" for="ket-tshirt">Keterangan T-Shirt</label>
-                  <textarea id="ket-tshirt" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi T-Shirt."></textarea>
+                  <textarea id="ket-tshirt" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Kantong Kaos."></textarea>
                 </div>
               </div>
             </div>
@@ -10812,7 +10812,7 @@
               <input type="number" step="any" min="0" id="bahanTebalDisplay" class="field-input" data-bahan-ukuran="tebal" placeholder="0,000" oninput="commitBahanUkuran_()">
             </div>
             <div class="form-cell">
-              <label class="field-label" for="bahanDensityDisplay">Density</label>
+              <label class="field-label" for="bahanDensityDisplay">Massa Jenis</label>
               <input type="number" step="any" min="0" id="bahanDensityDisplay" class="field-input" data-bahan-ukuran="density" placeholder="0,00" oninput="commitBahanUkuran_()">
             </div>
           </div>
@@ -10829,7 +10829,7 @@
         <section class="routing-saved-section" aria-labelledby="routingSavedTitle">
           <div class="routing-saved-head">
             <div>
-              <span class="routing-saved-eyebrow">Routing tersusun</span>
+              <span class="routing-saved-eyebrow">Urutan tersusun</span>
               <h3 id="routingSavedTitle">Rincian Proses Produksi</h3>
             </div>
             <span class="routing-saved-count"><span id="routingSavedCount">0</span> langkah</span>
@@ -10897,7 +10897,7 @@
             <strong id="calcResult" class="calculation-sheet-result-value">&mdash;</strong>
           </div>
           <div id="calcReferenceDetail" class="calculation-sheet-reference">Lengkapi jenis bahan, ukuran, dan pesanan.</div>
-          <div id="calcOrderTypeNote" class="calculation-sheet-reference">Note: OPP - CPP - Kirim Roll, Mohon atur ukuran panjang sesuai meter kebutuhan!</div>
+          <div id="calcOrderTypeNote" class="calculation-sheet-reference">Catatan: OPP - CPP - Kirim Gulungan, mohon atur ukuran panjang sesuai kebutuhan meter!</div>
           <div class="calculation-sheet-info-grid">
             <div class="calculation-sheet-info">
               <span>Ukuran Peniupan</span>
@@ -10908,7 +10908,7 @@
               <strong id="calcJenisFilm">&mdash;</strong>
             </div>
             <div class="calculation-sheet-info">
-              <span>Density</span>
+              <span>Massa Jenis</span>
               <strong id="calcDensity">&mdash;</strong>
             </div>
             <div class="calculation-sheet-info">
@@ -10926,11 +10926,11 @@
       <div class="wizard-navigation">
         <button type="button" id="btnDraft" class="neumorphic-btn-light">
           <svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zM19.5 14.25v4.125c0 1.243-1.007 2.25-2.25 2.25H5.625a2.25 2.25 0 01-2.25-2.25V9.375c0-1.243 1.007-2.25 2.25-2.25H9.75"></path></svg>
-          SIMPAN DRAFT
+          SIMPAN DRAF
         </button>
         <span class="nav-spacer flex-1"></span>
         <button type="submit" id="btnSubmit" class="neumorphic-btn-black">
-          SIMPAN KE DATABASE
+          SIMPAN KE BASIS DATA
           <svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
         </button>
       </div>
@@ -11066,7 +11066,7 @@
                                 <input type="text" id="custTelepon" class="form-control" data-field="Telepon" maxlength="40" autocomplete="off">
                             </div>
                             <div class="master-field master-field--wide">
-                                <label for="custEmail">Email</label>
+                                <label for="custEmail">Surel</label>
                                 <input type="email" id="custEmail" class="form-control" data-field="Email" maxlength="120" autocomplete="off">
                             </div>
                             <div class="master-field master-field--wide">
@@ -11089,7 +11089,7 @@
                                 <input type="number" id="custLimit" class="form-control" data-field="Limit Kredit" min="0" step="any">
                             </div>
                             <div class="master-field">
-                                <label for="custStatus">Status</label>
+                                <label for="custStatus">Keadaan</label>
                                 <select id="custStatus" class="form-select" data-field="Status" data-options="statusCustomer"></select>
                             </div>
                             <div class="master-field">
@@ -11156,7 +11156,7 @@
                             </div>
                             <div class="master-field master-field--wide">
                                 <label for="brandNamaCustomer">Nama Pelanggan</label>
-                                <input type="text" id="brandNamaCustomer" class="form-control" data-field="Nama Pelanggan" readonly tabindex="-1" placeholder="Terisi dari kode customer">
+                                <input type="text" id="brandNamaCustomer" class="form-control" data-field="Nama Pelanggan" readonly tabindex="-1" placeholder="Terisi dari kode pelanggan">
                             </div>
 
                             <div class="master-form-section">Spesifikasi barang</div>
@@ -11174,7 +11174,7 @@
                                 <input type="text" id="brandModelKantong" class="form-control" data-field="Model Kantong" maxlength="150" autocomplete="off" placeholder="Contoh: SIDE SEAL + SEALTAPE 15 MM">
                             </div>
                             <div class="master-field">
-                                <label for="brandUkuranBlow">Ukuran Blow</label>
+                                <label for="brandUkuranBlow">Ukuran Peniupan</label>
                                 <input type="text" id="brandUkuranBlow" class="form-control" data-field="Ukuran Blow" maxlength="60" autocomplete="off" placeholder="Contoh: 35 X 0.05">
                             </div>
                             <div class="master-field">
@@ -11212,16 +11212,16 @@
 
                             <div class="master-field">
                                 <label for="brandJenisPacking">Jenis Pengepakan</label>
-                                <select id="brandJenisPacking" class="form-select" data-field="Jenis Packing" data-options="jenisPacking">
+                                <select id="brandJenisPacking" class="form-select" data-field="Jenis Pengepakan" data-options="jenisPacking">
                                     <option value="">Pilih jenis pengepakan</option>
                                 </select>
                             </div>
                             <div class="master-field master-field--wide">
                                 <label for="brandPacking">Pengepakan</label>
-                                <input type="text" id="brandPacking" class="form-control" data-field="Packing" maxlength="200" autocomplete="off" placeholder="Contoh: 1 OUTER 50 PCS / 1 BALL 1500 PCS">
+                                <input type="text" id="brandPacking" class="form-control" data-field="Pengepakan" maxlength="200" autocomplete="off" placeholder="Contoh: 1 KEMASAN LUAR 50 PCS / 1 BAL 1500 PCS">
                             </div>
                             <div class="master-field">
-                                <label for="brandStatus">Status</label>
+                                <label for="brandStatus">Keadaan</label>
                                 <select id="brandStatus" class="form-select" data-field="Status" data-options="statusBrand"></select>
                             </div>
                             <div class="master-field">
@@ -11368,7 +11368,7 @@
             { key: 'bottomSeal', label: 'Segel Bawah' },
             { key: 'sideSeal', label: 'Segel Samping' },
             { key: 'handle', label: 'Pegangan' },
-            { key: 'sheetSlitting', label: 'Sheet Slitting' }
+            { key: 'sheetSlitting', label: 'Pembelahan Lembaran' }
         ];
 
         var mockDashboardData = {
@@ -11393,7 +11393,7 @@
                 ["G26.005", "18-07-2026", "New Order", "ANDI", "PT ANGKASA RAYA", "Outer Bag", "Jadi: 45 × 60", "OPP PLAST", 120000, "PCS", "Tidak", "10-09-2026"],
                 ["G26.006", "19-07-2026", "Repeat Order", "MUTIARA", "BINTANG LAUT", "Packaging PE", "Jadi: 32 × 48", "PE SUSU", 45000, "PCS", "Tidak", "01-08-2026"],
                 ["G26.007", "20-07-2026", "New Order", "MICHELLE", "NUSANTARA PACK", "Printed Bag", "Jadi: 28 × 42", "HD PRINT", 65000, "PCS", "YA", "28-07-2026"],
-                ["E26.140", "21-07-2026", "Sample", "ANDI", "KARYA SENTOSA", "Trial Sheet", "Blow: 55 × 0.03", "PP CLEAR", 2500, "KG", "", ""],
+                ["E26.140", "21-07-2026", "Sampel", "ANDI", "KARYA SENTOSA", "Lembaran Uji Coba", "Peniupan: 55 × 0.03", "PP CLEAR", 2500, "KG", "", ""],
                 ["G26.009", "22-07-2026", "Repeat Order", "MUTIARA", "MITRA ABADI", "Black Liner", "Jadi: 30 × 50", "PE HITAM", 42000, "PCS", "Tidak", "02-08-2026"],
                 ["G26.010", "23-07-2026", "New Order", "SRI YAMTINAH", "SEJAHTERA PLASTIK", "OPP Bag", "Jadi: 40 × 55", "OPP PLAST", 88000, "PCS", "Tidak", "15-08-2026"]
             ]
@@ -11792,7 +11792,7 @@
                     if (!(silent && dashboardTable)) {
                         showError(
                             'Server belum menjawab setelah 90 detik. ' +
-                            'Coba muat ulang halaman; bila berulang, Database kemungkinan terlalu besar untuk sekali baca.'
+                'Coba muat ulang halaman; bila berulang, Basis Data kemungkinan terlalu besar untuk sekali baca.'
                         );
                     }
                     finishLoading();
@@ -11895,7 +11895,7 @@
             document.getElementById('lastUpdated').textContent =
                 'Diperbarui ' + formatUpdateTime(new Date()) +
                 (jejak
-                    ? ' · ' + (jejak.source === 'cache' ? 'cache' : 'baca sheet') +
+                    ? ' · ' + (jejak.source === 'cache' ? 'tembolok' : 'baca lembar') +
                       ' ' + Math.round(Number(jejak.durationMs) || 0) + ' ms' +
                       ' · ' + (Number(jejak.rowCount) || 0) + ' baris'
                     : '');
@@ -12100,7 +12100,7 @@
                 dom: 'rt',
                 language: {
                     emptyTable: 'Belum ada data SPK.',
-                    zeroRecords: 'Tidak ada data yang sesuai dengan filter.',
+                    zeroRecords: 'Tidak ada data yang sesuai dengan penyaring.',
                     info: 'Menampilkan _START_–_END_ dari _TOTAL_ data',
                     infoEmpty: 'Menampilkan 0 data',
                     lengthMenu: 'Tampilkan _MENU_ data',
@@ -12325,8 +12325,8 @@
             }
             if (search) filters.push('pencarian "' + search + '"');
             if (date) filters.push('tanggal ' + formatDetailDate(inputDateToDashboardDate(date)));
-            if (orderType) filters.push('jenis order ' + orderType);
-            if (material) filters.push('material ' + material);
+            if (orderType) filters.push('jenis pesanan ' + orderType);
+            if (material) filters.push('bahan ' + material);
             if (uom) filters.push('UOM ' + uom);
             if (release) {
                 filters.push(
@@ -12343,8 +12343,8 @@
             var resetButton = document.getElementById('clearFilters');
 
             if (filters.length) {
-                summary.innerHTML = 'Menampilkan <strong>' + numberFormatter.format(visible) + '</strong> dari ' +
-                    numberFormatter.format(total) + ' data · Filter: ' + escapeHtml(filters.join(', '));
+                summary.textContent = 'Menampilkan ' + numberFormatter.format(visible) + ' dari ' +
+                    numberFormatter.format(total) + ' data · Penyaring: ' + filters.join(', ');
                 clearButton.hidden = false;
                 resetButton.disabled = false;
             } else {
@@ -12564,14 +12564,14 @@
                 { label: 'Tebal', value: pilihUkuran(data.bahanTebal, ukuran.tebal), icon: 'fa-layer-group', numeric: true },
                 { label: 'Lebar Bahan', value: ukuran.lebarBahan, icon: 'fa-gauge-high', numeric: true },
                 {
-                    label: 'Density',
+                    label: 'Massa Jenis',
                     value: formatDetailNumber(pilihUkuran(data.bahanDensity, data.density), 2),
                     icon: 'fa-weight-hanging',
                     numeric: true
                 },
                 { label: 'PCS per KG', value: formatDetailNumber(data.pcsPerKg, 2), icon: 'fa-calculator', numeric: true },
                 { label: 'Meter per KG', value: formatDetailNumber(data.meterPerKg, 2), icon: 'fa-ruler-horizontal', numeric: true },
-                { label: 'Meter per Roll', value: formatDetailNumber(data.meterRoll, 2), icon: 'fa-scroll', numeric: true },
+                { label: 'Meter per Gulungan', value: formatDetailNumber(data.meterRoll, 2), icon: 'fa-scroll', numeric: true },
                 { label: 'Model Kantong', value: data.modelKantong, icon: 'fa-bag-shopping', full: true },
                 { label: 'Keterangan Warna', value: data.keteranganWarna, icon: 'fa-palette' },
                 { label: 'Keterangan Bahan', value: data.keteranganBahan, icon: 'fa-cubes' },
@@ -12626,10 +12626,10 @@
                     note: 'Ditambahkan ke Total BS'
                 },
                 { label: 'Target ETD', value: formatDetailDate(data.etd), icon: 'fa-truck-fast' },
-                { label: 'Status ETD', value: formatEtdStatusLabel(getEtdStatus(data.etd)), icon: 'fa-clock' },
-                { label: 'Release', value: normalizeRelease(data.release), icon: 'fa-file-circle-check' },
-                { label: 'Jenis Packing', value: data.jenisPacking, icon: 'fa-box' },
-                { label: 'Packing', value: data.packing, icon: 'fa-boxes-stacked' }
+                { label: 'Keadaan ETD', value: formatEtdStatusLabel(getEtdStatus(data.etd)), icon: 'fa-clock' },
+                { label: 'Terbit', value: normalizeRelease(data.release), icon: 'fa-file-circle-check' },
+                { label: 'Jenis Pengepakan', value: data.jenisPacking, icon: 'fa-box' },
+                { label: 'Pengepakan', value: data.packing, icon: 'fa-boxes-stacked' }
             ].concat(jadwalHtml ? [{
                 label: 'Jadwal Kirim',
                 icon: 'fa-calendar-days',
@@ -12977,8 +12977,8 @@
                         printing: 'Gunakan artwork revisi terakhir.',
                         slitting: '',
                         folding: '',
-                        gusset: 'Cek kedalaman gusset pada awal roll.',
-                        bottomSeal: 'Seal harus rata dan kuat.',
+                        gusset: 'Periksa kedalaman lipatan samping pada awal gulungan.',
+            bottomSeal: 'Segel harus rata dan kuat.',
                         sideSeal: '',
                         tshirt: ''
                     },
@@ -13159,7 +13159,7 @@
                             found: false,
                             message: error && error.message
                                 ? error.message
-                                : 'Gagal membaca data edit dari Database.'
+                                : 'Gagal membaca data sunting dari Basis Data.'
                         });
                     })
                     .getSpkEditData(spk, rowNumber);
@@ -13185,7 +13185,7 @@
                 renderEditFailure(
                     response && response.message
                         ? response.message
-                        : 'Data SPK tidak ditemukan di Database.'
+                        : 'Data SPK tidak ditemukan di Basis Data.'
                 );
                 return;
             }
@@ -13306,7 +13306,7 @@
             }
 
             var payload = collectEditPayload();
-            setEditSaving(true, 'Menyimpan perubahan ke Database...');
+            setEditSaving(true, 'Menyimpan perubahan ke Basis Data...');
 
             if (typeof google !== 'undefined' && google.script && google.script.run) {
                 google.script.run
@@ -13316,7 +13316,7 @@
                             status: 'error',
                             message: error && error.message
                                 ? error.message
-                                : 'Gagal menyimpan perubahan ke Database.'
+                                : 'Gagal menyimpan perubahan ke Basis Data.'
                         });
                     })
                     .updateSpkFromDashboard(payload);
@@ -13535,8 +13535,8 @@
             var statusLabel = isKeluarBahanPending
                 ? 'Keluar Bahan belum diisi'
                 : isReleased
-                    ? 'Release YA'
-                    : 'Release Tidak';
+                    ? 'Terbit YA'
+                    : 'Terbit TIDAK';
             return '<span class="status-pill release-indicator ' +
                 (isKeluarBahanPending ? 'release-kb' : isReleased ? 'release-yes' : 'release-no') +
                 '" role="img" aria-label="' + statusLabel +
@@ -13833,7 +13833,7 @@
       { step: 2, name: 'Persentase BS' },
       { step: 3, name: 'Bahan Baku' },
       { step: 4, name: 'Alur Produksi' },
-      { step: 5, name: 'Dimensi & Order' }
+      { step: 5, name: 'Dimensi dan Pesanan' }
     ];
 
     const MAX_BAHAN = 8;
@@ -14074,8 +14074,8 @@
       button.addEventListener('click', function () {
         Swal.fire({
           icon: 'info',
-          title: 'Draft Belum Aktif',
-          text: 'Tombolnya sudah tersedia, tetapi penyimpanan draft belum '
+          title: 'Draf Belum Aktif',
+          text: 'Tombolnya sudah tersedia, tetapi penyimpanan draf belum '
             + 'dijalankan. Tidak ada data yang tersimpan saat tombol ini ditekan.',
           confirmButtonColor: '#202020',
           background: '#e0e5ec',
@@ -14261,8 +14261,8 @@
       if (uom === 'ROLL') {
         return {
           code: 'F',
-          label: 'F · Order ROLL',
-          sheetTitle: 'Logika Perhitungan Kirim ROLL',
+          label: 'F · Pesanan GULUNGAN',
+          sheetTitle: 'Logika Perhitungan Kirim GULUNGAN',
           resultUom: 'ROLL'
         };
       }
@@ -14421,7 +14421,7 @@
           ...categorizedBase,
           incomplete: true,
           fieldId: 'ukuranBlow',
-          message: 'Isi Ukuran Blow.'
+          message: 'Isi Ukuran Peniupan.'
         };
       }
       if (!String(ukuranJadi).trim()) {
@@ -14502,7 +14502,7 @@
             category,
             incomplete: true,
             fieldId: 'meterRoll',
-            message: 'Isi Meter/Roll untuk order ROLL.'
+            message: 'Isi Meter/Gulungan untuk pesanan GULUNGAN.'
           };
         }
         keluarBahan = orderAfterBs * meterRoll / meter / up;
@@ -14534,7 +14534,7 @@
           ...base,
           category,
           error: true,
-          message: 'Hasil tidak valid. Periksa dimensi dan order.'
+          message: 'Hasil tidak valid. Periksa dimensi dan pesanan.'
         };
       }
 
@@ -14545,7 +14545,7 @@
         category,
         keluarBahan,
         uomKB: category.resultUom,
-        message: 'Hasil otomatis kategori ' + category.code + '. Gunakan sebagai acuan; input Keluar Bahan bersifat opsional untuk Admin.'
+        message: 'Hasil otomatis kategori ' + category.code + '. Gunakan sebagai acuan; isian Keluar Bahan boleh dikosongkan oleh administrator.'
       };
     }
 
@@ -14565,7 +14565,7 @@
     }
 
     function getCalculationOrderTypeNote_() {
-      return 'Note: OPP - CPP - Kirim Roll, Mohon atur ukuran panjang sesuai meter kebutuhan!';
+      return 'Catatan: OPP - CPP - Kirim Gulungan, mohon atur ukuran panjang sesuai kebutuhan meter!';
     }
 
     function buildCalculationSheetView_(result) {
@@ -14644,7 +14644,7 @@
             (result.ok ? resultNumber(result.keluarBahan) + ' KG' : '—');
           references.push('Tidak memakai konversi; hasil sama dengan Pesanan + BS.');
         } else if (category.code === 'F') {
-          formulaLabel = 'Hasil × Meter Roll ÷ Meter ÷ UP';
+          formulaLabel = 'Hasil × Meter Gulungan ÷ Meter ÷ UP';
           formulaLine =
             number(result.orderAfterBs) + ' × ' +
             number(result.meterRoll) + ' ÷ ' +
@@ -14656,11 +14656,11 @@
             'Lebar: ' + number(dimensions.lebar),
             'Lebar Bahan: ' + number(dimensions.lebarBahan),
             'Tebal: ' + number(dimensions.tebal),
-            'Meter Roll: ' + number(result.meterRoll),
+            'Meter Gulungan: ' + number(result.meterRoll),
             'Meter: ' + number(result.meter),
             'UP: ' + (result.up === null || result.up === undefined ? '—' : result.up) +
               (dimensions.upTertulis > 0
-                ? ' (tertulis pada Ukuran Blowing)'
+                ? ' (tertulis pada Ukuran Peniupan)'
                 : ' (dihitung dari lebar)')
           );
         }
@@ -14668,7 +14668,7 @@
 
       if (upTertulisAktif) {
         references.push(
-          'UP: ' + number(dimensions.upTertulis) + ' (tertulis pada Ukuran Blowing)'
+          'UP: ' + number(dimensions.upTertulis) + ' (tertulis pada Ukuran Peniupan)'
         );
       }
 
@@ -14687,7 +14687,7 @@
       if (result.meterPerKg > 0) {
         references.push(
           'Meter/KG: ' + number(result.meterPerKg),
-          'Density: ' + formatCalculationNumber_(result.density, 2),
+          'Massa Jenis: ' + formatCalculationNumber_(result.density, 2),
           'Lapisan film: ' + result.filmLayerFactor
         );
       }
@@ -14722,7 +14722,7 @@
 
       card.classList.toggle('is-ready', Boolean(result.ok));
       card.classList.toggle('is-error', Boolean(!result.ok && result.error));
-      status.textContent = result.ok ? 'Siap' : (result.error ? 'Periksa input' : 'Belum lengkap');
+      status.textContent = result.ok ? 'Siap' : (result.error ? 'Periksa isian' : 'Belum lengkap');
       message.textContent = result.message || 'Lengkapi data perhitungan.';
 
       setCalculationMetric_('calcSheetTitle', sheetView.title);
@@ -14973,7 +14973,7 @@
         }
 
         if (targetUi.field.value.trim() === '') {
-          missing.push(mode === 'repeat' ? 'Nomor SPK Ulang Baru' : 'Nomor SPK New Order');
+          missing.push(mode === 'repeat' ? 'Nomor SPK Ulang Baru' : 'Nomor SPK Pesanan Baru');
           targetUi.field.classList.add('wizard-invalid');
         }
         if (tanggal.value === '') {
@@ -15072,7 +15072,7 @@
 
         if (!['PCS', 'KG', 'ROLL'].includes(uomOrderField.value)) {
           uomOrderField.classList.add('wizard-invalid');
-          if (showAlert) showValidationAlert_('UOM Pesanan Belum Valid', 'Pilih PCS, KG, atau ROLL.');
+          if (showAlert) showValidationAlert_('UOM Pesanan Belum Valid', 'Pilih PCS, KG, atau GULUNGAN.');
           uomOrderField.focus();
           return false;
         }
@@ -15081,8 +15081,8 @@
           meterRollField.classList.add('wizard-invalid');
           if (showAlert) {
             showValidationAlert_(
-              'Meter/Roll Belum Lengkap',
-              'Isi Meter/Roll lebih dari 0 untuk order ROLL.'
+              'Meter/Gulungan Belum Lengkap',
+              'Isi Meter/Gulungan lebih dari 0 untuk pesanan GULUNGAN.'
             );
           }
           meterRollField.focus();
@@ -15107,7 +15107,7 @@
         ) {
           uomKbField.classList.add('wizard-invalid');
           if (showAlert) {
-            showValidationAlert_('UOM Keluar Bahan Belum Valid', 'Pilih UOM KG atau ROLL.');
+            showValidationAlert_('UOM Keluar Bahan Belum Valid', 'Pilih UOM KG atau GULUNGAN.');
           }
           uomKbField.focus();
           return false;
@@ -15159,7 +15159,7 @@
       if (btnSubmitEl.dataset.saving) return;
 
       btnSubmitEl.innerHTML = `
-        SIMPAN KE DATABASE
+        SIMPAN KE BASIS DATA
         <svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
       `;
 
@@ -15391,7 +15391,7 @@
               applyRepeatData_(res.data);
               setRepeatLookupFound_(res.data);
             } else if (res.status === 'not_found' || (res.status === 'success' && !res.found)) {
-              setRepeatLookupNotFound_(value, res.message || 'Nomor SPK tidak ditemukan di Database.');
+              setRepeatLookupNotFound_(value, res.message || 'Nomor SPK tidak ditemukan di Basis Data.');
             } else {
               setRepeatLookupError_(res.message || 'Data SPK gagal dimuat.');
             }
@@ -16029,7 +16029,7 @@
       fillSelectOptions_(
         document.getElementById('mesin-cutting'),
         CUTTING_MACHINE_OPTIONS[finishing] || [],
-        CUTTING_MACHINE_OPTIONS[finishing] ? 'Pilih mesin' : 'Pilih jenis finishing dulu'
+        CUTTING_MACHINE_OPTIONS[finishing] ? 'Pilih mesin' : 'Pilih jenis penyelesaian terlebih dahulu'
       );
     }
 
@@ -16688,7 +16688,7 @@
       if (!empty) return;
       empty.hidden = activeRoutingKey !== '';
       empty.textContent = routingSteps.length
-        ? 'Pilih proses berikutnya untuk menambah langkah. Proses yang sama boleh dipilih lagi; gunakan tombol Edit pada kartu untuk mengubah langkah yang sudah ada.'
+        ? 'Pilih proses berikutnya untuk menambah langkah. Proses yang sama boleh dipilih lagi; gunakan tombol Sunting pada kartu untuk mengubah langkah yang sudah ada.'
         : 'Pilih proses produksi di atas untuk menambahkan langkah pertama pada urutan.';
     }
 
@@ -16789,7 +16789,7 @@
         // dibaca dari Data Utama walau langkah Blowing lebih dari satu.
         add('Ukuran', routeFieldText_('ukuranBlow'));
         add('Film', routeFieldText_('film'));
-        add('Threat', stepFieldText_(step, 'blowingThreat'));
+        add('Perlakuan', stepFieldText_(step, 'blowingThreat'));
         add('Mesin', stepFieldText_(step, 'mesin-blowing'));
         add('Mode Cetak', stepFieldText_(step, 'blowingModeCetak'));
         // Sengaja tidak lewat add(): Keterangan Warna tetap ditampilkan walau
@@ -16815,12 +16815,12 @@
       }
       if (key === 'mixer') add('Mesin', stepFieldText_(step, 'mesin-mixer'));
       if (key === 'cutting') {
-        add('Finishing', stepFieldText_(step, 'finishing'));
+        add('Penyelesaian', stepFieldText_(step, 'finishing'));
         add('Mesin', stepFieldText_(step, 'mesin-cutting'));
         add('Handle/Pon', stepFieldText_(step, 'handlePm'));
-        add('Jenis Packing', stepFieldText_(step, 'jenisPacking'));
-        add('Packing', stepFieldText_(step, 'packing'));
-        add('Packing Detail', getStepPackingDetail_(step));
+        add('Jenis Pengepakan', stepFieldText_(step, 'jenisPacking'));
+        add('Pengepakan', stepFieldText_(step, 'packing'));
+        add('Rincian Pengepakan', getStepPackingDetail_(step));
         add('Target BS', getStepCuttingBsSummary_(step));
       }
 
@@ -16830,7 +16830,7 @@
         noteId = noteKey ? 'ket-' + noteKey : '';
       }
       if (noteId) add('Keterangan', stepFieldText_(step, noteId));
-      return items.length ? items : [{ label: 'Detail', value: 'Data proses tersimpan' }];
+      return items.length ? items : [{ label: 'Rincian', value: 'Data proses tersimpan' }];
     }
 
     function renderSavedRoutingList_() {
@@ -16881,7 +16881,7 @@
                   <h4>${escapeAttr_(item.label)}${repeatBadge}</h4>
                 </div>
                 <div class="routing-saved-actions">
-                  <button type="button" class="routing-saved-edit" onclick="editRoutingStep_(${step.id})">Edit</button>
+                  <button type="button" class="routing-saved-edit" onclick="editRoutingStep_(${step.id})">Sunting</button>
                   <button type="button" class="routing-saved-remove" onclick="removeRoutingStep_(${step.id})" aria-label="Hapus langkah ${index + 1} ${escapeAttr_(item.label)}">Hapus</button>
                 </div>
               </div>
@@ -17555,7 +17555,7 @@
                     <option value="">UOM</option>
                     <option value="PCS"${row.uom === 'PCS' ? ' selected' : ''}>PCS</option>
                     <option value="KG"${row.uom === 'KG' ? ' selected' : ''}>KG</option>
-                    <option value="ROLL"${row.uom === 'ROLL' ? ' selected' : ''}>ROLL</option>
+                    <option value="ROLL"${row.uom === 'ROLL' ? ' selected' : ''}>GULUNGAN</option>
                   </select>
                 </div>
               </div>
@@ -18179,6 +18179,6 @@
         })();
     </script>
     <script src="responsive-header.js?v=20260811-1"></script>
-    <script src="i18n.js?v=20260811-2"></script>
+    <script src="i18n.js?v=20260811-3"></script>
 </body>
 </html>

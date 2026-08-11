@@ -2000,7 +2000,7 @@
         <a class="app-nav-link" href="/apps/spk-automation/" target="_top" title="PPIC">
           <i class="fa-solid fa-chart-pie"></i><span>Dasbor PPIC</span>
         </a>
-        <a class="app-nav-link" href="/apps/spk-automation/material-issue/" target="_top" title="Keluar Bahan Manager PPIC">
+        <a class="app-nav-link" href="/apps/spk-automation/material-issue/" target="_top" title="Keluar Bahan Manajer PPIC">
           <i class="fa-solid fa-dolly"></i><span>Keluar Bahan</span>
         </a>
         <a class="app-nav-link active" href="/apps/spk-automation/data-retrieval/" target="_top" aria-current="page" title="Penarikan Data">
@@ -2248,7 +2248,7 @@
           fetchFolder(null);
 
           if (res && res.status === 'error') {
-            showError(res.message || 'Status penarikan sebelumnya tidak dapat dibaca.');
+            showError(res.message || 'Keadaan penarikan sebelumnya tidak dapat dibaca.');
           }
         })
         .withFailureHandler(() => fetchFolder(null))
@@ -2283,7 +2283,7 @@
       }
 
       if (refreshFolder) {
-        fetchFolder(job.folderId, job.folderName || 'Folder penarikan');
+        fetchFolder(job.folderId, job.folderName || 'Direktori penarikan');
       }
 
       const serverStatus = job.progress && job.progress.status
@@ -2343,7 +2343,7 @@
 
     function handleFolderResponse(res, requestedFolderId) {
       if (!res || res.status === 'error') {
-        showError(res && res.message ? res.message : 'Respons folder tidak dikenali.');
+        showError(res && res.message ? res.message : 'Tanggapan direktori tidak dikenali.');
         return;
       }
 
@@ -2427,7 +2427,7 @@
         const folderSection = document.createElement('section');
         folderSection.className = 'directory-section';
         folderSection.appendChild(
-          createDirectorySectionHeader_('Folder', folders.length, 'fa-folder')
+          createDirectorySectionHeader_('Direktori', folders.length, 'fa-folder')
         );
 
         const grid = document.createElement('div');
@@ -2461,7 +2461,7 @@
         const fileSection = document.createElement('section');
         fileSection.className = 'directory-section';
         fileSection.appendChild(
-          createDirectorySectionHeader_('File SPK', sourceFiles.length, 'fa-file-excel')
+          createDirectorySectionHeader_('Berkas SPK', sourceFiles.length, 'fa-file-excel')
         );
 
         const toolbar = document.createElement('div');
@@ -2475,8 +2475,8 @@
         const searchInput = document.createElement('input');
         searchInput.id = 'spkSearchInput';
         searchInput.type = 'search';
-        searchInput.placeholder = 'Cari nomor SPK atau nama file...';
-        searchInput.setAttribute('aria-label', 'Cari nomor SPK atau nama file');
+        searchInput.placeholder = 'Cari nomor SPK atau nama berkas...';
+        searchInput.setAttribute('aria-label', 'Cari nomor SPK atau nama berkas');
         searchInput.autocomplete = 'off';
 
         const filterCount = document.createElement('span');
@@ -2491,12 +2491,12 @@
         const statusFilter = document.createElement('div');
         statusFilter.className = 'source-status-filter';
         statusFilter.setAttribute('role', 'group');
-        statusFilter.setAttribute('aria-label', 'Filter status penarikan');
+        statusFilter.setAttribute('aria-label', 'Penyaring keadaan penarikan');
         fileSection.dataset.statusFilter = 'all';
 
         const statusFilterLabel = document.createElement('span');
         statusFilterLabel.className = 'source-status-filter-label';
-        statusFilterLabel.textContent = 'Status:';
+        statusFilterLabel.textContent = 'Keadaan:';
         statusFilter.appendChild(statusFilterLabel);
 
         const savedCount = sourceFiles.filter(file => (
@@ -2613,7 +2613,7 @@
               '<span>' +
                 (
                   file.spk
-                    ? 'Status belum tersedia'
+                    ? 'Keadaan belum tersedia'
                     : 'SPK tidak terdeteksi'
                 ) +
               '</span>';
@@ -2624,8 +2624,8 @@
           action.className = 'source-file-action';
           action.dataset.inDatabase = file.inDatabase === true ? 'true' : 'false';
           action.title = file.inDatabase === true
-            ? 'SPK ini sudah tersedia di Database'
-            : 'Tarik data hanya dari ' + file.name;
+            ? 'SPK ini sudah tersedia di Basis Data'
+            : 'Tarik data hanya dari berkas ' + file.name;
           action.disabled = Boolean(currentExtractionJobId) ||
             (isBackfillMode_() ? file.inDatabase !== true : file.inDatabase === true);
           action.innerHTML = file.inDatabase === true
@@ -2655,7 +2655,7 @@
         emptyFilter.className = 'source-file-empty-filter hidden';
         emptyFilter.innerHTML =
           '<i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> ' +
-          'Tidak ada file yang cocok dengan pencarian.';
+          'Tidak ada berkas yang cocok dengan pencarian.';
 
         fileSection.appendChild(fileList);
         fileSection.appendChild(emptyFilter);
@@ -2745,12 +2745,12 @@
             '<i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>' +
             '<span>Lengkapi</span>';
         } else if (inDatabase) {
-          button.title = 'SPK ini sudah tersedia di Database';
+          button.title = 'SPK ini sudah tersedia di Basis Data';
           button.innerHTML =
             '<i class="fa-solid fa-database" aria-hidden="true"></i>' +
             '<span>Sudah ada</span>';
         } else {
-          button.title = 'Tarik data hanya dari file ini';
+          button.title = 'Tarik data hanya dari berkas ini';
           button.innerHTML =
             '<i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i>' +
             '<span>Tarik</span>';
@@ -2781,7 +2781,7 @@
           ? percent + '% · ' + processed + '/' + total
           : percent + '%';
 
-      let caption = progress.message || 'Menyinkronkan data sumber ke Database.';
+      let caption = progress.message || 'Menyinkronkan data sumber ke Basis Data.';
       if (created || skipped || errors) {
         caption +=
           ' · Baru ' + created +
@@ -2853,7 +2853,7 @@
         created: 0,
         skipped: 0,
         errors: 0,
-        message: 'Memindai file sumber...'
+        message: 'Memindai berkas sumber...'
       });
 
       if (isGasEnvironment()) {
@@ -2892,7 +2892,7 @@
           skipped: result.skipped || 0,
           errors: result.errors || 0,
           message: result.created
-            ? 'SPK baru berhasil ditambahkan dan Database sudah diurutkan.'
+            ? 'SPK baru berhasil ditambahkan dan Basis Data sudah diurutkan.'
             : 'Tidak ada SPK baru; data lama dilewati tanpa perubahan.'
         });
       }
@@ -2906,7 +2906,7 @@
       const safeFileId = String(fileId || '').trim();
       if (!safeFileId) return;
 
-      beginExtraction_(safeFileId, String(fileName || 'File SPK'));
+      beginExtraction_(safeFileId, String(fileName || 'Berkas SPK'));
     }
 
     function beginExtraction_(targetFileId, targetFileName) {
@@ -2915,7 +2915,7 @@
       const currentFolderId = pathHistory[pathHistory.length - 1].id;
       const safeFileId = String(targetFileId || '').trim();
       const safeFileName = safeFileId
-        ? String(targetFileName || 'File SPK')
+        ? String(targetFileName || 'Berkas SPK')
         : '';
 
       currentExtractionJobId = createExtractionJobId();
@@ -2939,8 +2939,8 @@
         errors: 0,
         currentFile: safeFileName,
         message: safeFileId
-          ? 'Mendaftarkan penarikan file ' + safeFileName + '...'
-          : 'Mendaftarkan penarikan seluruh folder...'
+          ? 'Mendaftarkan penarikan berkas ' + safeFileName + '...'
+          : 'Mendaftarkan penarikan seluruh direktori...'
       });
 
       if (isGasEnvironment()) {
@@ -2983,7 +2983,7 @@
             mockExtractedFileIds.add(safeFileId);
             handleExtractionResponse({
               status: 'success',
-              message: 'Pratinjau lokal: satu file SPK berhasil diproses.',
+              message: 'Pratinjau lokal: satu berkas SPK berhasil diproses.',
               created: 1,
               skipped: 0,
               errors: 0,
@@ -3002,7 +3002,7 @@
 
           handleExtractionResponse({
             status: 'warning',
-            message: 'Pratinjau lokal selesai. Beberapa file memerlukan perhatian sebelum ditarik ulang.',
+            message: 'Pratinjau lokal selesai. Beberapa berkas memerlukan perhatian sebelum ditarik ulang.',
             created: 2,
             skipped: 3,
             errors: 14,
@@ -3015,10 +3015,10 @@
                   file: 'G26.041 - SPK Produksi.xlsx',
                   spk: 'G26.041',
                   category: 'Duplikat SPK',
-                  reason: 'Ada lebih dari satu file sumber untuk SPK G26.041. Sisakan satu file yang paling baru.'
+                  reason: 'Ada lebih dari satu berkas sumber untuk SPK G26.041. Sisakan satu berkas yang paling baru.'
                 },
                 {
-                  file: 'SPK Customer Baru.xlsx',
+                  file: 'SPK Pelanggan Baru.xlsx',
                   spk: '',
                   category: 'Format SPK',
                   reason: 'Format SPK pada F7 tidak valid. Gunakan format seperti G26.001.'
@@ -3028,15 +3028,15 @@
                 spk: `G26.${String(index + 60).padStart(3, '0')}`,
                 category: index % 2 === 0 ? 'Duplikat SPK' : 'SPK tidak cocok',
                 reason: index % 2 === 0
-                  ? 'Terdapat file sumber lain dengan nomor SPK yang sama.'
-                  : 'Nomor SPK pada nama file berbeda dengan nilai yang ditemukan pada sel F7.'
+                  ? 'Terdapat berkas sumber lain dengan nomor SPK yang sama.'
+                  : 'Nomor SPK pada nama berkas berbeda dengan nilai yang ditemukan pada sel F7.'
               }))),
               warnings: [
                 {
                   file: 'G26.052 - Kantong HDPE.xlsx',
                   spk: 'G26.052',
                   category: 'Komposisi bahan',
-                  reason: 'Ditemukan 10 bahan. Database AW-BR hanya menyimpan sampai Bahan 8.'
+                  reason: 'Ditemukan 10 bahan. Basis Data AW-BR hanya menyimpan sampai Bahan 8.'
                 }
               ],
               omittedErrors: 0,
@@ -3196,7 +3196,7 @@
               <i class="fa-solid ${options.icon}" aria-hidden="true"></i>
               ${escapeReportHtml_(options.title)}
             </h3>
-            <span class="extraction-issue-count">${total} file</span>
+            <span class="extraction-issue-count">${total} berkas</span>
           </header>
           ${rows ? `<div class="extraction-issue-list">${rows}</div>` : ''}
           ${undisplayed > 0
@@ -3228,7 +3228,7 @@
       const errorSection = buildExtractionIssueSection_({
         kind: 'error',
         icon: 'fa-circle-xmark',
-        title: 'File gagal diproses',
+        title: 'Berkas gagal diproses',
         fallbackCategory: 'Gagal memproses',
         items: errors,
         omitted: report.omittedErrors,
@@ -3237,7 +3237,7 @@
       const warningSection = buildExtractionIssueSection_({
         kind: 'warning',
         icon: 'fa-triangle-exclamation',
-        title: 'File dengan peringatan',
+        title: 'Berkas dengan peringatan',
         fallbackCategory: 'Perlu perhatian',
         items: warnings,
         omitted: report.omittedWarnings,
@@ -3273,13 +3273,13 @@
             ? `
               <div class="extraction-report-clean">
                 <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
-                Semua file yang memenuhi syarat selesai diproses tanpa error.
+                Semua berkas yang memenuhi syarat selesai diproses tanpa kesalahan.
               </div>
             `
             : ''}
 
           <div class="extraction-report-meta">
-            ${total > 0 ? `${processed} dari ${total} file telah diperiksa` : 'Tidak ada file sumber yang diproses'}
+            ${total > 0 ? `${processed} dari ${total} berkas telah diperiksa` : 'Tidak ada berkas sumber yang diproses'}
           </div>
         </div>
       `;
@@ -3287,14 +3287,14 @@
 
     function getExtractionReportTitle_(result) {
       if (result.status === 'error') return 'Penarikan tidak dapat diselesaikan';
-      if ((Number(result.errors) || 0) > 0) return 'Penarikan selesai dengan error';
+      if ((Number(result.errors) || 0) > 0) return 'Penarikan selesai dengan kesalahan';
       if ((Number(result.warnings) || 0) > 0) return 'Penarikan selesai dengan catatan';
       return 'Penarikan data selesai';
     }
 
     function handleExtractionResponse(res) {
       if (!res) {
-        handleExtractionFailure('Respons sinkronisasi tidak dikenali.');
+        handleExtractionFailure('Tanggapan sinkronisasi tidak dikenali.');
         return;
       }
 
@@ -3334,7 +3334,7 @@
       const completedFolderId = activeExtractionFolderId;
       const completedFolderName = pathHistory.length
         ? pathHistory[pathHistory.length - 1].name
-        : 'Folder penarikan';
+        : 'Direktori penarikan';
       stopProgress(res);
       window.setTimeout(() => {
         resetExtractionControls();
@@ -3380,7 +3380,7 @@
       Swal.fire({
         icon: 'warning',
         title: 'Batalkan penarikan data?',
-        text: 'Proses berhenti setelah file yang sedang dibaca selesai. Data yang sudah masuk tetap tersimpan; file yang belum diproses tidak diubah.',
+        text: 'Proses berhenti setelah berkas yang sedang dibaca selesai. Data yang sudah masuk tetap tersimpan; berkas yang belum diproses tidak diubah.',
         showCancelButton: true,
         confirmButtonText: 'Ya, batalkan',
         cancelButtonText: 'Lanjutkan proses',
@@ -3419,7 +3419,7 @@
               Swal.fire({
                 icon: 'info',
                 title: 'Penarikan dibatalkan',
-                text: 'Data yang sudah masuk tetap tersimpan. File yang belum diproses tidak diubah.',
+          text: 'Data yang sudah masuk tetap tersimpan. Berkas yang belum diproses tidak diubah.',
                 confirmButtonColor: '#c92b2b',
                 background: '#e2e3e0',
                 customClass: { popup: 'metal-alert' }
@@ -3492,7 +3492,7 @@
             { id: 'july-preview', name: 'Juli 2026' },
             { id: 'june-preview', name: 'Juni 2026' },
             { id: 'archive-preview', name: 'Arsip Produksi' },
-            { id: 'sample-preview', name: 'Sample & Trial' }
+            { id: 'sample-preview', name: 'Sampel dan Uji Coba' }
           ],
           sourceFiles: [
             {
@@ -3517,7 +3517,7 @@
       return {
         status: 'success',
         id: folderId,
-        name: folderName || 'Folder Produksi',
+        name: folderName || 'Direktori Produksi',
         subFolders: folderId === 'archive-preview'
           ? [
               { id: 'archive-2025-preview', name: '2025' },
@@ -3545,6 +3545,6 @@
     }
   </script>
   <script src="../responsive-header.js?v=20260811-1"></script>
-  <script src="../i18n.js?v=20260811-2"></script>
+  <script src="../i18n.js?v=20260811-3"></script>
 </body>
 </html>

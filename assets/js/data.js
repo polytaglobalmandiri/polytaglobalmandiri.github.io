@@ -267,7 +267,7 @@ const SITE = {
         },
         {
           q: "Adakah pintasan papan ketik untuk mempercepat pencarian?",
-          a: "Ada. Tekan tombol garis miring <b>/</b> di mana saja pada halaman untuk langsung melompat ke kolom pencarian, tanpa perlu mengarahkan tetikus. Tekan <b>Esc</b> untuk mengosongkan kolom dan keluar darinya."
+          a: "Ada. Tekan tombol garis miring / di mana saja pada halaman untuk langsung melompat ke kolom pencarian, tanpa perlu mengarahkan tetikus. Tekan Esc untuk mengosongkan kolom dan keluar darinya."
         }
       ]
     }

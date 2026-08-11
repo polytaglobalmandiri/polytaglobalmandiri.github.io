@@ -3215,14 +3215,14 @@
             id="searchInput"
             class="search-input"
             type="search"
-            placeholder="Cari SPK, customer, artikel, atau material..."
+            placeholder="Cari SPK, pelanggan, artikel, atau bahan..."
             autocomplete="off"
           >
         </label>
-        <select id="statusFilter" class="filter-select" aria-label="Filter status">
+        <select id="statusFilter" class="filter-select" aria-label="Penyaring keadaan">
           <option value="pending">Menunggu diatur</option>
           <option value="complete">Sudah lengkap</option>
-          <option value="all">Semua status</option>
+          <option value="all">Semua keadaan</option>
         </select>
         <button id="refreshButton" class="button button-refresh" type="button">
           <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
@@ -3242,7 +3242,7 @@
         <div>
           <div class="state-icon"><i class="fa-solid fa-inbox"></i></div>
           <h2 id="emptyTitle">Tidak ada data</h2>
-          <p id="emptyMessage">Ubah filter atau kata pencarian untuk melihat data lainnya.</p>
+          <p id="emptyMessage">Ubah penyaring atau kata pencarian untuk melihat data lainnya.</p>
         </div>
       </div>
 
@@ -3265,7 +3265,7 @@
               <th>Pelanggan / Artikel</th>
               <th>Bahan</th>
               <th>Jumlah Pesanan</th>
-              <th>Status</th>
+              <th>Keadaan</th>
               <th>Keluar Bahan</th>
               <th>ETA Beli Bahan</th>
               <th>Aksi</th>
@@ -3353,7 +3353,7 @@
 
       <footer class="eta-modal-footer">
         <span class="eta-modal-footer-note">
-          Data disimpan ke kolom CG–CV pada Database.
+          Data disimpan ke kolom CG–CV pada Basis Data.
         </span>
         <div class="eta-modal-actions">
           <button class="button eta-cancel-button" type="button" data-eta-modal-close>
@@ -3387,7 +3387,7 @@
             <p id="detailDialogSubtitle" class="detail-dialog-subtitle">Memuat data SPK...</p>
           </div>
         </div>
-        <button class="detail-close" type="button" data-detail-close aria-label="Tutup detail">
+        <button class="detail-close" type="button" data-detail-close aria-label="Tutup rincian">
           <i class="fa-solid fa-xmark" aria-hidden="true"></i>
         </button>
       </header>
@@ -3418,7 +3418,7 @@
 
       <footer class="detail-dialog-footer">
         <span class="detail-footer-note">
-          Hasil dihitung ulang dari data SPK tersimpan dengan rumus halaman Input SPK.
+          Hasil dihitung ulang dari data SPK tersimpan dengan rumus halaman Pembuatan SPK.
         </span>
         <button class="button detail-footer-button" type="button" data-detail-close>
           <i class="fa-solid fa-xmark" aria-hidden="true"></i>
@@ -3697,7 +3697,7 @@
                   ? `
                     <option value="" ${uom === '' ? 'selected' : ''}>Pilih UOM</option>
                     <option value="KG" ${uom === 'KG' ? 'selected' : ''}>KG</option>
-                    <option value="ROLL" ${uom === 'ROLL' ? 'selected' : ''}>ROLL</option>
+                    <option value="ROLL" ${uom === 'ROLL' ? 'selected' : ''}>GULUNGAN</option>
                   `
                   : '<option value="" selected>—</option>'}
               </select>
@@ -3806,7 +3806,7 @@
           return etaModalValidationError_(
             row,
             uomField,
-            'Pilih UOM ETA ' + (index + 1) + ': KG atau ROLL.'
+            'Pilih UOM ETA ' + (index + 1) + ': KG atau GULUNGAN.'
           );
         }
 
@@ -4147,7 +4147,7 @@
         data.customer,
         data.artikel,
         data.material
-      ].filter(Boolean).join(' · ') || 'Detail kebutuhan keluar bahan';
+      ].filter(Boolean).join(' · ') || 'Rincian kebutuhan keluar bahan';
 
       document.getElementById('detailContent').innerHTML =
         renderCompactDetail_(data, isPreview);
@@ -4278,7 +4278,7 @@
         'Lebar Jadi: ' + formatNumber_(calculation.lebar),
         'PCS/KG: ' + formatNumber_(calculation.pcsPerKg),
         'Meter/KG: ' + formatNumber_(calculation.meterPerKg),
-        'Density: ' + formatNumber_(calculation.density),
+        'Massa Jenis: ' + formatNumber_(calculation.density),
         'Lapisan film: ' + formatNumber_(calculation.filmLayerFactor)
       ];
 
@@ -4287,7 +4287,7 @@
       }
       if (calculation.category === 'F') {
         references.push(
-          'Meter Roll: ' + formatNumber_(calculation.meterRoll),
+          'Meter Gulungan: ' + formatNumber_(calculation.meterRoll),
           'UP: ' + formatNumber_(calculation.up)
         );
       }
@@ -4313,7 +4313,7 @@
         : 'Kategori belum valid';
       const categoryNote = calculation.ok
         ? calculation.categoryTitle
-        : 'Periksa kombinasi material, UOM order, dan ukuran.';
+        : 'Periksa kombinasi bahan, UOM pesanan, dan ukuran.';
 
       const summaryHtml = `
         <div class="detail-summary-grid">
@@ -4358,14 +4358,14 @@
                 Alur Perhitungan
               </h3>
               <p class="detail-section-note">
-                Urutan dan parameter yang sama dengan perhitungan pada halaman Input SPK.
+                Urutan dan parameter yang sama dengan perhitungan pada halaman Pembuatan SPK.
               </p>
             </div>
           </div>
           <div class="calculation-chain">
             ${renderCalculationStep_(
               1,
-              'Jumlah order setelah BS',
+              'Jumlah pesanan setelah BS',
               'Jumlah Pesanan × (1 + Total BS ÷ 100)',
               formatNumber_(calculation.jumlahOrder) + ' ' + calculation.uomOrder +
                 ' × (1 + ' + formatNumber_(calculation.totalBs) + ' ÷ 100) = ' +
@@ -4448,7 +4448,7 @@
       if (calculation.meterPerKg > 0) {
         lines.push({
           symbolic:
-            'Meter/KG = 1 ÷ (Density × ((Lebar Jadi ÷ 100) × (Tebal × 1.000) × Lapisan Film) ÷ 1.000)',
+            'Meter/KG = 1 ÷ (Massa Jenis × ((Lebar Jadi ÷ 100) × (Tebal × 1.000) × Lapisan Film) ÷ 1.000)',
           values:
             '1 ÷ (' + formatNumber_(calculation.density) +
             ' × ((' + formatNumber_(calculation.lebar) +
@@ -4471,7 +4471,7 @@
           rule = 'Tebal < 0,020 → Meter 6.000';
         }
         lines.push({
-          symbolic: 'Aturan Meter berdasarkan material dan tebal',
+          symbolic: 'Aturan Meter berdasarkan bahan dan tebal',
           values: rule
         });
       }
@@ -4485,7 +4485,7 @@
               values: formatNumber_(calculation.upTertulis) + ' UP'
             }
           : {
-              symbolic: 'UP = floor(Lebar Bahan ÷ Lebar Jadi)',
+              symbolic: 'UP = pembulatan ke bawah (Lebar Bahan ÷ Lebar Jadi)',
               values:
                 'floor(' + formatNumber_(calculation.lebarBahan) +
                 ' ÷ ' + formatNumber_(calculation.lebar) +
@@ -4522,7 +4522,7 @@
       if (calculation.category === 'A' || calculation.category === 'D') {
         return {
           label: 'Hasil ÷ Konversi PCS/KG' + upSimbol,
-          symbolic: 'Order setelah BS ÷ PCS/KG' + upSimbol,
+          symbolic: 'Pesanan setelah BS ÷ PCS/KG' + upSimbol,
           values:
             afterBs + ' ÷ ' + formatNumber_(calculation.pcsPerKg) +
             upNilai + ' = ' + result
@@ -4531,7 +4531,7 @@
       if (calculation.category === 'B' || calculation.category === 'A-MUSTIKA') {
         return {
           label: 'Hasil × Panjang ÷ 100 ÷ Meter' + upSimbol,
-          symbolic: 'Order setelah BS × Panjang ÷ 100 ÷ Meter' + upSimbol,
+          symbolic: 'Pesanan setelah BS × Panjang ÷ 100 ÷ Meter' + upSimbol,
           values:
             afterBs + ' × ' + formatNumber_(calculation.panjang) +
             ' ÷ 100 ÷ ' + formatNumber_(calculation.meter) +
@@ -4541,7 +4541,7 @@
       if (calculation.category === 'C') {
         return {
           label: 'Hasil × Panjang × Konversi PCS/KG ÷ 100 ÷ Meter' + upSimbol,
-          symbolic: 'Order setelah BS × Panjang × PCS/KG ÷ 100 ÷ Meter' + upSimbol,
+          symbolic: 'Pesanan setelah BS × Panjang × PCS/KG ÷ 100 ÷ Meter' + upSimbol,
           values:
             afterBs + ' × ' + formatNumber_(calculation.panjang) +
             ' × ' + formatNumber_(calculation.pcsPerKg) +
@@ -4552,13 +4552,13 @@
       if (calculation.category === 'E') {
         return {
           label: 'Hasil setelah BS' + upSimbol,
-          symbolic: 'Keluar Bahan = Order setelah BS' + upSimbol,
+          symbolic: 'Keluar Bahan = Pesanan setelah BS' + upSimbol,
           values: afterBs + ' KG' + upNilai + ' = ' + result
         };
       }
       return {
-        label: 'Hasil × Meter Roll ÷ Meter ÷ UP',
-        symbolic: 'Order setelah BS × Meter Roll ÷ Meter ÷ UP',
+          label: 'Hasil × Meter Gulungan ÷ Meter ÷ UP',
+          symbolic: 'Pesanan setelah BS × Meter Gulungan ÷ Meter ÷ UP',
         values:
           afterBs + ' × ' + formatNumber_(calculation.meterRoll) +
           ' ÷ ' + formatNumber_(calculation.meter) +
@@ -4576,7 +4576,7 @@
         { label: 'Panjang', value: formatMeasurement_(calculation.panjang, 'cm') },
         { label: 'Tebal', value: formatMeasurement_(calculation.tebal, 'mm') },
         { label: 'Lebar Bahan', value: formatMeasurement_(calculation.lebarBahan, 'cm') },
-        { label: 'Density', value: formatNumber_(calculation.density) },
+        { label: 'Massa Jenis', value: formatNumber_(calculation.density) },
         { label: 'Lapisan Film', value: formatNumber_(calculation.filmLayerFactor) + ' lapis' },
         { label: 'Meter/KG', value: formatNumber_(calculation.meterPerKg) }
       ];
@@ -4595,7 +4595,7 @@
       }
       if (calculation.category === 'F') {
         references.push(
-          { label: 'Meter Roll', value: formatMeasurement_(calculation.meterRoll, 'meter') },
+          { label: 'Meter Gulungan', value: formatMeasurement_(calculation.meterRoll, 'meter') },
           { label: 'UP', value: formatNumber_(calculation.up) }
         );
       }
@@ -4626,7 +4626,7 @@
           <div class="calculation-reference-grid">
             ${[
               { label: 'Tanggal', value: formatDate_(data.tanggal) },
-              { label: 'Jenis Order', value: displayValue_(data.jenisOrder) },
+              { label: 'Jenis Pesanan', value: displayValue_(data.jenisOrder) },
               { label: 'Nomor PO', value: displayValue_(data.nomorPO) },
               { label: 'Jumlah Pesanan', value: formatQuantity_(data.jumlahOrder, data.uomOrder) },
               { label: 'Pelanggan', value: displayValue_(data.customer) },
@@ -4646,7 +4646,7 @@
         data.keluarBahan === undefined ||
         !data.uomKB
       ) {
-        return 'Belum ditetapkan oleh Manager PPIC.';
+        return 'Belum ditetapkan oleh Manajer PPIC.';
       }
       if (!calculation.ok) {
         return 'Nilai PPIC tersimpan; hasil sistem belum dapat dihitung.';
@@ -4724,11 +4724,11 @@
         { label: 'Tebal Jadi', value: formatMeasurement_(dimensions.tebalJadi, 'mm') },
         { label: 'Lebar Bahan', value: formatMeasurement_(dimensions.lebarBahan, 'cm') },
         { label: 'Tebal Blowing', value: formatMeasurement_(dimensions.tebalBlow, 'mm') },
-        { label: 'Meter Roll', value: formatMeasurement_(data.meterRoll, 'meter') }
+        { label: 'Meter Gulungan', value: formatMeasurement_(data.meterRoll, 'meter') }
       ];
       const conversions = [
         {
-          label: 'Density',
+          label: 'Massa Jenis',
           value: formatNumber_(calculatedAvailable ? calculation.density : dimensions.densityTersimpan)
         },
         {
@@ -4982,12 +4982,12 @@
           ? 'Data tidak ditemukan'
           : statusFilter.value === 'pending'
             ? 'Semua Keluar Bahan sudah diatur'
-            : 'Belum ada data pada status ini';
+            : 'Belum ada data pada keadaan ini';
         document.getElementById('emptyMessage').textContent = hasSearch
-          ? 'Periksa kembali kata pencarian atau ubah filter status.'
+          ? 'Periksa kembali kata pencarian atau ubah penyaring keadaan.'
           : statusFilter.value === 'pending'
-            ? 'Tidak ada SPK yang masih menunggu pengisian Manager PPIC.'
-            : 'Ubah filter untuk melihat data SPK lainnya.';
+            ? 'Tidak ada SPK yang masih menunggu pengisian Manajer PPIC.'
+          : 'Ubah penyaring untuk melihat data SPK lainnya.';
         setViewState_('empty');
         return;
       }
@@ -5188,7 +5188,7 @@
               ? `
                 <option value="" ${uom === '' ? 'selected' : ''}>UOM</option>
                 <option value="KG" ${uom === 'KG' ? 'selected' : ''}>KG</option>
-                <option value="ROLL" ${uom === 'ROLL' ? 'selected' : ''}>ROLL</option>
+                <option value="ROLL" ${uom === 'ROLL' ? 'selected' : ''}>GULUNGAN</option>
               `
               : '<option value="" selected>—</option>'}
           </select>
@@ -5218,7 +5218,7 @@
           tabindex="0"
           aria-haspopup="dialog"
           aria-label="Lihat data utama, ukuran, dan perhitungan SPK ${escapeAttr_(item.spk)}"
-          title="Klik baris untuk melihat detail SPK"
+          title="Klik baris untuk melihat rincian SPK"
         >
           <td>
             <strong class="spk-code">${escapeHtml_(item.spk)}</strong>
@@ -5254,7 +5254,7 @@
               <select class="editor-select js-uom-kb" aria-label="UOM keluar bahan untuk ${escapeAttr_(item.spk)}">
                 <option value="" ${uom === '' ? 'selected' : ''}>UOM</option>
                 <option value="KG" ${uom === 'KG' ? 'selected' : ''}>KG</option>
-                <option value="ROLL" ${uom === 'ROLL' ? 'selected' : ''}>ROLL</option>
+                <option value="ROLL" ${uom === 'ROLL' ? 'selected' : ''}>GULUNGAN</option>
               </select>
             </div>
           </td>
@@ -5368,7 +5368,7 @@
       }
       if (hasQuantity && !clearing && !['KG', 'ROLL'].includes(uom)) {
         if (uomField) uomField.focus();
-        showToast_('Pilih UOM ETA ' + etaNumber + ': KG atau ROLL.', true);
+        showToast_('Pilih UOM ETA ' + etaNumber + ': KG atau GULUNGAN.', true);
         return;
       }
 
@@ -5469,7 +5469,7 @@
       }
       if (!['KG', 'ROLL'].includes(uom)) {
         if (uomField) uomField.focus();
-        showToast_('Pilih UOM KG atau ROLL.', true);
+      showToast_('Pilih UOM KG atau GULUNGAN.', true);
         return;
       }
 
@@ -5630,6 +5630,6 @@
     }
   </script>
   <script src="../responsive-header.js?v=20260811-1"></script>
-  <script src="../i18n.js?v=20260811-2"></script>
+  <script src="../i18n.js?v=20260811-3"></script>
 </body>
 </html>

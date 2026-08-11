@@ -3,12 +3,13 @@ param()
 
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
+$repositoryRoot = Split-Path -Parent $projectRoot
 $temporaryRoot = [System.IO.Path]::GetFullPath([System.IO.Path]::GetTempPath())
 $buildDirectory = Join-Path $temporaryRoot 'PolytaInstallerBuild'
 $releaseDirectory = Join-Path $projectRoot 'release'
 $portalOutputFile = Join-Path $releaseDirectory 'Polyta-Portal-Setup.exe'
 $adminOutputFile = Join-Path $releaseDirectory 'Polyta-Admin-Setup.exe'
-$logoFile = Join-Path $projectRoot 'assets\img\logo-polyta.png'
+$logoFile = Join-Path $repositoryRoot 'assets\img\logo-polyta.png'
 $sourceFile = Join-Path $PSScriptRoot 'Installer.cs'
 $compilerCandidates = @(
     (Join-Path $env:WINDIR 'Microsoft.NET\Framework64\v4.0.30319\csc.exe'),

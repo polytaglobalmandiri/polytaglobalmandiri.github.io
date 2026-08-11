@@ -5,7 +5,9 @@ Tersedia dua installer mandiri yang membuat pintasan pada Desktop dan Start Menu
 - `Polyta-Portal-Setup.exe` membuka portal utama untuk pengguna.
 - `Polyta-Admin-Setup.exe` membuka panel administrator secara langsung.
 
-Keduanya dibuka seperti aplikasi melalui Microsoft Edge; jika Edge tidak tersedia, pintasan akan memakai browser bawaan Windows. Portal dan administrator dipasang serta dapat dihapus secara terpisah.
+Keduanya dibuka seperti aplikasi melalui Microsoft Edge; jika Edge tidak tersedia, peluncur akan memakai browser bawaan Windows. Portal dan administrator dipasang serta dapat dihapus secara terpisah.
+
+Pintasan Desktop dan Start Menu selalu menargetkan peluncur POLYTA yang memiliki logo aplikasi tertanam, bukan berkas browser. Dengan demikian Windows menampilkan logo POLYTA pada pintasan, pencarian, menu aplikasi, dan daftar aplikasi terpasang. Browser hanya dipanggil di belakang untuk menampilkan isi portal.
 
 ## Membangun installer
 

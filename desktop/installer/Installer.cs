@@ -17,8 +17,8 @@ using Microsoft.Win32;
 [assembly: AssemblyProduct("POLYTA GLOBAL MANDIRI Portal")]
 #endif
 [assembly: AssemblyCompany("POLYTA GLOBAL MANDIRI")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.1.0.0")]
+[assembly: AssemblyFileVersion("1.1.0.0")]
 
 internal static class Installer
 {
@@ -47,6 +47,12 @@ internal static class Installer
 
         try
         {
+            if (HasArgument(args, "--launch"))
+            {
+                LaunchPortal();
+                return 0;
+            }
+
             if (HasArgument(args, "--uninstall"))
             {
                 Uninstall();
@@ -118,7 +124,10 @@ internal static class Installer
             File.Copy(currentExecutable, installedExecutable, true);
         }
 
-        ShortcutTarget target = FindShortcutTarget();
+        // Pintasan menargetkan peluncur POLYTA, bukan executable browser.
+        // Windows karena itu selalu memakai ikon aplikasi yang tertanam pada
+        // file ini untuk Desktop, Start Menu, pencarian, dan daftar aplikasi.
+        ShortcutTarget target = new ShortcutTarget(installedExecutable, "--launch");
         string desktopShortcut = Path.Combine(desktopDirectory, AppName + ".lnk");
         string startMenuShortcut = Path.Combine(startMenuDirectory, AppName + ".lnk");
         CreateShortcut(desktopShortcut, target, installDirectory, installedExecutable);
@@ -132,8 +141,17 @@ internal static class Installer
                 AppName,
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
-            Process.Start(new ProcessStartInfo(target.Executable, target.Arguments) { UseShellExecute = true });
+            Process.Start(new ProcessStartInfo(installedExecutable, "--launch") { UseShellExecute = true });
         }
+    }
+
+    private static void LaunchPortal()
+    {
+        ShortcutTarget browser = FindBrowserTarget();
+        Process.Start(new ProcessStartInfo(browser.Executable, browser.Arguments)
+        {
+            UseShellExecute = true
+        });
     }
 
     private static void Uninstall()
@@ -195,7 +213,7 @@ internal static class Installer
             MessageBoxIcon.Information);
     }
 
-    private static ShortcutTarget FindShortcutTarget()
+    private static ShortcutTarget FindBrowserTarget()
     {
         string[] edgeCandidates =
         {
@@ -254,7 +272,7 @@ internal static class Installer
             }
 
             key.SetValue("DisplayName", AppName);
-            key.SetValue("DisplayVersion", "1.0.0");
+            key.SetValue("DisplayVersion", "1.1.0");
             key.SetValue("Publisher", Publisher);
             key.SetValue("DisplayIcon", installedExecutable);
             key.SetValue("UninstallString", "\"" + installedExecutable + "\" --uninstall");

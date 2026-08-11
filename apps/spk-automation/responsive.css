@@ -1038,6 +1038,12 @@ body[data-page] :is(.topbar-inner, .app-topbar-inner, .header-inner) {
   gap: 1rem !important;
 }
 
+/* Dasbor memakai garis tata letak yang sama dengan logo header dan portal. */
+body[data-page="dashboard"] .app-main {
+  width: min(1180px, calc(100% - 2.5rem)) !important;
+  margin-inline: auto !important;
+}
+
 body[data-page] :is(.brand, .app-brand, .toolbar-brand) {
   min-width: 0 !important;
   display: flex;
@@ -1284,6 +1290,10 @@ body[data-page="cetak-spk"] .toolbar-button.primary {
 
 @media screen and (max-width: 640px) {
   body[data-page] :is(.topbar-inner, .app-topbar-inner, .header-inner) {
+    width: calc(100% - 1.6rem) !important;
+  }
+
+  body[data-page="dashboard"] .app-main {
     width: calc(100% - 1.6rem) !important;
   }
 

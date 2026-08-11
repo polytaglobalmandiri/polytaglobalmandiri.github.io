@@ -811,7 +811,7 @@ main { padding-bottom: 3.5rem; }
   :root:not([data-theme="light"]) .dept::before { background: linear-gradient(180deg, rgba(255,255,255,.08), transparent); }
 }
 .dept:hover {
-  transform: none;
+  transform: translateY(-6px) scale(1.008);
   border-color: var(--dept-accent);
   box-shadow:
     inset 0 1px 0 var(--hi-strong),
@@ -819,8 +819,8 @@ main { padding-bottom: 3.5rem; }
     0 24px 40px -14px rgba(40,33,24,.4),
     0 0 0 3px rgba(var(--dept-rgb), .18);
 }
-.dept:hover::after { opacity: .9; }
-.dept:active { transform: none; }
+.dept:hover::after { opacity: .9; transform: scale(1.08); }
+.dept:active { transform: translateY(-1px) scale(.995); }
 .dept__visual {
   position: relative;
   display: block;
@@ -834,156 +834,43 @@ main { padding-bottom: 3.5rem; }
     inset 0 1px 0 rgba(255,255,255,.16),
     inset 0 -3px 8px rgba(0,0,0,.45),
     0 8px 18px -10px rgba(0,0,0,.72);
-  transform: none;
-  transition: box-shadow var(--motion-ui) var(--ease-ui), border-color var(--motion-fast) var(--ease-ui);
-}
-.dept__visual::before {
-  content: "";
-  position: absolute; inset: 0; z-index: 2;
-  pointer-events: none;
-  background: linear-gradient(180deg, rgba(255,255,255,.07), transparent 34%, rgba(2,3,5,.2));
-  opacity: 1;
+  transform: translateZ(18px);
+  transition: transform 420ms var(--ease-spring), box-shadow var(--motion-ui) var(--ease-ui), border-color var(--motion-fast) var(--ease-ui);
 }
 .dept__visual::after {
   content: "";
-  position: absolute; inset: 0; z-index: 3;
+  position: absolute; inset: 0;
   pointer-events: none;
-  background: radial-gradient(ellipse at center, transparent 58%, rgba(0,0,0,.22));
-}
-.dept__media {
-  position: absolute; z-index: 1;
-  inset: 0;
-  display: block;
+  background: linear-gradient(105deg, transparent 28%, rgba(255,255,255,.18) 43%, transparent 58%);
+  transform: translateX(-130%);
+  animation: deptSheen 6.5s ease-in-out infinite;
 }
 .dept__image {
-  position: absolute; inset: 0;
   width: 100%; height: 100%;
   display: block;
   object-fit: cover;
   object-position: 50% 50%;
-  transform: none;
+  transform: scale(1.025);
   filter: saturate(.96) contrast(1.03);
-  transition: filter var(--motion-ui) var(--ease-ui);
+  transition: transform 520ms var(--ease-spring), filter var(--motion-ui) var(--ease-ui);
+  animation: deptImageFloat 5.2s ease-in-out infinite;
 }
 .dept:hover .dept__visual {
   border-color: rgba(var(--dept-rgb), .65);
-  transform: none;
+  transform: translateZ(28px) rotateX(1.2deg);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.2), inset 0 -3px 8px rgba(0,0,0,.45), 0 14px 25px -10px rgba(var(--dept-rgb), .48);
 }
-.dept:hover .dept__image {
-  filter: saturate(1.08) contrast(1.05) brightness(1.04);
-}
+.dept:hover .dept__image { transform: scale(1.09) translateY(-2px); filter: saturate(1.08) contrast(1.05) brightness(1.04); }
 .dept__visual.is-empty { display: none; }
-
-/* Objek bergerak: kanvas gambar tetap diam, hanya potongan objek yang dianimasikan. */
-.dept__objects {
-  position: absolute; z-index: 4;
-  left: 0; top: 50%; width: 100%; aspect-ratio: 1;
-  transform: translateY(-50%);
-  pointer-events: none;
-  overflow: visible;
+@keyframes deptImageFloat {
+  0%, 100% { object-position: 50% 50%; }
+  50% { object-position: 50% 46%; }
 }
-.dept__object {
-  position: absolute;
-  display: block;
-  pointer-events: none;
-  background-repeat: no-repeat;
-  background-position: 0 0;
-  background-size: 100% 100%;
-  will-change: transform, opacity;
+@keyframes deptSheen {
+  0%, 62%, 100% { transform: translateX(-130%); opacity: 0; }
+  72% { opacity: .9; }
+  86% { transform: translateX(130%); opacity: 0; }
 }
-.dept__object--marketing-target {
-  inset: 0; clip-path: circle(14.5% at 69% 64%); transform-origin: 69% 64%;
-  animation: deptObjectPulse 2.8s ease-in-out infinite;
-}
-.dept__object--marketing-signal {
-  left: 34%; top: 39%; width: 10%; aspect-ratio: 1; border-radius: 50%;
-  border: 2px solid rgba(255,83,97,.74);
-  animation: deptSignal 2.2s ease-out infinite;
-}
-.dept__object--ppic-gear-red {
-  inset: 0; clip-path: circle(17% at 74% 41%); transform-origin: 74% 41%;
-  animation: deptSpin 5.8s linear infinite;
-}
-.dept__object--ppic-gear-black {
-  inset: 0; clip-path: circle(13% at 55% 53%); transform-origin: 55% 53%;
-  animation: deptSpinReverse 4.8s linear infinite;
-}
-.dept__object--ppic-gear-silver {
-  inset: 0; clip-path: circle(12% at 74% 65%); transform-origin: 74% 65%;
-  animation: deptSpin 3.9s linear infinite;
-}
-.dept__object--purchasing-seal {
-  inset: 0; clip-path: circle(9% at 70% 52%); transform-origin: 70% 52%;
-  animation: deptSeal 3.2s ease-in-out infinite;
-}
-.dept__object--purchasing-check {
-  left: 51%; top: 41%; width: 13%; height: 7%;
-  border-left: 3px solid rgba(203,24,52,.82);
-  border-bottom: 3px solid rgba(203,24,52,.82);
-  transform: rotate(-45deg) scale(0);
-  transform-origin: left bottom;
-  animation: deptCheck 3.4s ease-in-out infinite;
-}
-.dept__object--produksi-spool {
-  inset: 0; clip-path: circle(13% at 21% 61%); transform-origin: 21% 61%;
-  animation: deptSpin 3.2s linear infinite;
-}
-.dept__object--produksi-belt {
-  left: 42%; top: 59%; width: 43%; height: 16%;
-  clip-path: polygon(0 7%, 92% 0, 100% 70%, 9% 100%);
-  opacity: .48;
-  background: repeating-linear-gradient(105deg, transparent 0 16px, rgba(255,255,255,.36) 17px 20px, transparent 21px 32px);
-  background-size: 64px 100%;
-  animation: deptBelt 1.45s linear infinite;
-}
-.dept__object--produksi-beacon {
-  left: 32%; top: 10%; width: 11%; aspect-ratio: 1; border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,70,74,.85), rgba(220,12,30,.16) 42%, transparent 72%);
-  animation: deptBeacon 1.2s ease-in-out infinite;
-}
-.dept__object--finance-pie {
-  inset: 0; clip-path: circle(10% at 80% 62%); transform-origin: 80% 62%;
-  animation: deptSpin 6.4s linear infinite;
-}
-.dept__object--finance-coin {
-  inset: 0; clip-path: circle(8.5% at 52% 45%); transform-origin: 52% 45%;
-  animation: deptCoin 2.6s ease-in-out infinite;
-}
-.dept__object--finance-chart-dot {
-  left: 60%; top: 33%; width: 3.2%; aspect-ratio: 1; border-radius: 50%;
-  background: #f33c51; box-shadow: 0 0 10px rgba(243,60,81,.9);
-  animation: deptChartDot 3s ease-in-out infinite;
-}
-.dept__object--bantuan-gear {
-  inset: 0; clip-path: circle(10% at 37% 43%); transform-origin: 37% 43%;
-  animation: deptSpin 4.4s linear infinite;
-}
-.dept__object--bantuan-page {
-  left: 27%; top: 19%; width: 22%; height: 30%;
-  clip-path: polygon(0 4%, 91% 0, 100% 92%, 7% 100%);
-  border-radius: 3px 8px 8px 3px;
-  background: linear-gradient(100deg, rgba(255,255,255,.96), rgba(214,214,214,.88));
-  box-shadow: 4px 3px 9px rgba(0,0,0,.26);
-  transform-origin: left center;
-  animation: deptPageFlip 4.8s ease-in-out infinite;
-}
-.dept__object--bantuan-headset {
-  left: 75%; top: 61%; width: 8%; aspect-ratio: 1; border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,55,72,.82), transparent 65%);
-  animation: deptBeacon 1.8s ease-in-out infinite;
-}
-@keyframes deptSpin { to { transform: rotate(360deg); } }
-@keyframes deptSpinReverse { to { transform: rotate(-360deg); } }
-@keyframes deptObjectPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.045); } }
-@keyframes deptSignal { 0% { opacity: 0; transform: scale(.45); } 45% { opacity: .75; } 100% { opacity: 0; transform: scale(1.7); } }
-@keyframes deptSeal { 0%,100% { transform: rotate(-3deg) scale(1); } 50% { transform: rotate(4deg) scale(1.06); } }
-@keyframes deptCheck { 0%,18%,100% { opacity: 0; transform: rotate(-45deg) scale(0); } 35%,72% { opacity: 1; transform: rotate(-45deg) scale(1); } 84% { opacity: 0; } }
-@keyframes deptBelt { to { background-position: 64px 0; } }
-@keyframes deptBeacon { 0%,100% { opacity: .28; transform: scale(.78); } 50% { opacity: 1; transform: scale(1.18); } }
-@keyframes deptCoin { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-1.5%) scale(1.035); } }
-@keyframes deptChartDot { 0%,15% { opacity: 0; transform: translate(0, 26px); } 35%,75% { opacity: 1; } 85%,100% { opacity: 0; transform: translate(48px, -23px); } }
-@keyframes deptPageFlip { 0%,18%,100% { transform: perspective(240px) rotateY(0deg); } 47%,68% { transform: perspective(240px) rotateY(-154deg); } }
 .dept__name {
   display: block; position: relative;
   margin-top: .58rem;
@@ -1031,7 +918,7 @@ main { padding-bottom: 3.5rem; }
   :root:not([data-theme="light"]) .dept--bantuan { --dept-ink: #d4d4dc; }
 }
 .dept__count {
-  position: absolute; z-index: 6; top: .58rem; right: .58rem;
+  position: absolute; z-index: 3; top: .58rem; right: .58rem;
   display: inline-flex; align-items: center; gap: .38rem;
   font-family: var(--font-mono); font-size: .64rem;
   padding: .28rem .55rem; border-radius: 999px;

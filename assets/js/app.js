@@ -666,52 +666,6 @@
   }
 
   /* ------------------------------------------------- Beranda: konten */
-  function buildDepartmentObjectMotion(departmentId, imagePath) {
-    if (!/^assets\/img\/departments\/[a-z0-9_-]+\.webp$/i.test(String(imagePath || ""))) return null;
-
-    var objects = {
-      marketing: [
-        { name: "target", crop: true },
-        { name: "signal", crop: false }
-      ],
-      ppic: [
-        { name: "gear-red", crop: true },
-        { name: "gear-black", crop: true },
-        { name: "gear-silver", crop: true }
-      ],
-      purchasing: [
-        { name: "seal", crop: true },
-        { name: "check", crop: false }
-      ],
-      produksi: [
-        { name: "spool", crop: true },
-        { name: "belt", crop: false },
-        { name: "beacon", crop: false }
-      ],
-      finance: [
-        { name: "pie", crop: true },
-        { name: "coin", crop: true },
-        { name: "chart-dot", crop: false }
-      ],
-      bantuan: [
-        { name: "gear", crop: true },
-        { name: "page", crop: false },
-        { name: "headset", crop: false }
-      ]
-    };
-    var specs = objects[departmentId];
-    if (!specs) return null;
-
-    var layer = el("span", "dept__objects dept__objects--" + departmentId);
-    var imageUrl = managedImage(imagePath);
-    specs.forEach(function (spec) {
-      var part = el("span", "dept__object dept__object--" + departmentId + "-" + spec.name);
-      if (spec.crop) part.style.backgroundImage = 'url("' + imageUrl.replace(/"/g, "%22") + '")';
-      layer.appendChild(part);
-    });
-    return layer;
-  }
-
   function buildHome(main) {
     var wrap = el("div", "wrap");
     wrap.setAttribute("data-home-wrap", "");
@@ -737,7 +691,6 @@
       var count = el("span", "dept__count", n + " tautan");
       if (d.image) {
         var visual = el("span", "dept__visual");
-        var media = el("span", "dept__media");
         var image = el("img", "dept__image");
         image.src = managedImage(d.image);
         image.alt = "";
@@ -749,10 +702,7 @@
           a.insertBefore(count, visual);
           visual.classList.add("is-empty");
         });
-        media.appendChild(image);
-        visual.appendChild(media);
-        var objectMotion = buildDepartmentObjectMotion(deptClass, d.image);
-        if (objectMotion) visual.appendChild(objectMotion);
+        visual.appendChild(image);
         visual.appendChild(count);
         a.appendChild(visual);
       } else a.appendChild(count);
@@ -879,22 +829,9 @@
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     if (window.matchMedia("(hover: none)").matches) return;
 
-    var activeCard = null;
-
-    function resetCard(card) {
-      if (!card) return;
-      card.style.transform = "";
-    }
-
     document.addEventListener("pointermove", function (e) {
-      var card = e.target.closest ? e.target.closest(".tile") : null;
-      if (!card) {
-        resetCard(activeCard);
-        activeCard = null;
-        return;
-      }
-      if (activeCard && activeCard !== card) resetCard(activeCard);
-      activeCard = card;
+      var card = e.target.closest ? e.target.closest(".tile, .dept") : null;
+      if (!card) return;
       var r = card.getBoundingClientRect();
       var px = (e.clientX - r.left) / r.width - .5;
       var py = (e.clientY - r.top) / r.height - .5;
@@ -903,13 +840,8 @@
         "deg) rotateY(" + (px * 5).toFixed(2) + "deg)";
     });
     document.addEventListener("pointerout", function (e) {
-      if (!activeCard || (e.relatedTarget && activeCard.contains(e.relatedTarget))) return;
-      resetCard(activeCard);
-      activeCard = null;
-    });
-    window.addEventListener("blur", function () {
-      resetCard(activeCard);
-      activeCard = null;
+      var card = e.target.closest ? e.target.closest(".tile, .dept") : null;
+      if (card) card.style.transform = "";
     });
   }
 

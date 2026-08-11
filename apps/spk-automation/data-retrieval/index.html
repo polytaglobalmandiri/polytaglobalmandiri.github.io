@@ -1521,52 +1521,6 @@
       font-size: .72rem;
     }
 
-    .app-fullscreen-button {
-      appearance: none;
-      font-family: inherit;
-      font-size: .72rem;
-      font-weight: 650;
-      letter-spacing: normal;
-      text-transform: none;
-      white-space: nowrap;
-      cursor: pointer;
-    }
-
-    @media (min-width: 901px) {
-      .app-fullscreen-button {
-        width: 104px;
-        flex: 0 0 104px;
-      }
-    }
-
-    .app-fullscreen-button[aria-pressed="true"] {
-      border-color: rgba(255,255,255,.18);
-      background: rgba(255,255,255,.14);
-      color: #fff;
-    }
-
-    html:fullscreen,
-    html:-webkit-full-screen,
-    html:fullscreen body,
-    html:-webkit-full-screen body {
-      min-height: 100%;
-      background-color: var(--app-page-background-color);
-      background-image: var(--app-page-background-image);
-      background-position: var(--app-page-background-position);
-      background-size: var(--app-page-background-size);
-    }
-
-    body.app-focus-mode {
-      position: fixed;
-      z-index: 9999;
-      inset: 0;
-      overflow: auto;
-      background-color: var(--app-page-background-color);
-      background-image: var(--app-page-background-image);
-      background-position: var(--app-page-background-position);
-      background-size: var(--app-page-background-size);
-    }
-
     .app-main {
       width: min(calc(100% - 24px), 1080px);
       margin: 18px auto 28px;
@@ -1931,7 +1885,7 @@
     }
     @media print { .polyta-portal-home { display: none !important; } }
   </style>
-  <link rel="stylesheet" href="../responsive.css?v=20260811-3">
+  <link rel="stylesheet" href="../responsive.css?v=20260812-1">
 </head>
 <body
   class="tw:min-h-screen tw:text-polyta-ink selection:tw:bg-polyta-brand-soft selection:tw:text-polyta-brand"
@@ -2009,15 +1963,6 @@
         <a class="app-nav-link polyta-portal-home no-print" href="/" target="_top" title="Kembali ke portal utama">
           <i class="fa-solid fa-house" aria-hidden="true"></i><span>Portal Utama</span>
         </a>
-        <button id="btnFullscreen"
-          class="app-nav-link app-fullscreen-button"
-          type="button"
-          aria-pressed="false"
-          title="Buka tampilan layar penuh"
-        >
-          <i id="fullscreenIcon" class="fa-solid fa-expand" aria-hidden="true"></i>
-          <span id="fullscreenLabel">Layar Penuh</span>
-        </button>
       </nav>
     </div>
   </header>
@@ -2141,97 +2086,12 @@
     const mockExtractedFileIds = new Set(['root-sheet-preview']);
 
     document.addEventListener('DOMContentLoaded', () => {
-      initializeFullscreen_();
       if (isGasEnvironment()) {
         restoreActiveExtractionJob();
       } else {
         fetchFolder(null);
       }
     });
-
-    function initializeFullscreen_() {
-      const button = document.getElementById('btnFullscreen');
-      if (!button) return;
-
-      button.addEventListener('click', toggleAppFullscreen_);
-      document.addEventListener('fullscreenchange', syncFullscreenButton_);
-      document.addEventListener('webkitfullscreenchange', syncFullscreenButton_);
-      document.addEventListener('keydown', event => {
-        if (event.key !== 'Escape' || !document.body.classList.contains('app-focus-mode')) return;
-        document.body.classList.remove('app-focus-mode');
-        syncFullscreenButton_();
-      });
-      syncFullscreenButton_();
-    }
-
-    function toggleAppFullscreen_() {
-      const nativeFullscreen =
-        document.fullscreenElement ||
-        document.webkitFullscreenElement;
-      const fallbackActive = document.body.classList.contains('app-focus-mode');
-
-      if (nativeFullscreen) {
-        const exitFullscreen =
-          document.exitFullscreen ||
-          document.webkitExitFullscreen;
-        if (exitFullscreen) {
-          Promise.resolve(exitFullscreen.call(document))
-            .catch(() => {
-              document.body.classList.remove('app-focus-mode');
-              syncFullscreenButton_();
-            });
-          return;
-        }
-      }
-
-      if (fallbackActive) {
-        document.body.classList.remove('app-focus-mode');
-        syncFullscreenButton_();
-        return;
-      }
-
-      const root = document.documentElement;
-      const requestFullscreen =
-        root.requestFullscreen ||
-        root.webkitRequestFullscreen;
-
-      if (!requestFullscreen) {
-        enableFullscreenFallback_();
-        return;
-      }
-
-      try {
-        const requestResult = requestFullscreen.call(root);
-        if (requestResult && typeof requestResult.catch === 'function') {
-          requestResult.catch(enableFullscreenFallback_);
-        }
-      } catch (error) {
-        enableFullscreenFallback_();
-      }
-    }
-
-    function enableFullscreenFallback_() {
-      document.body.classList.add('app-focus-mode');
-      syncFullscreenButton_();
-    }
-
-    function syncFullscreenButton_() {
-      const button = document.getElementById('btnFullscreen');
-      const icon = document.getElementById('fullscreenIcon');
-      const label = document.getElementById('fullscreenLabel');
-      if (!button || !icon || !label) return;
-
-      const active = Boolean(
-        document.fullscreenElement ||
-        document.webkitFullscreenElement ||
-        document.body.classList.contains('app-focus-mode')
-      );
-
-      button.setAttribute('aria-pressed', String(active));
-      button.title = active ? 'Keluar dari layar penuh' : 'Buka tampilan layar penuh';
-      icon.className = active ? 'fa-solid fa-compress' : 'fa-solid fa-expand';
-      label.textContent = active ? 'Keluar Penuh' : 'Layar Penuh';
-    }
 
     function isGasEnvironment() {
       return typeof google !== 'undefined' && google.script && google.script.run;
@@ -3545,6 +3405,6 @@
     }
   </script>
   <script src="../responsive-header.js?v=20260811-1"></script>
-  <script src="../i18n.js?v=20260811-3"></script>
+  <script src="../i18n.js?v=20260812-1"></script>
 </body>
 </html>

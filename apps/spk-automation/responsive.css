@@ -839,6 +839,7 @@
 .spk-language-switcher {
   display: inline-grid;
   grid-template-columns: repeat(2, 32px);
+  margin-left: 8px;
   flex: 0 0 auto;
   padding: 3px;
   border: 1px solid rgba(255,255,255,.2);
@@ -884,7 +885,8 @@ body[data-page="cetak-spk"] .toolbar-actions > .spk-language-switcher {
 }
 
 @media screen and (max-width: 900px) {
-  .spk-responsive-header .spk-language-switcher { margin-left: auto; }
+  .spk-responsive-header .spk-mobile-nav-toggle { margin-left: auto; }
+  .spk-responsive-header .spk-language-switcher { margin-left: 0; }
 }
 
 @media screen and (max-width: 420px) {

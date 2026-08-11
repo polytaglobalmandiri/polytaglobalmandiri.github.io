@@ -220,31 +220,11 @@
       cursor: pointer;
     }
 
-    .toolbar-button.dashboard,
-    .toolbar-button.fullscreen {
+    .toolbar-button.dashboard {
       border: 1px solid #141922;
       color: #fff;
       background: linear-gradient(180deg, #586373, #3b4552 48%, #242c36 52%, #171c23);
       box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 3px 0 #080a0d;
-    }
-
-    .toolbar-button.fullscreen[aria-pressed="true"] {
-      border-color: rgba(255,255,255,.35);
-      background: linear-gradient(180deg, #727e8f, #4b5868 48%, #313c49 52%, #202832);
-      box-shadow: inset 0 2px 5px rgba(0,0,0,.6), 0 1px 0 rgba(255,255,255,.12);
-    }
-
-    .toolbar-button.fullscreen {
-      width: 104px;
-      flex: 0 0 104px;
-      gap: 6px;
-      padding: 0 11px;
-      font-size: .72rem;
-      font-weight: 650;
-      letter-spacing: normal;
-      line-height: 1;
-      text-transform: none;
-      white-space: nowrap;
     }
 
     .toolbar-button.secondary {
@@ -1149,22 +1129,6 @@
         font-size: .72rem;
       }
 
-      html:fullscreen,
-      html:-webkit-full-screen,
-      html:fullscreen body,
-      html:-webkit-full-screen body {
-        min-height: 100%;
-        background: var(--app-page-background);
-      }
-
-      body.app-focus-mode {
-        position: fixed;
-        z-index: 9999;
-        inset: 0;
-        overflow: auto;
-        background: var(--app-page-background);
-      }
-
       .workspace {
         padding: 18px;
       }
@@ -1190,16 +1154,6 @@
     @media screen and (max-width: 900px) {
       .print-toolbar {
         grid-template-columns: minmax(210px, 1fr) auto;
-      }
-
-      .toolbar-button.fullscreen {
-        width: 39px;
-        flex-basis: 39px;
-        padding: 0;
-      }
-
-      .toolbar-button.fullscreen #fullscreenLabel {
-        display: none;
       }
 
       .toolbar-status {
@@ -3910,7 +3864,7 @@
     }
     @media print { .polyta-portal-home { display: none !important; } }
   </style>
-  <link rel="stylesheet" href="../responsive.css?v=20260811-3">
+  <link rel="stylesheet" href="../responsive.css?v=20260812-1">
 </head>
 <body
   class="tw:min-h-screen tw:text-polyta-ink selection:tw:bg-polyta-brand-soft selection:tw:text-polyta-brand"
@@ -3988,15 +3942,6 @@
       <a class="toolbar-button dashboard polyta-portal-home no-print" href="/" target="_top" title="Kembali ke portal utama">
         <i class="fa-solid fa-house" aria-hidden="true"></i><span>Portal Utama</span>
       </a>
-      <button id="btnFullscreen"
-        class="toolbar-button fullscreen"
-        type="button"
-        aria-pressed="false"
-        title="Buka tampilan layar penuh"
-      >
-        <i id="fullscreenIcon" class="fa-solid fa-expand" aria-hidden="true"></i>
-        <span id="fullscreenLabel">Layar Penuh</span>
-      </button>
       <button id="printButton" class="toolbar-button primary" type="button" disabled>
         Cetak dan Tandai Terbit
       </button>
@@ -4053,93 +3998,9 @@
     let releaseRequestInFlight = false;
 
     document.addEventListener('DOMContentLoaded', function () {
-      initializeFullscreen_();
       loadPrintData_();
     });
 
-    function initializeFullscreen_() {
-      const button = document.getElementById('btnFullscreen');
-      if (!button) return;
-
-      button.addEventListener('click', toggleAppFullscreen_);
-      document.addEventListener('fullscreenchange', syncFullscreenButton_);
-      document.addEventListener('webkitfullscreenchange', syncFullscreenButton_);
-      document.addEventListener('keydown', event => {
-        if (event.key !== 'Escape' || !document.body.classList.contains('app-focus-mode')) return;
-        document.body.classList.remove('app-focus-mode');
-        syncFullscreenButton_();
-      });
-      syncFullscreenButton_();
-    }
-
-    function toggleAppFullscreen_() {
-      const nativeFullscreen =
-        document.fullscreenElement ||
-        document.webkitFullscreenElement;
-      const fallbackActive = document.body.classList.contains('app-focus-mode');
-
-      if (nativeFullscreen) {
-        const exitFullscreen =
-          document.exitFullscreen ||
-          document.webkitExitFullscreen;
-        if (exitFullscreen) {
-          Promise.resolve(exitFullscreen.call(document))
-            .catch(() => {
-              document.body.classList.remove('app-focus-mode');
-              syncFullscreenButton_();
-            });
-          return;
-        }
-      }
-
-      if (fallbackActive) {
-        document.body.classList.remove('app-focus-mode');
-        syncFullscreenButton_();
-        return;
-      }
-
-      const root = document.documentElement;
-      const requestFullscreen =
-        root.requestFullscreen ||
-        root.webkitRequestFullscreen;
-
-      if (!requestFullscreen) {
-        enableFullscreenFallback_();
-        return;
-      }
-
-      try {
-        const requestResult = requestFullscreen.call(root);
-        if (requestResult && typeof requestResult.catch === 'function') {
-          requestResult.catch(enableFullscreenFallback_);
-        }
-      } catch (error) {
-        enableFullscreenFallback_();
-      }
-    }
-
-    function enableFullscreenFallback_() {
-      document.body.classList.add('app-focus-mode');
-      syncFullscreenButton_();
-    }
-
-    function syncFullscreenButton_() {
-      const button = document.getElementById('btnFullscreen');
-      const icon = document.getElementById('fullscreenIcon');
-      const label = document.getElementById('fullscreenLabel');
-      if (!button || !icon || !label) return;
-
-      const active = Boolean(
-        document.fullscreenElement ||
-        document.webkitFullscreenElement ||
-        document.body.classList.contains('app-focus-mode')
-      );
-
-      button.setAttribute('aria-pressed', String(active));
-      button.title = active ? 'Keluar dari layar penuh' : 'Buka tampilan layar penuh';
-      icon.className = active ? 'fa-solid fa-compress' : 'fa-solid fa-expand';
-      label.textContent = active ? 'Keluar Penuh' : 'Layar Penuh';
-    }
     printButtonEl.addEventListener('click', function () {
       if (PRINT_MODE === 'release') requestReleaseAndPrint_(true);
     });
@@ -5568,6 +5429,6 @@
     }
   </script>
   <script src="../responsive-header.js?v=20260811-1"></script>
-  <script src="../i18n.js?v=20260811-3"></script>
+  <script src="../i18n.js?v=20260812-1"></script>
 </body>
 </html>

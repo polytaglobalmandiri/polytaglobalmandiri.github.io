@@ -600,52 +600,6 @@
             box-shadow: inset 1px 2px 3px rgba(0, 0, 0, .1), 0 1px 0 #929495;
         }
 
-        .app-fullscreen-button[aria-pressed="true"] {
-            border-color: rgba(255, 255, 255, .18);
-            background: rgba(255, 255, 255, .14);
-            color: #fff;
-        }
-
-        .app-fullscreen-button {
-            appearance: none;
-            font-family: inherit;
-            font-size: .72rem;
-            font-weight: 650;
-            letter-spacing: normal;
-            text-transform: none;
-            white-space: nowrap;
-            cursor: pointer;
-        }
-
-        @media (min-width: 901px) {
-            .app-fullscreen-button {
-                width: 104px;
-                flex: 0 0 104px;
-            }
-        }
-
-        html:fullscreen,
-        html:-webkit-full-screen,
-        html:fullscreen body,
-        html:-webkit-full-screen body {
-            min-height: 100%;
-            background-color: var(--app-page-background-color);
-            background-image: var(--app-page-background-image);
-            background-position: var(--app-page-background-position);
-            background-size: var(--app-page-background-size);
-        }
-
-        body.app-focus-mode {
-            position: fixed;
-            z-index: 9999;
-            inset: 0;
-            overflow: auto;
-            background-color: var(--app-page-background-color);
-            background-image: var(--app-page-background-image);
-            background-position: var(--app-page-background-position);
-            background-size: var(--app-page-background-size);
-        }
-
         .kpi-grid {
             margin-bottom: 18px;
             display: grid;
@@ -4075,10 +4029,6 @@
             font-size: .68rem;
         }
 
-        .app-fullscreen-button {
-            font-size: .68rem;
-        }
-
         .detail-tab-button {
             min-height: 32px;
             padding: 6px 11px;
@@ -4123,19 +4073,6 @@
                 justify-content: center;
             }
 
-            .app-fullscreen-button {
-                width: 39px;
-                flex: 0 0 39px;
-            }
-        }
-
-        /* Lebar tetap tombol layar penuh dihitung untuk huruf yang lebih
-           besar; dengan ukuran huruf baru labelnya jadi mepet. */
-        @media (min-width: 901px) {
-            .app-fullscreen-button {
-                width: 108px;
-                flex: 0 0 108px;
-            }
         }
     </style>
 
@@ -5230,27 +5167,6 @@
     gap: 6px;
     border-radius: 8px;
     font-size: .72rem;
-  }
-  #spkInputRoot .app-fullscreen-button {
-    appearance: none;
-    font-family: inherit;
-    font-size: .72rem;
-    font-weight: 650;
-    letter-spacing: normal;
-    text-transform: none;
-    white-space: nowrap;
-    cursor: pointer;
-  }
-  @media (min-width: 901px) {
-    #spkInputRoot .app-fullscreen-button {
-      width: 104px;
-      flex: 0 0 104px;
-    }
-  }
-  #spkInputRoot .app-fullscreen-button[aria-pressed="true"] {
-    border-color: rgba(255,255,255,.18);
-    background: rgba(255,255,255,.14);
-    color: #fff;
   }
   #spkInputRoot .page-frame {
     padding: 18px 12px 28px;
@@ -9254,7 +9170,7 @@
     }
     @media print { .polyta-portal-home { display: none !important; } }
   </style>
-    <link rel="stylesheet" href="responsive.css?v=20260811-3">
+    <link rel="stylesheet" href="responsive.css?v=20260812-1">
 </head>
 <body
     class="tw:min-h-screen tw:text-polyta-ink selection:tw:bg-polyta-brand-soft selection:tw:text-polyta-brand"
@@ -9333,15 +9249,6 @@
                 <a class="nav-link-app polyta-portal-home no-print" href="/" target="_top" title="Kembali ke portal utama">
                   <i class="fa-solid fa-house" aria-hidden="true"></i><span>Portal Utama</span>
                 </a>
-                <button id="btnFullscreen"
-                    class="nav-link-app app-fullscreen-button"
-                    type="button"
-                    aria-pressed="false"
-                    title="Buka tampilan layar penuh"
-                >
-                    <i id="fullscreenIcon" class="fa-solid fa-expand" aria-hidden="true"></i>
-                    <span id="fullscreenLabel">Layar Penuh</span>
-                </button>
             </nav>
         </div>
     </header>
@@ -11481,7 +11388,6 @@
                 renderSpkCategoryButtons(rawTableData);
                 if (dashboardTable) dashboardTable.draw();
             });
-            document.getElementById('btnFullscreen').addEventListener('click', toggleDashboardFullscreen);
             document.getElementById('clearFilters').addEventListener('click', clearFilters);
             document.getElementById('clearFiltersInline').addEventListener('click', clearFilters);
             document.getElementById('detailRetryButton').addEventListener('click', function () {
@@ -11529,15 +11435,6 @@
             }
 
             setSummaryCollapsed(shouldCollapse, false);
-            syncFullscreenButton();
-
-            document.addEventListener('fullscreenchange', syncFullscreenButton);
-            document.addEventListener('webkitfullscreenchange', syncFullscreenButton);
-            document.addEventListener('keydown', function (event) {
-                if (event.key !== 'Escape' || !document.body.classList.contains('app-focus-mode')) return;
-                document.body.classList.remove('app-focus-mode');
-                syncFullscreenButton();
-            });
         }
 
         function setSummaryCollapsed(collapsed, persistPreference) {
@@ -11569,71 +11466,6 @@
             }
 
             window.setTimeout(adjustDashboardTable_, 350);
-        }
-
-        function toggleDashboardFullscreen() {
-            var nativeFullscreenElement = document.fullscreenElement || document.webkitFullscreenElement;
-            var isFallbackActive = document.body.classList.contains('app-focus-mode');
-
-            if (nativeFullscreenElement) {
-                var exitFullscreen = document.exitFullscreen || document.webkitExitFullscreen;
-                if (exitFullscreen) {
-                    var exitResult = exitFullscreen.call(document);
-                    if (exitResult && typeof exitResult.catch === 'function') {
-                        exitResult.catch(function () {
-                            document.body.classList.remove('app-focus-mode');
-                            syncFullscreenButton();
-                        });
-                    }
-                }
-                return;
-            }
-
-            if (isFallbackActive) {
-                document.body.classList.remove('app-focus-mode');
-                syncFullscreenButton();
-                return;
-            }
-
-            var root = document.documentElement;
-            var requestFullscreen = root.requestFullscreen || root.webkitRequestFullscreen;
-            if (!requestFullscreen) {
-                enableFullscreenFallback_();
-                return;
-            }
-
-            try {
-                var requestResult = requestFullscreen.call(root);
-                if (requestResult && typeof requestResult.catch === 'function') {
-                    requestResult.catch(enableFullscreenFallback_);
-                }
-            } catch (error) {
-                enableFullscreenFallback_();
-            }
-        }
-
-        function enableFullscreenFallback_() {
-            document.body.classList.add('app-focus-mode');
-            syncFullscreenButton();
-        }
-
-        function syncFullscreenButton() {
-            var button = document.getElementById('btnFullscreen');
-            var icon = document.getElementById('fullscreenIcon');
-            var label = document.getElementById('fullscreenLabel');
-            if (!button || !icon || !label) return;
-
-            var active = Boolean(
-                document.fullscreenElement ||
-                document.webkitFullscreenElement ||
-                document.body.classList.contains('app-focus-mode')
-            );
-
-            button.setAttribute('aria-pressed', active ? 'true' : 'false');
-            button.title = active ? 'Keluar dari layar penuh' : 'Buka tampilan layar penuh';
-            icon.className = active ? 'fa-solid fa-compress' : 'fa-solid fa-expand';
-            label.textContent = active ? 'Keluar Penuh' : 'Layar Penuh';
-            window.setTimeout(adjustDashboardTable_, 80);
         }
 
         function adjustDashboardTable_() {
@@ -18179,6 +18011,6 @@
         })();
     </script>
     <script src="responsive-header.js?v=20260811-1"></script>
-    <script src="i18n.js?v=20260811-3"></script>
+    <script src="i18n.js?v=20260812-1"></script>
 </body>
 </html>

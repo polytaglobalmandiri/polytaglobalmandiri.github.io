@@ -37,7 +37,6 @@
     "Belum di Database": "Belum di Basis Data",
     "Detail SPK": "Rincian SPK",
     "Detail Keluar Bahan": "Rincian Keluar Bahan",
-    "Full Screen": "Layar Penuh",
     "Print": "Cetak",
     "Release": "Terbit",
     "Sudah Release": "Sudah Terbit",
@@ -254,9 +253,6 @@
     "Keluar Bahan": "Material Issue",
     "Penarikan Data": "Data Retrieval",
     "Portal Utama": "Main Portal",
-    "Layar Penuh": "Full Screen",
-    "Keluar dari layar penuh": "Exit Full Screen",
-    "Buka tampilan layar penuh": "Open Full Screen",
     "Menu": "Menu",
     "Buka menu navigasi": "Open navigation menu",
     "Tutup menu navigasi": "Close navigation menu",
@@ -861,7 +857,6 @@
     ,"Keterangan Pelipatan": "Folding Notes"
     ,"Keterangan Pembentukan Lipatan": "Gusseting Notes"
     ,"Tidak": "No"
-    ,"Keluar Penuh": "Exit Full Screen"
     ,"Server belum menjawab setelah 90 detik.": "The server did not respond within 90 seconds."
     ,"Gagal mengambil data dari Google Spreadsheet.": "Failed to retrieve data from Google Sheets."
     ,"Format data dari server tidak dikenali.": "The server data format was not recognized."
@@ -1270,10 +1265,9 @@
       });
 
     if (host) {
-      var anchor = host.querySelector(".spk-mobile-nav-toggle, .topnav, .app-nav");
-      host.insertBefore(switcher, anchor || null);
+      host.appendChild(switcher);
     } else {
-      printActions.insertBefore(switcher, printActions.firstChild);
+      printActions.appendChild(switcher);
     }
   }
 

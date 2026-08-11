@@ -20,7 +20,7 @@
   color: var(--ink-mute);
   background: transparent;
   font: inherit;
-  font-size: .61rem;
+  font-size: 10px;
   font-weight: 900;
   letter-spacing: .05em;
   cursor: pointer;

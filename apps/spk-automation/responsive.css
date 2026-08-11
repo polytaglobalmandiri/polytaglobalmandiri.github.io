@@ -10,6 +10,8 @@
     text-size-adjust: 100%;
     overflow-x: hidden;
     overflow-x: clip;
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
   }
 
   body {
@@ -916,7 +918,8 @@ body[data-page="cetak-spk"] .print-content-actions .toolbar-button {
     min-width: 0 !important;
     height: 34px !important;
     min-height: 34px !important;
-    padding: .48rem .7rem !important;
+    padding: 8px 11px !important;
+    font-size: 11.5px !important;
   }
 
   body[data-page] .spk-simple-header .spk-simple-nav :is(.nav-link-app, .nav-link, .app-nav-link) > span {
@@ -968,6 +971,7 @@ body[data-page] :is(.topbar, .app-topbar, .app-header, .print-toolbar) {
   z-index: 1100;
   isolation: isolate;
   overflow: visible;
+  font-family: "Segoe UI", "Inter", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
   color: var(--spk-header-ink);
   border: 0;
   border-bottom: 1px solid var(--spk-header-metal-d);
@@ -1028,14 +1032,14 @@ body[data-page="cetak-spk"] .print-toolbar > * {
 }
 
 body[data-page] :is(.topbar-inner, .app-topbar-inner, .header-inner) {
-  width: min(1180px, calc(100% - 2.5rem)) !important;
-  min-height: 70px !important;
+  width: min(var(--polyta-content-width, 1180px), calc(100% - 2.5rem)) !important;
+  min-height: var(--polyta-header-height, 70px) !important;
   margin-inline: auto !important;
-  padding: .7rem 0 !important;
+  padding: 11px 0 !important;
   display: flex !important;
   align-items: center !important;
   justify-content: flex-start !important;
-  gap: 1rem !important;
+  gap: 16px !important;
 }
 
 /* Dasbor memakai garis tata letak yang sama dengan logo header dan portal. */
@@ -1048,16 +1052,16 @@ body[data-page] :is(.brand, .app-brand, .toolbar-brand) {
   min-width: 0 !important;
   display: flex;
   align-items: center;
-  gap: .75rem !important;
+  gap: 12px !important;
   color: var(--spk-header-ink);
 }
 
 body[data-page] :is(.brand, .app-brand, .toolbar-brand) > :last-child { min-width: 0; }
 
 body[data-page] :is(.brand-mark, .app-brand-mark, .toolbar-mark) {
-  width: 48px !important;
-  height: 48px !important;
-  flex: 0 0 48px !important;
+  width: var(--polyta-brand-mark-size, 48px) !important;
+  height: var(--polyta-brand-mark-size, 48px) !important;
+  flex: 0 0 var(--polyta-brand-mark-size, 48px) !important;
   padding: 4px !important;
   display: grid;
   place-items: center;
@@ -1082,7 +1086,7 @@ body[data-page] :is(.brand-name, .app-brand-name, .toolbar-brand strong) {
   display: block;
   color: var(--spk-header-ink) !important;
   font-family: "Trebuchet MS", "Segoe UI Semibold", "Segoe UI", sans-serif;
-  font-size: .95rem !important;
+  font-size: 15.2px !important;
   font-weight: 700 !important;
   line-height: 1.15 !important;
   letter-spacing: .14em !important;
@@ -1093,9 +1097,9 @@ body[data-page] :is(.brand-name, .app-brand-name, .toolbar-brand strong) {
 
 body[data-page] :is(.brand-subtitle, .app-brand-subtitle, .toolbar-brand span) {
   display: block;
-  margin-top: .1rem !important;
+  margin-top: 2px !important;
   color: var(--spk-header-ink-muted) !important;
-  font-size: .6rem !important;
+  font-size: 9.6px !important;
   font-weight: 600 !important;
   line-height: 1.2 !important;
   letter-spacing: .2em !important;
@@ -1109,7 +1113,7 @@ body[data-page] :is(.topnav, .app-nav) {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: .15rem !important;
+  gap: 2px !important;
 }
 
 @media screen and (min-width: 901px) {
@@ -1119,17 +1123,17 @@ body[data-page] :is(.topnav, .app-nav) {
     min-width: 0 !important;
     height: 34px !important;
     min-height: 34px !important;
-    padding: .48rem .7rem !important;
+    padding: 8px 11px !important;
     display: inline-flex !important;
     align-items: center;
     justify-content: center;
-    gap: .38rem !important;
+    gap: 6px !important;
     border: 1px solid transparent !important;
     border-radius: 9px !important;
     color: var(--spk-header-ink-soft) !important;
     background: transparent !important;
     box-shadow: none !important;
-    font-size: .72rem !important;
+    font-size: 11.5px !important;
     font-weight: 700 !important;
     line-height: 1 !important;
     letter-spacing: .04em;
@@ -1172,7 +1176,10 @@ body[data-page] :is(.topnav, .app-nav) {
   box-shadow: inset 0 2px 5px rgba(18,18,26,.22), inset 0 -1px 0 rgba(255,255,255,.58), 0 1px 0 rgba(255,255,255,.9);
 }
 
-.spk-language-switcher button { color: var(--spk-header-ink-soft, #4c4c56); }
+.spk-language-switcher button {
+  color: var(--spk-header-ink-soft, #4c4c56);
+  font-size: 10px;
+}
 
 .spk-language-switcher button:hover,
 .spk-language-switcher button:focus-visible {
@@ -1248,7 +1255,7 @@ body[data-page="cetak-spk"] .toolbar-button.primary {
   body[data-page] :is(.topbar-inner, .app-topbar-inner, .header-inner) {
     width: calc(100% - 2.5rem) !important;
     min-height: 64px !important;
-    padding-block: .55rem !important;
+    padding-block: 8px !important;
   }
 
   .spk-mobile-nav-toggle {
@@ -1308,7 +1315,7 @@ body[data-page="cetak-spk"] .toolbar-button.primary {
   body[data-page] :is(.brand-name, .app-brand-name, .toolbar-brand strong) {
     max-width: min(48vw, 250px);
     overflow: hidden;
-    font-size: .8rem !important;
+    font-size: 12.8px !important;
     letter-spacing: .08em !important;
     text-overflow: ellipsis;
   }

@@ -265,7 +265,7 @@ body::after {
   position: -webkit-sticky;
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 1100;
   width: 100%;
   isolation: isolate;
   background:
@@ -295,8 +295,8 @@ body::after {
   right: 0; bottom: -1px; left: 0;
   height: 2px;
   background: linear-gradient(90deg, transparent 0%, var(--accent) 20%, var(--accent-hi) 50%, var(--accent) 80%, transparent 100%);
-  opacity: 0;
-  transform: scaleX(.82);
+  opacity: .72;
+  transform: scaleX(1);
   pointer-events: none;
   transition: opacity var(--motion-ui) var(--ease-ui), transform var(--motion-ui) var(--ease-ui);
 }
@@ -311,13 +311,13 @@ body::after {
 .topbar.is-stuck::after { opacity: .72; transform: scaleX(1); }
 .topbar__in {
   position: relative;
-  display: flex; align-items: center; gap: 1rem;
+  display: flex; align-items: center; gap: 16px;
   min-height: var(--polyta-header-height);
-  padding-block: .7rem;
+  padding-block: 11px;
 }
 
 /* Merek */
-.brand { display: flex; align-items: center; gap: .75rem; min-width: 0; }
+.brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
 /* Plat porselen putih di kedua tema — logo bergaris hitam butuh dasar terang
    agar tetap terbaca, baik di topbar terang maupun gelap. */
 .brand__plate {
@@ -342,28 +342,28 @@ body::after {
 .brand__name {
   display: block;
   font-family: var(--font-dis);
-  font-size: .95rem; font-weight: 700; letter-spacing: .14em;
+  font-size: 15.2px; font-weight: 700; letter-spacing: .14em;
   line-height: 1.15; white-space: nowrap;
   color: var(--ink);
 }
 .brand__sub {
-  display: block; margin-top: .1rem;
-  font-size: .6rem; letter-spacing: .2em; text-transform: uppercase;
+  display: block; margin-top: 2px;
+  font-size: 9.6px; font-weight: 600; line-height: 1.2; letter-spacing: .2em; text-transform: uppercase;
   color: var(--ink-mute); white-space: nowrap;
 }
 
 /* Navigasi */
 .nav { margin-left: auto; }
-.nav__list { display: flex; align-items: center; gap: .15rem; flex-wrap: nowrap; min-height: 36px; }
+.nav__list { display: flex; align-items: center; gap: 2px; flex-wrap: nowrap; min-height: 36px; }
 .nav__link {
   position: relative;
   display: flex; align-items: center;
   height: var(--polyta-header-control-height);
   min-height: var(--polyta-header-control-height);
   white-space: nowrap;
-  padding: .48rem .7rem;
+  padding: 8px 11px;
   border-radius: 9px;
-  font-size: .72rem; font-weight: 700; letter-spacing: .08em;
+  font-size: 11.5px; font-weight: 700; letter-spacing: .04em;
   color: var(--ink-soft);
   border: 1px solid transparent;
   line-height: 1;
@@ -452,7 +452,7 @@ body::after {
 /* --------------------------------------------- 6. KEPALA HALAMAN RINGKAS
    Menggantikan panel hero besar. Duduk langsung di atas substrat tanpa
    kotak, sehingga tinggi chrome turun drastis dan konten segera terlihat. */
-.pagehead { padding-block: 1.5rem .9rem; }
+.pagehead { padding-block: 26px .9rem; }
 .pagehead__in {
   display: flex; align-items: flex-end; gap: 1.2rem; flex-wrap: wrap;
   padding-bottom: .95rem;
@@ -1055,7 +1055,7 @@ main { padding-bottom: 3.5rem; }
 .reveal.is-in { opacity: 1; transform: none; transition: opacity .58s var(--ease-ui), transform .58s var(--ease-spring); }
 
 /* ------------------------------------------------------ 15. RESPONSIF */
-@media (max-width: 1024px) {
+@media (max-width: 900px) {
   .nav-toggle { display: grid; }
   .nav {
     position: absolute; top: calc(100% + 8px); right: 0;
@@ -1069,20 +1069,26 @@ main { padding-bottom: 3.5rem; }
   }
   .nav.is-open { display: block; }
   .nav__list { flex-direction: column; align-items: stretch; gap: .2rem; }
-  .nav__link { min-height: 44px; height: auto; padding: .6rem .8rem; font-size: .78rem; }
+  .nav__link { min-height: 44px; height: auto; padding: 10px 13px; font-size: 11.5px; }
   .nav__link.is-active::after { display: none; }
-  .brand__sub { display: none; }
-  .topbar__in { position: relative; }
+  .topbar__in {
+    position: relative;
+    min-height: 64px;
+    padding-block: 8px;
+  }
   .tools { margin-left: auto; }
+  .pagehead { padding-top: 18px; }
 }
-@media (max-width: 560px) {
+@media (max-width: 640px) {
   .wrap { width: min(var(--polyta-content-width), 100% - 1.6rem); }
   .brand__plate { width: 42px; height: 42px; border-radius: 11px; padding: 3px; }
   .brand__name {
-    font-size: .8rem; letter-spacing: .08em;
+    max-width: min(48vw, 250px);
+    font-size: 12.8px; letter-spacing: .08em;
     overflow: hidden; text-overflow: ellipsis;
   }
-  .pagehead { padding-block: 1.1rem .6rem; }
+  .brand__sub { display: none; }
+  .pagehead { padding-block: 14px .6rem; }
   .pagehead__in { align-items: flex-start; gap: .8rem; }
   .chips { gap: .35rem; }
   .chip { padding: .28rem .55rem; font-size: .6rem; }

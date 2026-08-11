@@ -40,12 +40,12 @@ const SITE = {
       heading: "Pusat Akses Terpadu",
       lead: "Pusat tautan menuju folder dan berkas cloud seluruh departemen. Akses dibatasi berdasarkan peran masing-masing pengguna.",
       departments: [
-        { id: "marketing", code: "MKT", label: "MARKETING", path: "marketing/", desc: "Folder tim, laporan, dan tautan operasional pemasaran." },
-        { id: "ppic", code: "PPIC", label: "PPIC", path: "ppic/", desc: "Manajemen SPK, database OTS, back-up produksi, dashboard." },
-        { id: "purchasing", code: "PUR", label: "PURCHASING", path: "purchasing/", desc: "Purchase order dan perbandingan harga supplier." },
-        { id: "produksi", code: "PRD", label: "PRODUKSI", path: "produksi/", desc: "Input problem, dokumentasi foto, dan data production issue." },
-        { id: "finance", code: "FIN", label: "FINANCE", path: "finance/", desc: "Arsip laporan piutang, hutang, dan kas pabrik." },
-        { id: "bantuan", code: "HLP", label: "BANTUAN", path: "bantuan/", desc: "Panduan penggunaan portal dan kontak administrator." }
+        { id: "marketing", code: "MKT", label: "MARKETING", path: "marketing/", desc: "Folder tim, laporan, dan tautan operasional pemasaran.", image: "assets/img/departments/marketing.webp" },
+        { id: "ppic", code: "PPIC", label: "PPIC", path: "ppic/", desc: "Manajemen SPK, database OTS, back-up produksi, dashboard.", image: "assets/img/departments/ppic.webp" },
+        { id: "purchasing", code: "PUR", label: "PURCHASING", path: "purchasing/", desc: "Purchase order dan perbandingan harga supplier.", image: "assets/img/departments/purchasing.webp" },
+        { id: "produksi", code: "PRD", label: "PRODUKSI", path: "produksi/", desc: "Input problem, dokumentasi foto, dan data production issue.", image: "assets/img/departments/produksi.webp" },
+        { id: "finance", code: "FIN", label: "FINANCE", path: "finance/", desc: "Arsip laporan piutang, hutang, dan kas pabrik.", image: "assets/img/departments/finance.webp" },
+        { id: "bantuan", code: "HLP", label: "BANTUAN", path: "bantuan/", desc: "Panduan penggunaan portal dan kontak administrator.", image: "assets/img/departments/bantuan.webp" }
       ]
     },
     marketing: {

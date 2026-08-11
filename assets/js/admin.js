@@ -104,6 +104,17 @@
     } catch (e) { return null; }
   }
 
+  function migrateDraft(draft) {
+    var live = published();
+    var defaults = {};
+    ((live.pages.beranda || {}).departments || []).forEach(function (x) { defaults[x.id] = x; });
+    (((draft.pages || {}).beranda || {}).departments || []).forEach(function (x) {
+      var fallback = defaults[x.id];
+      if (x.image == null) x.image = fallback ? fallback.image : "assets/img/departments/marketing.webp";
+    });
+    return draft;
+  }
+
   function saveDraft() {
     try { localStorage.setItem(DRAFT_KEY, JSON.stringify(state.data)); } catch (e) { /* mode privat */ }
   }
@@ -192,7 +203,8 @@
         o.push("      departments: [");
         o.push(p.departments.map(function (x) {
           return "        { id: " + qPlain(x.id) + ", code: " + qPlain(x.code) + ", label: " + q(x.label) +
-                 ", path: " + qPlain(x.path) + ", desc: " + q(x.desc) + " }";
+                 ", path: " + qPlain(x.path) + ", desc: " + q(x.desc) +
+                 ", image: " + qPlain(x.image || "") + " }";
         }).join(",\n"));
         o.push("      ]" + (p.sections || p.faq ? "," : ""));
       }
@@ -571,8 +583,8 @@
     var c2 = card("Kartu departemen", p.departments.length + " kartu", []);
     var b2 = $(".card__body", c2);
     b2.appendChild(el("p", "hint",
-      "Menambah departemen baru berarti menambah folder halaman baru, " +
-      "sehingga tidak dapat dilakukan dari peramban. Lihat README bagian struktur proyek."));
+      "Kelola kartu yang tampil di Beranda. Gambar dapat memakai aset bawaan " +
+      "(assets/img/departments/nama.webp) atau URL gambar publik."));
     p.departments.forEach(function (x, i) {
       var it = el("div", "item");
       var top = el("div", "item__top");
@@ -580,21 +592,79 @@
       var namePreview = el("strong", null, esc(x.label));
       namePreview.style.fontSize = ".8rem";
       top.appendChild(namePreview);
+      var acts = el("div", "item__acts");
+      acts.appendChild(iconBtn(ICON.top, "Naikkan kartu", i === 0, function () { move(p.departments, i, -1); }));
+      acts.appendChild(iconBtn(rot(ICON.top), "Turunkan kartu", i === p.departments.length - 1, function () { move(p.departments, i, 1); }));
+      acts.appendChild(iconBtn(ICON.close, "Hapus kartu", false, function () {
+        confirmDialog({
+          title: "Hapus kartu departemen?",
+          heading: x.label || "Kartu tanpa nama",
+          message: "Kartu akan dihapus dari Beranda. Halaman dan tautan departemen tidak ikut dihapus.",
+          confirmLabel: "Hapus kartu",
+          onConfirm: function () { p.departments.splice(i, 1); touch(); render(); }
+        });
+      }));
+      top.appendChild(acts);
       it.appendChild(top);
-      var g = el("div", "item__grid");
+      var preview = el("div", "dept-admin-preview");
+      var previewImg = el("img");
+      previewImg.alt = "";
+      previewImg.loading = "lazy";
+      previewImg.src = departmentPreviewUrl(x.image);
+      preview.appendChild(previewImg);
+      it.appendChild(preview);
+      var g = el("div", "item__grid item__grid--department");
+      g.appendChild(fieldText("ID halaman", x.id, function (v) { x.id = slug(v); touch(); },
+        "Gunakan ID halaman yang sudah ada agar jumlah tautan terbaca."));
       g.appendChild(fieldText("Nama", x.label, function (v) {
         x.label = v;
         namePreview.textContent = v || "(tanpa nama)";
         touch();
       }));
-      g.appendChild(fieldText("Keterangan", x.desc, function (v) { x.desc = v; touch(); }));
       g.appendChild(fieldText("Kode lencana", x.code, function (v) { x.code = v; touch(); }));
+      g.appendChild(fieldText("Alamat tujuan", x.path, function (v) { x.path = v.trim(); touch(); },
+        "Contoh: marketing/ atau https://example.com"));
+      g.appendChild(fieldText("Keterangan", x.desc, function (v) { x.desc = v; touch(); }));
+      g.appendChild(fieldText("Gambar 3D", x.image || "", function (v) {
+        x.image = v.trim();
+        previewImg.src = departmentPreviewUrl(x.image);
+        touch();
+      }, "Path aset atau URL gambar publik."));
       it.appendChild(g);
       b2.appendChild(it);
     });
+    var addDepartment = mkBtn("+  Tambah kartu departemen", "btn btn--primary", function () {
+      var sequence = p.departments.length + 1;
+      p.departments.push({
+        id: "departemen-" + sequence,
+        code: "NEW",
+        label: "DEPARTEMEN BARU",
+        path: "#",
+        desc: "Keterangan singkat departemen.",
+        image: "assets/img/departments/marketing.webp"
+      });
+      touch(); render();
+    });
+    addDepartment.style.marginTop = ".7rem";
+    b2.appendChild(addDepartment);
     box.appendChild(c2);
 
     return box;
+  }
+
+  function slug(value) {
+    return String(value || "")
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9_-]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  }
+
+  function departmentPreviewUrl(value) {
+    var url = String(value || "").trim();
+    if (!url) return "../assets/img/departments/marketing.webp";
+    if (/^(?:https?:|data:|blob:|\/)/i.test(url)) return url;
+    return "../" + url.replace(/^\.\//, "");
   }
 
   /* -------------------------------------------------- Halaman departemen */
@@ -986,7 +1056,7 @@
 
     var draft = loadDraft();
     if (draft && draft.pages) {
-      state.data = draft;
+      state.data = migrateDraft(draft);
       state.dirty = JSON.stringify(draft) !== JSON.stringify(published());
     } else {
       state.data = published();

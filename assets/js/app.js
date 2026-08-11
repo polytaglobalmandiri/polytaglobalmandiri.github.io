@@ -46,6 +46,18 @@
   /* Berkas aset dirujuk apa adanya — tanpa penambahan index.html */
   function asset(path) { return ROOT + path; }
 
+  function managedUrl(path) {
+    var value = String(path || "").trim();
+    if (/^(?:https?:|data:|blob:|mailto:|tel:|#|\/)/i.test(value)) return value;
+    return link(value);
+  }
+
+  function managedImage(path) {
+    var value = String(path || "").trim();
+    if (/^(?:https?:|data:|blob:|\/)/i.test(value)) return value;
+    return asset(value);
+  }
+
   var LOGO = "assets/img/logo-polyta.png";
 
   var store = {
@@ -674,15 +686,28 @@
     var grid = el("div", "grid grid--dept");
     SITE.pages.beranda.departments.forEach(function (d) {
       var n = pageItems(d.id).length;
-      var a = el("a", "dept dept--" + d.id);
-      a.href = link(d.path);
+      var deptClass = String(d.id || "custom").toLowerCase().replace(/[^a-z0-9_-]+/g, "-");
+      var a = el("a", "dept dept--" + deptClass);
+      a.href = managedUrl(d.path);
       a.dataset.label = String(d.label).toLowerCase() + " " + String(d.desc).toLowerCase();
-      a.innerHTML =
-        '<span class="dept__count">' + n + " tautan</span>" +
-        '<span class="dept__badge">' + esc(d.code || d.label.slice(0, 3)) + "</span>" +
-        '<span class="dept__name engrave">' + raw(d.label) + "</span>" +
-        '<span class="dept__desc">' + raw(d.desc) + "</span>" +
-        '<span class="dept__go">Buka ' + ICON.arrow + "</span>";
+      a.appendChild(el("span", "dept__count", n + " tautan"));
+      a.appendChild(el("span", "dept__badge", esc(d.code || String(d.label).slice(0, 3))));
+      if (d.image) {
+        var visual = el("span", "dept__visual");
+        var image = el("img", "dept__image");
+        image.src = managedImage(d.image);
+        image.alt = "";
+        image.width = 420;
+        image.height = 420;
+        image.loading = "lazy";
+        image.decoding = "async";
+        image.addEventListener("error", function () { visual.classList.add("is-empty"); });
+        visual.appendChild(image);
+        a.appendChild(visual);
+      }
+      a.appendChild(el("span", "dept__name engrave", raw(d.label)));
+      a.appendChild(el("span", "dept__desc", raw(d.desc)));
+      a.appendChild(el("span", "dept__go", "Buka " + ICON.arrow));
       grid.appendChild(a);
     });
     sec.appendChild(grid);

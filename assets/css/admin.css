@@ -195,6 +195,16 @@ select.inp { cursor: pointer; }
 .item__acts { margin-left: auto; display: flex; gap: .25rem; }
 .item__grid { display: grid; gap: .6rem; }
 @media (min-width: 860px) { .item__grid { grid-template-columns: 1.3fr 1.7fr .8fr; } }
+.item__grid--department { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+.dept-admin-preview {
+  width: 100%; height: 118px;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid var(--panel-edge);
+  background: linear-gradient(145deg, #34363a, #17181b);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.14), inset 0 -3px 7px rgba(0,0,0,.38);
+}
+.dept-admin-preview img { width: 100%; height: 100%; display: block; object-fit: cover; }
 
 /* Tombol pemilih ikon dengan pratinjau langsung */
 .pick {

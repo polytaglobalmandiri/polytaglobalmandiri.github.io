@@ -26,12 +26,12 @@ const SITE = {
      folder agar alamatnya bersih tanpa akhiran .html */
   nav: [
     { id: "beranda", label: "BERANDA", path: "" },
-    { id: "marketing", label: "MARKETING", path: "marketing/" },
-    { id: "ppic", label: "PPIC", path: "ppic/" },
-    { id: "purchasing", label: "PURCHASING", path: "purchasing/" },
-    { id: "produksi", label: "PRODUKSI", path: "produksi/" },
-    { id: "finance", label: "FINANCE", path: "finance/" },
-    { id: "bantuan", label: "BANTUAN", path: "bantuan/" }
+    { id: "marketing", label: "MARKETING", path: "pages/marketing/" },
+    { id: "ppic", label: "PPIC", path: "pages/ppic/" },
+    { id: "purchasing", label: "PURCHASING", path: "pages/purchasing/" },
+    { id: "produksi", label: "PRODUKSI", path: "pages/production/" },
+    { id: "finance", label: "FINANCE", path: "pages/finance/" },
+    { id: "bantuan", label: "BANTUAN", path: "pages/support/" }
   ],
 
   pages: {
@@ -40,12 +40,12 @@ const SITE = {
       heading: "Pusat Akses Terpadu",
       lead: "Pusat tautan menuju folder dan berkas cloud seluruh departemen. Akses dibatasi berdasarkan peran masing-masing pengguna.",
       departments: [
-        { id: "marketing", label: "MARKETING", path: "marketing/", desc: "Folder tim, laporan, dan tautan operasional pemasaran.", image: "assets/img/departments/marketing.webp" },
-        { id: "ppic", label: "PPIC", path: "ppic/", desc: "Manajemen SPK, database OTS, back-up produksi, dashboard.", image: "assets/img/departments/ppic.webp" },
-        { id: "purchasing", label: "PURCHASING", path: "purchasing/", desc: "Purchase order dan perbandingan harga supplier.", image: "assets/img/departments/purchasing.webp" },
-        { id: "produksi", label: "PRODUKSI", path: "produksi/", desc: "Input problem, dokumentasi foto, dan data production issue.", image: "assets/img/departments/marketing.webp" },
-        { id: "finance", label: "FINANCE", path: "finance/", desc: "Arsip laporan piutang, hutang, dan kas pabrik.", image: "assets/img/departments/finance.webp" },
-        { id: "bantuan", label: "BANTUAN", path: "bantuan/", desc: "Panduan penggunaan portal dan kontak administrator.", image: "assets/img/departments/marketing.webp" }
+        { id: "marketing", label: "MARKETING", path: "pages/marketing/", desc: "Folder tim, laporan, dan tautan operasional pemasaran.", image: "assets/img/departments/marketing.webp" },
+        { id: "ppic", label: "PPIC", path: "pages/ppic/", desc: "Manajemen SPK, database OTS, back-up produksi, dashboard.", image: "assets/img/departments/ppic.webp" },
+        { id: "purchasing", label: "PURCHASING", path: "pages/purchasing/", desc: "Purchase order dan perbandingan harga supplier.", image: "assets/img/departments/purchasing.webp" },
+        { id: "produksi", label: "PRODUKSI", path: "pages/production/", desc: "Input problem, dokumentasi foto, dan data production issue.", image: "assets/img/departments/marketing.webp" },
+        { id: "finance", label: "FINANCE", path: "pages/finance/", desc: "Arsip laporan piutang, hutang, dan kas pabrik.", image: "assets/img/departments/finance.webp" },
+        { id: "bantuan", label: "BANTUAN", path: "pages/support/", desc: "Panduan penggunaan portal dan kontak administrator.", image: "assets/img/departments/marketing.webp" }
       ]
     },
     marketing: {
@@ -103,7 +103,7 @@ const SITE = {
           title: "Manajemen SPK",
           hint: "Sistem otomasi surat perintah kerja",
           items: [
-            { label: "SPK Automasi", url: "https://script.google.com/macros/s/AKfycbzEml-brh_-SmKAsvd-1iFy6nelvc9YENtn-bkjD1T6UUgX7QNBE0ycjU02QEfY-91aXQ/exec", type: "script", icon: "chip" }
+            { label: "SPK Automasi", url: "/apps/spk-automation/", type: "script", icon: "chip" }
           ]
         },
         {

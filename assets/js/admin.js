@@ -112,10 +112,16 @@
 
   function migrateDraft(draft) {
     var live = published();
+    var liveNav = {};
     var defaults = {};
+    (live.nav || []).forEach(function (x) { liveNav[x.id] = x; });
+    (draft.nav || []).forEach(function (x) {
+      if (liveNav[x.id]) x.path = liveNav[x.id].path;
+    });
     ((live.pages.beranda || {}).departments || []).forEach(function (x) { defaults[x.id] = x; });
     (((draft.pages || {}).beranda || {}).departments || []).forEach(function (x) {
       var fallback = defaults[x.id];
+      if (fallback) x.path = fallback.path;
       if (x.image == null) x.image = fallback ? fallback.image : "assets/img/departments/marketing.webp";
       delete x.code;
     });

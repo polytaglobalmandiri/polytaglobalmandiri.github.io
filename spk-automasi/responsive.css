@@ -1,0 +1,654 @@
+/* =====================================================================
+   SPK Automasi — responsive layer shared by every screen
+   Loaded after each page's embedded styles so legacy desktop rules stay
+   intact while smaller viewports receive one consistent behaviour.
+   ===================================================================== */
+
+@media screen {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    overflow-x: hidden;
+    overflow-x: clip;
+  }
+
+  body {
+    min-width: 0;
+    overflow-x: hidden;
+    overflow-x: clip;
+  }
+
+  img,
+  svg,
+  canvas,
+  video { max-width: 100%; }
+
+  button,
+  input,
+  select,
+  textarea { max-width: 100%; }
+
+  :where(
+    .app-main,
+    .page-frame,
+    .main-shell,
+    .workspace,
+    .workspace-grid,
+    .panel,
+    .form-group-card,
+    .form-cell,
+    .field,
+    .modal-content,
+    .eta-modal-dialog,
+    .detail-dialog,
+    .print-sheet
+  ) { min-width: 0; }
+
+  .table-scroll,
+  .table-wrap,
+  .detail-material-table-wrap,
+  .process-table-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-gutter: stable;
+  }
+
+  .table-scroll table,
+  .table-wrap table,
+  .detail-material-table,
+  .process-table-wrap table {
+    width: max-content;
+    min-width: 100%;
+  }
+
+  .topnav,
+  .app-nav,
+  .toolbar-actions {
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .modal-dialog,
+  .eta-modal-dialog,
+  .detail-dialog { max-width: calc(100vw - 32px); }
+}
+
+@media screen and (max-width: 1200px) {
+  body[data-page="dashboard"] .app-main,
+  body[data-page="keluar-bahan"] .app-main,
+  body[data-page="penarikan-data"] .app-main {
+    width: calc(100% - 28px) !important;
+    margin-inline: auto !important;
+  }
+
+  body[data-page="input-spk"] #spkInputRoot .page-frame {
+    padding-inline: 14px !important;
+  }
+
+  body[data-page="input-spk"] #spkInputRoot .main-shell {
+    width: 100% !important;
+    max-width: 1120px !important;
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  .topbar-inner,
+  .app-topbar-inner,
+  .header-inner {
+    width: calc(100% - 28px) !important;
+    max-width: none !important;
+  }
+
+  body[data-page="dashboard"] .page-heading,
+  body[data-page="keluar-bahan"] .page-heading,
+  body[data-page="penarikan-data"] .page-heading {
+    align-items: flex-start !important;
+    gap: 16px !important;
+    flex-wrap: wrap !important;
+  }
+
+  body[data-page="dashboard"] .page-heading > :last-child,
+  body[data-page="keluar-bahan"] .page-heading > :last-child,
+  body[data-page="penarikan-data"] .page-heading > :last-child {
+    max-width: 100%;
+  }
+
+  body[data-page="dashboard"] .kpi-grid,
+  body[data-page="keluar-bahan"] .summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  body[data-page="dashboard"] .toolbar {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  body[data-page="dashboard"] .toolbar .field-search {
+    grid-column: 1 / -1 !important;
+  }
+
+  body[data-page="dashboard"] .toolbar-actions {
+    grid-column: 1 / -1 !important;
+    justify-content: flex-end !important;
+  }
+
+  body[data-page="penarikan-data"] .workspace-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  body[data-page="input-spk"] #spkInputRoot .form-grid,
+  body[data-page="input-spk"] #spkInputRoot .data-main-card .form-grid,
+  body[data-page="dashboard"] #spkInputModal #spkInputRoot .form-grid,
+  body[data-page="dashboard"] #spkInputModal #spkInputRoot .data-main-card .form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  body[data-page="input-spk"] #spkInputRoot .span-2,
+  body[data-page="input-spk"] #spkInputRoot .span-full,
+  body[data-page="dashboard"] #spkInputModal #spkInputRoot .span-2,
+  body[data-page="dashboard"] #spkInputModal #spkInputRoot .span-full {
+    grid-column: 1 / -1 !important;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .topbar,
+  .app-topbar,
+  .app-header { position: sticky; top: 0; }
+
+  .topbar-inner,
+  .app-topbar-inner,
+  .header-inner {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 7px 12px !important;
+    padding-block: 8px !important;
+  }
+
+  .brand,
+  .app-brand { flex: 1 1 auto; min-width: 0; }
+
+  .topnav,
+  .app-nav {
+    order: 2;
+    flex: 1 0 100%;
+    width: 100%;
+    display: flex !important;
+    justify-content: flex-start !important;
+    gap: 6px !important;
+    overflow-x: auto;
+    padding: 2px 1px 5px !important;
+    scrollbar-width: thin;
+  }
+
+  body[data-page] .topnav .nav-link-app,
+  body[data-page] .topnav .nav-link,
+  body[data-page] .app-nav .app-nav-link {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    min-width: max-content !important;
+    height: 38px !important;
+    padding-inline: 12px !important;
+  }
+
+  body[data-page="dashboard"] .app-main,
+  body[data-page="keluar-bahan"] .app-main,
+  body[data-page="penarikan-data"] .app-main {
+    width: calc(100% - 20px) !important;
+    margin-block: 14px 24px !important;
+    padding: 22px 18px 30px !important;
+    border-radius: 16px !important;
+  }
+
+  body[data-page="dashboard"] .heading-actions,
+  body[data-page="keluar-bahan"] .heading-actions {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  body[data-page="dashboard"] .heading-actions .button,
+  body[data-page="keluar-bahan"] .heading-actions .button,
+  body[data-page="keluar-bahan"] .heading-actions .role-chip {
+    width: 100%;
+    justify-content: center;
+  }
+
+  body[data-page="dashboard"] .sync-meta {
+    align-items: flex-start !important;
+    text-align: left !important;
+  }
+
+  body[data-page="dashboard"] .panel-header,
+  body[data-page="penarikan-data"] .panel-header {
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  body[data-page="dashboard"] .detail-tabs,
+  body[data-page="keluar-bahan"] .detail-tabs {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  body[data-page="dashboard"] .detail-tab-button,
+  body[data-page="keluar-bahan"] .detail-tab {
+    flex: 0 0 auto !important;
+  }
+
+  body[data-page="dashboard"] .detail-info-grid,
+  body[data-page="dashboard"] .edit-form-grid,
+  body[data-page="keluar-bahan"] .detail-overview-grid,
+  body[data-page="keluar-bahan"] .detail-data-grid,
+  body[data-page="keluar-bahan"] .detail-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  body[data-page="keluar-bahan"] .workspace-toolbar {
+    grid-template-columns: minmax(0, 1fr) minmax(150px, .42fr) auto !important;
+  }
+
+  body[data-page="input-spk"] #spkInputRoot .spk-identity-bar,
+  body[data-page="input-spk"] #spkInputRoot .route-panel-head,
+  body[data-page="input-spk"] #spkInputRoot .wizard-navigation,
+  body[data-page="dashboard"] #spkInputModal #spkInputRoot .spk-identity-bar,
+  body[data-page="dashboard"] #spkInputModal #spkInputRoot .route-panel-head,
+  body[data-page="dashboard"] #spkInputModal #spkInputRoot .wizard-navigation {
+    gap: 12px !important;
+    flex-wrap: wrap !important;
+  }
+
+  body[data-page="cetak-spk"] .print-toolbar {
+    gap: 10px !important;
+    flex-wrap: wrap !important;
+    padding: 10px 14px !important;
+  }
+
+  body[data-page="cetak-spk"] .toolbar-status {
+    order: 3;
+    flex: 1 0 100%;
+  }
+
+  body[data-page="cetak-spk"] .toolbar-actions {
+    margin-left: auto;
+    max-width: 100%;
+    overflow-x: auto;
+    padding-bottom: 3px;
+  }
+}
+
+@media screen and (max-width: 700px) {
+  body[data-page="input-spk"] #spkInputRoot .form-grid,
+  body[data-page="input-spk"] #spkInputRoot .form-grid.cols-2,
+  body[data-page="input-spk"] #spkInputRoot .data-main-card .form-grid,
+  body[data-page="input-spk"] #spkInputRoot .route-fields,
+  body[data-page="input-spk"] #spkInputRoot .route-fields--sizes,
+  body[data-page="input-spk"] #spkInputRoot .route-fields--split,
+  body[data-page="input-spk"] #spkInputRoot .route-fields--bs,
+  body[data-page="dashboard"] #spkInputModal #spkInputRoot .form-grid,
+  body[data-page="dashboard"] #spkInputModal #spkInputRoot .form-grid.cols-2,
+  body[data-page="dashboard"] #spkInputModal #spkInputRoot .data-main-card .form-grid,
+  body[data-page="dashboard"] #spkInputModal #spkInputRoot .route-fields,
+  body[data-page="dashboard"] #spkInputModal #spkInputRoot .route-fields--sizes,
+  body[data-page="dashboard"] #spkInputModal #spkInputRoot .route-fields--split,
+  body[data-page="dashboard"] #spkInputModal #spkInputRoot .route-fields--bs {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  body[data-page="input-spk"] #spkInputRoot :is(.span-2, .span-full, .master-field--wide, .master-field--full) {
+    grid-column: auto !important;
+  }
+
+  body[data-page="dashboard"] #spkInputModal #spkInputRoot :is(.span-2, .span-full, .master-field--wide, .master-field--full) {
+    grid-column: auto !important;
+  }
+
+  body[data-page="input-spk"] #spkInputRoot .main-shell {
+    padding: 16px !important;
+    border-radius: 14px !important;
+  }
+
+  body[data-page="input-spk"] #spkInputRoot .form-group-card {
+    padding-inline: 14px !important;
+  }
+
+  body[data-page="input-spk"] #spkInputRoot .order-type-segment,
+  body[data-page="input-spk"] #spkInputRoot .order-mode-section,
+  body[data-page="input-spk"] #spkInputRoot .spk-inline-group,
+  body[data-page="dashboard"] #spkInputModal #spkInputRoot .order-type-segment,
+  body[data-page="dashboard"] #spkInputModal #spkInputRoot .order-mode-section,
+  body[data-page="dashboard"] #spkInputModal #spkInputRoot .spk-inline-group {
+    width: 100% !important;
+  }
+
+  body[data-page="input-spk"] #spkInputRoot .order-type-option { flex: 1 1 0 !important; }
+  body[data-page="dashboard"] #spkInputModal #spkInputRoot .order-type-option { flex: 1 1 0 !important; }
+
+  body[data-page="input-spk"] #spkInputRoot .bahan-row,
+  body[data-page="input-spk"] #spkInputRoot .route-entry-main,
+  body[data-page="input-spk"] #spkInputRoot .finishing-note-panel {
+    min-width: 0;
+  }
+
+  body[data-page="dashboard"] .master-form-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  :root { --spk-mobile-gutter: 10px; }
+
+  .topbar-inner,
+  .app-topbar-inner,
+  .header-inner {
+    width: calc(100% - (var(--spk-mobile-gutter) * 2)) !important;
+  }
+
+  .brand-mark,
+  .app-brand-mark { width: 40px !important; height: 40px !important; }
+
+  .brand-name,
+  .app-brand-name { font-size: .74rem !important; letter-spacing: .075em !important; }
+
+  .brand-subtitle,
+  .app-brand-subtitle { font-size: .52rem !important; letter-spacing: .09em !important; }
+
+  body[data-page] .topnav .nav-link-app,
+  body[data-page] .topnav .nav-link,
+  body[data-page] .app-nav .app-nav-link {
+    width: 44px !important;
+    min-width: 44px !important;
+    height: 44px !important;
+    padding: 0 !important;
+    justify-content: center !important;
+  }
+
+  .topnav :is(.nav-link-app, .nav-link) > span,
+  .app-nav .app-nav-link > span { display: none !important; }
+
+  body[data-page="dashboard"] .app-main,
+  body[data-page="keluar-bahan"] .app-main,
+  body[data-page="penarikan-data"] .app-main {
+    width: calc(100% - (var(--spk-mobile-gutter) * 2)) !important;
+    margin-top: 10px !important;
+    padding: 17px 13px 25px !important;
+    border-radius: 13px !important;
+  }
+
+  .page-heading,
+  .heading-group {
+    align-items: flex-start !important;
+    width: 100%;
+  }
+
+  .heading-icon { flex: 0 0 auto; }
+
+  body[data-page="dashboard"] .page-description,
+  body[data-page="keluar-bahan"] .page-description,
+  body[data-page="penarikan-data"] .page-description {
+    max-width: 100% !important;
+  }
+
+  body[data-page="dashboard"] .kpi-grid,
+  body[data-page="keluar-bahan"] .summary-grid,
+  body[data-page="dashboard"] .toolbar,
+  body[data-page="keluar-bahan"] .workspace-toolbar,
+  body[data-page="dashboard"] .detail-info-grid,
+  body[data-page="dashboard"] .edit-form-grid,
+  body[data-page="keluar-bahan"] .detail-overview-grid,
+  body[data-page="keluar-bahan"] .detail-data-grid,
+  body[data-page="keluar-bahan"] .detail-summary-grid,
+  body[data-page="penarikan-data"] .extraction-report-stats {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  body[data-page="dashboard"] .toolbar > *,
+  body[data-page="dashboard"] .toolbar-actions,
+  body[data-page="keluar-bahan"] .workspace-toolbar > * {
+    grid-column: 1 !important;
+    width: 100% !important;
+  }
+
+  body[data-page="dashboard"] .toolbar-actions .button,
+  body[data-page="keluar-bahan"] .workspace-toolbar .button { width: 100%; justify-content: center; }
+
+  body[data-page="dashboard"] .panel,
+  body[data-page="keluar-bahan"] .workspace,
+  body[data-page="penarikan-data"] .panel { border-radius: 12px !important; }
+
+  body[data-page="dashboard"] .table-scroll,
+  body[data-page="keluar-bahan"] .table-wrap {
+    margin-inline: -13px !important;
+    max-width: calc(100% + 26px) !important;
+    padding-inline: 13px;
+  }
+
+  body[data-page="dashboard"] .table-scroll::after,
+  body[data-page="keluar-bahan"] .table-wrap::after {
+    content: "Geser tabel ke samping untuk melihat data lainnya";
+    display: block;
+    position: sticky;
+    left: 0;
+    width: max-content;
+    max-width: calc(100vw - 46px);
+    margin: 8px 0 2px;
+    font-size: .66rem;
+    color: #777b82;
+  }
+
+  body[data-page="keluar-bahan"] .manager-pagination {
+    align-items: stretch !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  body[data-page="keluar-bahan"] .manager-pagination-actions { justify-content: space-between; }
+
+  body[data-page="penarikan-data"] .action-area,
+  body[data-page="penarikan-data"] .progress-meta,
+  body[data-page="penarikan-data"] .extraction-issue-header {
+    align-items: stretch !important;
+    flex-direction: column !important;
+  }
+
+  body[data-page="penarikan-data"] .action-button { width: 100%; justify-content: center; }
+
+  body[data-page="penarikan-data"] .breadcrumb-well {
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  body[data-page="penarikan-data"] .source-file-toolbar,
+  body[data-page="penarikan-data"] .source-file-item {
+    align-items: stretch !important;
+    flex-wrap: wrap !important;
+  }
+
+  body[data-page="penarikan-data"] .source-file-search,
+  body[data-page="penarikan-data"] .source-file-copy { flex: 1 1 100% !important; }
+
+  body[data-page="penarikan-data"] .source-file-action {
+    min-height: 40px !important;
+    margin-left: auto;
+  }
+
+  body[data-page="input-spk"] #spkInputRoot .page-frame { padding-inline: var(--spk-mobile-gutter) !important; }
+
+  body[data-page="input-spk"] #spkInputRoot .main-shell {
+    padding: 12px !important;
+    border-radius: 12px !important;
+  }
+
+  body[data-page="input-spk"] #spkInputRoot .input-pair { min-width: 0; }
+  body[data-page="input-spk"] #spkInputRoot .input-pair > :first-child { min-width: 0; }
+
+  body[data-page="input-spk"] #spkInputRoot .wizard-navigation > *,
+  body[data-page="input-spk"] #spkInputRoot .save-success-actions > * {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .modal-dialog,
+  .eta-modal-dialog,
+  .detail-dialog {
+    width: calc(100vw - 16px) !important;
+    max-width: calc(100vw - 16px) !important;
+    max-height: calc(100vh - 16px) !important;
+    max-height: calc(100dvh - 16px) !important;
+    margin: 8px auto !important;
+    border-radius: 13px !important;
+  }
+
+  .modal-content,
+  .eta-modal-dialog,
+  .detail-dialog {
+    max-height: calc(100vh - 16px) !important;
+    max-height: calc(100dvh - 16px) !important;
+  }
+
+  .modal-body,
+  .eta-modal-body,
+  .detail-dialog-body {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  body[data-page="keluar-bahan"] .eta-schedule-head { display: none !important; }
+
+  body[data-page="keluar-bahan"] .eta-modal-header,
+  body[data-page="keluar-bahan"] .eta-modal-footer,
+  body[data-page="keluar-bahan"] .detail-dialog-header,
+  body[data-page="keluar-bahan"] .detail-dialog-footer {
+    gap: 10px !important;
+    flex-wrap: wrap !important;
+  }
+
+  body[data-page="cetak-spk"] .print-toolbar {
+    align-items: stretch !important;
+    padding: 9px 10px !important;
+  }
+
+  body[data-page="cetak-spk"] .toolbar-brand { min-width: 0; }
+  body[data-page="cetak-spk"] .toolbar-brand span { display: none; }
+
+  body[data-page="cetak-spk"] .toolbar-actions {
+    width: 100%;
+    margin-left: 0;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: visible;
+  }
+
+  body[data-page="cetak-spk"] .toolbar-button {
+    width: 100%;
+    min-width: 0 !important;
+    height: 42px !important;
+    white-space: normal;
+    text-align: center;
+    justify-content: center;
+  }
+
+  body[data-page="cetak-spk"] .workspace {
+    width: 100%;
+    padding: 10px !important;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea { font-size: 16px !important; }
+}
+
+@media screen and (max-width: 420px) {
+  body[data-page="dashboard"] .heading-actions,
+  body[data-page="keluar-bahan"] .heading-actions,
+  body[data-page="cetak-spk"] .toolbar-actions {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .brand-name,
+  .app-brand-name { font-size: .68rem !important; letter-spacing: .045em !important; }
+
+  .brand-subtitle,
+  .app-brand-subtitle { display: none !important; }
+
+  body[data-page="input-spk"] #spkInputRoot .input-pair {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 82px;
+  }
+
+  body[data-page="input-spk"] #spkInputRoot .spk-inline-group,
+  body[data-page="input-spk"] #spkInputRoot .spk-inline {
+    min-width: 0 !important;
+  }
+}
+
+@media screen and (max-height: 520px) and (orientation: landscape) {
+  .topbar,
+  .app-topbar,
+  .app-header { position: relative !important; }
+
+  .modal-dialog,
+  .eta-modal-dialog,
+  .detail-dialog { max-height: calc(100dvh - 8px) !important; margin-block: 4px !important; }
+}
+
+@media (pointer: coarse) {
+  body[data-page] :is(
+    .button,
+    .action-button,
+    .toolbar-button,
+    .button-refresh,
+    .save-button,
+    .summary-toggle-button,
+    .neumorphic-btn-black,
+    .neumorphic-btn-light,
+    .btn-add-bahan,
+    .eta-nav-button,
+    .eta-save-button,
+    .eta-cancel-button,
+    .eta-open-button,
+    .detail-footer-button
+  ) {
+    min-height: 44px !important;
+    height: auto !important;
+  }
+
+  body[data-page] :is(.form-control, .form-select, .field-input, .search-input, .filter-select, .editor-input, .editor-select) {
+    min-height: 44px !important;
+    height: auto !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto !important; }
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+@supports (padding: max(0px)) {
+  @media screen and (max-width: 640px) {
+    .topbar-inner,
+    .app-topbar-inner,
+    .header-inner {
+      padding-left: max(0px, env(safe-area-inset-left));
+      padding-right: max(0px, env(safe-area-inset-right));
+    }
+
+    body[data-page="dashboard"] .app-main,
+    body[data-page="keluar-bahan"] .app-main,
+    body[data-page="penarikan-data"] .app-main {
+      padding-bottom: max(25px, env(safe-area-inset-bottom)) !important;
+    }
+  }
+}

@@ -114,6 +114,8 @@
     var live = published();
     var liveNav = {};
     var defaults = {};
+    var liveSpkSection;
+    var draftSpkSection;
     (live.nav || []).forEach(function (x) { liveNav[x.id] = x; });
     (draft.nav || []).forEach(function (x) {
       if (liveNav[x.id]) x.path = liveNav[x.id].path;
@@ -125,6 +127,13 @@
       if (x.image == null) x.image = fallback ? fallback.image : "assets/img/departments/marketing.webp";
       delete x.code;
     });
+    liveSpkSection = (((live.pages || {}).ppic || {}).sections || []).find(function (section) {
+      return section.title === "Manajemen SPK";
+    });
+    draftSpkSection = ((((draft.pages || {}).ppic || {}).sections) || []).find(function (section) {
+      return section.title === "Manajemen SPK";
+    });
+    if (liveSpkSection && draftSpkSection) draftSpkSection.items = clone(liveSpkSection.items);
     return draft;
   }
 

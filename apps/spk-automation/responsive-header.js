@@ -11,6 +11,13 @@
     var inner = nav.parentElement;
     if (!header || !inner) return;
 
+    var links = nav.querySelectorAll("a, button");
+    if (links.length === 1 && links[0].classList.contains("polyta-portal-home")) {
+      header.classList.add("spk-simple-header");
+      nav.classList.add("spk-simple-nav");
+      return;
+    }
+
     nav.dataset.responsiveNavReady = "true";
     header.classList.add("spk-responsive-header");
     nav.classList.add("spk-responsive-nav");

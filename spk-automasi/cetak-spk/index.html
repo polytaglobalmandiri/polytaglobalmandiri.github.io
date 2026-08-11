@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Cetak SPK | Polyta Global Mandiri</title>
-  <meta name="theme-color" content="#e4e4e9">
+  <meta name="theme-color" content="#20242a">
   <base target="_top">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='22' fill='%23f4f4f1'/%3E%3Cpath fill='%23111216' d='M14 12h50v43h42v53h-8V63H64v45H14V55h42V20H14z'/%3E%3Crect x='15' y='22' width='41' height='12' rx='6' fill='%234563b3'/%3E%3Crect x='22' y='63' width='34' height='37' fill='%23ef2631'/%3E%3Crect x='84' y='64' width='11' height='44' rx='5.5' fill='%2340b84e'/%3E%3C/svg%3E">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -3897,7 +3897,6 @@
 
     </style>
   <script src="/assets/js/gas-rpc.js?v=20260811-5"></script>
-  <link rel="stylesheet" href="/assets/css/spk-portal-theme.css?v=20260811-1">
 
   <style>
     .polyta-portal-home {
@@ -3942,11 +3941,39 @@
   <header class="print-toolbar no-print">
     <div class="toolbar-brand">
       <div class="toolbar-mark" aria-hidden="true">
-        <img class="polyta-logo" src="/assets/img/logo-polyta.png" alt="">
+        <svg class="polyta-logo" viewBox="0 0 120 120" focusable="false">
+          <defs>
+            <linearGradient id="printLogoMetal" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#4b4e54"/>
+              <stop offset=".42" stop-color="#111216"/>
+              <stop offset="1" stop-color="#020304"/>
+            </linearGradient>
+            <linearGradient id="printLogoBlue" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#6f8fe0"/>
+              <stop offset=".48" stop-color="#4563b3"/>
+              <stop offset="1" stop-color="#293f87"/>
+            </linearGradient>
+            <linearGradient id="printLogoRed" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#ff5660"/>
+              <stop offset=".5" stop-color="#ef2631"/>
+              <stop offset="1" stop-color="#b90f1d"/>
+            </linearGradient>
+            <linearGradient id="printLogoGreen" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#72d77b"/>
+              <stop offset=".48" stop-color="#40b84e"/>
+              <stop offset="1" stop-color="#168d2d"/>
+            </linearGradient>
+          </defs>
+          <path d="M14 12h50v43h42v53h-8V63H64v45H14V55h42V20H14z" fill="url(#printLogoMetal)"/>
+          <rect x="15" y="22" width="41" height="12" rx="6" fill="url(#printLogoBlue)"/>
+          <rect x="22" y="63" width="34" height="37" fill="url(#printLogoRed)"/>
+          <rect x="84" y="64" width="11" height="44" rx="5.5" fill="url(#printLogoGreen)"/>
+          <path d="M17 15h43M24 66h30M86.5 67v35" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="2" opacity=".36"/>
+        </svg>
       </div>
       <div>
         <strong>Polyta Global Mandiri</strong>
-        <span>SPK Automasi · Portal Internal</span>
+        <span>Plastic Packaging Industry</span>
       </div>
     </div>
 
@@ -5539,9 +5566,5 @@
       };
     }
   </script>
-
-  <footer class="polyta-spk-footer no-print">
-    © 2026 POLYTA GLOBAL MANDIRI · Akses berbasis peran
-  </footer>
 </body>
 </html>

@@ -1227,6 +1227,16 @@
     });
   }
 
+  function bindSwitcherButtons() {
+    document.querySelectorAll("[data-spk-language]").forEach(function (button) {
+      if (button.dataset.spkLanguageBound === "true") return;
+      button.dataset.spkLanguageBound = "true";
+      button.addEventListener("click", function () {
+        applyLanguage(button.getAttribute("data-spk-language"));
+      });
+    });
+  }
+
   function applyLanguage(language) {
     currentLanguage = SUPPORTED.indexOf(language) >= 0 ? language : DEFAULT_LANGUAGE;
     try { localStorage.setItem(STORAGE_KEY, currentLanguage); } catch (error) {}
@@ -1246,7 +1256,10 @@
   }
 
   function buildSwitcher() {
-    if (document.querySelector(".spk-language-switcher")) return;
+    if (document.querySelector(".spk-language-switcher")) {
+      bindSwitcherButtons();
+      return;
+    }
     var host = document.querySelector(".topbar-inner, .app-topbar-inner, .header-inner");
     var printActions = document.querySelector("body[data-page='cetak-spk'] .toolbar-actions");
     if (!host && !printActions) return;
@@ -1263,7 +1276,6 @@
         button.title = item.title;
         button.setAttribute("aria-label", item.title);
         button.setAttribute("data-spk-language", item.code);
-        button.addEventListener("click", function () { applyLanguage(item.code); });
         switcher.appendChild(button);
       });
 
@@ -1272,6 +1284,7 @@
     } else {
       printActions.appendChild(switcher);
     }
+    bindSwitcherButtons();
   }
 
   function scheduleRefresh() {

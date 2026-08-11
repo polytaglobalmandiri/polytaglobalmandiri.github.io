@@ -1917,7 +1917,7 @@
     }
 
     </style>
-  <script src="/assets/js/gas-rpc.js?v=20260811-4"></script>
+  <script src="/assets/js/gas-rpc.js?v=20260811-5"></script>
 
   <style>
     .polyta-portal-home {
@@ -2136,6 +2136,7 @@
     let progressPollInFlight = false;
     let extractionRequestInFlight = false;
     let extractionResumeScheduled = false;
+    let extractionRecoveryAttempts = 0;
     const mockExtractedFileIds = new Set(['root-sheet-preview']);
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -2271,6 +2272,7 @@
       activeExtractionFileName = job.fileName || '';
       extractionRequestInFlight = false;
       extractionResumeScheduled = false;
+      extractionRecoveryAttempts = 0;
 
       showExtractionProgressUi_();
       startProgress(job.jobId);
@@ -2921,6 +2923,7 @@
       activeExtractionFileName = safeFileName;
       extractionRequestInFlight = false;
       extractionResumeScheduled = false;
+      extractionRecoveryAttempts = 0;
 
       showExtractionProgressUi_();
       document.getElementById('progressBar').style.width = '0%';
@@ -3057,13 +3060,12 @@
       google.script.run
         .withSuccessHandler(res => {
           extractionRequestInFlight = false;
+          extractionRecoveryAttempts = 0;
           handleExtractionResponse(res);
         })
         .withFailureHandler(err => {
           extractionRequestInFlight = false;
-          handleExtractionFailure(
-            err && err.message ? err.message : 'Proses ekstraksi gagal.'
-          );
+          recoverExtractionAfterRpcFailure_(err);
         })
         .extractData(
           activeExtractionFolderId,
@@ -3072,6 +3074,41 @@
           resumeStats || null,
           activeExtractionFileId || null
         );
+    }
+
+    function recoverExtractionAfterRpcFailure_(error) {
+      const fallbackMessage = error && error.message
+        ? error.message
+        : 'Proses ekstraksi gagal.';
+
+      if (!currentExtractionJobId || extractionRecoveryAttempts >= 3) {
+        handleExtractionFailure(fallbackMessage);
+        return;
+      }
+
+      extractionRecoveryAttempts += 1;
+      extractionResumeScheduled = false;
+      document.getElementById('progressCaption').textContent =
+        'Koneksi sempat terputus. Memeriksa progres yang tersimpan di server...';
+      setConnectionState('Menyambungkan kembali...', false);
+
+      window.setTimeout(() => {
+        google.script.run
+          .withSuccessHandler(res => {
+            if (res && res.status === 'success' && res.active && res.job) {
+              extractionRecoveryAttempts = 0;
+              setConnectionState('Terhubung', true);
+              attachToExtractionJob_(res.job, false);
+              return;
+            }
+
+            handleExtractionFailure(
+              res && res.message ? res.message : fallbackMessage
+            );
+          })
+          .withFailureHandler(() => recoverExtractionAfterRpcFailure_(error))
+          .getActiveExtractionJob();
+      }, 1500 * extractionRecoveryAttempts);
     }
 
     function scheduleExtractionResume_(startIndex, resumeStats) {
@@ -3406,6 +3443,7 @@
       progressInterval = null;
       extractionRequestInFlight = false;
       extractionResumeScheduled = false;
+      extractionRecoveryAttempts = 0;
       currentExtractionJobId = '';
       activeExtractionFolderId = '';
       activeExtractionFileId = '';
@@ -3426,6 +3464,7 @@
       activeExtractionFileName = '';
       extractionRequestInFlight = false;
       extractionResumeScheduled = false;
+      extractionRecoveryAttempts = 0;
       syncExtractionControls_();
     }
 

@@ -66,7 +66,7 @@
     return asset(value);
   }
 
-  var LOGO = "assets/img/logo-polyta.png";
+  var LOGO = "assets/img/logo-spk.svg";
 
   var store = {
     get: function (k, fb) {
@@ -388,7 +388,7 @@
     var brand = el("a", "brand");
     brand.href = link("");
     brand.innerHTML =
-      '<span class="brand__plate"><img src="' + asset(LOGO) + '" alt="" width="438" height="438"></span>' +
+      '<span class="brand__plate"><img src="' + asset(LOGO) + '" alt="" width="120" height="120"></span>' +
       '<span class="brand__txt">' +
         '<span class="brand__name">' + raw(SITE.name) + "</span>" +
         '<span class="brand__sub">Portal Akses Internal</span>' +

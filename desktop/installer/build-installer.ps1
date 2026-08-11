@@ -10,7 +10,12 @@ $releaseDirectory = Join-Path $projectRoot 'release'
 $portalOutputFile = Join-Path $releaseDirectory 'Polyta-Portal-Setup.exe'
 $adminOutputFile = Join-Path $releaseDirectory 'Polyta-Admin-Setup.exe'
 $logoFile = Join-Path $repositoryRoot 'assets\img\logo-polyta.png'
-$sourceFile = Join-Path $PSScriptRoot 'Installer.cs'
+$installerSourceFile = Join-Path $PSScriptRoot 'Installer.cs'
+$desktopAppSourceFile = Join-Path $PSScriptRoot 'DesktopApp.cs'
+$webViewVersion = '1.0.4129.50'
+$dependencyCacheRoot = Join-Path $temporaryRoot 'PolytaInstallerDependencies'
+$webViewPackageFile = Join-Path $dependencyCacheRoot "microsoft.web.webview2.$webViewVersion.nupkg"
+$webViewPackageDirectory = Join-Path $dependencyCacheRoot "microsoft.web.webview2.$webViewVersion"
 $compilerCandidates = @(
     (Join-Path $env:WINDIR 'Microsoft.NET\Framework64\v4.0.30319\csc.exe'),
     (Join-Path $env:WINDIR 'Microsoft.NET\Framework\v4.0.30319\csc.exe')
@@ -31,6 +36,28 @@ if (Test-Path -LiteralPath $buildDirectory) {
 }
 New-Item -ItemType Directory -Path $buildDirectory -Force | Out-Null
 New-Item -ItemType Directory -Path $releaseDirectory -Force | Out-Null
+New-Item -ItemType Directory -Path $dependencyCacheRoot -Force | Out-Null
+
+if (-not (Test-Path -LiteralPath $webViewPackageFile)) {
+    $packageUrl = "https://api.nuget.org/v3-flatcontainer/microsoft.web.webview2/$webViewVersion/microsoft.web.webview2.$webViewVersion.nupkg"
+    Write-Host "Mengunduh Microsoft WebView2 SDK $webViewVersion..."
+    Invoke-WebRequest -UseBasicParsing -Uri $packageUrl -OutFile $webViewPackageFile
+}
+
+if (-not (Test-Path -LiteralPath $webViewPackageDirectory)) {
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    [System.IO.Compression.ZipFile]::ExtractToDirectory($webViewPackageFile, $webViewPackageDirectory)
+}
+
+$webViewCoreDll = Join-Path $webViewPackageDirectory 'lib\net462\Microsoft.Web.WebView2.Core.dll'
+$webViewWinFormsDll = Join-Path $webViewPackageDirectory 'lib\net462\Microsoft.Web.WebView2.WinForms.dll'
+$webViewLoaderX64Dll = Join-Path $webViewPackageDirectory 'runtimes\win-x64\native\WebView2Loader.dll'
+$webViewLoaderX86Dll = Join-Path $webViewPackageDirectory 'runtimes\win-x86\native\WebView2Loader.dll'
+@($webViewCoreDll, $webViewWinFormsDll, $webViewLoaderX64Dll, $webViewLoaderX86Dll) | ForEach-Object {
+    if (-not (Test-Path -LiteralPath $_)) {
+        throw "Komponen WebView2 tidak ditemukan: $_"
+    }
+}
 
 $iconFile = Join-Path $buildDirectory 'polyta.ico'
 Add-Type -AssemblyName System.Drawing
@@ -72,9 +99,42 @@ try {
     $bitmap.Dispose()
 }
 
+function Build-DesktopApp {
+    param(
+        [Parameter(Mandatory)][string]$OutputFile,
+        [string]$Define
+    )
+
+    $compilerArguments = @(
+        '/nologo',
+        '/target:winexe',
+        '/platform:anycpu',
+        '/optimize+',
+        ('/out:"{0}"' -f $OutputFile),
+        ('/win32icon:"{0}"' -f $iconFile),
+        '/reference:System.dll',
+        '/reference:System.Core.dll',
+        '/reference:System.Drawing.dll',
+        '/reference:System.Windows.Forms.dll',
+        ('/reference:"{0}"' -f $webViewCoreDll),
+        ('/reference:"{0}"' -f $webViewWinFormsDll)
+    )
+    if ($Define) {
+        $compilerArguments += ('/define:{0}' -f $Define)
+    }
+    $compilerArguments += ('"{0}"' -f $desktopAppSourceFile)
+
+    $compilerOutput = & $compiler $compilerArguments 2>&1
+    if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $OutputFile)) {
+        $compilerOutput | ForEach-Object { Write-Error $_ }
+        throw "Build aplikasi desktop gagal. Exit code compiler: $LASTEXITCODE"
+    }
+}
+
 function Build-Installer {
     param(
         [Parameter(Mandatory)][string]$OutputFile,
+        [Parameter(Mandatory)][string]$AppExecutable,
         [string]$Define
     )
 
@@ -92,12 +152,17 @@ function Build-Installer {
         '/reference:System.Core.dll',
         '/reference:System.Drawing.dll',
         '/reference:System.Windows.Forms.dll',
-        '/reference:Microsoft.CSharp.dll'
+        '/reference:Microsoft.CSharp.dll',
+        ('/resource:"{0}",Polyta.DesktopApp.exe' -f $AppExecutable),
+        ('/resource:"{0}",Polyta.WebView2.Core.dll' -f $webViewCoreDll),
+        ('/resource:"{0}",Polyta.WebView2.WinForms.dll' -f $webViewWinFormsDll),
+        ('/resource:"{0}",Polyta.WebView2Loader.x64.dll' -f $webViewLoaderX64Dll),
+        ('/resource:"{0}",Polyta.WebView2Loader.x86.dll' -f $webViewLoaderX86Dll)
     )
     if ($Define) {
         $compilerArguments += ('/define:{0}' -f $Define)
     }
-    $compilerArguments += ('"{0}"' -f $sourceFile)
+    $compilerArguments += ('"{0}"' -f $installerSourceFile)
 
     $compilerOutput = & $compiler $compilerArguments 2>&1
     if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $OutputFile)) {
@@ -112,5 +177,9 @@ function Build-Installer {
     Write-Host "SHA-256: $($hash.Hash)"
 }
 
-Build-Installer -OutputFile $portalOutputFile
-Build-Installer -OutputFile $adminOutputFile -Define 'ADMIN'
+$portalAppFile = Join-Path $buildDirectory 'Polyta-Portal.exe'
+$adminAppFile = Join-Path $buildDirectory 'Polyta-Administrator.exe'
+Build-DesktopApp -OutputFile $portalAppFile
+Build-DesktopApp -OutputFile $adminAppFile -Define 'ADMIN'
+Build-Installer -OutputFile $portalOutputFile -AppExecutable $portalAppFile
+Build-Installer -OutputFile $adminOutputFile -AppExecutable $adminAppFile -Define 'ADMIN'

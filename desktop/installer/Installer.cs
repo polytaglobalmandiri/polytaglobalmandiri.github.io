@@ -17,8 +17,8 @@ using Microsoft.Win32;
 [assembly: AssemblyProduct("POLYTA GLOBAL MANDIRI Portal")]
 #endif
 [assembly: AssemblyCompany("POLYTA GLOBAL MANDIRI")]
-[assembly: AssemblyVersion("1.1.0.0")]
-[assembly: AssemblyFileVersion("1.1.0.0")]
+[assembly: AssemblyVersion("2.0.0.0")]
+[assembly: AssemblyFileVersion("2.0.0.0")]
 
 internal static class Installer
 {
@@ -29,6 +29,7 @@ internal static class Installer
     private const string UninstallKeyName = @"Software\Microsoft\Windows\CurrentVersion\Uninstall\PolytaGlobalMandiriAdministrator";
     private const string InstallFolderName = "Polyta Global Mandiri Admin";
     private const string InstalledExecutableName = "Polyta Administrator.exe";
+    private const string UninstallerExecutableName = "Hapus Polyta Administrator.exe";
     private const string ShortcutDescription = "Buka panel administrator POLYTA GLOBAL MANDIRI";
 #else
     private const string AppName = "POLYTA GLOBAL MANDIRI Portal";
@@ -36,8 +37,15 @@ internal static class Installer
     private const string UninstallKeyName = @"Software\Microsoft\Windows\CurrentVersion\Uninstall\PolytaGlobalMandiriPortal";
     private const string InstallFolderName = "Polyta Global Mandiri";
     private const string InstalledExecutableName = "Polyta Portal.exe";
+    private const string UninstallerExecutableName = "Hapus Polyta Portal.exe";
     private const string ShortcutDescription = "Buka portal internal POLYTA GLOBAL MANDIRI";
 #endif
+
+    private const string AppResourceName = "Polyta.DesktopApp.exe";
+    private const string WebViewCoreResourceName = "Polyta.WebView2.Core.dll";
+    private const string WebViewWinFormsResourceName = "Polyta.WebView2.WinForms.dll";
+    private const string WebViewLoaderX64ResourceName = "Polyta.WebView2Loader.x64.dll";
+    private const string WebViewLoaderX86ResourceName = "Polyta.WebView2Loader.x86.dll";
 
     [STAThread]
     private static int Main(string[] args)
@@ -47,12 +55,6 @@ internal static class Installer
 
         try
         {
-            if (HasArgument(args, "--launch"))
-            {
-                LaunchPortal();
-                return 0;
-            }
-
             if (HasArgument(args, "--uninstall"))
             {
                 Uninstall();
@@ -118,16 +120,30 @@ internal static class Installer
         Directory.CreateDirectory(startMenuDirectory);
 
         string installedExecutable = Path.Combine(installDirectory, InstalledExecutableName);
+        string uninstallerExecutable = Path.Combine(installDirectory, UninstallerExecutableName);
         string currentExecutable = Assembly.GetExecutingAssembly().Location;
-        if (!String.Equals(currentExecutable, installedExecutable, StringComparison.OrdinalIgnoreCase))
+        ExtractEmbeddedResource(AppResourceName, installedExecutable);
+        ExtractEmbeddedResource(
+            WebViewCoreResourceName,
+            Path.Combine(installDirectory, "Microsoft.Web.WebView2.Core.dll"));
+        ExtractEmbeddedResource(
+            WebViewWinFormsResourceName,
+            Path.Combine(installDirectory, "Microsoft.Web.WebView2.WinForms.dll"));
+        ExtractEmbeddedResource(
+            Environment.Is64BitOperatingSystem
+                ? WebViewLoaderX64ResourceName
+                : WebViewLoaderX86ResourceName,
+            Path.Combine(installDirectory, "WebView2Loader.dll"));
+
+        if (!String.Equals(currentExecutable, uninstallerExecutable, StringComparison.OrdinalIgnoreCase))
         {
-            File.Copy(currentExecutable, installedExecutable, true);
+            File.Copy(currentExecutable, uninstallerExecutable, true);
         }
 
-        // Pintasan menargetkan peluncur POLYTA, bukan executable browser.
-        // Windows karena itu selalu memakai ikon aplikasi yang tertanam pada
-        // file ini untuk Desktop, Start Menu, pencarian, dan daftar aplikasi.
-        ShortcutTarget target = new ShortcutTarget(installedExecutable, "--launch");
+        // Pintasan menargetkan aplikasi desktop POLYTA yang menjadi pemilik
+        // jendela WebView2. Ikon bilah tugas karena itu tidak lagi diwarisi
+        // dari Edge atau browser bawaan Windows.
+        ShortcutTarget target = new ShortcutTarget(installedExecutable, "");
         string desktopShortcut = Path.Combine(desktopDirectory, AppName + ".lnk");
         string startMenuShortcut = Path.Combine(startMenuDirectory, AppName + ".lnk");
         CreateShortcut(desktopShortcut, target, installDirectory, installedExecutable);
@@ -135,23 +151,30 @@ internal static class Installer
 
         if (!testMode)
         {
-            RegisterUninstaller(installedExecutable);
+            RegisterUninstaller(uninstallerExecutable, installedExecutable);
             MessageBox.Show(
                 AppName + " berhasil dipasang. Pintasan tersedia di Desktop dan Start Menu.",
                 AppName,
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
-            Process.Start(new ProcessStartInfo(installedExecutable, "--launch") { UseShellExecute = true });
+            Process.Start(new ProcessStartInfo(installedExecutable) { UseShellExecute = true });
         }
     }
 
-    private static void LaunchPortal()
+    private static void ExtractEmbeddedResource(string resourceName, string destination)
     {
-        ShortcutTarget browser = FindBrowserTarget();
-        Process.Start(new ProcessStartInfo(browser.Executable, browser.Arguments)
+        using (Stream input = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
         {
-            UseShellExecute = true
-        });
+            if (input == null)
+            {
+                throw new InvalidOperationException("Komponen installer tidak lengkap: " + resourceName);
+            }
+
+            using (FileStream output = new FileStream(destination, FileMode.Create, FileAccess.Write, FileShare.None))
+            {
+                input.CopyTo(output);
+            }
+        }
     }
 
     private static void Uninstall()
@@ -213,28 +236,6 @@ internal static class Installer
             MessageBoxIcon.Information);
     }
 
-    private static ShortcutTarget FindBrowserTarget()
-    {
-        string[] edgeCandidates =
-        {
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Microsoft", "Edge", "Application", "msedge.exe"),
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Microsoft", "Edge", "Application", "msedge.exe"),
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Microsoft", "Edge", "Application", "msedge.exe")
-        };
-
-        foreach (string candidate in edgeCandidates)
-        {
-            if (!String.IsNullOrWhiteSpace(candidate) && File.Exists(candidate))
-            {
-                return new ShortcutTarget(candidate, "--app=\"" + PortalUrl + "\" --start-maximized");
-            }
-        }
-
-        return new ShortcutTarget(
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "explorer.exe"),
-            PortalUrl);
-    }
-
     private static void CreateShortcut(string path, ShortcutTarget target, string workingDirectory, string iconExecutable)
     {
         Type shellType = Type.GetTypeFromProgID("WScript.Shell");
@@ -262,7 +263,7 @@ internal static class Installer
         }
     }
 
-    private static void RegisterUninstaller(string installedExecutable)
+    private static void RegisterUninstaller(string uninstallerExecutable, string installedExecutable)
     {
         using (RegistryKey key = Registry.CurrentUser.CreateSubKey(UninstallKeyName))
         {
@@ -272,10 +273,10 @@ internal static class Installer
             }
 
             key.SetValue("DisplayName", AppName);
-            key.SetValue("DisplayVersion", "1.1.0");
+            key.SetValue("DisplayVersion", "2.0.0");
             key.SetValue("Publisher", Publisher);
             key.SetValue("DisplayIcon", installedExecutable);
-            key.SetValue("UninstallString", "\"" + installedExecutable + "\" --uninstall");
+            key.SetValue("UninstallString", "\"" + uninstallerExecutable + "\" --uninstall");
             key.SetValue("URLInfoAbout", PortalUrl);
             key.SetValue("NoModify", 1, RegistryValueKind.DWord);
             key.SetValue("NoRepair", 1, RegistryValueKind.DWord);

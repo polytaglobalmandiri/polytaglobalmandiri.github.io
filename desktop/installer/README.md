@@ -5,9 +5,9 @@ Tersedia dua installer mandiri yang membuat pintasan pada Desktop dan Start Menu
 - `Polyta-Portal-Setup.exe` membuka portal utama untuk pengguna.
 - `Polyta-Admin-Setup.exe` membuka panel administrator secara langsung.
 
-Keduanya dibuka seperti aplikasi melalui Microsoft Edge; jika Edge tidak tersedia, peluncur akan memakai browser bawaan Windows. Portal dan administrator dipasang serta dapat dihapus secara terpisah.
+Keduanya dibuka di dalam jendela desktop POLYTA sendiri dengan mesin Microsoft Edge WebView2. Portal dan administrator dipasang serta dapat dihapus secara terpisah.
 
-Pintasan Desktop dan Start Menu selalu menargetkan peluncur POLYTA yang memiliki logo aplikasi tertanam, bukan berkas browser. Dengan demikian Windows menampilkan logo POLYTA pada pintasan, pencarian, menu aplikasi, dan daftar aplikasi terpasang. Browser hanya dipanggil di belakang untuk menampilkan isi portal.
+Pintasan Desktop dan Start Menu menargetkan aplikasi POLYTA yang memiliki logo serta identitas bilah tugas sendiri. Microsoft Edge tidak lagi dibuka sebagai jendela aplikasi, sehingga Windows tidak mewarisi ikon browser pada jendela yang sedang berjalan.
 
 ## Membangun installer
 
@@ -26,6 +26,7 @@ Hasil build berada di `release\Polyta-Portal-Setup.exe` dan `release\Polyta-Admi
 - Terdaftar pada **Settings > Apps > Installed apps** agar mudah dihapus.
 - Hanya terdiri dari satu berkas `.exe`; penerima tidak memerlukan PowerShell atau alat build tambahan.
 - Memerlukan koneksi Internet karena aplikasi membuka portal GitHub Pages yang selalu menggunakan versi terbaru.
+- Menggunakan Microsoft Edge WebView2 Runtime yang umumnya sudah tersedia bersama Microsoft Edge dan Windows versi terbaru.
 - Panel administrator menggunakan alamat `https://polytaglobalmandiri.github.io/pages/admin/`.
 
 ## Catatan keamanan

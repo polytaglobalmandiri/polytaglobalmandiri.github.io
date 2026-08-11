@@ -1,6 +1,6 @@
 .language-switcher {
   display: inline-grid;
-  grid-template-columns: repeat(2, 31px);
+  grid-template-columns: repeat(2, 32px);
   flex: none;
   padding: 3px;
   border: 1px solid var(--metal-d);
@@ -11,8 +11,8 @@
 
 .language-switcher button {
   display: grid;
-  width: 31px;
-  height: 26px;
+  width: 32px;
+  height: 28px;
   padding: 0;
   place-items: center;
   border: 0;
@@ -40,7 +40,7 @@
   box-shadow: inset 0 1px 0 rgba(255,255,255,.38), 0 2px 4px rgba(0,0,0,.28);
 }
 
-@media (max-width: 760px) {
+@media (max-width: 420px) {
   .language-switcher { grid-template-columns: repeat(2, 29px); }
-  .language-switcher button { width: 29px; height: 28px; }
+  .language-switcher button { width: 29px; height: 30px; }
 }

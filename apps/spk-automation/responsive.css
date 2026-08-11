@@ -1732,9 +1732,14 @@ body[data-page="keluar-bahan"] .table-wrap td {
 }
 
 body[data-page="keluar-bahan"] .table-wrap .editor {
-  grid-template-columns: minmax(92px, 1fr) 78px;
-  min-width: 176px;
+  grid-template-columns: 74px 78px;
+  min-width: 157px;
   gap: 5px;
+}
+
+body[data-page="keluar-bahan"] .table-wrap .js-keluar-bahan {
+  width: 74px;
+  min-width: 0;
 }
 
 body[data-page="keluar-bahan"] .table-wrap .status-badge {

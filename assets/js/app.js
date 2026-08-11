@@ -35,12 +35,20 @@
      Saat dibuka langsung dari file:// (klik ganda, tanpa server), peramban
      tidak mengenal index.html implisit — jadi nama berkasnya ditambahkan.
      Di GitHub Pages hal itu tidak diperlukan dan alamat tetap rapi. */
+  var scripts = document.getElementsByTagName('script');
   var ROOT = "./";
+  for (var i = 0; i < scripts.length; i++) {
+    var src = scripts[i].getAttribute('src');
+    if (src && src.indexOf('assets/js/app.js') !== -1) {
+      ROOT = src.split('assets/js/app.js')[0];
+      break;
+    }
+  }
   var IS_FILE = location.protocol === "file:";
 
   function link(path) {
     var p = ROOT + (path || "");
-    return IS_FILE ? p + "index.html" : p;
+    return IS_FILE ? p + (p.slice(-1) === "/" ? "index.html" : "/index.html") : p;
   }
 
   /* Berkas aset dirujuk apa adanya — tanpa penambahan index.html */

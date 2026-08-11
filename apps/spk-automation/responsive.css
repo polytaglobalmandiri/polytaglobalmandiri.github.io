@@ -1375,3 +1375,157 @@ body[data-page="cetak-spk"] .toolbar-button.primary {
     box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 18px 42px rgba(0,0,0,.62);
   }
 }
+
+/* ---------------------------------------------------------------------
+   Modal responsif terpadu
+   Seluruh dialog berada di atas header, mempunyai batas aman terhadap
+   tepi layar, dan menggulirkan isi tanpa menghilangkan kepala/tindakannya.
+   --------------------------------------------------------------------- */
+body[data-page] .modal-backdrop {
+  z-index: 1980 !important;
+}
+
+body[data-page] .modal,
+body[data-page] :is(.eta-modal, .detail-modal) {
+  z-index: 2000 !important;
+}
+
+body[data-page] .swal2-container {
+  z-index: 2100 !important;
+  padding: clamp(8px, 2vw, 20px) !important;
+}
+
+body[data-page] .swal2-popup {
+  width: min(480px, calc(100vw - 32px)) !important;
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+}
+
+body[data-page="dashboard"] .modal-dialog {
+  margin: clamp(10px, 2vh, 20px) auto !important;
+}
+
+body[data-page="dashboard"] :is(#detailModal, #editSpkModal) .modal-dialog {
+  width: min(960px, calc(100vw - 40px)) !important;
+  max-width: min(960px, calc(100vw - 40px)) !important;
+}
+
+body[data-page="dashboard"] #spkInputModal .modal-dialog {
+  width: min(940px, calc(100vw - 40px)) !important;
+  max-width: min(940px, calc(100vw - 40px)) !important;
+}
+
+body[data-page="dashboard"] :is(#customerInputModal, #brandInputModal) .modal-dialog {
+  width: min(800px, calc(100vw - 40px)) !important;
+  max-width: min(800px, calc(100vw - 40px)) !important;
+}
+
+body[data-page="dashboard"] #manageModal .modal-dialog {
+  width: min(680px, calc(100vw - 40px)) !important;
+  max-width: min(680px, calc(100vw - 40px)) !important;
+}
+
+body[data-page="dashboard"] .modal-content {
+  max-height: calc(100vh - 40px) !important;
+  max-height: calc(100dvh - 40px) !important;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+body[data-page="dashboard"] :is(.modal-header, .modal-footer) {
+  flex: 0 0 auto;
+}
+
+body[data-page="dashboard"] .modal-body {
+  min-height: 0 !important;
+  overflow-x: hidden;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+body[data-page="dashboard"] .edit-modal-body {
+  min-height: 0 !important;
+}
+
+body[data-page="keluar-bahan"] :is(.eta-modal, .detail-modal) {
+  padding: clamp(10px, 2vw, 20px) !important;
+}
+
+body[data-page="keluar-bahan"] .eta-modal-dialog {
+  width: min(820px, 100%) !important;
+  max-width: 820px !important;
+}
+
+body[data-page="keluar-bahan"] .detail-dialog {
+  width: min(1000px, 100%) !important;
+  max-width: 1000px !important;
+}
+
+body[data-page="keluar-bahan"] :is(.eta-modal-dialog, .detail-dialog) {
+  max-height: calc(100vh - 40px) !important;
+  max-height: calc(100dvh - 40px) !important;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+body[data-page="keluar-bahan"] :is(.eta-modal-header, .eta-modal-footer, .detail-dialog-header, .detail-dialog-footer) {
+  flex: 0 0 auto;
+}
+
+body[data-page="keluar-bahan"] :is(.eta-modal-body, .detail-dialog-body) {
+  min-height: 0 !important;
+  overflow-x: hidden;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media screen and (max-width: 640px) {
+  body[data-page="dashboard"] .modal-dialog {
+    width: calc(100vw - 16px) !important;
+    max-width: calc(100vw - 16px) !important;
+    margin: 8px auto !important;
+  }
+
+  body[data-page="dashboard"] .modal-content,
+  body[data-page="keluar-bahan"] :is(.eta-modal-dialog, .detail-dialog) {
+    max-height: calc(100vh - 16px) !important;
+    max-height: calc(100dvh - 16px) !important;
+    border-radius: 12px !important;
+  }
+
+  body[data-page="keluar-bahan"] :is(.eta-modal, .detail-modal) {
+    padding: 8px !important;
+  }
+
+  body[data-page="dashboard"] :is(.modal-header, .modal-body, .modal-footer),
+  body[data-page="keluar-bahan"] :is(.eta-modal-header, .eta-modal-body, .eta-modal-footer, .detail-dialog-header, .detail-dialog-body, .detail-dialog-footer) {
+    padding-inline: 12px !important;
+  }
+
+  body[data-page="dashboard"] .modal-footer,
+  body[data-page="keluar-bahan"] :is(.eta-modal-footer, .detail-dialog-footer) {
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+  }
+}
+
+@media screen and (max-height: 560px) and (orientation: landscape) {
+  body[data-page="dashboard"] .modal-dialog {
+    margin-block: 4px !important;
+  }
+
+  body[data-page="dashboard"] .modal-content,
+  body[data-page="keluar-bahan"] :is(.eta-modal-dialog, .detail-dialog) {
+    max-height: calc(100vh - 8px) !important;
+    max-height: calc(100dvh - 8px) !important;
+  }
+
+  body[data-page="keluar-bahan"] :is(.eta-modal, .detail-modal) {
+    padding: 4px !important;
+  }
+}

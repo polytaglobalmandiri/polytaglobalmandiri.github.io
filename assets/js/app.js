@@ -58,12 +58,6 @@
     return asset(value);
   }
 
-  function managedDepartmentAnimation(path) {
-    var value = String(path || "").trim();
-    if (!/^assets\/img\/departments\/[a-z0-9_-]+\.webp$/i.test(value)) return "";
-    return managedImage(value.replace(/\.webp$/i, "-animated.webp"));
-  }
-
   var LOGO = "assets/img/logo-polyta.png";
 
   var store = {
@@ -672,6 +666,52 @@
   }
 
   /* ------------------------------------------------- Beranda: konten */
+  function buildDepartmentObjectMotion(departmentId, imagePath) {
+    if (!/^assets\/img\/departments\/[a-z0-9_-]+\.webp$/i.test(String(imagePath || ""))) return null;
+
+    var objects = {
+      marketing: [
+        { name: "target", crop: true },
+        { name: "signal", crop: false }
+      ],
+      ppic: [
+        { name: "gear-red", crop: true },
+        { name: "gear-black", crop: true },
+        { name: "gear-silver", crop: true }
+      ],
+      purchasing: [
+        { name: "seal", crop: true },
+        { name: "check", crop: false }
+      ],
+      produksi: [
+        { name: "spool", crop: true },
+        { name: "belt", crop: false },
+        { name: "beacon", crop: false }
+      ],
+      finance: [
+        { name: "pie", crop: true },
+        { name: "coin", crop: true },
+        { name: "chart-dot", crop: false }
+      ],
+      bantuan: [
+        { name: "gear", crop: true },
+        { name: "page", crop: false },
+        { name: "headset", crop: false }
+      ]
+    };
+    var specs = objects[departmentId];
+    if (!specs) return null;
+
+    var layer = el("span", "dept__objects dept__objects--" + departmentId);
+    var imageUrl = managedImage(imagePath);
+    specs.forEach(function (spec) {
+      var part = el("span", "dept__object dept__object--" + departmentId + "-" + spec.name);
+      if (spec.crop) part.style.backgroundImage = 'url("' + imageUrl.replace(/"/g, "%22") + '")';
+      layer.appendChild(part);
+    });
+    return layer;
+  }
+
   function buildHome(main) {
     var wrap = el("div", "wrap");
     wrap.setAttribute("data-home-wrap", "");
@@ -701,7 +741,6 @@
         var image = el("img", "dept__image");
         image.src = managedImage(d.image);
         image.alt = "";
-        image.classList.add("dept__image--poster");
         image.width = 420;
         image.height = 420;
         image.loading = "lazy";
@@ -711,27 +750,9 @@
           visual.classList.add("is-empty");
         });
         media.appendChild(image);
-        var animationSource = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-          ? ""
-          : managedDepartmentAnimation(d.image);
-        if (animationSource) {
-          var motionImage = el("img", "dept__image dept__image--motion");
-          motionImage.src = animationSource;
-          motionImage.alt = "";
-          motionImage.width = 420;
-          motionImage.height = 236;
-          motionImage.loading = "lazy";
-          motionImage.decoding = "async";
-          motionImage.fetchPriority = "low";
-          motionImage.addEventListener("load", function () {
-            media.classList.add("is-playing");
-          });
-          motionImage.addEventListener("error", function () {
-            motionImage.remove();
-          });
-          media.appendChild(motionImage);
-        }
         visual.appendChild(media);
+        var objectMotion = buildDepartmentObjectMotion(deptClass, d.image);
+        if (objectMotion) visual.appendChild(objectMotion);
         visual.appendChild(count);
         a.appendChild(visual);
       } else a.appendChild(count);
@@ -859,51 +880,14 @@
     if (window.matchMedia("(hover: none)").matches) return;
 
     var activeCard = null;
-    var pointerEvent = null;
-    var frameId = 0;
 
     function resetCard(card) {
       if (!card) return;
       card.style.transform = "";
-      card.classList.remove("is-interacting");
-      var visual = card.querySelector(".dept__visual");
-      if (!visual) return;
-      visual.style.setProperty("--dept-image-x", "0px");
-      visual.style.setProperty("--dept-image-y", "0px");
-      visual.style.setProperty("--dept-tilt-x", "0deg");
-      visual.style.setProperty("--dept-tilt-y", "0deg");
-      visual.style.setProperty("--dept-light-x", "50%");
-      visual.style.setProperty("--dept-light-y", "36%");
-    }
-
-    function paintTilt() {
-      frameId = 0;
-      if (!activeCard || !pointerEvent || !document.documentElement.contains(activeCard)) return;
-      var r = activeCard.getBoundingClientRect();
-      var px = Math.max(-.5, Math.min(.5, (pointerEvent.clientX - r.left) / r.width - .5));
-      var py = Math.max(-.5, Math.min(.5, (pointerEvent.clientY - r.top) / r.height - .5));
-      var isDepartment = activeCard.classList.contains("dept");
-
-      activeCard.style.transform =
-        "translateY(-4px) perspective(760px) rotateX(" + (-py * (isDepartment ? 5 : 4)).toFixed(2) +
-        "deg) rotateY(" + (px * (isDepartment ? 6 : 5)).toFixed(2) + "deg)";
-
-      if (isDepartment) {
-        var visual = activeCard.querySelector(".dept__visual");
-        activeCard.classList.add("is-interacting");
-        if (visual) {
-          visual.style.setProperty("--dept-image-x", (-px * 13).toFixed(2) + "px");
-          visual.style.setProperty("--dept-image-y", (-py * 9).toFixed(2) + "px");
-          visual.style.setProperty("--dept-tilt-x", (-py * 3).toFixed(2) + "deg");
-          visual.style.setProperty("--dept-tilt-y", (px * 4).toFixed(2) + "deg");
-          visual.style.setProperty("--dept-light-x", ((px + .5) * 100).toFixed(1) + "%");
-          visual.style.setProperty("--dept-light-y", ((py + .5) * 100).toFixed(1) + "%");
-        }
-      }
     }
 
     document.addEventListener("pointermove", function (e) {
-      var card = e.target.closest ? e.target.closest(".tile, .dept") : null;
+      var card = e.target.closest ? e.target.closest(".tile") : null;
       if (!card) {
         resetCard(activeCard);
         activeCard = null;
@@ -911,8 +895,12 @@
       }
       if (activeCard && activeCard !== card) resetCard(activeCard);
       activeCard = card;
-      pointerEvent = e;
-      if (!frameId) frameId = requestAnimationFrame(paintTilt);
+      var r = card.getBoundingClientRect();
+      var px = (e.clientX - r.left) / r.width - .5;
+      var py = (e.clientY - r.top) / r.height - .5;
+      card.style.transform =
+        "translateY(-4px) perspective(700px) rotateX(" + (-py * 4).toFixed(2) +
+        "deg) rotateY(" + (px * 5).toFixed(2) + "deg)";
     });
     document.addEventListener("pointerout", function (e) {
       if (!activeCard || (e.relatedTarget && activeCard.contains(e.relatedTarget))) return;

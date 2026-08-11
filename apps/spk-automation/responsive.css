@@ -1529,3 +1529,8 @@ body[data-page="keluar-bahan"] :is(.eta-modal-body, .detail-dialog-body) {
     padding: 4px !important;
   }
 }
+html.spk-modal-scroll-lock,
+body.spk-modal-scroll-lock {
+  overflow: hidden !important;
+  overscroll-behavior: none;
+}

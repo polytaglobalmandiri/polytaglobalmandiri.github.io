@@ -1,0 +1,300 @@
+/* POLYTA GLOBAL MANDIRI — penyelarasan visual SPK Automasi dengan Portal Akses Internal */
+:root {
+  --pgm-bg-a: #fafafb;
+  --pgm-bg-b: #e3e3e8;
+  --pgm-bg-c: #c9c9d2;
+  --pgm-panel-a: #ffffff;
+  --pgm-panel-b: #ececef;
+  --pgm-panel-edge: #bfbfc8;
+  --pgm-metal-a: #f8f8fa;
+  --pgm-metal-b: #e4e4e9;
+  --pgm-metal-c: #c8c8d1;
+  --pgm-metal-d: #8b8b96;
+  --pgm-ink: #15151a;
+  --pgm-ink-soft: #4c4c56;
+  --pgm-ink-mute: #7c7c88;
+  --pgm-accent: #c8102e;
+  --pgm-accent-lo: #8a0b1f;
+  --pgm-accent-hi: #e63b52;
+  --pgm-accent-rgb: 200, 16, 46;
+  --pgm-radius: 14px;
+  --pgm-radius-lg: 20px;
+  --pgm-ease: cubic-bezier(.22,.72,.28,1);
+  --pgm-shadow-raised:
+    inset 0 1px 0 rgba(255,255,255,.95),
+    inset 0 -1px 0 rgba(90,90,105,.28),
+    0 1px 1px rgba(15,15,22,.14),
+    0 7px 18px rgba(15,15,22,.12),
+    0 20px 38px -16px rgba(15,15,22,.28);
+  --pgm-shadow-sunken:
+    inset 0 2px 5px rgba(18,18,26,.22),
+    inset 0 -1px 0 rgba(255,255,255,.55),
+    0 1px 0 rgba(255,255,255,.9);
+}
+
+html { scroll-behavior: smooth; scroll-padding-top: 86px; }
+
+body[data-page] {
+  min-height: 100vh;
+  color: var(--pgm-ink);
+  font-family: "Segoe UI", Inter, system-ui, -apple-system, Arial, sans-serif;
+  background:
+    radial-gradient(120% 90% at 50% -10%, var(--pgm-bg-a) 0%, var(--pgm-bg-b) 55%, var(--pgm-bg-c) 100%)
+    fixed !important;
+  overflow-x: clip;
+}
+
+body[data-page]:not([data-page="cetak-spk"])::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: .22;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 3px, rgba(255,255,255,.35) 3px 4px),
+    radial-gradient(65% 42% at 50% 0%, rgba(255,255,255,.6), transparent 72%);
+}
+
+body[data-page] :is(#spkInputRoot, .page-frame) {
+  background: transparent !important;
+}
+
+/* Header logam yang mengikuti proporsi Portal Akses Internal. */
+body[data-page] :is(.topbar, .app-topbar, .app-header, .print-toolbar) {
+  position: sticky !important;
+  top: 0;
+  z-index: 1000;
+  min-height: 72px;
+  color: var(--pgm-ink) !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--pgm-metal-d) !important;
+  background:
+    repeating-linear-gradient(0deg, rgba(255,255,255,.08) 0 1px, rgba(0,0,0,.018) 1px 3px),
+    linear-gradient(180deg, var(--pgm-metal-a), var(--pgm-metal-b) 48%, var(--pgm-metal-c)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.95),
+    inset 0 -1px 0 rgba(65,65,75,.28),
+    0 5px 12px rgba(20,18,18,.2),
+    0 16px 30px -15px rgba(20,18,18,.42) !important;
+  backdrop-filter: blur(14px) saturate(1.08);
+}
+
+body[data-page] :is(.topbar-inner, .app-topbar-inner, .header-inner) {
+  width: min(100%, 1440px) !important;
+  min-height: 72px !important;
+  margin-inline: auto;
+  padding-inline: clamp(16px, 2.4vw, 30px) !important;
+}
+
+body[data-page] :is(.brand-mark, .app-brand-mark, .toolbar-mark) {
+  width: 48px !important;
+  height: 48px !important;
+  flex: 0 0 48px !important;
+  padding: 4px !important;
+  border: 1px solid var(--pgm-panel-edge) !important;
+  border-radius: 13px !important;
+  background: linear-gradient(145deg, #fff, #dedee4 58%, #a8a8b2) !important;
+  box-shadow:
+    inset 0 1px 0 #fff,
+    inset 0 -2px 3px rgba(0,0,0,.18),
+    0 2px 3px rgba(10,10,16,.28),
+    0 6px 14px -4px rgba(10,10,16,.38) !important;
+}
+
+body[data-page] :is(.brand-name, .app-brand-name, .toolbar-brand strong) {
+  color: var(--pgm-ink) !important;
+  font-family: "Trebuchet MS", "Segoe UI Semibold", "Segoe UI", sans-serif;
+  font-size: .91rem !important;
+  font-weight: 800 !important;
+  letter-spacing: .085em !important;
+  text-transform: uppercase;
+  text-shadow: 0 1px 0 rgba(255,255,255,.8);
+}
+
+body[data-page] :is(.brand-subtitle, .app-brand-subtitle, .toolbar-brand span) {
+  color: var(--pgm-ink-soft) !important;
+  font-size: .68rem !important;
+  letter-spacing: .035em;
+}
+
+body[data-page] :is(.topnav, .app-nav, .toolbar-actions) {
+  gap: 7px !important;
+}
+
+body[data-page] :is(.nav-link-app, .app-nav-link, .nav-link, .toolbar-button) {
+  color: var(--pgm-ink-soft) !important;
+  border: 1px solid var(--pgm-panel-edge) !important;
+  background: linear-gradient(180deg, rgba(255,255,255,.88), rgba(215,215,223,.74)) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 2px 5px rgba(20,20,28,.12) !important;
+  text-shadow: 0 1px 0 rgba(255,255,255,.8);
+  transition: color .18s var(--pgm-ease), border-color .18s var(--pgm-ease), transform .18s var(--pgm-ease), box-shadow .18s var(--pgm-ease) !important;
+}
+
+body[data-page] :is(.nav-link-app, .app-nav-link, .nav-link, .toolbar-button):hover {
+  color: var(--pgm-accent) !important;
+  border-color: rgba(var(--pgm-accent-rgb), .46) !important;
+  transform: translateY(-1px);
+  box-shadow: inset 0 1px 0 #fff, 0 5px 11px rgba(20,20,28,.18) !important;
+}
+
+body[data-page] :is(.nav-link-app.active, .app-nav-link.active, .nav-link.active, .toolbar-button.primary) {
+  color: #fff !important;
+  border-color: #700817 !important;
+  background: linear-gradient(180deg, #ec4357, var(--pgm-accent) 54%, var(--pgm-accent-lo)) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.38), inset 0 -2px 4px rgba(80,0,15,.32), 0 3px 8px rgba(80,0,15,.28) !important;
+  text-shadow: 0 1px 1px rgba(70,0,10,.55);
+}
+
+body[data-page] .polyta-portal-home {
+  border-color: rgba(var(--pgm-accent-rgb), .32) !important;
+}
+
+/* Area konten memakai lebar dan ritme ruang yang konsisten. */
+body[data-page] :is(.app-main, .page-frame, .workspace) {
+  width: min(100%, 1440px);
+  margin-inline: auto;
+}
+
+body[data-page]:not([data-page="cetak-spk"]) .page-heading {
+  margin: 22px 0 18px !important;
+  padding: 15px 18px !important;
+  border: 1px solid var(--pgm-panel-edge);
+  border-left: 4px solid var(--pgm-accent);
+  border-radius: var(--pgm-radius-lg);
+  background:
+    linear-gradient(122deg, rgba(255,255,255,.74), transparent 44%),
+    linear-gradient(180deg, var(--pgm-panel-a), var(--pgm-panel-b));
+  box-shadow: var(--pgm-shadow-raised);
+}
+
+body[data-page] :is(.page-heading h1, .identity-heading h1) {
+  color: var(--pgm-ink) !important;
+  font-family: "Trebuchet MS", "Segoe UI Semibold", "Segoe UI", sans-serif;
+  letter-spacing: -.015em !important;
+  text-shadow: 0 1px 0 rgba(255,255,255,.85);
+}
+
+body[data-page] :is(.eyebrow, .panel-chip, .section-kicker) {
+  color: var(--pgm-accent) !important;
+}
+
+body[data-page] :is(.page-description, .panel-caption, .summary-note, .field-hint) {
+  color: var(--pgm-ink-soft) !important;
+}
+
+body[data-page] .heading-icon {
+  color: #fff !important;
+  border: 1px solid #6b0717 !important;
+  background: linear-gradient(145deg, #f05263, var(--pgm-accent) 56%, #740817) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.38), 0 5px 12px rgba(92,7,24,.28) !important;
+}
+
+/* Panel dan modal mendapat material porselen/plat seperti kartu Portal. */
+body[data-page] :is(
+  .panel,
+  .kpi-card,
+  .summary-card,
+  .data-main-card,
+  .routing-card,
+  .route-panel,
+  .form-group-card,
+  .state-panel,
+  .detail-summary-card,
+  .detail-section,
+  .guide-panel,
+  .explorer-panel,
+  .loading-card,
+  .modal-content,
+  .detail-modal-dialog,
+  .eta-modal-dialog
+) {
+  border-color: var(--pgm-panel-edge) !important;
+  border-radius: var(--pgm-radius-lg) !important;
+  background:
+    linear-gradient(122deg, rgba(255,255,255,.58), transparent 42%),
+    linear-gradient(180deg, var(--pgm-panel-a), var(--pgm-panel-b)) !important;
+  box-shadow: var(--pgm-shadow-raised) !important;
+}
+
+body[data-page] :is(.panel-header, .workspace-toolbar, .modal-header, .detail-dialog-header, .eta-modal-header) {
+  border-bottom-color: var(--pgm-panel-edge) !important;
+  background: linear-gradient(180deg, rgba(255,255,255,.68), rgba(220,220,228,.38)) !important;
+}
+
+body[data-page] :is(input, select, textarea, .form-control, .form-select, .field-input, .search-input, .filter-select) {
+  color: var(--pgm-ink) !important;
+  border-color: var(--pgm-panel-edge) !important;
+  background-color: rgba(255,255,255,.82) !important;
+  box-shadow: var(--pgm-shadow-sunken) !important;
+}
+
+body[data-page] :is(input, select, textarea, .form-control, .form-select, .field-input, .search-input, .filter-select):focus {
+  border-color: var(--pgm-accent) !important;
+  outline: 0 !important;
+  box-shadow: inset 0 2px 5px rgba(18,18,26,.16), 0 0 0 3px rgba(var(--pgm-accent-rgb), .16) !important;
+}
+
+body[data-page] :is(.button-primary, .neumorphic-btn-black, .action-button.primary, .save-button, .eta-submit-button) {
+  color: #fff !important;
+  border-color: #740817 !important;
+  background: linear-gradient(180deg, #ed4b5f, var(--pgm-accent) 56%, var(--pgm-accent-lo)) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 4px 9px rgba(90,5,22,.24) !important;
+}
+
+body[data-page] table thead th {
+  color: var(--pgm-ink-soft) !important;
+  border-bottom-color: var(--pgm-metal-d) !important;
+  background: linear-gradient(180deg, var(--pgm-metal-a), var(--pgm-metal-c)) !important;
+  text-shadow: 0 1px 0 rgba(255,255,255,.85);
+}
+
+body[data-page] table tbody tr {
+  transition: background-color .18s var(--pgm-ease), transform .18s var(--pgm-ease);
+}
+
+body[data-page] table tbody tr:hover {
+  background-color: rgba(var(--pgm-accent-rgb), .045) !important;
+}
+
+.polyta-spk-footer {
+  position: relative;
+  z-index: 1;
+  margin-top: 26px;
+  padding: 15px 18px;
+  color: var(--pgm-ink-soft);
+  border-top: 1px solid var(--pgm-metal-d);
+  background: linear-gradient(180deg, var(--pgm-metal-b), var(--pgm-metal-c));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.68), inset 0 8px 16px -12px rgba(0,0,0,.5);
+  font-size: .76rem;
+  font-weight: 500;
+  letter-spacing: .025em;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  body[data-page] :is(.topbar-inner, .app-topbar-inner, .header-inner) { padding-inline: 14px !important; }
+  body[data-page] :is(.brand-subtitle, .app-brand-subtitle) { display: none !important; }
+  body[data-page]:not([data-page="cetak-spk"]) .page-heading { margin: 14px 12px !important; border-radius: 16px; }
+}
+
+@media (max-width: 560px) {
+  body[data-page] :is(.brand-mark, .app-brand-mark, .toolbar-mark) {
+    width: 42px !important; height: 42px !important; flex-basis: 42px !important;
+  }
+  body[data-page] :is(.brand-name, .app-brand-name, .toolbar-brand strong) { font-size: .76rem !important; letter-spacing: .055em !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body[data-page] *, body[data-page] *::before, body[data-page] *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+}
+
+@media print {
+  .polyta-spk-footer { display: none !important; }
+  body[data-page="cetak-spk"] { background: #fff !important; }
+}

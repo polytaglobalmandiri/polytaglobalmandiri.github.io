@@ -33,6 +33,7 @@ function expandPartials(html) {
 
 function convertTemplate(sourceName) {
   let html = expandPartials(readSource(sourceName));
+  html = html.replace(/(<meta\s+name=["']theme-color["']\s+content=["'])#[0-9a-f]+(["'])/i, "$1#e4e4e9$2");
   html = html.replace(/<\?!=\s*appUrl\s*\?>/g, siteRoot);
   html = html.replace(/<\?=\s*spkNumber\s*\?>/g, "");
   html = html.replace(/<\?=\s*dbRow\s*\?>/g, "");
@@ -43,6 +44,12 @@ function convertTemplate(sourceName) {
   html = html.replaceAll(siteRoot + "?page=Penarikan-Data", siteRoot + "penarikan-data/");
   html = html.replaceAll(siteRoot + "?page=Cetak-SPK&amp;", siteRoot + "cetak-spk/?");
   html = html.replaceAll(siteRoot + "?page=Cetak-SPK", siteRoot + "cetak-spk/");
+
+  html = html.replace(
+    /<svg class="polyta-logo"[\s\S]*?<\/svg>/,
+    '<img class="polyta-logo" src="/assets/img/logo-polyta.png" alt="">'
+  );
+  html = html.replace("Plastic Packaging Industry", "SPK Automasi · Portal Internal");
 
   if (sourceName === "FE-Cetak-SPK.html") {
     html = html.replace(
@@ -56,7 +63,8 @@ function convertTemplate(sourceName) {
   }
 
   const rpcScript = '  <script src="/assets/js/gas-rpc.js?v=20260811-5"></script>\n';
-  html = html.replace("</head>", rpcScript + "</head>");
+  const portalTheme = '  <link rel="stylesheet" href="/assets/css/spk-portal-theme.css?v=20260811-1">\n';
+  html = html.replace("</head>", rpcScript + portalTheme + "</head>");
 
   const portalHomeStyles = `
   <style>
@@ -95,6 +103,13 @@ function convertTemplate(sourceName) {
       .join("\n");
     return indentedPortalButton + '\n' + indentation + '<button id="btnFullscreen"';
   });
+
+  const portalFooter = `
+  <footer class="polyta-spk-footer no-print">
+    © 2026 POLYTA GLOBAL MANDIRI · Akses berbasis peran
+  </footer>
+`;
+  html = html.replace("</body>", portalFooter + "</body>");
   return html;
 }
 

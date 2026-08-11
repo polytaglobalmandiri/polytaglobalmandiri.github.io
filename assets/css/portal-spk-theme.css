@@ -1,0 +1,377 @@
+/* =====================================================================
+   POLYTA GLOBAL MANDIRI — Portal theme aligned with SPK Automasi
+   Dark application canvas · graphite header · raised light workspace
+   ===================================================================== */
+
+:root {
+  --spk-ink-950: #111722;
+  --spk-ink-900: #172033;
+  --spk-ink-800: #253047;
+  --spk-canvas: #26282c;
+  --spk-paper: #f5f6f8;
+  --spk-paper-hi: #fdfdfb;
+  --spk-paper-lo: #e8e9e6;
+  --spk-line: #b1b3b3;
+  --spk-line-dark: #777a7d;
+  --spk-red: #c82333;
+  --spk-red-dark: #8b1717;
+  --spk-shadow: 0 22px 54px rgba(5, 8, 13, .32), 0 4px 12px rgba(5, 8, 13, .2);
+}
+
+html { background: var(--spk-canvas); }
+
+body {
+  min-height: 100vh;
+  background-color: var(--spk-canvas);
+  background-image:
+    linear-gradient(135deg, rgba(255,255,255,.018) 25%, transparent 25%),
+    linear-gradient(225deg, rgba(255,255,255,.018) 25%, transparent 25%),
+    linear-gradient(45deg, rgba(0,0,0,.05) 25%, transparent 25%),
+    linear-gradient(315deg, rgba(0,0,0,.05) 25%, var(--spk-canvas) 25%);
+  background-position: 6px 0, 6px 0, 0 0, 0 0;
+  background-size: 12px 12px;
+  color: var(--ink);
+}
+
+body::before {
+  background: linear-gradient(180deg, rgba(255,255,255,.025), transparent 34%);
+  opacity: 1;
+}
+
+body::after { display: none; }
+
+/* Header gelap mengikuti bilah aplikasi SPK. */
+.topbar,
+:root[data-theme="dark"] .topbar {
+  min-height: 72px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.045), transparent 42%),
+    linear-gradient(180deg, #252d3b 0%, var(--spk-ink-900) 68%, #101722 100%);
+  border-top: 1px solid #5a5d63;
+  border-bottom: 4px solid var(--spk-red-dark);
+  box-shadow: 0 8px 24px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.09);
+}
+
+.topbar::before {
+  background: repeating-linear-gradient(90deg, rgba(255,255,255,.025) 0 1px, transparent 1px 4px);
+  opacity: .55;
+}
+
+.topbar::after { display: none; }
+
+.topbar.is-stuck {
+  border-bottom-color: var(--spk-red);
+  box-shadow: 0 10px 30px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.1);
+}
+
+.topbar__in { min-height: 68px; padding-block: .55rem; }
+
+.brand__plate {
+  width: 46px;
+  height: 46px;
+  border-radius: 11px;
+  border-color: rgba(255,255,255,.28);
+  background: linear-gradient(145deg, #fff, #e4e6e9);
+  box-shadow: inset 0 1px 0 #fff, 0 4px 10px rgba(0,0,0,.35);
+}
+
+.brand__name { color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.5); }
+.brand__sub { color: #b9c2cf; }
+
+.nav__link {
+  color: #cbd2de;
+  border-radius: 7px;
+}
+
+.nav__link:hover {
+  color: #fff;
+  border-color: rgba(255,255,255,.13);
+  background: rgba(255,255,255,.08);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+}
+
+.nav__link.is-active {
+  color: #fff;
+  border-color: rgba(255,255,255,.15);
+  background: rgba(255,255,255,.1);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+}
+
+.nav__link.is-active::after {
+  bottom: -7px;
+  width: 72%;
+  height: 3px;
+  background: var(--spk-red);
+  box-shadow: 0 0 10px rgba(200,35,51,.5);
+}
+
+.topbar .switch,
+.topbar .iconbtn {
+  border-color: rgba(255,255,255,.22);
+  background: linear-gradient(180deg, #364052, #202838);
+  color: #e8edf5;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 2px 5px rgba(0,0,0,.3);
+}
+
+.topbar .iconbtn:hover { color: #fff; border-color: rgba(255,255,255,.4); }
+
+/* Kepala halaman berada langsung di atas kanvas gelap. */
+.pagehead { padding-block: 1.45rem 1rem; }
+.pagehead__in {
+  border-bottom-color: rgba(255,255,255,.18);
+  box-shadow: 0 1px 0 rgba(0,0,0,.28);
+}
+.pagehead__title { color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,.5); }
+.pagehead__sub { color: #d8dde5; }
+.crumb, .crumb a { color: #aeb7c4; }
+.crumb a:hover, .crumb__now { color: #ff6b75; }
+.pagehead .chip {
+  color: #e7ebf1;
+  border-color: rgba(255,255,255,.18);
+  background: rgba(16,23,34,.68);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+}
+.pagehead .chip b { color: #fff; }
+
+/* Ruang kerja utama menyerupai shell terang SPK. */
+main,
+#app > .wrap {
+  position: relative;
+  width: min(calc(100% - 32px), 1544px);
+  margin: 0 auto 38px;
+  padding: 24px 0 38px;
+  border: 1px solid var(--spk-line-dark);
+  border-bottom-color: #56595d;
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.72), transparent 34%),
+    linear-gradient(180deg, var(--spk-paper-hi), var(--spk-paper-lo));
+  box-shadow: var(--spk-shadow), inset 0 1px 0 #fff;
+}
+
+#app > .wrap { margin-top: 28px; }
+
+main > .wrap,
+#app > .wrap { width: min(1180px, 100% - 2.5rem); }
+
+.engrave { text-shadow: none; }
+.screw { display: none; }
+
+.plate,
+.console,
+.tile,
+.card,
+.adm-actions,
+.item {
+  border-color: var(--spk-line);
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.64), transparent 38%),
+    linear-gradient(180deg, var(--spk-paper-hi), var(--spk-paper-lo));
+  box-shadow: 0 8px 18px rgba(23,32,51,.1), inset 0 1px 0 #fff;
+}
+
+.plate::before,
+.tile::before { opacity: .35; }
+
+.console {
+  padding: .7rem;
+  border-radius: 12px;
+}
+
+.field,
+.inp {
+  border-color: #a8abb0;
+  background: #fff;
+  box-shadow: inset 0 1px 3px rgba(23,32,51,.12), 0 1px 0 rgba(255,255,255,.85);
+}
+
+.field:focus-within,
+.inp:focus {
+  border-color: var(--spk-red);
+  box-shadow: inset 0 1px 3px rgba(23,32,51,.1), 0 0 0 3px rgba(200,35,51,.14);
+}
+
+.section__head {
+  border-bottom-color: #c6c8ca;
+  box-shadow: none;
+}
+
+.section__title { color: var(--spk-ink-900); letter-spacing: .035em; }
+.section__badge, .chip {
+  border-color: #b9bbbe;
+  background: #f6f7f7;
+  box-shadow: inset 0 1px 0 #fff;
+}
+
+.tile {
+  border-left-width: 4px;
+  border-radius: 12px;
+}
+
+.tile:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 28px -12px rgba(var(--tile-rgb, var(--accent-rgb)), .34), 0 0 0 2px rgba(var(--tile-rgb, var(--accent-rgb)), .13);
+}
+
+.tile__icon { border-radius: 9px; }
+
+.dept {
+  border: 1px solid var(--spk-line);
+  border-radius: 14px;
+  background: linear-gradient(180deg, #fff, #eceeec);
+  box-shadow: 0 10px 24px rgba(23,32,51,.12), inset 0 1px 0 #fff;
+}
+
+.dept:hover {
+  transform: translateY(-5px);
+  border-color: rgba(var(--dept-rgb), .62);
+  box-shadow: 0 18px 34px -14px rgba(var(--dept-rgb), .35), 0 0 0 2px rgba(var(--dept-rgb), .12);
+}
+
+.dept__visual { border-bottom-color: rgba(23,32,51,.14); }
+.dept__count { top: 12px; right: 12px; }
+
+/* Administrator memakai shell, kartu, kontrol, dan dialog yang sama. */
+.adm-badge,
+.btn--primary {
+  background: linear-gradient(180deg, #dc404c, var(--spk-red) 55%, var(--spk-red-dark));
+  border-color: #7d151d;
+}
+
+.adm-status { color: #c6ced9; }
+.adm-status.is-dirty { color: #ff9ca3; }
+
+.adm-actions,
+.card { border-radius: 12px; }
+.card__head { background: rgba(23,32,51,.045); border-bottom-color: #c3c5c6; }
+.adm-tabs { padding: .3rem; border-radius: 10px; background: #dfe1e1; border: 1px solid #b3b5b6; }
+.adm-tab { border-radius: 7px; }
+.adm-tab.is-on {
+  color: #fff;
+  border-color: var(--spk-ink-950);
+  background: linear-gradient(180deg, var(--spk-ink-800), var(--spk-ink-900));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 2px 5px rgba(23,32,51,.25);
+}
+
+.btn,
+.icon-btn {
+  border-color: #aeb0b2;
+  background: linear-gradient(180deg, #fff, #e5e7e7);
+  box-shadow: inset 0 1px 0 #fff, 0 2px 5px rgba(23,32,51,.14);
+}
+
+.btn:hover, .icon-btn:hover { border-color: var(--spk-red); }
+.btn--ghost { background: transparent; box-shadow: none; }
+
+.pop { background: rgba(9,13,20,.72); backdrop-filter: blur(8px); }
+.pop__box {
+  border-color: var(--spk-line-dark);
+  background: linear-gradient(180deg, var(--spk-paper-hi), var(--spk-paper-lo));
+  box-shadow: 0 28px 70px rgba(0,0,0,.48), inset 0 1px 0 #fff;
+}
+
+.notice,
+.note {
+  border-left: 4px solid var(--spk-red);
+  background: #fff4f4;
+  box-shadow: 0 5px 14px rgba(23,32,51,.08);
+}
+
+.foot {
+  color: #c4ccd7;
+  border-top: 1px solid #4e535b;
+  background: linear-gradient(180deg, #202733, #111722);
+  box-shadow: inset 0 4px 0 var(--spk-red-dark), 0 -8px 24px rgba(0,0,0,.18);
+}
+
+.adm-foot { color: #68717e; }
+
+/* Mode gelap tetap tersedia, dengan struktur visual SPK yang sama. */
+:root[data-theme="dark"] main,
+:root[data-theme="dark"] #app > .wrap {
+  color: #edf0f4;
+  border-color: #686c72;
+  background: linear-gradient(180deg, #30343a, #24282e);
+  box-shadow: var(--spk-shadow), inset 0 1px 0 rgba(255,255,255,.09);
+}
+
+:root[data-theme="dark"] .plate,
+:root[data-theme="dark"] .console,
+:root[data-theme="dark"] .tile,
+:root[data-theme="dark"] .card,
+:root[data-theme="dark"] .adm-actions,
+:root[data-theme="dark"] .item,
+:root[data-theme="dark"] .dept,
+:root[data-theme="dark"] .pop__box {
+  border-color: #555a61;
+  background: linear-gradient(180deg, #383d44, #2a2e34);
+  box-shadow: 0 8px 20px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08);
+}
+
+:root[data-theme="dark"] .section__title { color: #f3f5f7; }
+:root[data-theme="dark"] .section__head { border-bottom-color: #50545a; }
+:root[data-theme="dark"] .field,
+:root[data-theme="dark"] .inp { border-color: #555b63; background: #1f2328; }
+:root[data-theme="dark"] .section__badge,
+:root[data-theme="dark"] .chip { border-color: #555a61; background: #292d33; }
+:root[data-theme="dark"] .adm-tabs { border-color: #555a61; background: #25292f; }
+:root[data-theme="dark"] .btn,
+:root[data-theme="dark"] .icon-btn { border-color: #5a6068; background: linear-gradient(180deg, #3b4048, #292d33); }
+:root[data-theme="dark"] .btn--ghost { background: transparent; }
+:root[data-theme="dark"] .card__head { background: rgba(255,255,255,.035); border-bottom-color: #50555c; }
+:root[data-theme="dark"] .notice,
+:root[data-theme="dark"] .note { background: #431f25; }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) main,
+  :root:not([data-theme="light"]) #app > .wrap {
+    color: #edf0f4;
+    border-color: #686c72;
+    background: linear-gradient(180deg, #30343a, #24282e);
+  }
+
+  :root:not([data-theme="light"]) .plate,
+  :root:not([data-theme="light"]) .console,
+  :root:not([data-theme="light"]) .tile,
+  :root:not([data-theme="light"]) .card,
+  :root:not([data-theme="light"]) .adm-actions,
+  :root:not([data-theme="light"]) .item,
+  :root:not([data-theme="light"]) .dept,
+  :root:not([data-theme="light"]) .pop__box {
+    border-color: #555a61;
+    background: linear-gradient(180deg, #383d44, #2a2e34);
+    box-shadow: 0 8px 20px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08);
+  }
+
+  :root:not([data-theme="light"]) .section__title { color: #f3f5f7; }
+  :root:not([data-theme="light"]) .section__head { border-bottom-color: #50545a; }
+  :root:not([data-theme="light"]) .field,
+  :root:not([data-theme="light"]) .inp { border-color: #555b63; background: #1f2328; }
+  :root:not([data-theme="light"]) .section__badge,
+  :root:not([data-theme="light"]) .chip { border-color: #555a61; background: #292d33; }
+  :root:not([data-theme="light"]) .adm-tabs { border-color: #555a61; background: #25292f; }
+  :root:not([data-theme="light"]) .btn,
+  :root:not([data-theme="light"]) .icon-btn { border-color: #5a6068; background: linear-gradient(180deg, #3b4048, #292d33); }
+  :root:not([data-theme="light"]) .btn--ghost { background: transparent; }
+  :root:not([data-theme="light"]) .card__head { background: rgba(255,255,255,.035); border-bottom-color: #50555c; }
+  :root:not([data-theme="light"]) .notice,
+  :root:not([data-theme="light"]) .note { background: #431f25; }
+}
+
+@media (max-width: 760px) {
+  .topbar { min-height: 64px; }
+  .topbar__in { min-height: 60px; }
+  .brand__plate { width: 42px; height: 42px; }
+  .nav__link.is-active::after { bottom: -3px; }
+  main, #app > .wrap {
+    width: min(calc(100% - 18px), 1544px);
+    padding-block: 15px 28px;
+    border-radius: 13px;
+  }
+  main > .wrap, #app > .wrap { width: min(1180px, 100% - 1.4rem); }
+  .pagehead { padding-top: 1.05rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile:hover, .dept:hover { transform: none; }
+}

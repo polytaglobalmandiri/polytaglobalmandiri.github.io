@@ -652,3 +652,185 @@
     }
   }
 }
+
+/* ---------------------------------------------------------------------
+   Adaptive header navigation
+   Desktop keeps the original horizontal bar. Tablet and mobile use a
+   compact dropdown so every destination retains its complete label.
+   --------------------------------------------------------------------- */
+.spk-mobile-nav-toggle { display: none; }
+
+@media screen and (max-width: 900px) {
+  .spk-responsive-header { overflow: visible !important; }
+
+  .spk-responsive-header :is(.topbar-inner, .app-topbar-inner, .header-inner) {
+    position: relative !important;
+    flex-wrap: nowrap !important;
+    min-height: 62px;
+  }
+
+  .spk-mobile-nav-toggle {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex: 0 0 auto;
+    min-width: 82px;
+    min-height: 40px;
+    padding: 0 12px;
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: 9px;
+    color: #f7f8fa;
+    background: linear-gradient(180deg, #3a3d43, #202226);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 2px 5px rgba(0,0,0,.28);
+    font: inherit;
+    font-size: .7rem;
+    font-weight: 850;
+    letter-spacing: .055em;
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: border-color .18s ease, background .18s ease, transform .18s ease;
+  }
+
+  .spk-mobile-nav-toggle:hover,
+  .spk-mobile-nav-toggle:focus-visible,
+  .spk-responsive-header.spk-nav-open .spk-mobile-nav-toggle {
+    border-color: rgba(236,44,55,.7);
+    background: linear-gradient(180deg, #45484f, #27292e);
+    outline: none;
+  }
+
+  .spk-mobile-nav-toggle:active { transform: translateY(1px); }
+
+  .spk-menu-icon {
+    position: relative;
+    display: grid;
+    width: 17px;
+    height: 14px;
+    align-content: space-between;
+  }
+
+  .spk-menu-icon > span {
+    display: block;
+    width: 100%;
+    height: 2px;
+    border-radius: 4px;
+    background: currentColor;
+    transform-origin: center;
+    transition: transform .2s ease, opacity .15s ease;
+  }
+
+  .spk-responsive-header.spk-nav-open .spk-menu-icon > span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+  .spk-responsive-header.spk-nav-open .spk-menu-icon > span:nth-child(2) { opacity: 0; }
+  .spk-responsive-header.spk-nav-open .spk-menu-icon > span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+  .spk-responsive-header .spk-responsive-nav {
+    position: absolute !important;
+    z-index: 1200;
+    top: calc(100% + 8px);
+    right: 0;
+    left: auto;
+    order: initial;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 5px !important;
+    width: min(360px, calc(100vw - 20px)) !important;
+    max-height: calc(100vh - 92px);
+    max-height: calc(100dvh - 92px);
+    padding: 9px !important;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border: 1px solid #72757a;
+    border-top: 3px solid #a4151f;
+    border-radius: 12px;
+    background:
+      linear-gradient(135deg, rgba(255,255,255,.58), transparent 34%),
+      linear-gradient(180deg, #fafaf8, #e2e3e1);
+    box-shadow: 0 18px 42px rgba(0,0,0,.42), inset 0 1px 0 #fff;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-8px) scale(.985);
+    transform-origin: top right;
+    transition: opacity .18s ease, transform .2s ease, visibility .18s step-end;
+  }
+
+  .spk-responsive-header.spk-nav-open .spk-responsive-nav {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0) scale(1);
+    transition: opacity .18s ease, transform .2s ease, visibility 0s step-start;
+  }
+
+  body[data-page] .spk-responsive-header .spk-responsive-nav :is(.nav-link-app, .nav-link, .app-nav-link) {
+    display: grid !important;
+    grid-template-columns: 38px minmax(0, 1fr);
+    align-items: center;
+    justify-content: stretch !important;
+    gap: 10px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 44px !important;
+    padding: 6px 11px !important;
+    border: 1px solid transparent;
+    border-radius: 8px !important;
+    color: #34373c;
+    background: transparent;
+    box-shadow: none;
+    text-align: left;
+    white-space: normal;
+  }
+
+  body[data-page] .spk-responsive-header .spk-responsive-nav :is(.nav-link-app, .nav-link, .app-nav-link) > i {
+    display: grid;
+    width: 38px;
+    height: 32px;
+    place-items: center;
+    border-radius: 7px;
+    color: #f8f8f8;
+    background: linear-gradient(180deg, #41444a, #202226);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
+  }
+
+  body[data-page] .spk-responsive-header .spk-responsive-nav :is(.nav-link-app, .nav-link, .app-nav-link) > span {
+    display: block !important;
+    overflow: hidden;
+    color: inherit;
+    font-size: .75rem;
+    font-weight: 800;
+    text-overflow: ellipsis;
+  }
+
+  body[data-page] .spk-responsive-header .spk-responsive-nav :is(.nav-link-app, .nav-link, .app-nav-link):hover,
+  body[data-page] .spk-responsive-header .spk-responsive-nav :is(.nav-link-app, .nav-link, .app-nav-link):focus-visible {
+    border-color: #b7b9bb;
+    color: #17191c;
+    background: rgba(255,255,255,.62);
+    outline: none;
+  }
+
+  body[data-page] .spk-responsive-header .spk-responsive-nav :is(.nav-link-app, .nav-link, .app-nav-link).active {
+    border-color: #bb2630;
+    color: #fff;
+    background: linear-gradient(180deg, #d32d38, #9d1720);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 3px 7px rgba(112,12,20,.25);
+  }
+
+  body[data-page] .spk-responsive-header .spk-responsive-nav :is(.nav-link-app, .nav-link, .app-nav-link).active > i {
+    color: #9f1720;
+    background: #fff;
+  }
+}
+
+@media screen and (max-width: 420px) {
+  .spk-mobile-nav-toggle {
+    min-width: 44px;
+    width: 44px;
+    padding: 0;
+  }
+
+  .spk-menu-label { display: none; }
+}

@@ -691,6 +691,7 @@
       var count = el("span", "dept__count", n + " tautan");
       if (d.image) {
         var visual = el("span", "dept__visual");
+        var media = el("span", "dept__media");
         var image = el("img", "dept__image");
         image.src = managedImage(d.image);
         image.alt = "";
@@ -702,7 +703,8 @@
           a.insertBefore(count, visual);
           visual.classList.add("is-empty");
         });
-        visual.appendChild(image);
+        media.appendChild(image);
+        visual.appendChild(media);
         visual.appendChild(count);
         a.appendChild(visual);
       } else a.appendChild(count);
@@ -829,19 +831,70 @@
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     if (window.matchMedia("(hover: none)").matches) return;
 
+    var activeCard = null;
+    var pointerEvent = null;
+    var frameId = 0;
+
+    function resetCard(card) {
+      if (!card) return;
+      card.style.transform = "";
+      card.classList.remove("is-interacting");
+      var visual = card.querySelector(".dept__visual");
+      if (!visual) return;
+      visual.style.setProperty("--dept-image-x", "0px");
+      visual.style.setProperty("--dept-image-y", "0px");
+      visual.style.setProperty("--dept-tilt-x", "0deg");
+      visual.style.setProperty("--dept-tilt-y", "0deg");
+      visual.style.setProperty("--dept-light-x", "50%");
+      visual.style.setProperty("--dept-light-y", "36%");
+    }
+
+    function paintTilt() {
+      frameId = 0;
+      if (!activeCard || !pointerEvent || !document.documentElement.contains(activeCard)) return;
+      var r = activeCard.getBoundingClientRect();
+      var px = Math.max(-.5, Math.min(.5, (pointerEvent.clientX - r.left) / r.width - .5));
+      var py = Math.max(-.5, Math.min(.5, (pointerEvent.clientY - r.top) / r.height - .5));
+      var isDepartment = activeCard.classList.contains("dept");
+
+      activeCard.style.transform =
+        "translateY(-4px) perspective(760px) rotateX(" + (-py * (isDepartment ? 5 : 4)).toFixed(2) +
+        "deg) rotateY(" + (px * (isDepartment ? 6 : 5)).toFixed(2) + "deg)";
+
+      if (isDepartment) {
+        var visual = activeCard.querySelector(".dept__visual");
+        activeCard.classList.add("is-interacting");
+        if (visual) {
+          visual.style.setProperty("--dept-image-x", (-px * 13).toFixed(2) + "px");
+          visual.style.setProperty("--dept-image-y", (-py * 9).toFixed(2) + "px");
+          visual.style.setProperty("--dept-tilt-x", (-py * 3).toFixed(2) + "deg");
+          visual.style.setProperty("--dept-tilt-y", (px * 4).toFixed(2) + "deg");
+          visual.style.setProperty("--dept-light-x", ((px + .5) * 100).toFixed(1) + "%");
+          visual.style.setProperty("--dept-light-y", ((py + .5) * 100).toFixed(1) + "%");
+        }
+      }
+    }
+
     document.addEventListener("pointermove", function (e) {
       var card = e.target.closest ? e.target.closest(".tile, .dept") : null;
-      if (!card) return;
-      var r = card.getBoundingClientRect();
-      var px = (e.clientX - r.left) / r.width - .5;
-      var py = (e.clientY - r.top) / r.height - .5;
-      card.style.transform =
-        "translateY(-4px) perspective(700px) rotateX(" + (-py * 4).toFixed(2) +
-        "deg) rotateY(" + (px * 5).toFixed(2) + "deg)";
+      if (!card) {
+        resetCard(activeCard);
+        activeCard = null;
+        return;
+      }
+      if (activeCard && activeCard !== card) resetCard(activeCard);
+      activeCard = card;
+      pointerEvent = e;
+      if (!frameId) frameId = requestAnimationFrame(paintTilt);
     });
     document.addEventListener("pointerout", function (e) {
-      var card = e.target.closest ? e.target.closest(".tile, .dept") : null;
-      if (card) card.style.transform = "";
+      if (!activeCard || (e.relatedTarget && activeCard.contains(e.relatedTarget))) return;
+      resetCard(activeCard);
+      activeCard = null;
+    });
+    window.addEventListener("blur", function () {
+      resetCard(activeCard);
+      activeCard = null;
     });
   }
 

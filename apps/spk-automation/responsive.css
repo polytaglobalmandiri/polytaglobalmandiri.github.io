@@ -1732,14 +1732,39 @@ body[data-page="keluar-bahan"] .table-wrap td {
 }
 
 body[data-page="keluar-bahan"] .table-wrap .editor {
-  grid-template-columns: 74px 78px;
-  min-width: 157px;
+  grid-template-columns: 74px 86px;
+  min-width: 165px;
   gap: 5px;
 }
 
 body[data-page="keluar-bahan"] .table-wrap .js-keluar-bahan {
   width: 74px;
   min-width: 0;
+}
+
+body[data-page="keluar-bahan"] :is(.filter-select, .editor-select, .eta-uom-select, .eta-modal-select) {
+  color: #292b2f !important;
+  background-color: #fdfdfb !important;
+  -webkit-text-fill-color: #292b2f;
+  color-scheme: light;
+}
+
+body[data-page="keluar-bahan"] :is(.filter-select, .editor-select, .eta-uom-select, .eta-modal-select) option {
+  color: #202327;
+  background: #fff;
+  -webkit-text-fill-color: #202327;
+}
+
+body[data-page="keluar-bahan"] :is(.filter-select, .editor-select, .eta-uom-select, .eta-modal-select):disabled {
+  color: #777b80 !important;
+  background-color: #d9dad7 !important;
+  -webkit-text-fill-color: #777b80;
+}
+
+body[data-page="keluar-bahan"] .table-wrap .editor-select {
+  width: 86px;
+  padding-left: 8px !important;
+  padding-right: 22px !important;
 }
 
 body[data-page="keluar-bahan"] .table-wrap .status-badge {

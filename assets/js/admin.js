@@ -23,6 +23,12 @@
   /* ---------------------------------------------------------- Utilitas */
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var adminScriptUrl = document.currentScript && document.currentScript.src;
+  var SITE_ROOT_URL = new URL("../../", adminScriptUrl || location.href);
+
+  function siteUrl(path) {
+    return new URL(String(path || "").replace(/^\.\//, ""), SITE_ROOT_URL).href;
+  }
 
   function el(tag, cls, html) {
     var n = document.createElement(tag);
@@ -153,7 +159,7 @@
     "/* =====================================================================",
     "   POLYTA GLOBAL MANDIRI — Portal Akses Internal",
     "   ---------------------------------------------------------------------",
-    "   BERKAS INI DIHASILKAN OLEH PANEL ADMINISTRATOR (/admin/).",
+    "   BERKAS INI DIHASILKAN OLEH PANEL ADMINISTRATOR (/pages/admin/).",
     "   Boleh disunting tangan, dan panel akan tetap membacanya dengan benar.",
     "",
     "   Setiap item memiliki dua penanda yang berbeda maksudnya:",
@@ -267,8 +273,8 @@
             });
           }
           seen[nm] = true;
-          if (it.url && !/^(https?:\/\/|#|\.\/|\.\.\/)/i.test(it.url)) {
-            list.push({ page: id, msg: "URL “" + nm + "” tidak diawali https:// — periksa kembali." });
+          if (it.url && !/^(https?:\/\/|#|\/|\.\/|\.\.\/)/i.test(it.url)) {
+            list.push({ page: id, msg: "URL “" + nm + "” harus diawali https:// atau / untuk halaman internal." });
           }
         });
       });
@@ -431,10 +437,10 @@
     var inner = el("div", "wrap topbar__in adm-bar__in");
 
     var brand = el("a", "brand adm-brand");
-    brand.href = "../";
+    brand.href = siteUrl("");
     brand.setAttribute("aria-label", "Kembali ke portal POLYTA GLOBAL MANDIRI");
     brand.innerHTML =
-      '<span class="brand__plate"><img src="../assets/img/logo-polyta.png" alt="" width="438" height="438"></span>' +
+      '<span class="brand__plate"><img src="' + siteUrl("assets/img/logo-polyta.png") + '" alt="" width="438" height="438"></span>' +
       '<span class="brand__txt">' +
         '<span class="brand__name">' + esc((state.data && state.data.name) || "POLYTA GLOBAL MANDIRI") + "</span>" +
         '<span class="brand__sub">Portal Administrator</span>' +
@@ -450,7 +456,7 @@
 
     var tools = el("div", "adm-bar__tools");
     tools.appendChild(buildThemeSwitch());
-    tools.appendChild(mkBtn("Lihat situs", "btn btn--ghost", function () { location.href = "../"; }));
+    tools.appendChild(mkBtn("Lihat situs", "btn btn--ghost", function () { location.href = siteUrl(""); }));
 
     inner.appendChild(tools);
     bar.appendChild(inner);
@@ -661,9 +667,10 @@
 
   function departmentPreviewUrl(value) {
     var url = String(value || "").trim();
-    if (!url) return "../assets/img/departments/marketing.webp";
-    if (/^(?:https?:|data:|blob:|\/)/i.test(url)) return url;
-    return "../" + url.replace(/^\.\//, "");
+    if (!url) return siteUrl("assets/img/departments/marketing.webp");
+    if (/^(?:https?:|data:|blob:)/i.test(url)) return url;
+    if (/^\//.test(url)) return new URL(url, location.origin).href;
+    return siteUrl(url);
   }
 
   /* -------------------------------------------------- Halaman departemen */
@@ -776,7 +783,10 @@
     var g = el("div", "item__grid");
     g.appendChild(fieldText("Nama tautan", it.label, function (v) { it.label = v; touch(); }));
     g.appendChild(fieldText("URL", it.url || "", function (v) { it.url = v.trim(); touch(); },
-      it.url ? "" : "Kosong berarti tampil sebagai “URL belum diatur”.", "https://…"));
+      it.url
+        ? "Gunakan https:// untuk layanan luar atau / untuk halaman internal portal."
+        : "Kosong berarti tampil sebagai “URL belum diatur”.",
+      "https://… atau /apps/…"));
     g.appendChild(fieldSelect("Tersimpan di", TYPES, it.type || "folder", function (v) {
       it.type = v; paintPick(); paintItemTheme(); touch();
     }));
@@ -920,17 +930,22 @@
   }
 
   function guessRepo() {
-    try {
-      var saved = localStorage.getItem(REPO_KEY);
-      if (saved) return saved;
-    } catch (e) {}
-    var h = location.hostname;
+    var h = location.hostname.toLowerCase();
+    var inferred = "";
+    var legacyWrongRepo = "";
     if (/\.github\.io$/.test(h)) {
       var owner = h.replace(/\.github\.io$/, "");
-      var project = location.pathname.split("/").filter(Boolean)[0];
-      return owner + "/" + (project || h);
+      var rootParts = SITE_ROOT_URL.pathname.split("/").filter(Boolean);
+      inferred = owner + "/" + (rootParts[0] || h);
+      legacyWrongRepo = owner + "/pages";
     }
-    return "";
+
+    try {
+      var saved = localStorage.getItem(REPO_KEY);
+      if (saved && saved.toLowerCase() !== legacyWrongRepo) return saved;
+      if (saved && inferred) localStorage.setItem(REPO_KEY, inferred);
+    } catch (e) {}
+    return inferred;
   }
 
   function getToken() {

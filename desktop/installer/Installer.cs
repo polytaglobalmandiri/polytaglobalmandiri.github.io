@@ -25,7 +25,7 @@ internal static class Installer
     private const string Publisher = "POLYTA GLOBAL MANDIRI";
 #if ADMIN
     private const string AppName = "POLYTA GLOBAL MANDIRI Administrator";
-    private const string PortalUrl = "https://polytaglobalmandiri.github.io/admin/";
+    private const string PortalUrl = "https://polytaglobalmandiri.github.io/pages/admin/";
     private const string UninstallKeyName = @"Software\Microsoft\Windows\CurrentVersion\Uninstall\PolytaGlobalMandiriAdministrator";
     private const string InstallFolderName = "Polyta Global Mandiri Admin";
     private const string InstalledExecutableName = "Polyta Administrator.exe";

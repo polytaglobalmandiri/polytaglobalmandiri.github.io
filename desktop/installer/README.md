@@ -12,7 +12,7 @@ Keduanya dibuka seperti aplikasi melalui Microsoft Edge; jika Edge tidak tersedi
 Jalankan dari PowerShell pada root repositori:
 
 ```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\installer\build-installer.ps1
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\desktop\installer\build-installer.ps1
 ```
 
 Hasil build berada di `release\Polyta-Portal-Setup.exe` dan `release\Polyta-Admin-Setup.exe`.
@@ -24,6 +24,7 @@ Hasil build berada di `release\Polyta-Portal-Setup.exe` dan `release\Polyta-Admi
 - Terdaftar pada **Settings > Apps > Installed apps** agar mudah dihapus.
 - Hanya terdiri dari satu berkas `.exe`; penerima tidak memerlukan PowerShell atau alat build tambahan.
 - Memerlukan koneksi Internet karena aplikasi membuka portal GitHub Pages yang selalu menggunakan versi terbaru.
+- Panel administrator menggunakan alamat `https://polytaglobalmandiri.github.io/pages/admin/`.
 
 ## Catatan keamanan
 

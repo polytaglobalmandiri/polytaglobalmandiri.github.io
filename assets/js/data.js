@@ -1,7 +1,7 @@
 /* =====================================================================
    POLYTA GLOBAL MANDIRI — Portal Akses Internal
    ---------------------------------------------------------------------
-   BERKAS INI DIHASILKAN OLEH PANEL ADMINISTRATOR (/admin/).
+   BERKAS INI DIHASILKAN OLEH PANEL ADMINISTRATOR (/pages/admin/).
    Boleh disunting tangan, dan panel akan tetap membacanya dengan benar.
 
    Setiap item memiliki dua penanda yang berbeda maksudnya:

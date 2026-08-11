@@ -109,7 +109,7 @@ Lalu buka <http://localhost:5500>.
 
 ## Panel Administrator
 
-Buka `/admin/` pada alamat situs, misalnya <http://localhost:5500/admin/> ketika
+Buka `/pages/admin/` pada alamat situs, misalnya <http://localhost:5500/pages/admin/> ketika
 menjalankan portal secara lokal. Panel ini dapat digunakan untuk:
 
 - menambah, menghapus, menggandakan, dan mengurutkan tautan;

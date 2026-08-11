@@ -1830,3 +1830,49 @@ body.spk-modal-scroll-lock {
   overflow: hidden !important;
   overscroll-behavior: none;
 }
+
+/* Pemilih BS routing menggantikan kolom BS tetap yang dipakai SPK lama. */
+#spkInputRoot .legacy-bs-control {
+  display: none !important;
+}
+
+#spkInputRoot .routing-bs-control {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid rgba(153, 27, 27, .14);
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, .72), rgba(248, 246, 242, .9));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9);
+}
+
+#spkInputRoot .routing-bs-control-copy {
+  margin-bottom: 12px;
+}
+
+#spkInputRoot .routing-bs-control-copy .field-hint {
+  margin: 4px 0 0;
+}
+
+#spkInputRoot .routing-bs-fields {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+#spkInputRoot .routing-bs-value:not([hidden]) {
+  animation: routing-bs-reveal .24s ease-out both;
+}
+
+@keyframes routing-bs-reveal {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media screen and (max-width: 700px) {
+  #spkInputRoot .routing-bs-control {
+    padding: 14px;
+  }
+
+  #spkInputRoot .routing-bs-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

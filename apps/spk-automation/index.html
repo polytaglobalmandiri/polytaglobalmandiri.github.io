@@ -9170,7 +9170,7 @@
     }
     @media print { .polyta-portal-home { display: none !important; } }
   </style>
-    <link rel="stylesheet" href="responsive.css?v=20260812-9">
+    <link rel="stylesheet" href="responsive.css?v=20260812-13">
 </head>
 <body
     class="tw:min-h-screen tw:text-polyta-ink selection:tw:bg-polyta-brand-soft selection:tw:text-polyta-brand"
@@ -13608,14 +13608,15 @@
     // mesin perhitungan dimensi, sehingga tetap dibagi bersama antar langkah.
     const ROUTE_STEP_FIELDS = {
       mixer: ['mesin-mixer', 'ket-mixer'],
-      blowing: ['mesin-blowing', 'blowingThreat', 'blowingModeCetak', 'bs-blowing', 'ket-blowing'],
-      printing: ['mesin-printing', 'printingKodeSilinder', 'bs-printing', 'ket-printing'],
-      folding: ['mesin-folding', 'ukuranFolding', 'bs-folding', 'bs-sheet', 'ket-folding'],
-      slitting: ['mesin-slitting', 'ukuranSlitting', 'bs-slitting', 'bs-sheet', 'ket-slitting'],
-      gusset: ['mesin-gusset', 'ukuranGusset', 'lebarGusset', 'bs-gusset', 'bs-sheet', 'ket-gusset'],
+      blowing: ['mesin-blowing', 'blowingThreat', 'blowingModeCetak', 'bsJenis-blowing', 'bsNilai-blowing', 'bs-blowing', 'ket-blowing'],
+      printing: ['mesin-printing', 'printingKodeSilinder', 'bsJenis-printing', 'bsNilai-printing', 'bs-printing', 'ket-printing'],
+      folding: ['mesin-folding', 'ukuranFolding', 'bsJenis-folding', 'bsNilai-folding', 'bs-folding', 'bs-sheet', 'ket-folding'],
+      slitting: ['mesin-slitting', 'ukuranSlitting', 'bsJenis-slitting', 'bsNilai-slitting', 'bs-slitting', 'bs-sheet', 'ket-slitting'],
+      gusset: ['mesin-gusset', 'ukuranGusset', 'lebarGusset', 'bsJenis-gusset', 'bsNilai-gusset', 'bs-gusset', 'bs-sheet', 'ket-gusset'],
       cutting: [
         'mesin-cutting', 'finishing', 'handlePm',
         'jenisPacking', 'packing', 'packingOuterBall', 'packingRollNilai', 'packingRollUom',
+        'bsJenis-cutting', 'bsNilai-cutting',
         'bs-bottomSeal', 'bs-sideSeal', 'bs-tshirt',
         'bs-pon', 'bs-handle', 'bs-sheetSlitting',
         'ket-bottomSeal', 'ket-sideSeal', 'ket-tshirt'
@@ -16078,6 +16079,7 @@
       }
 
       if (key === 'cutting') updatePackingDetailVisibility_();
+      if (key !== 'mixer') syncRoutingBsInput_(key, { preserveValue: true });
     }
 
     // Ukuran dianggap masih otomatis bila isinya sama persis dengan nilai yang
@@ -16115,6 +16117,29 @@
       return keys;
     }
 
+    function getStepBsEntries_(step) {
+      const routeKey = step ? String(step.key || '') : '';
+      if (!routeKey || routeKey === 'mixer') return [];
+
+      const selectedKey = String(stepValue_(step, 'bsJenis-' + routeKey) || '').trim();
+      const selectedExists = BS_LIST.some(function(item) { return item.key === selectedKey; });
+      if (selectedExists) {
+        return [{
+          key: selectedKey,
+          value: parseFloat(stepValue_(step, 'bsNilai-' + routeKey)) || 0
+        }];
+      }
+
+      // Data yang dibuat sebelum pemilih BS tersedia masih memakai kolom
+      // tetap per proses. Nilai itu tetap dibaca agar SPK lama tidak berubah.
+      return stepBsKeys_(step).map(function(bsKey) {
+        return {
+          key: bsKey,
+          value: parseFloat(stepValue_(step, 'bs-' + bsKey)) || 0
+        };
+      });
+    }
+
     // Langkah yang sedang diedit dibaca langsung dari panel supaya Total BS dan
     // Keluar Bahan ikut bergerak sebelum tombol simpan ditekan. Langkah baru
     // yang belum disimpan sengaja tidak dihitung.
@@ -16143,9 +16168,9 @@
       const totals = {};
       BS_LIST.forEach(function(item) { totals[item.key] = 0; });
       getEffectiveRoutingSteps_().forEach(function(step) {
-        stepBsKeys_(step).forEach(function(bsKey) {
-          if (!Object.prototype.hasOwnProperty.call(totals, bsKey)) return;
-          totals[bsKey] += parseFloat(stepValue_(step, 'bs-' + bsKey)) || 0;
+        getStepBsEntries_(step).forEach(function(entry) {
+          if (!Object.prototype.hasOwnProperty.call(totals, entry.key)) return;
+          totals[entry.key] += entry.value;
         });
       });
       return totals;
@@ -16207,6 +16232,7 @@
             values[fieldId] = String(value === null || value === undefined ? '' : value);
           });
 
+          migrateLegacyRoutingBsValues_(key, values);
           routingStepIdCounter += 1;
           routingSteps.push(markAutomatic({
             id: routingStepIdCounter, key: key, values: values
@@ -16227,6 +16253,7 @@
             else sheetBsTaken = true;
           }
 
+          migrateLegacyRoutingBsValues_(item.key, values);
           routingStepIdCounter += 1;
           routingSteps.push(markAutomatic({
             id: routingStepIdCounter, key: item.key, values: values
@@ -16256,6 +16283,8 @@
       const grid = document.getElementById('prosesGrid');
       if (!grid) return;
 
+      renderRoutingBsControls_();
+
       grid.innerHTML = ROUTING_LIST.map(function(item) {
         return `<input type="checkbox" id="proses-${item.key}" tabindex="-1" aria-hidden="true">`;
       }).join('');
@@ -16277,6 +16306,97 @@
       syncRoutingTabs_();
       updateTotalProses_();
       syncRoutingEmpty_();
+    }
+
+    // Seluruh pilihan BS berasal dari daftar kolom yang sama dengan payload
+    // basis data. Dengan begitu penambahan atau perubahan nama kolom cukup
+    // dilakukan pada BS_LIST dan otomatis berlaku di setiap routing.
+    function renderRoutingBsControls_() {
+      ROUTING_LIST.forEach(function(item) {
+        if (item.key === 'mixer') return;
+
+        const panel = document.getElementById('route-' + item.key);
+        if (!panel || document.getElementById('bsJenis-' + item.key)) return;
+
+        const block = document.createElement('div');
+        block.className = 'routing-bs-control';
+        block.dataset.routingBs = item.key;
+        block.innerHTML = `
+          <div class="routing-bs-control-copy">
+            <label class="field-label" for="bsJenis-${item.key}">Kolom BS</label>
+            <p class="field-hint">Pilih kolom BS untuk menampilkan nilai yang akan disimpan.</p>
+          </div>
+          <div class="form-grid route-fields route-fields--bs routing-bs-fields">
+            <div class="form-cell">
+              <label class="field-label" for="bsJenis-${item.key}">Jenis BS</label>
+              <select id="bsJenis-${item.key}" class="field-input" onchange="syncRoutingBsInput_('${item.key}')">
+                <option value="">Pilih kolom BS</option>
+                ${BS_LIST.map(function(bs) {
+                  return `<option value="${bs.key}">${bs.label}</option>`;
+                }).join('')}
+              </select>
+            </div>
+            <div class="form-cell routing-bs-value" id="bsInputCell-${item.key}" hidden>
+              <label class="field-label" id="bsNilaiLabel-${item.key}" for="bsNilai-${item.key}">Nilai BS (%)</label>
+              <input type="number" step="any" min="0" max="100" id="bsNilai-${item.key}" class="field-input" inputmode="decimal" oninput="this.classList.remove('wizard-invalid'); hitungTotalBs()">
+            </div>
+          </div>`;
+
+        const target = item.key === 'cutting'
+          ? document.getElementById('finishingNoteArea')
+          : panel.querySelector('.route-note');
+        const host = item.key === 'cutting' ? document.getElementById('cuttingDetail') : panel;
+        if (host) host.insertBefore(block, target || null);
+
+        panel.querySelectorAll('[id^="bs-"]').forEach(function(input) {
+          const cell = input.closest('.form-cell');
+          if (cell) cell.classList.add('legacy-bs-control');
+        });
+        const extra = panel.querySelector('.routing-extra');
+        if (extra) extra.classList.add('legacy-bs-control');
+      });
+
+      const sheetArea = document.getElementById('bsSheetArea');
+      if (sheetArea) sheetArea.classList.add('legacy-bs-control');
+    }
+
+    function syncRoutingBsInput_(routeKey, options) {
+      const select = document.getElementById('bsJenis-' + routeKey);
+      const input = document.getElementById('bsNilai-' + routeKey);
+      const cell = document.getElementById('bsInputCell-' + routeKey);
+      const label = document.getElementById('bsNilaiLabel-' + routeKey);
+      if (!select || !input || !cell) return;
+
+      const item = BS_LIST.find(function(bs) { return bs.key === select.value; }) || null;
+      cell.hidden = !item;
+      if (label) {
+        label.textContent = window.SpkI18n && typeof window.SpkI18n.t === 'function'
+          ? window.SpkI18n.t('Nilai BS (%)')
+          : 'Nilai BS (%)';
+      }
+      if (!item && !(options && options.preserveValue)) input.value = '';
+      input.classList.remove('wizard-invalid');
+      hitungTotalBs();
+    }
+
+    function migrateLegacyRoutingBsValues_(routeKey, values) {
+      if (routeKey === 'mixer' || !values) return;
+      const typeId = 'bsJenis-' + routeKey;
+      const valueId = 'bsNilai-' + routeKey;
+      if (String(values[typeId] || '').trim() !== '') return;
+
+      const legacyStep = { key: routeKey, values: values };
+      const entries = stepBsKeys_(legacyStep).map(function(bsKey) {
+        return { key: bsKey, value: parseFloat(stepValue_(legacyStep, 'bs-' + bsKey)) || 0 };
+      }).filter(function(entry) { return entry.value > 0; });
+
+      // Satu nilai lama dapat dipindahkan tanpa kehilangan informasi. Bila
+      // data lama memiliki beberapa BS dalam satu langkah, seluruh nilai lama
+      // tetap dipertahankan melalui jalur kompatibilitas agregasi.
+      if (entries.length === 1) {
+        values[typeId] = entries[0].key;
+        values[valueId] = String(entries[0].value);
+      }
     }
 
     function routingItemByKey_(key) {
@@ -16349,6 +16469,21 @@
       const key = activeRoutingKey;
       const item = routingItemByKey_(key);
       if (!item) return;
+
+      if (key !== 'mixer') {
+        const typeField = document.getElementById('bsJenis-' + key);
+        const valueField = document.getElementById('bsNilai-' + key);
+        if (typeField && typeField.value && valueField) {
+          const raw = String(valueField.value || '').trim();
+          const value = parseFloat(raw);
+          if (raw === '' || !Number.isFinite(value) || value < 0 || value > 100) {
+            valueField.classList.add('wizard-invalid');
+            valueField.focus();
+            showRoutingFeedback_('Isi nilai BS antara 0 sampai 100 persen.', 'error');
+            return;
+          }
+        }
+      }
 
       const values = captureRouteStepValues_(key);
       const auto = isActiveRouteSizeAutomatic_(key);
@@ -16562,6 +16697,20 @@
       return value === null ? '—' : formatCalculationNumber_(value, 2) + '%';
     }
 
+    function getStepBsSummary_(step) {
+      const parts = getStepBsEntries_(step).map(function(entry) {
+        if (!entry.value) return '';
+        const item = BS_LIST.find(function(bsItem) { return bsItem.key === entry.key; });
+        const label = item ? item.label : entry.key;
+        const translatedLabel = window.SpkI18n && typeof window.SpkI18n.t === 'function'
+          ? window.SpkI18n.t(label)
+          : label;
+        return 'BS ' + translatedLabel + ' ' +
+          formatCalculationNumber_(entry.value, 2) + '%';
+      }).filter(Boolean);
+      return parts.length ? parts.join(' / ') : '';
+    }
+
     function getStepPackingDetail_(step) {
       const packing = String(stepValue_(step, 'packing') || '').toUpperCase();
       if (packing === 'BAG') {
@@ -16623,21 +16772,20 @@
         // antar SPK. Nilainya berasal dari Data Utama, bukan panel routing.
         items.push({ label: 'Keterangan Warna', value: routeFieldText_('keteranganWarna', '-') });
         if (stepFieldText_(step, 'blowingModeCetak') === 'INLINE') add('Warna', getWarnaSummaryText_());
-        add('Target BS', stepBsText_(step, 'blowing'));
+        add('Target BS', getStepBsSummary_(step));
       }
       if (key === 'printing') {
         add('Mesin', stepFieldText_(step, 'mesin-printing'));
         add('Kode Silinder', stepFieldText_(step, 'printingKodeSilinder'));
         items.push({ label: 'Keterangan Warna', value: routeFieldText_('keteranganWarna', '-') });
         add('Warna', getWarnaSummaryText_());
-        add('Target BS', stepBsText_(step, 'printing'));
+        add('Target BS', getStepBsSummary_(step));
       }
       if (BS_SHEET_ROUTING_KEYS.indexOf(key) > -1) {
         add('Mesin', stepFieldText_(step, 'mesin-' + key));
         add('Ukuran', stepFieldText_(step, AUTOMATIC_ROUTE_SIZE_FIELDS[key]));
         if (key === 'gusset') add('Lebar Lipatan', stepFieldText_(step, 'lebarGusset'));
-        add('Target BS', stepBsText_(step, key));
-        add('BS Lembaran', stepBsText_(step, 'sheet'));
+        add('Target BS', getStepBsSummary_(step));
       }
       if (key === 'mixer') add('Mesin', stepFieldText_(step, 'mesin-mixer'));
       if (key === 'cutting') {
@@ -16647,7 +16795,7 @@
         add('Jenis Pengepakan', stepFieldText_(step, 'jenisPacking'));
         add('Pengepakan', stepFieldText_(step, 'packing'));
         add('Rincian Pengepakan', getStepPackingDetail_(step));
-        add('Target BS', getStepCuttingBsSummary_(step));
+        add('Target BS', getStepBsSummary_(step));
       }
 
       let noteId = 'ket-' + key;
@@ -16748,18 +16896,7 @@
     function syncBsSheetVisibility_() {
       const area = document.getElementById('bsSheetArea');
       if (!area) return;
-
-      const host = BS_SHEET_ROUTING_KEYS.indexOf(activeRoutingKey) > -1
-        ? document.getElementById('bsSheetHost-' + activeRoutingKey)
-        : null;
-
-      if (!host) {
-        area.hidden = true;
-        return;
-      }
-
-      if (area.parentElement !== host) host.appendChild(area);
-      area.hidden = false;
+      area.hidden = true;
     }
 
     function setFinishingChoice_(value) {
@@ -16811,7 +16948,7 @@
       };
       Object.keys(bsCells).forEach(function(key) {
         const cell = document.getElementById(bsCells[key]);
-        if (cell) cell.hidden = key !== noteKey;
+        if (cell) cell.hidden = true;
       });
 
       const noteArea = document.getElementById('finishingNoteArea');
@@ -18006,6 +18143,6 @@
     </script>
     <script src="modal-scroll-lock.js?v=20260812-1"></script>
     <script src="responsive-header.js?v=20260812-3"></script>
-    <script src="i18n.js?v=20260812-3"></script>
+    <script src="i18n.js?v=20260812-5"></script>
 </body>
 </html>

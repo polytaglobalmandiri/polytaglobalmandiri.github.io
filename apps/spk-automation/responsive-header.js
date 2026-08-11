@@ -12,7 +12,10 @@
     if (!header || !inner) return;
 
     var links = nav.querySelectorAll("a, button");
-    if (links.length === 1 && links[0].classList.contains("polyta-portal-home")) {
+    var containsOnlyPortalLinks = links.length > 0 && Array.prototype.every.call(links, function (link) {
+      return link.classList.contains("polyta-portal-home");
+    });
+    if (containsOnlyPortalLinks) {
       header.classList.add("spk-simple-header");
       nav.classList.add("spk-simple-nav");
       return;

@@ -116,6 +116,7 @@
     "Panduan penggunaan portal dan kontak pengelola.": "Portal usage guide and administrator contact.",
     "Dashboard PPIC": "PPIC Dashboard",
     "Penarikan data": "Data Retrieval",
+    "Serah Terima": "Handover",
     "Manajemen Bahan": "Material Management",
     "Folder - File Marketing": "Marketing Folders & Files",
     "Report Marketing": "Marketing Reports",

@@ -1565,7 +1565,8 @@ body[data-ui-engine="tailwind-alpine"] {
 
 body[data-page="dashboard"] .app-main,
 body[data-page="keluar-bahan"] .app-main,
-body[data-page="penarikan-data"] .app-main {
+body[data-page="penarikan-data"] .app-main,
+body[data-page="serah-terima"] .app-main {
   width: min(var(--polyta-content-width), calc(100% - 2.5rem)) !important;
   margin: 26px auto 38px !important;
   padding: 21px 22px 30px !important;
@@ -1573,7 +1574,8 @@ body[data-page="penarikan-data"] .app-main {
 
 body[data-page="dashboard"] .page-heading,
 body[data-page="keluar-bahan"] .page-heading,
-body[data-page="penarikan-data"] .page-heading {
+body[data-page="penarikan-data"] .page-heading,
+body[data-page="serah-terima"] .page-heading {
   align-items: center !important;
   gap: 16px !important;
   margin-bottom: 16px !important;
@@ -1581,13 +1583,15 @@ body[data-page="penarikan-data"] .page-heading {
 
 body[data-page="dashboard"] .heading-group,
 body[data-page="keluar-bahan"] .heading-group,
-body[data-page="penarikan-data"] .heading-group {
+body[data-page="penarikan-data"] .heading-group,
+body[data-page="serah-terima"] .heading-group {
   gap: 11px !important;
 }
 
 body[data-page="dashboard"] .heading-icon,
 body[data-page="keluar-bahan"] .heading-icon,
-body[data-page="penarikan-data"] .heading-icon {
+body[data-page="penarikan-data"] .heading-icon,
+body[data-page="serah-terima"] .heading-icon {
   width: 46px !important;
   height: 46px !important;
   flex-basis: 46px !important;
@@ -1597,7 +1601,8 @@ body[data-page="penarikan-data"] .heading-icon {
 
 body[data-page="dashboard"] .eyebrow,
 body[data-page="keluar-bahan"] .eyebrow,
-body[data-page="penarikan-data"] .eyebrow {
+body[data-page="penarikan-data"] .eyebrow,
+body[data-page="serah-terima"] .eyebrow {
   margin: 0 0 4px !important;
   font-size: var(--polyta-eyebrow-font-size) !important;
   font-weight: 900 !important;
@@ -1607,7 +1612,8 @@ body[data-page="penarikan-data"] .eyebrow {
 
 body[data-page="dashboard"] .page-heading h1,
 body[data-page="keluar-bahan"] .page-heading h1,
-body[data-page="penarikan-data"] .page-heading h1 {
+body[data-page="penarikan-data"] .page-heading h1,
+body[data-page="serah-terima"] .page-heading h1 {
   font-size: var(--polyta-page-title-font-size) !important;
   font-weight: 850 !important;
   line-height: 1.2 !important;
@@ -1616,7 +1622,8 @@ body[data-page="penarikan-data"] .page-heading h1 {
 
 body[data-page="dashboard"] .page-description,
 body[data-page="keluar-bahan"] .page-description,
-body[data-page="penarikan-data"] .page-description {
+body[data-page="penarikan-data"] .page-description,
+body[data-page="serah-terima"] .page-description {
   margin-top: 5px !important;
   font-size: var(--polyta-description-font-size) !important;
   font-weight: 500 !important;
@@ -1625,7 +1632,8 @@ body[data-page="penarikan-data"] .page-description {
 
 body[data-page="dashboard"] .panel-title,
 body[data-page="keluar-bahan"] .panel-title,
-body[data-page="penarikan-data"] .panel-title {
+body[data-page="penarikan-data"] .panel-title,
+body[data-page="serah-terima"] .panel-header h2 {
   font-size: var(--polyta-panel-title-font-size) !important;
   font-weight: 850 !important;
   line-height: 1.2 !important;
@@ -1633,14 +1641,16 @@ body[data-page="penarikan-data"] .panel-title {
 
 body[data-page="dashboard"] :is(.panel-caption, .kpi-meta),
 body[data-page="keluar-bahan"] :is(.panel-caption, .summary-label, .summary-note),
-body[data-page="penarikan-data"] .panel-caption {
+body[data-page="penarikan-data"] .panel-caption,
+body[data-page="serah-terima"] .panel-header p {
   font-size: var(--polyta-meta-font-size) !important;
   line-height: 1.4 !important;
 }
 
 body[data-page="dashboard"] .button,
 body[data-page="keluar-bahan"] .button,
-body[data-page="penarikan-data"] :is(.action-button, .source-status-filter-button) {
+body[data-page="penarikan-data"] :is(.action-button, .source-status-filter-button),
+body[data-page="serah-terima"] .button {
   min-height: var(--polyta-button-height) !important;
   height: var(--polyta-button-height) !important;
   padding: 0 var(--polyta-button-padding-x) !important;
@@ -1652,7 +1662,8 @@ body[data-page="penarikan-data"] :is(.action-button, .source-status-filter-butto
 }
 
 body[data-page="keluar-bahan"] .role-chip,
-body[data-page="penarikan-data"] .connection-chip {
+body[data-page="penarikan-data"] .connection-chip,
+body[data-page="serah-terima"] .status-chip {
   min-height: var(--polyta-button-height) !important;
   height: var(--polyta-button-height) !important;
   padding: 0 11px !important;
@@ -1663,7 +1674,8 @@ body[data-page="penarikan-data"] .connection-chip {
 
 body[data-page="dashboard"] :is(.form-control, .form-select),
 body[data-page="keluar-bahan"] :is(.search-input, .filter-select, .editor-input, .editor-select, .eta-date-input, .eta-qty-input, .eta-uom-select, .eta-modal-input, .eta-modal-select),
-body[data-page="penarikan-data"] .source-file-search {
+body[data-page="penarikan-data"] .source-file-search,
+body[data-page="serah-terima"] :is(.search-field input, .input-with-icon input) {
   min-height: var(--polyta-input-height) !important;
   height: var(--polyta-input-height) !important;
   border-radius: var(--polyta-control-radius) !important;
@@ -1684,7 +1696,8 @@ body[data-page="penarikan-data"] .source-file-action {
 @media screen and (max-width: 900px) {
   body[data-page="dashboard"] .app-main,
   body[data-page="keluar-bahan"] .app-main,
-  body[data-page="penarikan-data"] .app-main {
+  body[data-page="penarikan-data"] .app-main,
+  body[data-page="serah-terima"] .app-main {
     width: calc(100% - 28px) !important;
     margin: 18px auto 28px !important;
     padding: 17px 15px 25px !important;
@@ -1692,15 +1705,27 @@ body[data-page="penarikan-data"] .source-file-action {
 
   body[data-page="dashboard"] .page-heading,
   body[data-page="keluar-bahan"] .page-heading,
-  body[data-page="penarikan-data"] .page-heading {
+  body[data-page="penarikan-data"] .page-heading,
+  body[data-page="serah-terima"] .page-heading {
     align-items: flex-start !important;
+  }
+
+  body[data-page="serah-terima"] .heading-actions {
+    width: 100%;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  body[data-page="serah-terima"] .heading-actions :is(.status-chip, .button) {
+    justify-content: center;
   }
 }
 
 @media screen and (max-width: 640px) {
   body[data-page="dashboard"] .app-main,
   body[data-page="keluar-bahan"] .app-main,
-  body[data-page="penarikan-data"] .app-main {
+  body[data-page="penarikan-data"] .app-main,
+  body[data-page="serah-terima"] .app-main {
     width: calc(100% - 1.6rem) !important;
     margin: 14px auto 24px !important;
     padding: 14px 10px 22px !important;
@@ -1708,7 +1733,8 @@ body[data-page="penarikan-data"] .source-file-action {
 
   body[data-page="dashboard"] .heading-icon,
   body[data-page="keluar-bahan"] .heading-icon,
-  body[data-page="penarikan-data"] .heading-icon {
+  body[data-page="penarikan-data"] .heading-icon,
+  body[data-page="serah-terima"] .heading-icon {
     width: 42px !important;
     height: 42px !important;
     flex-basis: 42px !important;

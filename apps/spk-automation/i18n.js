@@ -1,8 +1,8 @@
 (function () {
   "use strict";
 
-  var STORAGE_KEY = "pgm:language";
-  var DEFAULT_LANGUAGE = "id";
+  var STORAGE_KEY = "pgm:language:v2";
+  var DEFAULT_LANGUAGE = "pgm";
   var SUPPORTED = ["id", "pgm", "en"];
   var LANGUAGE_OPTIONS = [
     { code: "id", label: "ID", title: "Bahasa Indonesia" },

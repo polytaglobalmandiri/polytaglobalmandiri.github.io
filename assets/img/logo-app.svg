@@ -40,7 +40,7 @@
   <path d="M42 365h428v11c0 52-42 94-94 94H136c-52 0-94-42-94-94z" fill="#ee2631"/>
   <path d="M69 84c44-38 108-42 175-42h132c52 0 94 42 94 94v14c-89-54-267-68-401-17z" fill="#fff" opacity=".7"/>
 
-  <g transform="translate(91 84) scale(2.75)">
+  <g transform="translate(67 67) scale(3.15)">
     <path d="M14 12h50v43h42v53h-8V63H64v45H14V55h42V20H14z" fill="url(#logoMetal)"/>
     <rect x="15" y="22" width="41" height="12" rx="6" fill="url(#logoBlue)"/>
     <rect x="22" y="63" width="34" height="37" fill="url(#logoRed)"/>

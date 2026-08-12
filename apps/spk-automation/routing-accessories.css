@@ -1,0 +1,191 @@
+#spkInputRoot .routing-accessory-control {
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid #c7cac9;
+  border-radius: 11px;
+  background: linear-gradient(180deg, #f4f5f2, #e9ebe8);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .92), 0 1px 3px rgba(31, 33, 36, .07);
+}
+
+#spkInputRoot .routing-accessory-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+#spkInputRoot .routing-accessory-head .field-hint {
+  margin: 3px 0 0;
+  color: #696e71;
+  font-size: .58rem;
+  line-height: 1.4;
+}
+
+#spkInputRoot .routing-accessory-head-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 7px;
+}
+
+#spkInputRoot .routing-accessory-count {
+  min-width: 42px;
+  padding: 5px 7px;
+  border: 1px solid #bdc1c0;
+  border-radius: 999px;
+  background: #fff;
+  color: #52575a;
+  font-size: .56rem;
+  font-weight: 900;
+  line-height: 1;
+  text-align: center;
+}
+
+#spkInputRoot .routing-accessory-add {
+  min-height: 30px;
+  padding: 0 11px;
+  border: 1px solid #303236;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #4b4e53, #25272b);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2), 0 2px 0 #151619;
+  color: #fff;
+  font-size: .59rem;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform .16s ease, box-shadow .16s ease, opacity .16s ease;
+}
+
+#spkInputRoot .routing-accessory-add:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2), 0 3px 0 #151619;
+}
+
+#spkInputRoot .routing-accessory-add:disabled {
+  opacity: .48;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+#spkInputRoot .routing-accessory-empty {
+  padding: 10px 12px;
+  border: 1px dashed #b9bdbc;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .52);
+  color: #707578;
+  font-size: .6rem;
+  font-weight: 650;
+  text-align: center;
+}
+
+#spkInputRoot .routing-accessory-empty[hidden] { display: none !important; }
+
+#spkInputRoot .routing-accessory-list {
+  display: grid;
+  gap: 8px;
+}
+
+#spkInputRoot .routing-accessory-row {
+  display: grid;
+  grid-template-columns: 34px minmax(180px, 1.4fr) minmax(100px, .55fr) minmax(100px, .55fr) 30px;
+  align-items: end;
+  gap: 9px;
+  padding: 9px;
+  border: 1px solid #d0d3d2;
+  border-radius: 9px;
+  background: #fafbf9;
+  animation: routing-accessory-reveal .2s ease-out both;
+}
+
+#spkInputRoot .routing-accessory-index {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 34px;
+  border: 1px solid #c3c6c5;
+  border-radius: 7px;
+  background: #e7e9e6;
+  color: #5e6366;
+  font-size: .56rem;
+  font-weight: 900;
+}
+
+#spkInputRoot .routing-accessory-field { min-width: 0; }
+
+#spkInputRoot .routing-accessory-row .field-label {
+  display: block;
+  margin-bottom: 5px !important;
+}
+
+#spkInputRoot .routing-accessory-remove {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  min-width: 30px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid #caa6a6;
+  border-radius: 7px;
+  background: #fff7f7;
+  color: #8b2222;
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease;
+}
+
+#spkInputRoot .routing-accessory-remove:hover {
+  background: #8b2222;
+  color: #fff;
+}
+
+@keyframes routing-accessory-reveal {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media screen and (max-width: 700px) {
+  #spkInputRoot .routing-accessory-control { padding: 10px; }
+
+  #spkInputRoot .routing-accessory-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  #spkInputRoot .routing-accessory-head-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  #spkInputRoot .routing-accessory-row {
+    grid-template-columns: 30px minmax(0, 1fr) 30px;
+    align-items: start;
+  }
+
+  #spkInputRoot .routing-accessory-index {
+    grid-column: 1;
+    grid-row: 1 / span 3;
+    align-self: stretch;
+    height: auto;
+    min-height: 34px;
+  }
+
+  #spkInputRoot .routing-accessory-field { grid-column: 2; }
+
+  #spkInputRoot .routing-accessory-remove {
+    grid-column: 3;
+    grid-row: 1 / span 3;
+    align-self: stretch;
+    height: auto;
+    min-height: 34px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #spkInputRoot .routing-accessory-row,
+  #spkInputRoot .routing-accessory-add {
+    animation: none !important;
+    transition: none !important;
+  }
+}

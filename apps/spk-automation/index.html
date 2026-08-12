@@ -9171,6 +9171,7 @@
     @media print { .polyta-portal-home { display: none !important; } }
   </style>
     <link rel="stylesheet" href="responsive.css?v=20260812-15">
+    <link rel="stylesheet" href="routing-accessories.css?v=20260812-1">
 </head>
 <body
     class="tw:min-h-screen tw:text-polyta-ink selection:tw:bg-polyta-brand-soft selection:tw:text-polyta-brand"
@@ -13608,17 +13609,17 @@
     // mesin perhitungan dimensi, sehingga tetap dibagi bersama antar langkah.
     const ROUTE_STEP_FIELDS = {
       mixer: ['mesin-mixer', 'ket-mixer'],
-      blowing: ['mesin-blowing', 'blowingThreat', 'blowingModeCetak', 'bsDaftar-blowing', 'bsJenis-blowing', 'bsNilai-blowing', 'bs-blowing', 'ket-blowing'],
-      printing: ['mesin-printing', 'printingKodeSilinder', 'bsDaftar-printing', 'bsJenis-printing', 'bsNilai-printing', 'bs-printing', 'ket-printing'],
-      folding: ['mesin-folding', 'ukuranFolding', 'bsDaftar-folding', 'bsJenis-folding', 'bsNilai-folding', 'bs-folding', 'bs-sheet', 'ket-folding'],
-      slitting: ['mesin-slitting', 'ukuranSlitting', 'bsDaftar-slitting', 'bsJenis-slitting', 'bsNilai-slitting', 'bs-slitting', 'bs-sheet', 'ket-slitting'],
-      gusset: ['mesin-gusset', 'ukuranGusset', 'lebarGusset', 'bsDaftar-gusset', 'bsJenis-gusset', 'bsNilai-gusset', 'bs-gusset', 'bs-sheet', 'ket-gusset'],
+      blowing: ['mesin-blowing', 'blowingThreat', 'blowingModeCetak', 'bsDaftar-blowing', 'bsJenis-blowing', 'bsNilai-blowing', 'bs-blowing', 'aksesorisData-blowing', 'ket-blowing'],
+      printing: ['mesin-printing', 'printingKodeSilinder', 'bsDaftar-printing', 'bsJenis-printing', 'bsNilai-printing', 'bs-printing', 'aksesorisData-printing', 'ket-printing'],
+      folding: ['mesin-folding', 'ukuranFolding', 'bsDaftar-folding', 'bsJenis-folding', 'bsNilai-folding', 'bs-folding', 'bs-sheet', 'aksesorisData-folding', 'ket-folding'],
+      slitting: ['mesin-slitting', 'ukuranSlitting', 'bsDaftar-slitting', 'bsJenis-slitting', 'bsNilai-slitting', 'bs-slitting', 'bs-sheet', 'aksesorisData-slitting', 'ket-slitting'],
+      gusset: ['mesin-gusset', 'ukuranGusset', 'lebarGusset', 'bsDaftar-gusset', 'bsJenis-gusset', 'bsNilai-gusset', 'bs-gusset', 'bs-sheet', 'aksesorisData-gusset', 'ket-gusset'],
       cutting: [
         'mesin-cutting', 'finishing', 'handlePm',
         'jenisPacking', 'packing', 'packingOuterBall', 'packingRollNilai', 'packingRollUom',
         'bsDaftar-cutting', 'bsJenis-cutting', 'bsNilai-cutting',
         'bs-bottomSeal', 'bs-sideSeal', 'bs-tshirt',
-        'bs-pon', 'bs-handle', 'bs-sheetSlitting',
+        'bs-pon', 'bs-handle', 'bs-sheetSlitting', 'aksesorisData-cutting',
         'ket-bottomSeal', 'ket-sideSeal', 'ket-tshirt'
       ]
     };
@@ -16080,6 +16081,7 @@
 
       if (key === 'cutting') updatePackingDetailVisibility_();
       if (key !== 'mixer') syncRoutingBsInput_(key, { preserveValue: true });
+      if (key !== 'mixer') syncRoutingAccessoryInput_(key);
     }
 
     // Ukuran dianggap masih otomatis bila isinya sama persis dengan nilai yang
@@ -16263,6 +16265,7 @@
       if (!grid) return;
 
       renderRoutingBsControls_();
+      renderRoutingAccessoryControls_();
 
       grid.innerHTML = ROUTING_LIST.map(function(item) {
         return `<input type="checkbox" id="proses-${item.key}" tabindex="-1" aria-hidden="true">`;
@@ -16359,6 +16362,7 @@
       if (!item) return;
 
       if (key !== 'mixer' && !validateRoutingBs_(key)) return;
+      if (key !== 'mixer' && !validateRoutingAccessories_(key)) return;
 
       const values = captureRouteStepValues_(key);
       const auto = isActiveRouteSizeAutomatic_(key);
@@ -16649,6 +16653,7 @@
         if (stepFieldText_(step, 'blowingModeCetak') === 'INLINE') add('Warna', getWarnaSummaryText_());
         add('Target BS', getStepBsSummary_(step));
       }
+      if (key !== 'mixer') add('Aksesoris', getStepAccessorySummary_(step));
       if (key === 'printing') {
         add('Mesin', stepFieldText_(step, 'mesin-printing'));
         add('Kode Silinder', stepFieldText_(step, 'printingKodeSilinder'));
@@ -17681,6 +17686,7 @@
 </script>
 
     <script src="routing-bs.js?v=20260812-1"></script>
+    <script src="routing-accessories.js?v=20260812-1"></script>
 
     <script>
         // Perekat antara modal Input SPK dan Dashboard.
@@ -18019,6 +18025,6 @@
     </script>
     <script src="modal-scroll-lock.js?v=20260812-1"></script>
     <script src="responsive-header.js?v=20260812-3"></script>
-    <script src="i18n.js?v=20260812-9"></script>
+    <script src="i18n.js?v=20260812-10"></script>
 </body>
 </html>

@@ -1148,6 +1148,63 @@
     ,"Tanggapan sinkronisasi tidak dikenali.": "The synchronization response was not recognized."
   });
 
+  Object.assign(EN, {
+    "Serah Terima": "Handover",
+    "Serah Terima SPK": "SPK Handover",
+    "Pilih SPK, lengkapi bukti penerimaan, lalu simpan dalam satu langkah.": "Select SPKs, complete the receipt evidence, then save in one step.",
+    "Bukti tersimpan": "Evidence stored",
+    "SPK tersedia": "Available SPKs",
+    "Sudah diserahkan": "Handed over",
+    "Total transaksi": "Total transactions",
+    "Menyiapkan daftar SPK dan riwayat serah terima.": "Preparing the SPK list and handover history.",
+    "Pilih SPK": "Select SPKs",
+    "Pilih beberapa SPK dalam satu kali serah terima.": "Select multiple SPKs in one handover.",
+    "Cari SPK": "Search SPKs",
+    "Cari SPK, pelanggan, atau artikel...": "Search SPK, customer, or item...",
+    "Tampilkan yang sudah diserahkan": "Show handed-over SPKs",
+    "Pilih Hasil": "Select Results",
+    "Batal Pilih": "Clear Selection",
+    "SPK terpilih": "Selected SPKs",
+    "Tidak ada SPK yang cocok.": "No matching SPKs.",
+    "Bukti Penerimaan": "Receipt Evidence",
+    "Nama, foto, dan tanda tangan wajib diisi.": "Name, photo, and signature are required.",
+    "Nama penerima": "Recipient name",
+    "Ketik nama penerima": "Enter recipient name",
+    "Foto bukti": "Evidence photo",
+    "Potret penerima dan SPK": "Photo of the recipient and SPKs",
+    "Ambil Foto": "Take Photo",
+    "atau pilih dari perangkat": "or choose from device",
+    "Pratinjau bukti serah terima": "Handover evidence preview",
+    "Hapus foto": "Remove photo",
+    "Tanda tangan digital": "Digital signature",
+    "Gunakan jari atau tetikus": "Use a finger or mouse",
+    "Bidang tanda tangan penerima": "Recipient signature area",
+    "Tanda tangan di sini": "Sign here",
+    "Bersihkan tanda tangan": "Clear signature",
+    "Contoh: diterima lengkap, diberikan kepada kepala regu...": "Example: received complete, delivered to the team leader...",
+    "Simpan Serah Terima": "Save Handover",
+    "Pilih SPK untuk melanjutkan": "Select SPKs to continue",
+    "Riwayat Terbaru": "Recent History",
+    "Transaksi terbaru ditampilkan untuk pemeriksaan cepat.": "Recent transactions are shown for quick verification.",
+    "Belum ada riwayat serah terima.": "No handover history yet.",
+    "Lihat foto bukti": "View evidence photo",
+    "Lihat tanda tangan": "View signature",
+    "Maksimal 50 SPK dalam satu transaksi.": "A maximum of 50 SPKs is allowed per transaction.",
+    "Gunakan foto berformat JPG, PNG, atau WEBP.": "Use a JPG, PNG, or WEBP photo.",
+    "Ukuran foto terlalu besar. Gunakan foto di bawah 12 MB.": "The photo is too large. Use a photo under 12 MB.",
+    "Foto belum dapat diproses. Silakan ambil foto ulang.": "The photo could not be processed. Please take it again.",
+    "Pilih setidaknya satu SPK yang akan diserahkan.": "Select at least one SPK to hand over.",
+    "Isi nama penerima dengan benar.": "Enter a valid recipient name.",
+    "Ambil foto bukti serah terima.": "Take a handover evidence photo.",
+    "Minta penerima membubuhkan tanda tangan digital.": "Ask the recipient to provide a digital signature.",
+    "Perangkat sedang tidak terhubung ke jaringan.": "The device is currently offline.",
+    "Menyimpan...": "Saving...",
+    "Data belum dapat disimpan.": "The data could not be saved.",
+    "Serah terima berhasil disimpan.": "Handover saved successfully.",
+    "Server belum merespons. Silakan coba kembali.": "The server has not responded. Please try again.",
+    "Koneksi terputus — data akan disimpan setelah jaringan kembali": "Connection lost — data can be saved after the network returns"
+  });
+
   var textState = new WeakMap();
   var attrState = new WeakMap();
   var originalTitle = document.title;
@@ -1167,6 +1224,10 @@
   function translatePattern(value) {
     var match;
     if ((match = value.match(/^(\d+)\s+data$/i))) return match[1] + " records";
+    if ((match = value.match(/^(\d+)\s+dipilih$/i))) return match[1] + " selected";
+    if ((match = value.match(/^(\d+)\s+SPK akan diserahterimakan$/i))) return match[1] + " SPKs will be handed over";
+    if ((match = value.match(/^(\d+)\s+SPK berhasil diserahterimakan\.$/i))) return match[1] + " SPKs were handed over successfully.";
+    if ((match = value.match(/^Menampilkan\s+(\d+)\s+hasil pertama\. Persempit pencarian untuk menemukan SPK lainnya\.$/i))) return "Showing the first " + match[1] + " results. Refine your search to find other SPKs.";
     if ((match = value.match(/^Halaman\s+(\d+)\s*\/\s*(\d+)$/i))) return "Page " + match[1] + " of " + match[2];
     if ((match = value.match(/^(\d+)\s+dari\s+(\d+)\s+ETA terisi$/i))) return match[1] + " of " + match[2] + " ETAs completed";
     if ((match = value.match(/^(\d+)\s+bahan$/i))) return match[1] + " materials";
@@ -1407,6 +1468,7 @@
           .replace("Pembuatan SPK", "Create SPK")
           .replace("Penarikan Data", "Data Retrieval")
           .replace("Keluar Bahan", "Material Issue")
+          .replace("Serah Terima", "Handover")
           .replace("Cetak SPK", "Print SPK")
           .replace("PPIC |", "PPIC Dashboard |")
       : (currentLanguage === "pgm" ? translatePolytaPattern(originalTitle) : originalTitle);

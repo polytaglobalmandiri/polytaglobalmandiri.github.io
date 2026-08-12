@@ -17,6 +17,7 @@
     saveEtaBeliBahanScheduleByManager: true,
     updateEtaBeliBahanByManager: true,
     updateKeluarBahanByManager: true,
+    saveHandover: true,
     beginExtractionJob: true,
     extractData: true,
     cancelExtractionJob: true

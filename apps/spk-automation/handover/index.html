@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#202226">
+  <meta name="description" content="Pencatatan serah terima SPK dengan bukti foto, tanda tangan digital, dan nama penerima.">
+  <title>Serah Terima | PPIC</title>
+  <link rel="icon" type="image/png" href="/assets/img/logo-app.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="handover.css?v=20260812-1">
+  <script src="/assets/js/gas-rpc.js?v=20260812-6"></script>
+</head>
+<body data-page="serah-terima" data-ui-engine="tailwind-alpine">
+  <div id="offlineNotice" class="offline-notice" hidden role="status" aria-live="polite">
+    <span aria-hidden="true"></span>
+    Koneksi terputus — data akan disimpan setelah jaringan kembali
+  </div>
+
+  <header class="app-header spk-simple-header">
+    <div class="header-inner">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <img src="/assets/img/logo-spk.svg" alt="" width="48" height="48">
+        </span>
+        <span class="brand-copy">
+          <strong class="brand-name">POLYTA GLOBAL MANDIRI</strong>
+          <span class="brand-subtitle">Portal Akses Internal</span>
+        </span>
+      </div>
+
+      <div class="header-tools">
+        <nav class="topnav spk-simple-nav" aria-label="Navigasi utama">
+          <a class="nav-link polyta-portal-home" href="/" target="_top" title="Kembali ke portal utama">
+            <i class="fa-solid fa-house" aria-hidden="true"></i><span>Portal Utama</span>
+          </a>
+          <a class="nav-link polyta-portal-home polyta-portal-ppic" href="/pages/ppic/" target="_top" title="Kembali ke portal PPIC">
+            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>Portal PPIC</span>
+          </a>
+        </nav>
+        <div class="spk-language-switcher" role="group" aria-label="Pilihan bahasa">
+          <button type="button" data-spk-language="id" aria-label="Bahasa Indonesia" title="Bahasa Indonesia">ID</button>
+          <button type="button" data-spk-language="pgm" aria-label="Standar POLYTA" title="Standar POLYTA">PGM</button>
+          <button type="button" data-spk-language="en" aria-label="Bahasa Inggris" title="Bahasa Inggris">EN</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <section class="page-heading" aria-labelledby="pageTitle">
+      <div class="heading-group">
+        <span class="heading-icon" aria-hidden="true"><i class="fa-solid fa-clipboard-check"></i></span>
+        <div>
+          <p class="eyebrow">PPIC</p>
+          <h1 id="pageTitle">Serah Terima SPK</h1>
+          <p class="page-description">Pilih SPK, lengkapi bukti penerimaan, lalu simpan dalam satu langkah.</p>
+        </div>
+      </div>
+      <div class="heading-actions">
+        <span class="status-chip"><i class="fa-solid fa-shield-check" aria-hidden="true"></i> Bukti tersimpan</span>
+        <button id="refreshButton" class="button button-light" type="button">
+          <i class="fa-solid fa-rotate-right" aria-hidden="true"></i><span>Muat Ulang</span>
+        </button>
+      </div>
+    </section>
+
+    <section id="summaryGrid" class="summary-grid" aria-label="Ringkasan serah terima">
+      <article class="summary-card">
+        <span class="summary-icon"><i class="fa-solid fa-file-circle-check" aria-hidden="true"></i></span>
+        <span><small>SPK tersedia</small><strong id="availableCount">0</strong></span>
+      </article>
+      <article class="summary-card">
+        <span class="summary-icon"><i class="fa-solid fa-handshake" aria-hidden="true"></i></span>
+        <span><small>Sudah diserahkan</small><strong id="handedCount">0</strong></span>
+      </article>
+      <article class="summary-card">
+        <span class="summary-icon"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i></span>
+        <span><small>Total transaksi</small><strong id="transactionCount">0</strong></span>
+      </article>
+    </section>
+
+    <div id="loadingState" class="state-card" role="status">
+      <span class="spinner" aria-hidden="true"></span>
+      <div><strong>Memuat data SPK</strong><p>Menyiapkan daftar SPK dan riwayat serah terima.</p></div>
+    </div>
+
+    <div id="errorState" class="state-card state-error" hidden role="alert">
+      <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+      <div><strong>Data belum dapat dimuat</strong><p id="errorMessage">Silakan coba kembali.</p></div>
+      <button id="retryButton" class="button button-dark" type="button">Coba Lagi</button>
+    </div>
+
+    <form id="handoverForm" class="handover-workspace" hidden novalidate>
+      <section class="panel spk-panel" aria-labelledby="spkPanelTitle">
+        <header class="panel-header">
+          <div>
+            <span class="step-number">01</span>
+            <div><h2 id="spkPanelTitle">Pilih SPK</h2><p>Pilih beberapa SPK dalam satu kali serah terima.</p></div>
+          </div>
+          <strong id="selectedCount" class="selection-count">0 dipilih</strong>
+        </header>
+
+        <div class="spk-toolbar">
+          <label class="search-field">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <span class="sr-only">Cari SPK</span>
+            <input id="spkSearch" type="search" placeholder="Cari SPK, pelanggan, atau artikel..." autocomplete="off">
+          </label>
+          <label class="compact-toggle">
+            <input id="showHandedToggle" type="checkbox">
+            <span>Tampilkan yang sudah diserahkan</span>
+          </label>
+          <button id="selectVisibleButton" class="button button-light" type="button">
+            <i class="fa-solid fa-check-double" aria-hidden="true"></i><span>Pilih Hasil</span>
+          </button>
+        </div>
+
+        <div id="selectedSpks" class="selected-spks" hidden aria-label="SPK terpilih"></div>
+        <div id="spkList" class="spk-list" role="listbox" aria-multiselectable="true"></div>
+        <div id="spkEmpty" class="empty-inline" hidden>Tidak ada SPK yang cocok.</div>
+      </section>
+
+      <section class="panel proof-panel" aria-labelledby="proofPanelTitle">
+        <header class="panel-header">
+          <div>
+            <span class="step-number">02</span>
+            <div><h2 id="proofPanelTitle">Bukti Penerimaan</h2><p>Nama, foto, dan tanda tangan wajib diisi.</p></div>
+          </div>
+        </header>
+
+        <div class="field-group">
+          <label for="recipientName">Nama penerima</label>
+          <div class="input-with-icon">
+            <i class="fa-solid fa-user-check" aria-hidden="true"></i>
+            <input id="recipientName" name="recipient" type="text" maxlength="100" autocomplete="name" placeholder="Ketik nama penerima">
+          </div>
+        </div>
+
+        <div class="evidence-grid">
+          <div class="evidence-card">
+            <div class="evidence-head">
+              <span><i class="fa-solid fa-camera" aria-hidden="true"></i> Foto bukti</span>
+              <small>Potret penerima dan SPK</small>
+            </div>
+            <label id="photoPicker" class="photo-picker" for="photoInput" tabindex="0">
+              <input id="photoInput" type="file" accept="image/jpeg,image/png,image/webp" capture="environment">
+              <span id="photoPlaceholder">
+                <i class="fa-solid fa-camera-retro" aria-hidden="true"></i>
+                <strong>Ambil Foto</strong>
+                <small>atau pilih dari perangkat</small>
+              </span>
+              <img id="photoPreview" alt="Pratinjau bukti serah terima" hidden>
+            </label>
+            <button id="removePhotoButton" class="text-button" type="button" hidden>
+              <i class="fa-solid fa-trash" aria-hidden="true"></i> Hapus foto
+            </button>
+          </div>
+
+          <div class="evidence-card">
+            <div class="evidence-head">
+              <span><i class="fa-solid fa-signature" aria-hidden="true"></i> Tanda tangan digital</span>
+              <small>Gunakan jari atau tetikus</small>
+            </div>
+            <div class="signature-wrap">
+              <canvas id="signatureCanvas" width="900" height="300" tabindex="0" aria-label="Bidang tanda tangan penerima"></canvas>
+              <span id="signatureHint">Tanda tangan di sini</span>
+            </div>
+            <button id="clearSignatureButton" class="text-button" type="button">
+              <i class="fa-solid fa-eraser" aria-hidden="true"></i> Bersihkan tanda tangan
+            </button>
+          </div>
+        </div>
+
+        <div class="field-group note-field">
+          <label for="handoverNotes">Catatan <span>Boleh dikosongkan</span></label>
+          <textarea id="handoverNotes" maxlength="500" rows="2" placeholder="Contoh: diterima lengkap, diberikan kepada kepala regu..."></textarea>
+        </div>
+
+        <div id="formAlert" class="form-alert" hidden role="alert"></div>
+        <button id="submitButton" class="submit-button" type="submit">
+          <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
+          <span>Simpan Serah Terima</span>
+          <small id="submitSummary">Pilih SPK untuk melanjutkan</small>
+        </button>
+      </section>
+    </form>
+
+    <section id="historyPanel" class="panel history-panel" hidden aria-labelledby="historyTitle">
+      <header class="panel-header">
+        <div>
+          <span class="step-number"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i></span>
+          <div><h2 id="historyTitle">Riwayat Terbaru</h2><p>Transaksi terbaru ditampilkan untuk pemeriksaan cepat.</p></div>
+        </div>
+      </header>
+      <div id="historyList" class="history-list"></div>
+      <div id="historyEmpty" class="empty-inline" hidden>Belum ada riwayat serah terima.</div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite">
+    <i class="fa-solid fa-circle-check" aria-hidden="true"></i><span></span>
+  </div>
+
+  <footer>© 2026 POLYTA GLOBAL MANDIRI · Akses berbasis peran</footer>
+
+  <script src="handover.js?v=20260812-1"></script>
+  <script src="../responsive-header.js?v=20260812-3"></script>
+  <script src="../i18n.js?v=20260812-11"></script>
+</body>
+</html>

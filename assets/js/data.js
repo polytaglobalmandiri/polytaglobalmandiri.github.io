@@ -106,7 +106,7 @@ const SITE = {
             { label: "Dasbor PPIC", url: "/apps/spk-automation/", type: "script", icon: "gauge" },
             { label: "Keluar Bahan", url: "/apps/spk-automation/material-issue/", type: "script", icon: "truck" },
             { label: "Penarikan Data", url: "/apps/spk-automation/data-retrieval/", type: "script", icon: "download" },
-            { label: "Serah Terima", url: "", type: "script", icon: "clipboard" }
+            { label: "Serah Terima", url: "/apps/spk-automation/handover/", type: "script", icon: "clipboard" }
           ]
         },
         {

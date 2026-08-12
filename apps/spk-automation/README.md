@@ -4,7 +4,7 @@ Antarmuka Otomasi SPK diterbitkan melalui GitHub Pages pada `/apps/spk-automatio
 
 ## Arsitektur
 
-- Frontend: lima halaman statis di folder ini.
+- Frontend: halaman-halaman statis SPK, termasuk Serah Terima, di folder ini.
 - Transport: `assets/js/gas-rpc.js` menyesuaikan pemanggilan `google.script.run` menjadi HTTP `POST`.
 - Backend: project GAS `1LwIFRTK8TttF9uIAQcaEOfKPhVPVnIKXtIC5kma_vRqSQ3mg8CK4tpQS`.
 - Endpoint: deployment GAS yang sudah digunakan oleh aplikasi sebelumnya.

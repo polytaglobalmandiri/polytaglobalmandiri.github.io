@@ -837,10 +837,10 @@
   .spk-menu-label { display: none; }
 }
 
-/* Shared ID / EN language selector. */
+/* Shared ID / PGM / EN language selector. */
 .spk-language-switcher {
   display: inline-grid;
-  grid-template-columns: repeat(2, 32px);
+  grid-template-columns: repeat(3, 32px);
   margin-left: 8px;
   flex: 0 0 auto;
   padding: 3px;
@@ -931,7 +931,7 @@ body[data-page="cetak-spk"] .print-content-actions .toolbar-button {
 
 @media screen and (max-width: 420px) {
   .spk-language-switcher {
-    grid-template-columns: repeat(2, 29px);
+    grid-template-columns: repeat(3, 29px);
     padding: 2px;
   }
 

@@ -3,7 +3,12 @@
 
   var STORAGE_KEY = "pgm:language";
   var DEFAULT_LANGUAGE = "id";
-  var SUPPORTED = ["id", "en"];
+  var SUPPORTED = ["id", "pgm", "en"];
+  var LANGUAGE_OPTIONS = [
+    { code: "id", label: "ID", title: "Bahasa Indonesia" },
+    { code: "pgm", label: "PGM", title: "Standar POLYTA" },
+    { code: "en", label: "EN", title: "Bahasa Inggris" }
+  ];
 
   /* Teks lama dari modul SPK dinormalkan terlebih dahulu ke Bahasa
      Indonesia. Dengan begitu Indonesia menjadi satu-satunya bahasa sumber,
@@ -171,7 +176,80 @@
     ,"Trial Sheet": "Lembaran Uji Coba"
   };
 
+  /* Mode PGM mengembalikan istilah operasional yang dipakai sebelum
+     standardisasi Bahasa Indonesia. Kamus dasarnya dibentuk dari pasangan
+     istilah lama -> Indonesia di atas, lalu beberapa pilihan diseragamkan agar
+     semua halaman memakai istilah internal yang sama. */
+  var POLYTA = {};
+  Object.keys(ID).forEach(function (legacyText) {
+    var canonical = ID[legacyText];
+    if (!Object.prototype.hasOwnProperty.call(POLYTA, canonical)) {
+      POLYTA[canonical] = legacyText;
+    }
+  });
+  Object.assign(POLYTA, {
+    "Dasbor PPIC": "Dashboard PPIC",
+    "Buat SPK": "Input SPK",
+    "Pembuatan SPK": "Input SPK",
+    "Penarikan Data": "Data Retrieval",
+    "Keluar Bahan": "Keluar Bahan",
+    "Pelanggan": "Customer",
+    "Merek": "Brand",
+    "Pemasaran": "Marketing",
+    "Bahan": "Material",
+    "Pesanan": "Order",
+    "Pesanan Baru": "New Order",
+    "Pesanan Ulang": "Repeat Order",
+    "Jenis Pesanan": "Jenis Order",
+    "Jumlah Pesanan": "Jumlah Order",
+    "Basis Data": "Database",
+    "Rincian": "Detail",
+    "Rincian SPK": "Detail SPK",
+    "Terbit": "Release",
+    "waktu nyata": "realtime",
+    "Direktori": "Folder",
+    "Berkas": "File",
+    "Keadaan": "Status",
+    "Tindakan": "Actions",
+    "Boleh dikosongkan": "Optional",
+    "Penyelesaian": "Finishing",
+    "Pencampuran": "Mixer",
+    "Peniupan": "Blowing",
+    "Pencetakan": "Printing",
+    "Pelipatan": "Folding",
+    "Pembelahan": "Slitting",
+    "Pemotongan": "Cutting",
+    "Pembentukan Lipatan": "Gusset",
+    "Segel Bawah": "Bottom Seal",
+    "Segel Samping": "Side Seal",
+    "Kantong Kaos": "T-Shirt",
+    "Pegangan": "Handle",
+    "Lembaran": "Sheet",
+    "Pembelahan Lembaran": "Sheet Slitting",
+    "Pengepakan": "Packing",
+    "Rincian Pengepakan": "Packing Detail",
+    "Jenis Pengepakan": "Jenis Packing",
+    "Penuh": "Full",
+    "Khusus": "Custom",
+    "Langsung": "Inline",
+    "Tanpa Cetak": "Non Print",
+    "Pencarian": "Search",
+    "Memuat": "Loading",
+    "Isian": "Input",
+    "Periksa isian": "Periksa input",
+    "Dimensi dan Pesanan": "Dimensi & Order",
+    "Meter Gulungan": "Meter Roll",
+    "Manajer PPIC": "Manager PPIC",
+    "Manajer Umum": "General Manager",
+    "Manajer Senior": "Senior Manager",
+    "Manajer Kendali Mutu / Jaminan Mutu": "Manager QC / QA"
+  });
+
   var EN = {
+    "Bahasa Indonesia": "Indonesian",
+    "Bahasa Inggris": "English",
+    "Standar POLYTA": "POLYTA Standard",
+    "Pilihan bahasa": "Language selection",
     "PPIC": "PPIC Dashboard",
     "Dasbor PPIC": "PPIC Dashboard",
     "Dasbor": "Dashboard",
@@ -1168,13 +1246,50 @@
       .replace(/\bROLL\b/g, "GULUNGAN");
   }
 
+  function translatePolytaPattern(value) {
+    var translated = value;
+    [
+      ["Pembuatan SPK", "Input SPK"],
+      ["Cetak SPK", "Print SPK"],
+      ["Penarikan Data", "Data Retrieval"],
+      ["Dasbor PPIC", "Dashboard PPIC"],
+      ["Pembentukan Lipatan", "Gusset"],
+      ["Pembelahan Lembaran", "Sheet Slitting"],
+      ["Pesanan Baru", "New Order"],
+      ["Pesanan Ulang", "Repeat Order"],
+      ["Basis Data", "Database"],
+      ["Pencampuran", "Mixer"],
+      ["Peniupan", "Blowing"],
+      ["Pencetakan", "Printing"],
+      ["Pelipatan", "Folding"],
+      ["Pembelahan", "Slitting"],
+      ["Pemotongan", "Cutting"],
+      ["Penyelesaian", "Finishing"],
+      ["Pengepakan", "Packing"],
+      ["Segel Bawah", "Bottom Seal"],
+      ["Segel Samping", "Side Seal"],
+      ["Kantong Kaos", "T-Shirt"],
+      ["Pegangan", "Handle"],
+      ["Lembaran", "Sheet"],
+      ["Pelanggan", "Customer"],
+      ["Pemasaran", "Marketing"],
+      ["Merek", "Brand"]
+    ].forEach(function (pair) {
+      translated = translated.split(pair[0]).join(pair[1]);
+    });
+    return translated;
+  }
+
   function translateValue(value, language) {
     var leading = (value.match(/^\s*/) || [""])[0];
     var trailing = (value.match(/\s*$/) || [""])[0];
     var clean = value.trim();
     if (!clean) return value;
     var canonical = ID[clean] || canonicalizePattern(clean);
-    if (language !== "en") return leading + canonical + trailing;
+    if (language === "id") return leading + canonical + trailing;
+    if (language === "pgm") {
+      return leading + (POLYTA[canonical] || translatePolytaPattern(canonical)) + trailing;
+    }
     var translated = EN[canonical] || translatePattern(canonical);
     return leading + translated + trailing;
   }
@@ -1244,6 +1359,22 @@
     });
   }
 
+  function populateSwitcher(switcher) {
+    LANGUAGE_OPTIONS.forEach(function (item) {
+      var button = switcher.querySelector('[data-spk-language="' + item.code + '"]');
+      if (!button) {
+        button = document.createElement("button");
+        button.type = "button";
+        switcher.appendChild(button);
+      }
+      button.textContent = item.label;
+      button.title = item.title;
+      button.setAttribute("aria-label", item.title);
+      button.setAttribute("data-spk-language", item.code);
+      switcher.appendChild(button);
+    });
+  }
+
   function bindSwitcherButtons() {
     document.querySelectorAll("[data-spk-language]").forEach(function (button) {
       if (button.dataset.spkLanguageBound === "true") return;
@@ -1257,7 +1388,7 @@
   function applyLanguage(language) {
     currentLanguage = SUPPORTED.indexOf(language) >= 0 ? language : DEFAULT_LANGUAGE;
     try { localStorage.setItem(STORAGE_KEY, currentLanguage); } catch (error) {}
-    document.documentElement.lang = currentLanguage;
+    document.documentElement.lang = currentLanguage === "pgm" ? "id" : currentLanguage;
     document.documentElement.dataset.language = currentLanguage;
     document.title = currentLanguage === "en"
       ? originalTitle
@@ -1266,14 +1397,16 @@
           .replace("Keluar Bahan", "Material Issue")
           .replace("Cetak SPK", "Print SPK")
           .replace("PPIC |", "PPIC Dashboard |")
-      : originalTitle;
+      : (currentLanguage === "pgm" ? translatePolytaPattern(originalTitle) : originalTitle);
     translateTree(document.body);
     updateSwitcher();
     document.dispatchEvent(new CustomEvent("spk:languagechange", { detail: { language: currentLanguage } }));
   }
 
   function buildSwitcher() {
-    if (document.querySelector(".spk-language-switcher")) {
+    var existing = document.querySelector(".spk-language-switcher");
+    if (existing) {
+      populateSwitcher(existing);
       bindSwitcherButtons();
       return;
     }
@@ -1285,16 +1418,7 @@
     switcher.className = "spk-language-switcher no-print";
     switcher.setAttribute("role", "group");
     switcher.setAttribute("aria-label", "Pilihan bahasa");
-    [{ code: "id", label: "ID", title: "Bahasa Indonesia" }, { code: "en", label: "EN", title: "Bahasa Inggris" }]
-      .forEach(function (item) {
-        var button = document.createElement("button");
-        button.type = "button";
-        button.textContent = item.label;
-        button.title = item.title;
-        button.setAttribute("aria-label", item.title);
-        button.setAttribute("data-spk-language", item.code);
-        switcher.appendChild(button);
-      });
+    populateSwitcher(switcher);
 
     if (host) {
       host.appendChild(switcher);

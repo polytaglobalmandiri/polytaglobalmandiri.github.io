@@ -30,7 +30,7 @@ const outputRoot = !target
 // pada halaman yang sedang terbit.
 const assetVersions = {
   "gas-rpc.js": "20260811-5",
-  "responsive.css": "20260813-3",
+  "responsive.css": "20260813-4",
   "routing-accessories.css": "20260812-1",
   "routing-bs.js": "20260812-1",
   "routing-accessories.js": "20260812-1",

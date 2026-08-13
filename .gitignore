@@ -16,5 +16,6 @@ $RECYCLE.BIN/
 node_modules/
 dist/
 installer/.build/
+tools/.build-spk/
 .cache/
 *.log

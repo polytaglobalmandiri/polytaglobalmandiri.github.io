@@ -4660,13 +4660,13 @@
             <div class="po-signatures" aria-label="Persetujuan PO Produksi">
               ${/* Kepala divisi ditempatkan tepat setelah Admin, sama dengan
                     urutan pada lembar tiap alur produksi. */''}
-              ${poSignature_('Dibuat', 'Admin')}
+              ${poSignature_('Dibuat', 'Admin PPIC')}
               ${poSignature_('Mengetahui', 'Kepala Blowing')}
               ${poSignature_('Diperiksa', 'Asmen PPIC')}
-              ${poSignature_('Diverifikasi', 'Manajer PPIC')}
-              ${poSignature_('Diverifikasi', 'Manajer Kendali Mutu / Jaminan Mutu')}
-              ${poSignature_('Disetujui', 'Manajer Senior')}
-              ${poSignature_('Disahkan', 'Manajer Umum')}
+              ${poSignature_('Diverifikasi', 'Manager PPIC')}
+              ${poSignature_('Diverifikasi', 'Manager QC/QA')}
+              ${poSignature_('Disetujui', 'Senior Manager')}
+              ${poSignature_('Disahkan', 'General Manager')}
             </div>
           </div>
           ${pageFooter_(data, 'PO Produksi', pageNumber, totalPages, generatedText)}
@@ -5276,18 +5276,21 @@
     }
 
     function processSignatures_(form) {
-      const division = form.key === 'cutting' ? 'Penyelesaian' : form.label;
+      const division = form.key === 'cutting' ? 'Cutting' : form.label;
       // Tiap lembar alur perlu pengesahan kepala divisi yang mengerjakannya,
       // ditempatkan setelah Admin seperti pada lembar SPK asli yang memuat
-      // baris KA.BLOWING, KA.PRODUKSI, dan seterusnya.
+      // baris KA.BLOWING, KA.PRODUKSI, dan seterusnya. Nama divisinya
+      // mengikuti nama lembar itu sendiri, sehingga lembar Blowing memakai
+      // Kepala Blowing, lembar Printing memakai Kepala Printing, dan
+      // seterusnya. Lembar PO Produksi tetap memakai Kepala Blowing.
       const signatures = [
-        { approval: 'Dibuat', role: 'Admin' },
+        { approval: 'Dibuat', role: 'Admin PPIC' },
         { approval: 'Mengetahui', role: 'Kepala ' + division },
         { approval: 'Diperiksa', role: 'Asmen PPIC' },
-        { approval: 'Diverifikasi', role: 'Manajer PPIC' },
-        { approval: 'Diverifikasi', role: 'Manajer Kendali Mutu / Jaminan Mutu' },
-        { approval: 'Disetujui', role: 'Manajer Senior' },
-        { approval: 'Disahkan', role: 'Manajer Umum' }
+        { approval: 'Diverifikasi', role: 'Manager PPIC' },
+        { approval: 'Diverifikasi', role: 'Manager QC/QA' },
+        { approval: 'Disetujui', role: 'Senior Manager' },
+        { approval: 'Disahkan', role: 'General Manager' }
       ];
 
       return `

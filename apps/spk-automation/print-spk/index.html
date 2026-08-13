@@ -4744,8 +4744,10 @@
               ${fieldLine_('Toleransi', formatPercent_(data.toleransi))}
               ${fieldLine_('Kg / Roll', kgPerRollText_(data))}
               ${fieldLine_('Meter / Roll', meterPerRollText_(data))}
+              ${/* PO Sebelumnya sengaja tidak dicetak pada lembar alur
+                    produksi; nomor rujukannya cukup ada di lembar PO Produksi
+                    sebagai SPK Ref. */''}
               ${fieldLine_('Pemasaran', data.marketing)}
-              ${fieldLine_('PO Sebelumnya', data.spkReferensi)}
             </div>
 
             <div class="master-route">
@@ -5038,10 +5040,6 @@
               <div class="metric-box">
                 <strong>Target Mesin</strong>
                 Target Speed: ........<br>Target Per jam: ........
-              </div>
-              <div class="metric-box">
-                <strong>PO Sebelumnya</strong>
-                ${escapeHtml_(displayValue_(data.spkReferensi))}
               </div>
             </div>
           </div>

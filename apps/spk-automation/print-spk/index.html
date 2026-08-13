@@ -4027,13 +4027,13 @@
       { key: 'slitting', label: 'Slitting' },
       { key: 'folding', label: 'Folding' },
       { key: 'gusset', label: 'Gusset' },
-      { key: 'sheet', label: 'Lembaran' },
+      { key: 'sheet', label: 'Sheet' },
       { key: 'pon', label: 'Pon' },
-      { key: 'tshirt', label: 'Kantong Kaos' },
-      { key: 'bottomSeal', label: 'Segel Bawah' },
-      { key: 'sideSeal', label: 'Segel Samping' },
-      { key: 'handle', label: 'Pegangan' },
-      { key: 'sheetSlitting', label: 'Slitting Lembaran' }
+      { key: 'tshirt', label: 'T-Shirt' },
+      { key: 'bottomSeal', label: 'Bottom Seal' },
+      { key: 'sideSeal', label: 'Side Seal' },
+      { key: 'handle', label: 'Handle' },
+      { key: 'sheetSlitting', label: 'Sheet Slitting' }
     ];
 
     const printRootEl = document.getElementById('printRoot');
@@ -4980,7 +4980,7 @@
             ${processField_(map.extraLabel || 'Lebar Bahan', map.extra ? formValue_(data, form, map.extra) : dimensionText_(data, 'lebar', 2))}
             ${processField_('Target BS', formatPercent_(bsValue))}
             ${processField_('BS (KG)', targetBsKg_(data, bsValue))}
-            ${processField_('BS Lembaran', formatPercent_(formBs_(data, form, 'sheet')))}
+            ${processField_('BS Sheet', formatPercent_(formBs_(data, form, 'sheet')))}
             ${processField_('Model Kantong', data.modelKantong)}
             ${processField_('Keterangan', formNote_(data, form))}
             ${processField_('Aksesoris', formAccessoryColumns_(form).names)}

@@ -30,7 +30,7 @@ const outputRoot = !target
 // pada halaman yang sedang terbit.
 const assetVersions = {
   "gas-rpc.js": "20260811-5",
-  "responsive.css": "20260813-4",
+  "responsive.css": "20260813-5",
   "routing-accessories.css": "20260812-1",
   "routing-bs.js": "20260812-1",
   "routing-accessories.js": "20260812-1",
@@ -40,7 +40,7 @@ const assetVersions = {
 
 // Kaki halaman dipasang oleh build karena sumber GAS tidak memuatnya. Teksnya
 // disamakan dengan kaki halaman portal pada assets/js/data.js.
-const footerText = "Dikembangkan dan dikelola oleh: Team POLYTA GLOBAL MANDIRI";
+const footerText = "Dikembangkan dan dikelola oleh: <strong>Team POLYTA GLOBAL MANDIRI</strong>";
 
 // Lekukan mengikuti gaya masing-masing berkas sumber GAS: Dashboard memakai
 // empat spasi, halaman lainnya dua. Disamakan supaya hasil build tidak

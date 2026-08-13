@@ -1794,33 +1794,60 @@ body.spk-modal-scroll-lock {
    tata letak yang sama dengan header.
    --------------------------------------------------------------------- */
 body[data-page] .spk-app-footer {
-  margin-top: 26px;
+  margin-top: 32px;
   border-top: 0;
   background: transparent;
   box-shadow: none;
 }
 
+/* Pemisah tipis yang memudar di kedua ujungnya. Memberi batas penutup tanpa
+   mengembalikan pelat: garisnya hanya pekat di bagian tengah. */
+body[data-page] .spk-app-footer::before {
+  display: block;
+  width: min(var(--polyta-content-width, 1180px), calc(100% - 2.5rem));
+  height: 1px;
+  margin-inline: auto;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,255,255,.15) 24%,
+    rgba(255,255,255,.15) 76%,
+    transparent 100%
+  );
+  content: "";
+}
+
 body[data-page] .spk-app-footer-inner {
   width: min(var(--polyta-content-width, 1180px), calc(100% - 2.5rem));
   margin-inline: auto;
-  padding: 15px 0;
+  padding: 17px 0 24px;
   display: flex;
-  align-items: center;
+  flex-wrap: wrap;
+  align-items: baseline;
   justify-content: center;
-  gap: 10px;
-  color: rgba(255,255,255,.66);
-  font-size: .68rem;
-  font-weight: 650;
-  letter-spacing: .02em;
-  line-height: 1.45;
+  gap: 6px;
+  color: rgba(255,255,255,.5);
+  font-size: .66rem;
+  font-weight: 600;
+  letter-spacing: .035em;
+  line-height: 1.5;
   text-align: center;
   text-shadow: 0 1px 0 rgba(0,0,0,.45);
 }
 
+/* Nama perusahaan dibuat sedikit lebih terang daripada kalimat pengantarnya,
+   supaya yang penting terbaca lebih dulu tanpa perlu memperbesar apa pun. */
+body[data-page] .spk-app-footer-inner strong {
+  color: rgba(255,255,255,.8);
+  font-weight: 800;
+  letter-spacing: .06em;
+}
+
 @media (max-width: 600px) {
   body[data-page] .spk-app-footer-inner {
-    padding: 13px 0;
-    font-size: .64rem;
+    padding: 14px 0 20px;
+    gap: 4px;
+    font-size: .62rem;
   }
 }
 

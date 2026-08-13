@@ -837,55 +837,6 @@
   .spk-menu-label { display: none; }
 }
 
-/* Shared ID / PGM / EN language selector. */
-.spk-language-switcher {
-  display: inline-grid;
-  grid-template-columns: repeat(3, 32px);
-  margin-left: 8px;
-  flex: 0 0 auto;
-  padding: 3px;
-  border: 1px solid rgba(255,255,255,.2);
-  border-radius: 9px;
-  background: linear-gradient(180deg, #24262b, #14161a);
-  box-shadow: inset 0 1px 3px rgba(0,0,0,.52), 0 1px 0 rgba(255,255,255,.08);
-}
-
-.spk-language-switcher button {
-  display: grid;
-  width: 32px;
-  height: 28px;
-  padding: 0;
-  place-items: center;
-  border: 0;
-  border-radius: 6px;
-  color: #aeb2b8;
-  background: transparent;
-  font: inherit;
-  font-size: .62rem;
-  font-weight: 900;
-  letter-spacing: .06em;
-  cursor: pointer;
-  touch-action: manipulation;
-  transition: color .16s ease, background .16s ease, box-shadow .16s ease;
-}
-
-.spk-language-switcher button:hover,
-.spk-language-switcher button:focus-visible {
-  color: #fff;
-  outline: 1px solid rgba(255,255,255,.32);
-  outline-offset: -1px;
-}
-
-.spk-language-switcher button.is-active {
-  color: #fff;
-  background: linear-gradient(180deg, #dc3541, #9d1720);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.26), 0 2px 5px rgba(0,0,0,.3);
-}
-
-body[data-page="cetak-spk"] .toolbar-actions > .spk-language-switcher {
-  align-self: center;
-}
-
 body[data-page="cetak-spk"] .print-content-actions {
   display: flex;
   justify-content: flex-end;
@@ -898,7 +849,6 @@ body[data-page="cetak-spk"] .print-content-actions .toolbar-button {
 
 @media screen and (max-width: 900px) {
   .spk-responsive-header .spk-mobile-nav-toggle { margin-left: auto; }
-  .spk-responsive-header .spk-language-switcher { margin-left: 0; }
 
   .spk-simple-header :is(.topbar-inner, .app-topbar-inner, .header-inner) {
     flex-wrap: nowrap !important;
@@ -926,17 +876,9 @@ body[data-page="cetak-spk"] .print-content-actions .toolbar-button {
     display: inline !important;
   }
 
-  .spk-simple-header .spk-language-switcher { margin-left: 0; }
 }
 
 @media screen and (max-width: 420px) {
-  .spk-language-switcher {
-    grid-template-columns: repeat(3, 29px);
-    padding: 2px;
-  }
-
-  .spk-language-switcher button { width: 29px; height: 30px; }
-
   body[data-page] .spk-simple-header .spk-simple-nav :is(.nav-link-app, .nav-link, .app-nav-link) {
     width: 38px !important;
     padding: 0 !important;
@@ -1170,29 +1112,6 @@ body[data-page] :is(.topnav, .app-nav) {
   }
 }
 
-.spk-language-switcher {
-  border-color: var(--spk-header-metal-d, #8b8b96);
-  background: linear-gradient(180deg, var(--spk-header-metal-c, #c8c8d1), var(--spk-header-metal-b, #e4e4e9));
-  box-shadow: inset 0 2px 5px rgba(18,18,26,.22), inset 0 -1px 0 rgba(255,255,255,.58), 0 1px 0 rgba(255,255,255,.9);
-}
-
-.spk-language-switcher button {
-  color: var(--spk-header-ink-soft, #4c4c56);
-  font-size: 10px;
-}
-
-.spk-language-switcher button:hover,
-.spk-language-switcher button:focus-visible {
-  color: var(--spk-header-ink, #15151a);
-  background: rgba(255,255,255,.48);
-  outline-color: rgba(76,76,86,.32);
-}
-
-.spk-language-switcher button.is-active {
-  color: #fff;
-  background: linear-gradient(180deg, var(--spk-header-accent-high, #e63b52), var(--spk-header-accent, #c8102e) 58%, var(--spk-header-accent-low, #8a0b1f));
-}
-
 body[data-page="cetak-spk"] .print-toolbar {
   min-height: 70px;
   padding: .7rem max(1.25rem, calc(50% - 590px)) !important;
@@ -1342,9 +1261,6 @@ body[data-page="cetak-spk"] .toolbar-button.primary {
     justify-content: center;
   }
 
-  body[data-page="cetak-spk"] .toolbar-actions > .spk-language-switcher {
-    justify-self: end;
-  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -1370,13 +1286,6 @@ body[data-page="cetak-spk"] .toolbar-button.primary {
   }
 
   body[data-page] :is(.topbar, .app-topbar, .app-header, .print-toolbar)::before { opacity: .28; }
-
-  .spk-language-switcher {
-    box-shadow: inset 0 2px 7px rgba(0,0,0,.72), inset 0 -1px 0 rgba(255,255,255,.12);
-  }
-
-  .spk-language-switcher button:hover,
-  .spk-language-switcher button:focus-visible { background: rgba(255,255,255,.08); }
 
   .spk-responsive-header .spk-responsive-nav {
     box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 18px 42px rgba(0,0,0,.62);

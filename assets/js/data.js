@@ -26,11 +26,11 @@ const SITE = {
      folder agar alamatnya bersih tanpa akhiran .html */
   nav: [
     { id: "beranda", label: "BERANDA", path: "" },
-    { id: "marketing", label: "MARKETING", path: "pages/marketing/" },
+    { id: "marketing", label: "PEMASARAN", path: "pages/marketing/" },
     { id: "ppic", label: "PPIC", path: "pages/ppic/" },
-    { id: "purchasing", label: "PURCHASING", path: "pages/purchasing/" },
+    { id: "purchasing", label: "PEMBELIAN", path: "pages/purchasing/" },
     { id: "produksi", label: "PRODUKSI", path: "pages/production/" },
-    { id: "finance", label: "FINANCE", path: "pages/finance/" },
+    { id: "finance", label: "KEUANGAN", path: "pages/finance/" },
     { id: "bantuan", label: "BANTUAN", path: "pages/support/" }
   ],
 
@@ -40,16 +40,16 @@ const SITE = {
       heading: "Pusat Akses Terpadu",
       lead: "Pusat tautan menuju folder dan berkas cloud seluruh departemen. Akses dibatasi berdasarkan peran masing-masing pengguna.",
       departments: [
-        { id: "marketing", label: "MARKETING", path: "pages/marketing/", desc: "Folder tim, laporan, dan tautan operasional pemasaran.", image: "assets/img/departments/marketing.webp" },
+        { id: "marketing", label: "PEMASARAN", path: "pages/marketing/", desc: "Folder tim, laporan, dan tautan operasional pemasaran.", image: "assets/img/departments/marketing.webp" },
         { id: "ppic", label: "PPIC", path: "pages/ppic/", desc: "Manajemen SPK, database OTS, back-up produksi, dashboard.", image: "assets/img/departments/ppic.webp" },
-        { id: "purchasing", label: "PURCHASING", path: "pages/purchasing/", desc: "Purchase order dan perbandingan harga supplier.", image: "assets/img/departments/purchasing.webp" },
+        { id: "purchasing", label: "PEMBELIAN", path: "pages/purchasing/", desc: "Purchase order dan perbandingan harga supplier.", image: "assets/img/departments/purchasing.webp" },
         { id: "produksi", label: "PRODUKSI", path: "pages/production/", desc: "Input problem, dokumentasi foto, dan data production issue.", image: "assets/img/departments/marketing.webp" },
-        { id: "finance", label: "FINANCE", path: "pages/finance/", desc: "Arsip laporan piutang, hutang, dan kas pabrik.", image: "assets/img/departments/finance.webp" },
+        { id: "finance", label: "KEUANGAN", path: "pages/finance/", desc: "Arsip laporan piutang, hutang, dan kas pabrik.", image: "assets/img/departments/finance.webp" },
         { id: "bantuan", label: "BANTUAN", path: "pages/support/", desc: "Panduan penggunaan portal dan kontak administrator.", image: "assets/img/departments/marketing.webp" }
       ]
     },
     marketing: {
-      title: "MARKETING TEAM",
+      title: "TIM PEMASARAN",
       heading: "Folder &amp; File Marketing",
       sections: [
         {
@@ -96,7 +96,7 @@ const SITE = {
       ]
     },
     ppic: {
-      title: "PPIC TEAM",
+      title: "TIM PPIC",
       heading: "Production Planning &amp; Inventory Control",
       sections: [
         {
@@ -113,7 +113,7 @@ const SITE = {
           title: "Database SPK dan OTS",
           hint: "Basis data perencanaan dan persediaan",
           items: [
-            { label: "Master Data", url: "", type: "sheets", icon: "database" },
+            { label: "Data Induk", url: "", type: "sheets", icon: "database" },
             { label: "Pengiriman Harian Marketing", url: "", type: "sheets", icon: "truck" },
             { label: "LHP - SPK Selesai", url: "", type: "sheets", icon: "check" },
             { label: "WIP Stok Roll", url: "", type: "sheets", icon: "cylinder" },
@@ -124,7 +124,7 @@ const SITE = {
             { label: "Tinta dan Cylinder", url: "", type: "sheets", icon: "droplet" },
             { label: "Outstanding on Hand", url: "", type: "sheets", icon: "clock" },
             { label: "Stok Bahan Baku Resin", url: "", type: "sheets", icon: "flask" },
-            { label: "Sparepart", url: "", type: "sheets", icon: "nut" },
+            { label: "Suku Cadang", url: "", type: "sheets", icon: "nut" },
             { label: "Folder Sharing", url: "", type: "drive", icon: "share" }
           ]
         },
@@ -141,7 +141,7 @@ const SITE = {
           ]
         },
         {
-          title: "Dashboard",
+          title: "Dasbor",
           hint: "Visualisasi kinerja produksi",
           items: [
             { label: "DASHBOARD ANALISYS", url: "", type: "script", icon: "gauge" }
@@ -164,7 +164,7 @@ const SITE = {
       ]
     },
     purchasing: {
-      title: "PURCHASING TEAM",
+      title: "TIM PEMBELIAN",
       heading: "Pengadaan &amp; Perbandingan Harga",
       sections: [
         {
@@ -188,10 +188,10 @@ const SITE = {
           items: [
             { label: "Produksi", url: "", type: "form", icon: "factory" },
             { label: "Teknik", url: "", type: "form", icon: "wrench" },
-            { label: "Sparepart", url: "", type: "form", icon: "nut" },
-            { label: "Purchasing", url: "", type: "form", icon: "cart" },
+            { label: "Suku Cadang", url: "", type: "form", icon: "nut" },
+            { label: "Pembelian", url: "", type: "form", icon: "cart" },
             { label: "Panel Listrik", url: "", type: "form", icon: "bolt" },
-            { label: "Refresh", url: "#refresh", type: "site" }
+            { label: "Segarkan", url: "#refresh", type: "site" }
           ]
         },
         {
@@ -212,9 +212,9 @@ const SITE = {
             { label: "Production Problem", url: "", type: "sheets", icon: "warn" },
             { label: "Production Control", url: "", type: "script", icon: "sliders" },
             { label: "Engineering Archived", url: "", type: "script", icon: "archive" },
-            { label: "Quality Control", url: "", type: "drive", icon: "shield" },
+            { label: "Kendali Mutu", url: "", type: "drive", icon: "shield" },
             { label: "HR - GA Issue", url: "", type: "script", icon: "users" },
-            { label: "Warehouse", url: "", type: "script", icon: "warehouse" },
+            { label: "Gudang", url: "", type: "script", icon: "warehouse" },
             { label: "Document SOP", url: "", type: "script", icon: "doc" },
             { label: "Work In Proses", url: "", type: "script", icon: "layers" }
           ]
@@ -222,7 +222,7 @@ const SITE = {
       ]
     },
     finance: {
-      title: "FINANCE TEAM",
+      title: "TIM KEUANGAN",
       heading: "Arsip Laporan Keuangan",
       sections: [
         {

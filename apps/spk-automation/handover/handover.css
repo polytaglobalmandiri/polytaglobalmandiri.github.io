@@ -79,7 +79,7 @@ button { cursor: pointer; }
 .brand-name { color: #fff; font-size: .8rem; font-weight: 900; letter-spacing: .085em; white-space: nowrap; }
 .brand-subtitle { color: #b9bdc2; font-size: .58rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
 .topnav { display: flex; align-items: center; justify-content: flex-end; gap: 7px; }
-.nav-link, .spk-language-switcher button {
+.nav-link {
   min-height: 32px;
   border: 1px solid #08090a;
   border-radius: 8px;
@@ -91,10 +91,7 @@ button { cursor: pointer; }
   text-decoration: none;
 }
 .nav-link { display: inline-flex; align-items: center; gap: 7px; padding: 0 11px; }
-.nav-link:hover, .spk-language-switcher button:hover { background: linear-gradient(180deg, #555960, #34363c); }
-.spk-language-switcher { display: flex; gap: 4px; margin-left: 4px; }
-.spk-language-switcher button { width: 34px; padding: 0; }
-.spk-language-switcher button.is-active { border-color: #7f1017; background: linear-gradient(180deg, #c52d35, #82151d); }
+.nav-link:hover { background: linear-gradient(180deg, #555960, #34363c); }
 
 .offline-notice {
   position: fixed;
@@ -302,8 +299,6 @@ button { cursor: pointer; }
   .topnav { min-width: 0; justify-content: flex-start; overflow-x: auto; }
   .nav-link { width: 42px; min-width: 42px; height: 42px; padding: 0; }
   .nav-link span { display: none; }
-  .spk-language-switcher { margin-left: auto; }
-  .spk-language-switcher button { width: 38px; height: 42px; }
   .app-main { width: calc(100% - 20px); margin: 10px auto 22px; padding: 14px 10px 20px; border-radius: 13px; }
   .page-heading { gap: 12px; }
   .heading-icon { width: 42px; height: 42px; flex-basis: 42px; }

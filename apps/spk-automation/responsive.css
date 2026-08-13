@@ -1877,6 +1877,49 @@ body.spk-modal-scroll-lock {
   line-height: 1.3 !important;
 }
 
+/* ---------------------------------------------------------------------
+   Kaki halaman bersama
+   Memakai bahasa rupa yang sama dengan header agar setiap halaman aplikasi
+   SPK ditutup dengan cara yang seragam, sejajar dengan kaki halaman portal
+   utama. Lebarnya mengikuti garis tata letak yang sama dengan header.
+   --------------------------------------------------------------------- */
+body[data-page] .spk-app-footer {
+  margin-top: 26px;
+  border-top: 1px solid #8b8b96;
+  background: linear-gradient(180deg, #e4e4e9 0%, #c8c8d1 54%, #d5d5dc 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.85),
+    0 -2px 8px rgba(40,33,24,.18);
+}
+
+body[data-page] .spk-app-footer-inner {
+  width: min(var(--polyta-content-width, 1180px), calc(100% - 2.5rem));
+  margin-inline: auto;
+  padding: 15px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #4c4c56;
+  font-size: .68rem;
+  font-weight: 650;
+  letter-spacing: .02em;
+  line-height: 1.45;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  body[data-page] .spk-app-footer-inner {
+    padding: 13px 0;
+    font-size: .64rem;
+  }
+}
+
+/* Kaki halaman hanya untuk layar; lembar cetak sudah punya kaki sendiri. */
+@media print {
+  body[data-page] .spk-app-footer { display: none !important; }
+}
+
 #spkInputRoot .route-panel-meta {
   font-size: .6rem !important;
   line-height: 1.35 !important;

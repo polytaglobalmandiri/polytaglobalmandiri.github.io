@@ -1,5 +1,4 @@
 :root {
-  --bg: #e5e7e4;
   --surface: #f5f6f3;
   --surface-strong: #ffffff;
   --surface-soft: #eceeeb;
@@ -14,19 +13,29 @@
   --green-soft: #e5f3ea;
   --shadow: 0 3px 0 #151619, 0 24px 58px rgba(28,31,34,.2), inset 0 1px 0 rgba(255,255,255,.92);
   --shadow-soft: 0 8px 22px rgba(28,31,34,.08), inset 0 1px 0 rgba(255,255,255,.9);
+
+  /* Kanvas halaman disamakan dengan dasbor PPIC: latar gelap bertekstur titik
+     sebagai alas, lalu isinya diletakkan pada pelat terang. */
+  --app-page-background-color: #26282c;
+  --app-page-background-image:
+    linear-gradient(135deg, rgba(255, 255, 255, .025) 25%, transparent 25%),
+    linear-gradient(315deg, rgba(255, 255, 255, .025) 25%, transparent 25%),
+    radial-gradient(circle at 20% 0, rgba(255, 255, 255, .06), transparent 30rem);
+  --app-page-background-position: 0 0, 6px 6px, 0 0;
+  --app-page-background-size: 12px 12px, 12px 12px, auto;
 }
 
 * { box-sizing: border-box; }
-html { min-height: 100%; background: var(--bg); scroll-behavior: smooth; scrollbar-gutter: stable; }
+html { min-height: 100%; background: var(--app-page-background-color); scroll-behavior: smooth; scrollbar-gutter: stable; }
 body {
   min-width: 0;
   min-height: 100vh;
   margin: 0;
   color: var(--ink);
-  background:
-    radial-gradient(circle at 8% 0%, rgba(255,255,255,.95), transparent 31%),
-    radial-gradient(circle at 100% 9%, rgba(166,37,37,.08), transparent 27%),
-    linear-gradient(155deg, #eef0ed 0%, #dde0dc 100%);
+  background-color: var(--app-page-background-color);
+  background-image: var(--app-page-background-image);
+  background-position: var(--app-page-background-position);
+  background-size: var(--app-page-background-size);
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 15px;
 }
@@ -108,14 +117,27 @@ button { cursor: pointer; }
 }
 .offline-notice > span { width: 8px; height: 8px; border-radius: 50%; background: #bd2832; }
 
+/* Pelat isi mengikuti dasbor PPIC: pelat logam dengan kepala sekrup di tiap
+   sudut, sehingga kedua halaman terbaca sebagai satu keluarga. */
 .app-main {
+  position: relative;
   width: min(1180px, calc(100% - 2.5rem));
   margin: 26px auto 38px;
-  padding: 21px 22px 30px;
-  border: 1px solid #b7bbb8;
-  border-radius: 18px;
-  background: linear-gradient(155deg, rgba(247,248,245,.97), rgba(232,234,230,.97));
-  box-shadow: var(--shadow);
+  padding: 32px 28px 42px;
+  border: 1px solid #777a7d;
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 15px 15px, #55585b 0 1px, #c8c9c7 2px 4px, #777 5px, transparent 6px),
+    radial-gradient(circle at calc(100% - 15px) 15px, #55585b 0 1px, #c8c9c7 2px 4px, #777 5px, transparent 6px),
+    radial-gradient(circle at 15px calc(100% - 15px), #55585b 0 1px, #c8c9c7 2px 4px, #777 5px, transparent 6px),
+    radial-gradient(circle at calc(100% - 15px) calc(100% - 15px), #55585b 0 1px, #c8c9c7 2px 4px, #777 5px, transparent 6px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, .11) 0, rgba(255, 255, 255, .11) 1px, rgba(0, 0, 0, .018) 2px, transparent 4px),
+    linear-gradient(145deg, #eeeeeb, #d7d8d5);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, .95),
+    inset 0 -2px 4px rgba(0, 0, 0, .16),
+    0 3px 0 #151619,
+    0 16px 32px rgba(0, 0, 0, .45);
 }
 .page-heading { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 16px; }
 .heading-group { display: flex; align-items: center; gap: 11px; min-width: 0; }
@@ -132,7 +154,7 @@ button { cursor: pointer; }
   color: #fff;
   font-size: 18px;
 }
-.eyebrow { margin: 0 0 4px; color: #9c2028; font-size: .64rem; font-weight: 900; letter-spacing: .11em; text-transform: uppercase; }
+.eyebrow { margin: 0 0 4px; color: #9f1d1d; text-shadow: 0 1px 0 rgba(255,255,255,.8); font-size: .64rem; font-weight: 900; letter-spacing: .11em; text-transform: uppercase; }
 .page-heading h1 { margin: 0; font-size: 1.55rem; font-weight: 850; letter-spacing: -.025em; line-height: 1.2; }
 .page-description { margin: 5px 0 0; color: var(--muted); font-size: .75rem; font-weight: 500; line-height: 1.45; }
 .heading-actions { display: flex; align-items: center; gap: 8px; }
@@ -261,7 +283,6 @@ button { cursor: pointer; }
 .toast { position: fixed; right: 18px; bottom: 18px; z-index: 500; max-width: min(380px, calc(100% - 36px)); display: flex; align-items: center; gap: 9px; padding: 11px 13px; border: 1px solid #91b59e; border-radius: 10px; background: #edf8f1; box-shadow: 0 14px 34px rgba(28,34,30,.2); color: #245f40; font-size: .67rem; font-weight: 800; opacity: 0; transform: translateY(18px); pointer-events: none; transition: opacity .18s ease, transform .18s ease; }
 .toast.show { opacity: 1; transform: translateY(0); }
 .toast.error { border-color: #d39a9e; background: #fff0f1; color: #7b171e; }
-footer { padding: 0 16px 28px; color: #707477; font-size: .62rem; font-weight: 650; text-align: center; }
 
 @media (max-width: 900px) {
   .header-inner { width: calc(100% - 28px); padding: 8px 0; }

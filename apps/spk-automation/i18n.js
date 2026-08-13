@@ -251,6 +251,7 @@
     "Bahasa Inggris": "English",
     "Standar POLYTA": "POLYTA Standard",
     "Pilihan bahasa": "Language selection",
+    "Dikembangkan dan dikelola oleh: Team POLYTA GLOBAL MANDIRI": "Developed and managed by: POLYTA GLOBAL MANDIRI Team",
     "Aksesoris": "Accessories",
     "Daftar aksesoris": "Accessory list",
     "Kebutuhan": "Requirement",

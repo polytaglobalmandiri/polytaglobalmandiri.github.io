@@ -30,7 +30,7 @@ const outputRoot = !target
 // pada halaman yang sedang terbit.
 const assetVersions = {
   "gas-rpc.js": "20260811-5",
-  "responsive.css": "20260813-1",
+  "responsive.css": "20260813-2",
   "routing-accessories.css": "20260812-1",
   "routing-bs.js": "20260812-1",
   "routing-accessories.js": "20260812-1",
@@ -51,7 +51,9 @@ const routes = [
   { source: "FE-Input-SPK.html", output: "create-spk/index.html", indent: "  " },
   { source: "FE-Keluar-Bahan.html", output: "material-issue/index.html", indent: "  " },
   { source: "FE-Penarikan-Data.html", output: "data-retrieval/index.html", indent: "  " },
-  { source: "FE-Cetak-SPK.html", output: "print-spk/index.html", indent: "  " }
+  // Lembar cetak tidak memakai kaki halaman aplikasi: tiap lembarnya sudah
+  // punya kaki sendiri yang ikut tercetak.
+  { source: "FE-Cetak-SPK.html", output: "print-spk/index.html", indent: "  ", footer: false }
 ];
 
 // Partial yang memuat skrip wizard Input SPK. Halaman yang memakainya butuh
@@ -148,10 +150,12 @@ function convertTemplate(route) {
     .join("");
   html = html.replace("</head>", styleTags + "</head>");
 
-  const footer = `${route.indent}<footer class="spk-app-footer no-print">\n`
-    + `${route.indent}  <div class="spk-app-footer-inner">${footerText}</div>\n`
-    + `${route.indent}</footer>\n`;
-  html = html.replace("</body>", footer + "</body>");
+  if (route.footer !== false) {
+    const footer = `${route.indent}<footer class="spk-app-footer no-print">\n`
+      + `${route.indent}  <div class="spk-app-footer-inner">${footerText}</div>\n`
+      + `${route.indent}</footer>\n`;
+    html = html.replace("</body>", footer + "</body>");
+  }
 
   const tailScripts = ["modal-scroll-lock.js", "responsive-header.js", "i18n.js"]
     .map(name => `${route.indent}<script src="../${asset(name)}"></script>\n`)

@@ -1918,6 +1918,18 @@ body[data-page] .spk-app-footer-inner {
 /* Kaki halaman hanya untuk layar; lembar cetak sudah punya kaki sendiri. */
 @media print {
   body[data-page] .spk-app-footer { display: none !important; }
+
+  /* Elemen berlabel .no-print tidak boleh ikut tercetak. Penegasan ini perlu
+     karena aturan tata letak pada berkas ini memakai !important dengan
+     kekhususan yang lebih tinggi daripada .no-print milik masing-masing
+     halaman, sehingga tanpa penindihan di sini toolbar aplikasi tetap ikut
+     tercetak. Selektor yang menyebut kelasnya sekaligus dipakai agar
+     kekhususannya melampaui aturan tata letak tersebut. */
+  body[data-page] .no-print,
+  body[data-page="cetak-spk"] .print-toolbar.no-print,
+  body[data-page="cetak-spk"] .print-content-actions.no-print {
+    display: none !important;
+  }
 }
 
 #spkInputRoot .route-panel-meta {

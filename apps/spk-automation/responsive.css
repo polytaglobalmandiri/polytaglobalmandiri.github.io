@@ -1851,6 +1851,32 @@ body[data-page] .spk-app-footer-inner strong {
   }
 }
 
+/* Kaki halaman baru muncul setelah pembaca sampai di dasar halaman; lihat
+   footer-reveal.js. Kelas penandanya dipasang dari skrip, sehingga bila skrip
+   itu gagal dimuat kaki halaman tetap tampil seperti biasa. Ruangnya tetap
+   dipesan agar batas dasar halaman tidak bergeser saat kaki halaman muncul. */
+html.spk-footer-reveal body[data-page] .spk-app-footer {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(6px);
+  transition: opacity .28s ease, transform .28s ease, visibility 0s linear .28s;
+}
+
+html.spk-footer-reveal body[data-page] .spk-app-footer.is-revealed {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity .28s ease, transform .28s ease, visibility 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.spk-footer-reveal body[data-page] .spk-app-footer,
+  html.spk-footer-reveal body[data-page] .spk-app-footer.is-revealed {
+    transform: none;
+    transition: opacity .01s linear;
+  }
+}
+
 /* Kaki halaman hanya untuk layar; lembar cetak sudah punya kaki sendiri. */
 @media print {
   body[data-page] .spk-app-footer { display: none !important; }

@@ -30,12 +30,13 @@ const outputRoot = !target
 // pada halaman yang sedang terbit.
 const assetVersions = {
   "gas-rpc.js": "20260811-5",
-  "responsive.css": "20260813-5",
+  "responsive.css": "20260813-6",
   "routing-accessories.css": "20260812-1",
   "routing-bs.js": "20260812-1",
   "routing-accessories.js": "20260812-1",
   "modal-scroll-lock.js": "20260812-1",
-  "responsive-header.js": "20260812-3"
+  "responsive-header.js": "20260812-3",
+  "footer-reveal.js": "20260813-1"
 };
 
 // Kaki halaman dipasang oleh build karena sumber GAS tidak memuatnya. Teksnya
@@ -156,7 +157,7 @@ function convertTemplate(route) {
     html = html.replace("</body>", footer + "</body>");
   }
 
-  const tailScripts = ["modal-scroll-lock.js", "responsive-header.js"]
+  const tailScripts = ["modal-scroll-lock.js", "responsive-header.js", "footer-reveal.js"]
     .map(name => `${route.indent}<script src="../${asset(name)}"></script>\n`)
     .join("");
   html = html.replace("</body>", tailScripts + "</body>");

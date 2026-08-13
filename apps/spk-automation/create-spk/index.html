@@ -4935,7 +4935,7 @@
               <select id="uomOrder" class="field-input input-pair-uom">
                 <option value="PCS">PCS</option>
                 <option value="KG">KG</option>
-                <option value="ROLL">GULUNGAN</option>
+                <option value="ROLL">ROLL</option>
               </select>
             </div>
           </div>
@@ -4946,7 +4946,7 @@
               <select id="uomKB" class="field-input input-pair-uom">
                 <option value="">UOM</option>
                 <option value="KG">KG</option>
-                <option value="ROLL">GULUNGAN</option>
+                <option value="ROLL">ROLL</option>
               </select>
             </div>
           </div>
@@ -4964,8 +4964,8 @@
 
           <!-- Baris 4: konversi roll, jenis potongan, sumber bahan, dan toleransi kirim -->
           <div class="form-cell">
-            <label class="field-label">Meter / Gulungan</label>
-            <input type="number" step="any" min="0" id="meterRoll" class="field-input" placeholder="Panjang per gulungan">
+            <label class="field-label">Meter / Roll</label>
+            <input type="number" step="any" min="0" id="meterRoll" class="field-input" placeholder="Panjang per roll">
           </div>
           <div class="form-cell">
             <label class="field-label">Jenis Potongan</label>
@@ -5052,7 +5052,7 @@
 
         <div class="routing-tabs-shell">
           <div id="routingProcessTabs" class="routing-process-tabs" role="tablist" aria-label="Pilih proses produksi"></div>
-          <p class="routing-tabs-hint">Klik proses untuk menambahkannya sebagai langkah berikutnya. Proses yang sama boleh dipilih lagi &mdash; misalnya Pembentukan Lipatan, Pelipatan, Pembelahan, lalu Pelipatan sekali lagi. Urutan dapat digeser dan tiap langkah disunting lewat kartunya di bawah.</p>
+          <p class="routing-tabs-hint">Klik proses untuk menambahkannya sebagai langkah berikutnya. Proses yang sama boleh dipilih lagi &mdash; misalnya Gusset, Folding, Slitting, lalu Folding sekali lagi. Urutan dapat digeser dan tiap langkah disunting lewat kartunya di bawah.</p>
 
           <!-- Dipertahankan sebagai jembatan nilai untuk kode lama; kontrol
                visualnya kini langsung memakai tab proses. -->
@@ -5078,9 +5078,9 @@
         <div class="routing-panels">
 
           <!-- ---------- MIXER ---------- -->
-          <section class="route-panel" id="route-mixer" aria-label="Pencampuran" hidden>
+          <section class="route-panel" id="route-mixer" aria-label="Mixer" hidden>
             <div class="route-panel-head">
-              <span class="route-panel-title">Pencampuran</span>
+              <span class="route-panel-title">Mixer</span>
               <span class="route-panel-meta">Komposisi bahan baku</span>
             </div>
             <div class="form-grid route-fields route-fields--split">
@@ -5099,14 +5099,14 @@
           </section>
 
           <!-- ---------- BLOWING ---------- -->
-          <section class="route-panel" id="route-blowing" aria-label="Peniupan" hidden>
+          <section class="route-panel" id="route-blowing" aria-label="Blowing" hidden>
             <div class="route-panel-head">
-              <span class="route-panel-title">Peniupan</span>
+              <span class="route-panel-title">Blowing</span>
               <span class="route-panel-meta">Ukuran, perlakuan, dan mode cetak</span>
             </div>
             <div class="form-grid route-fields route-fields--blowing">
               <div class="form-cell">
-                <label class="field-label">Ukuran Peniupan</label>
+                <label class="field-label">Ukuran Blowing</label>
                 <input type="text" id="ukuranBlow" class="field-input" placeholder="Contoh: 78 X 0.05">
               </div>
               <div class="form-cell">
@@ -5149,14 +5149,14 @@
             <div id="warnaHost-blowing" class="warna-host"></div>
             <div class="route-note">
               <label class="field-label" for="ket-blowing">Keterangan</label>
-              <textarea id="ket-blowing" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Peniupan."></textarea>
+              <textarea id="ket-blowing" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Blowing."></textarea>
             </div>
           </section>
 
           <!-- ---------- PRINTING ---------- -->
-          <section class="route-panel" id="route-printing" aria-label="Pencetakan" hidden>
+          <section class="route-panel" id="route-printing" aria-label="Printing" hidden>
             <div class="route-panel-head">
-              <span class="route-panel-title">Pencetakan</span>
+              <span class="route-panel-title">Printing</span>
               <span class="route-panel-meta">Warna, tinta, dan silinder</span>
             </div>
             <div class="form-grid route-fields route-fields--split">
@@ -5177,19 +5177,19 @@
             <div id="warnaHost-printing" class="warna-host"></div>
             <div class="route-note">
               <label class="field-label" for="ket-printing">Keterangan</label>
-              <textarea id="ket-printing" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Pencetakan."></textarea>
+              <textarea id="ket-printing" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Printing."></textarea>
             </div>
           </section>
 
           <!-- ---------- FOLDING ---------- -->
-          <section class="route-panel" id="route-folding" aria-label="Pelipatan" hidden>
+          <section class="route-panel" id="route-folding" aria-label="Folding" hidden>
             <div class="route-panel-head">
-              <span class="route-panel-title">Pelipatan</span>
+              <span class="route-panel-title">Folding</span>
               <span class="route-panel-meta">Ukuran lipat</span>
             </div>
             <div class="form-grid route-fields route-fields--sizes">
               <div class="form-cell">
-                <label class="field-label">Ukuran Pelipatan</label>
+                <label class="field-label">Ukuran Folding</label>
                 <input type="text" id="ukuranFolding" class="field-input" placeholder="Contoh: 35 + 5 LIDAH X 0.05">
               </div>
               <div class="form-cell">
@@ -5205,19 +5205,19 @@
             <div id="bsSheetHost-folding" class="bs-sheet-host"></div>
             <div class="route-note">
               <label class="field-label" for="ket-folding">Keterangan</label>
-              <textarea id="ket-folding" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Pelipatan."></textarea>
+              <textarea id="ket-folding" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Folding."></textarea>
             </div>
           </section>
 
           <!-- ---------- SLITTING ---------- -->
-          <section class="route-panel" id="route-slitting" aria-label="Pembelahan" hidden>
+          <section class="route-panel" id="route-slitting" aria-label="Slitting" hidden>
             <div class="route-panel-head">
-              <span class="route-panel-title">Pembelahan</span>
+              <span class="route-panel-title">Slitting</span>
               <span class="route-panel-meta">Ukuran potong memanjang</span>
             </div>
             <div class="form-grid route-fields route-fields--sizes">
               <div class="form-cell">
-                <label class="field-label">Ukuran Pembelahan</label>
+                <label class="field-label">Ukuran Slitting</label>
                 <input type="text" id="ukuranSlitting" class="field-input" placeholder="Contoh: 35 X 0.05">
               </div>
               <div class="form-cell">
@@ -5233,14 +5233,14 @@
             <div id="bsSheetHost-slitting" class="bs-sheet-host"></div>
             <div class="route-note">
               <label class="field-label" for="ket-slitting">Keterangan</label>
-              <textarea id="ket-slitting" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Pembelahan."></textarea>
+              <textarea id="ket-slitting" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Slitting."></textarea>
             </div>
           </section>
 
           <!-- ---------- GUSSET ---------- -->
-          <section class="route-panel" id="route-gusset" aria-label="Pembentukan Lipatan" hidden>
+          <section class="route-panel" id="route-gusset" aria-label="Gusset" hidden>
             <div class="route-panel-head">
-              <span class="route-panel-title">Pembentukan Lipatan</span>
+              <span class="route-panel-title">Gusset</span>
               <span class="route-panel-meta">Ukuran lipatan samping</span>
             </div>
             <div class="form-grid route-fields route-fields--sizes">
@@ -5265,14 +5265,14 @@
             <div id="bsSheetHost-gusset" class="bs-sheet-host"></div>
             <div class="route-note">
               <label class="field-label" for="ket-gusset">Keterangan</label>
-              <textarea id="ket-gusset" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Pembentukan Lipatan."></textarea>
+              <textarea id="ket-gusset" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Gusset."></textarea>
             </div>
           </section>
 
           <!-- ---------- CUTTING / FINISHING ---------- -->
-          <section class="route-panel" id="route-cutting" aria-label="Pemotongan" hidden>
+          <section class="route-panel" id="route-cutting" aria-label="Cutting" hidden>
             <div class="route-panel-head">
-              <span class="route-panel-title">Pemotongan &mdash; Penyelesaian</span>
+              <span class="route-panel-title">Cutting &mdash; Penyelesaian</span>
               <span class="route-panel-meta">Alur akhir dan pengepakan</span>
             </div>
 
@@ -5322,7 +5322,7 @@
                   <select id="packing" class="field-input" onchange="updatePackingDetailVisibility_()">
                     <option value="">Pilih bentuk pengepakan</option>
                     <option value="BAG">Kantong</option>
-                    <option value="ROLL">Gulungan</option>
+                    <option value="ROLL">Roll</option>
                   </select>
                 </div>
                 <div class="form-cell" id="packingBagCell" hidden>
@@ -5330,12 +5330,12 @@
                   <input type="number" min="0" step="any" id="packingOuterBall" class="field-input" placeholder="Jumlah bal pada kemasan luar">
                 </div>
                 <div class="form-cell" id="packingRollCell" hidden>
-                  <label class="field-label">Isi per Gulungan</label>
+                  <label class="field-label">Isi per Roll</label>
                   <div class="input-pair">
                     <input type="number" min="0" step="any" id="packingRollNilai" class="field-input" placeholder="Nilai">
                     <select id="packingRollUom" class="field-input input-pair-uom">
                       <option value="">UOM</option>
-                      <option value="ROLL">GULUNGAN</option>
+                      <option value="ROLL">ROLL</option>
                       <option value="KG">KG</option>
                     </select>
                   </div>
@@ -5358,7 +5358,7 @@
                 <summary>Target BS tambahan</summary>
                 <div class="form-grid route-fields route-fields--bs">
                   <div class="form-cell">
-                    <label class="field-label">BS Pembelahan Lembaran (%)</label>
+                    <label class="field-label">BS Slitting Lembaran (%)</label>
                     <input type="number" step="any" min="0" max="100" id="bs-sheetSlitting" class="field-input" placeholder="0" value="0" oninput="hitungTotalBs()">
                   </div>
                   <div class="form-cell">
@@ -5421,7 +5421,7 @@
               <input type="number" step="any" min="0" id="bahanDensityDisplay" class="field-input" data-bahan-ukuran="density" placeholder="0,00" oninput="commitBahanUkuran_()">
             </div>
           </div>
-          <p class="bahan-ukuran-hint">Kolom kosong terisi otomatis dari Ukuran Peniupan, Ukuran Jadi, dan Jenis Bahan. Begitu diketik, angka Anda yang dipakai untuk menghitung PCS/KG dan Keluar Bahan.</p>
+          <p class="bahan-ukuran-hint">Kolom kosong terisi otomatis dari Ukuran Blowing, Ukuran Jadi, dan Jenis Bahan. Begitu diketik, angka Anda yang dipakai untuk menghitung PCS/KG dan Keluar Bahan.</p>
         </div>
 
         <div id="routingEditorActions" class="routing-editor-actions" hidden>
@@ -5502,10 +5502,10 @@
             <strong id="calcResult" class="calculation-sheet-result-value">&mdash;</strong>
           </div>
           <div id="calcReferenceDetail" class="calculation-sheet-reference">Lengkapi jenis bahan, ukuran, dan pesanan.</div>
-          <div id="calcOrderTypeNote" class="calculation-sheet-reference">Catatan: OPP - CPP - Kirim Gulungan, mohon atur ukuran panjang sesuai kebutuhan meter!</div>
+          <div id="calcOrderTypeNote" class="calculation-sheet-reference">Catatan: OPP - CPP - Kirim Roll, mohon atur ukuran panjang sesuai kebutuhan meter!</div>
           <div class="calculation-sheet-info-grid">
             <div class="calculation-sheet-info">
-              <span>Ukuran Peniupan</span>
+              <span>Ukuran Blowing</span>
               <strong id="calcUkuranBlowing">&mdash;</strong>
             </div>
             <div class="calculation-sheet-info">
@@ -5593,52 +5593,52 @@
     const PROSES_LIST = [
       {
         key: 'mixer',
-        label: 'Pencampuran',
-        noteLabel: 'Keterangan Pencampuran',
+        label: 'Mixer',
+        noteLabel: 'Keterangan Mixer',
         placeholder: 'Contoh: urutan pencampuran, waktu pencampuran, atau instruksi khusus.'
       },
       {
         key: 'blowing',
-        label: 'Peniupan',
-        noteLabel: 'Keterangan Peniupan',
-        placeholder: 'Contoh: pengaturan mesin, warna, ketebalan, atau instruksi khusus Peniupan.'
+        label: 'Blowing',
+        noteLabel: 'Keterangan Blowing',
+        placeholder: 'Contoh: pengaturan mesin, warna, ketebalan, atau instruksi khusus Blowing.'
       },
       {
         key: 'printing',
-        label: 'Pencetakan',
-        noteLabel: 'Keterangan Pencetakan',
-        placeholder: 'Contoh: warna tinta, posisi cetak, standar desain, atau instruksi Pencetakan.'
+        label: 'Printing',
+        noteLabel: 'Keterangan Printing',
+        placeholder: 'Contoh: warna tinta, posisi cetak, standar desain, atau instruksi Printing.'
       },
       {
         key: 'slitting',
-        label: 'Pembelahan',
-        noteLabel: 'Keterangan Pembelahan',
-        placeholder: 'Contoh: ukuran potong, jumlah jalur, atau instruksi khusus Pembelahan.'
+        label: 'Slitting',
+        noteLabel: 'Keterangan Slitting',
+        placeholder: 'Contoh: ukuran potong, jumlah jalur, atau instruksi khusus Slitting.'
       },
       {
         key: 'folding',
-        label: 'Pelipatan',
-        noteLabel: 'Keterangan Pelipatan',
-        placeholder: 'Contoh: arah lipatan, ukuran lipat, atau instruksi khusus Pelipatan.'
+        label: 'Folding',
+        noteLabel: 'Keterangan Folding',
+        placeholder: 'Contoh: arah lipatan, ukuran lipat, atau instruksi khusus Folding.'
       },
       {
         key: 'gusset',
-        label: 'Pembentukan Lipatan',
-        noteLabel: 'Keterangan Pembentukan Lipatan',
-        placeholder: 'Contoh: ukuran lipatan, posisi, atau instruksi khusus Pembentukan Lipatan.'
+        label: 'Gusset',
+        noteLabel: 'Keterangan Gusset',
+        placeholder: 'Contoh: ukuran lipatan, posisi, atau instruksi khusus Gusset.'
       }
     ];
 
     // Cutting bukan bagian PROSES_LIST karena di Database ia diwakili
     // kolom Finishing, bukan salah satu kolom proses T:Y.
     const ROUTING_LIST = [
-      { key: 'mixer', label: 'Pencampuran' },
-      { key: 'blowing', label: 'Peniupan' },
-      { key: 'printing', label: 'Pencetakan' },
-      { key: 'folding', label: 'Pelipatan' },
-      { key: 'slitting', label: 'Pembelahan' },
-      { key: 'gusset', label: 'Pembentukan Lipatan' },
-      { key: 'cutting', label: 'Pemotongan' }
+      { key: 'mixer', label: 'Mixer' },
+      { key: 'blowing', label: 'Blowing' },
+      { key: 'printing', label: 'Printing' },
+      { key: 'folding', label: 'Folding' },
+      { key: 'slitting', label: 'Slitting' },
+      { key: 'gusset', label: 'Gusset' },
+      { key: 'cutting', label: 'Cutting' }
     ];
 
     // Auto-isi dari Ukuran Jadi tetap hanya menyentuh kolom Ukuran yang lama.
@@ -5665,18 +5665,18 @@
     };
 
     const BS_LIST = [
-      { key: 'blowing', label: 'Peniupan' },
-      { key: 'printing', label: 'Pencetakan' },
-      { key: 'slitting', label: 'Pembelahan' },
-      { key: 'folding', label: 'Pelipatan' },
-      { key: 'gusset', label: 'Pembentukan Lipatan' },
+      { key: 'blowing', label: 'Blowing' },
+      { key: 'printing', label: 'Printing' },
+      { key: 'slitting', label: 'Slitting' },
+      { key: 'folding', label: 'Folding' },
+      { key: 'gusset', label: 'Gusset' },
       { key: 'sheet', label: 'Lembaran' },
       { key: 'pon', label: 'Pon' },
       { key: 'tshirt', label: 'Kantong Kaos' },
       { key: 'bottomSeal', label: 'Segel Bawah' },
       { key: 'sideSeal', label: 'Segel Samping' },
       { key: 'handle', label: 'Pegangan' },
-      { key: 'sheetSlitting', label: 'Pembelahan Lembaran' }
+      { key: 'sheetSlitting', label: 'Slitting Lembaran' }
     ];
 
     // BS Sheet berlaku untuk Folding, Slitting, dan Gusset. Elemen inputnya
@@ -6173,8 +6173,8 @@
       if (uom === 'ROLL') {
         return {
           code: 'F',
-          label: 'F · Pesanan GULUNGAN',
-          sheetTitle: 'Logika Perhitungan Kirim GULUNGAN',
+          label: 'F · Pesanan ROLL',
+          sheetTitle: 'Logika Perhitungan Kirim ROLL',
           resultUom: 'ROLL'
         };
       }
@@ -6333,7 +6333,7 @@
           ...categorizedBase,
           incomplete: true,
           fieldId: 'ukuranBlow',
-          message: 'Isi Ukuran Peniupan.'
+          message: 'Isi Ukuran Blowing.'
         };
       }
       if (!String(ukuranJadi).trim()) {
@@ -6414,7 +6414,7 @@
             category,
             incomplete: true,
             fieldId: 'meterRoll',
-            message: 'Isi Meter/Gulungan untuk pesanan GULUNGAN.'
+            message: 'Isi Meter/Roll untuk pesanan ROLL.'
           };
         }
         keluarBahan = orderAfterBs * meterRoll / meter / up;
@@ -6477,7 +6477,7 @@
     }
 
     function getCalculationOrderTypeNote_() {
-      return 'Catatan: OPP - CPP - Kirim Gulungan, mohon atur ukuran panjang sesuai kebutuhan meter!';
+      return 'Catatan: OPP - CPP - Kirim Roll, mohon atur ukuran panjang sesuai kebutuhan meter!';
     }
 
     function buildCalculationSheetView_(result) {
@@ -6556,7 +6556,7 @@
             (result.ok ? resultNumber(result.keluarBahan) + ' KG' : '—');
           references.push('Tidak memakai konversi; hasil sama dengan Pesanan + BS.');
         } else if (category.code === 'F') {
-          formulaLabel = 'Hasil × Meter Gulungan ÷ Meter ÷ UP';
+          formulaLabel = 'Hasil × Meter Roll ÷ Meter ÷ UP';
           formulaLine =
             number(result.orderAfterBs) + ' × ' +
             number(result.meterRoll) + ' ÷ ' +
@@ -6568,11 +6568,11 @@
             'Lebar: ' + number(dimensions.lebar),
             'Lebar Bahan: ' + number(dimensions.lebarBahan),
             'Tebal: ' + number(dimensions.tebal),
-            'Meter Gulungan: ' + number(result.meterRoll),
+            'Meter Roll: ' + number(result.meterRoll),
             'Meter: ' + number(result.meter),
             'UP: ' + (result.up === null || result.up === undefined ? '—' : result.up) +
               (dimensions.upTertulis > 0
-                ? ' (tertulis pada Ukuran Peniupan)'
+                ? ' (tertulis pada Ukuran Blowing)'
                 : ' (dihitung dari lebar)')
           );
         }
@@ -6580,7 +6580,7 @@
 
       if (upTertulisAktif) {
         references.push(
-          'UP: ' + number(dimensions.upTertulis) + ' (tertulis pada Ukuran Peniupan)'
+          'UP: ' + number(dimensions.upTertulis) + ' (tertulis pada Ukuran Blowing)'
         );
       }
 
@@ -6984,7 +6984,7 @@
 
         if (!['PCS', 'KG', 'ROLL'].includes(uomOrderField.value)) {
           uomOrderField.classList.add('wizard-invalid');
-          if (showAlert) showValidationAlert_('UOM Pesanan Belum Valid', 'Pilih PCS, KG, atau GULUNGAN.');
+          if (showAlert) showValidationAlert_('UOM Pesanan Belum Valid', 'Pilih PCS, KG, atau ROLL.');
           uomOrderField.focus();
           return false;
         }
@@ -6993,8 +6993,8 @@
           meterRollField.classList.add('wizard-invalid');
           if (showAlert) {
             showValidationAlert_(
-              'Meter/Gulungan Belum Lengkap',
-              'Isi Meter/Gulungan lebih dari 0 untuk pesanan GULUNGAN.'
+              'Meter/Roll Belum Lengkap',
+              'Isi Meter/Roll lebih dari 0 untuk pesanan ROLL.'
             );
           }
           meterRollField.focus();
@@ -7019,7 +7019,7 @@
         ) {
           uomKbField.classList.add('wizard-invalid');
           if (showAlert) {
-            showValidationAlert_('UOM Keluar Bahan Belum Valid', 'Pilih UOM KG atau GULUNGAN.');
+            showValidationAlert_('UOM Keluar Bahan Belum Valid', 'Pilih UOM KG atau ROLL.');
           }
           uomKbField.focus();
           return false;
@@ -9479,7 +9479,7 @@
                     <option value="">UOM</option>
                     <option value="PCS"${row.uom === 'PCS' ? ' selected' : ''}>PCS</option>
                     <option value="KG"${row.uom === 'KG' ? ' selected' : ''}>KG</option>
-                    <option value="ROLL"${row.uom === 'ROLL' ? ' selected' : ''}>GULUNGAN</option>
+                    <option value="ROLL"${row.uom === 'ROLL' ? ' selected' : ''}>ROLL</option>
                   </select>
                 </div>
               </div>

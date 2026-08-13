@@ -3638,7 +3638,7 @@
                   ? `
                     <option value="" ${uom === '' ? 'selected' : ''}>Pilih UOM</option>
                     <option value="KG" ${uom === 'KG' ? 'selected' : ''}>KG</option>
-                    <option value="ROLL" ${uom === 'ROLL' ? 'selected' : ''}>GULUNGAN</option>
+                    <option value="ROLL" ${uom === 'ROLL' ? 'selected' : ''}>ROLL</option>
                   `
                   : '<option value="" selected>—</option>'}
               </select>
@@ -3747,7 +3747,7 @@
           return etaModalValidationError_(
             row,
             uomField,
-            'Pilih UOM ETA ' + (index + 1) + ': KG atau GULUNGAN.'
+            'Pilih UOM ETA ' + (index + 1) + ': KG atau ROLL.'
           );
         }
 
@@ -4111,7 +4111,7 @@
         { label: 'SPK Referensi', value: displayValue_(data.spkReferensi) }
       ];
       const sizeData = [
-        { label: 'Ukuran Peniupan', value: displayValue_(data.ukuranBlow) },
+        { label: 'Ukuran Blowing', value: displayValue_(data.ukuranBlow) },
         { label: 'Ukuran Jadi', value: displayValue_(data.ukuranJadi) }
       ];
 
@@ -4228,7 +4228,7 @@
       }
       if (calculation.category === 'F') {
         references.push(
-          'Meter Gulungan: ' + formatNumber_(calculation.meterRoll),
+          'Meter Roll: ' + formatNumber_(calculation.meterRoll),
           'UP: ' + formatNumber_(calculation.up)
         );
       }
@@ -4422,7 +4422,7 @@
         // penjelasannya pun tidak boleh menampilkan rumus pembagian.
         lines.push(calculation.upTertulis >= 1
           ? {
-              symbolic: 'UP tertulis pada Ukuran Peniupan',
+              symbolic: 'UP tertulis pada Ukuran Blowing',
               values: formatNumber_(calculation.upTertulis) + ' UP'
             }
           : {
@@ -4498,8 +4498,8 @@
         };
       }
       return {
-          label: 'Hasil × Meter Gulungan ÷ Meter ÷ UP',
-          symbolic: 'Pesanan setelah BS × Meter Gulungan ÷ Meter ÷ UP',
+          label: 'Hasil × Meter Roll ÷ Meter ÷ UP',
+          symbolic: 'Pesanan setelah BS × Meter Roll ÷ Meter ÷ UP',
         values:
           afterBs + ' × ' + formatNumber_(calculation.meterRoll) +
           ' ÷ ' + formatNumber_(calculation.meter) +
@@ -4536,7 +4536,7 @@
       }
       if (calculation.category === 'F') {
         references.push(
-          { label: 'Meter Gulungan', value: formatMeasurement_(calculation.meterRoll, 'meter') },
+          { label: 'Meter Roll', value: formatMeasurement_(calculation.meterRoll, 'meter') },
           { label: 'UP', value: formatNumber_(calculation.up) }
         );
       }
@@ -4658,14 +4658,14 @@
       const calculation = data.calculation || {};
       const calculatedAvailable = calculation.ok;
       const specs = [
-        { label: 'Ukuran Peniupan', value: displayValue_(data.ukuranBlow) },
+        { label: 'Ukuran Blowing', value: displayValue_(data.ukuranBlow) },
         { label: 'Ukuran Jadi', value: displayValue_(data.ukuranJadi) },
         { label: 'Lebar Jadi', value: formatMeasurement_(dimensions.lebarJadi, 'cm') },
         { label: 'Panjang Jadi', value: formatMeasurement_(dimensions.panjangJadi, 'cm') },
         { label: 'Tebal Jadi', value: formatMeasurement_(dimensions.tebalJadi, 'mm') },
         { label: 'Lebar Bahan', value: formatMeasurement_(dimensions.lebarBahan, 'cm') },
         { label: 'Tebal Blowing', value: formatMeasurement_(dimensions.tebalBlow, 'mm') },
-        { label: 'Meter Gulungan', value: formatMeasurement_(data.meterRoll, 'meter') }
+        { label: 'Meter Roll', value: formatMeasurement_(data.meterRoll, 'meter') }
       ];
       const conversions = [
         {
@@ -4711,7 +4711,7 @@
                 Spesifikasi Ukuran
               </h3>
               <p class="detail-section-note">
-                Ukuran asli dan komponen angka yang dibaca dari Ukuran Peniupan serta Ukuran Jadi.
+                Ukuran asli dan komponen angka yang dibaca dari Ukuran Blowing serta Ukuran Jadi.
               </p>
             </div>
           </div>
@@ -5039,7 +5039,7 @@
               ? `
                 <option value="" ${uom === '' ? 'selected' : ''}>UOM</option>
                 <option value="KG" ${uom === 'KG' ? 'selected' : ''}>KG</option>
-                <option value="ROLL" ${uom === 'ROLL' ? 'selected' : ''}>GULUNGAN</option>
+                <option value="ROLL" ${uom === 'ROLL' ? 'selected' : ''}>ROLL</option>
               `
               : '<option value="" selected>—</option>'}
           </select>
@@ -5103,7 +5103,7 @@
               <select class="editor-select js-uom-kb" aria-label="UOM keluar bahan untuk ${escapeAttr_(item.spk)}">
                 <option value="" ${uom === '' ? 'selected' : ''}>UOM</option>
                 <option value="KG" ${uom === 'KG' ? 'selected' : ''}>KG</option>
-                <option value="ROLL" ${uom === 'ROLL' ? 'selected' : ''}>GULUNGAN</option>
+                <option value="ROLL" ${uom === 'ROLL' ? 'selected' : ''}>ROLL</option>
               </select>
             </div>
           </td>
@@ -5217,7 +5217,7 @@
       }
       if (hasQuantity && !clearing && !['KG', 'ROLL'].includes(uom)) {
         if (uomField) uomField.focus();
-        showToast_('Pilih UOM ETA ' + etaNumber + ': KG atau GULUNGAN.', true);
+        showToast_('Pilih UOM ETA ' + etaNumber + ': KG atau ROLL.', true);
         return;
       }
 
@@ -5318,7 +5318,7 @@
       }
       if (!['KG', 'ROLL'].includes(uom)) {
         if (uomField) uomField.focus();
-      showToast_('Pilih UOM KG atau GULUNGAN.', true);
+      showToast_('Pilih UOM KG atau ROLL.', true);
         return;
       }
 

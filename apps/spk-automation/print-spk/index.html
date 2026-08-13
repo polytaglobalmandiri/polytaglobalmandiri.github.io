@@ -4013,27 +4013,27 @@
         : 'release';
 
     const PROCESS_DEFINITIONS = [
-      { key: 'mixer', label: 'Pencampuran' },
-      { key: 'blowing', label: 'Peniupan' },
-      { key: 'printing', label: 'Pencetakan' },
-      { key: 'slitting', label: 'Pembelahan' },
-      { key: 'folding', label: 'Pelipatan' },
-      { key: 'gusset', label: 'Pembentukan Lipatan' }
+      { key: 'mixer', label: 'Mixer' },
+      { key: 'blowing', label: 'Blowing' },
+      { key: 'printing', label: 'Printing' },
+      { key: 'slitting', label: 'Slitting' },
+      { key: 'folding', label: 'Folding' },
+      { key: 'gusset', label: 'Gusset' }
     ];
 
     const BS_DEFINITIONS = [
-      { key: 'blowing', label: 'Peniupan' },
-      { key: 'printing', label: 'Pencetakan' },
-      { key: 'slitting', label: 'Pembelahan' },
-      { key: 'folding', label: 'Pelipatan' },
-      { key: 'gusset', label: 'Pembentukan Lipatan' },
+      { key: 'blowing', label: 'Blowing' },
+      { key: 'printing', label: 'Printing' },
+      { key: 'slitting', label: 'Slitting' },
+      { key: 'folding', label: 'Folding' },
+      { key: 'gusset', label: 'Gusset' },
       { key: 'sheet', label: 'Lembaran' },
       { key: 'pon', label: 'Pon' },
       { key: 'tshirt', label: 'Kantong Kaos' },
       { key: 'bottomSeal', label: 'Segel Bawah' },
       { key: 'sideSeal', label: 'Segel Samping' },
       { key: 'handle', label: 'Pegangan' },
-      { key: 'sheetSlitting', label: 'Pembelahan Lembaran' }
+      { key: 'sheetSlitting', label: 'Slitting Lembaran' }
     ];
 
     const printRootEl = document.getElementById('printRoot');
@@ -4570,7 +4570,7 @@
 
                 <div class="po-subtitle">Ukuran</div>
                 ${fieldLine_('Ukuran Jadi', data.ukuranJadi)}
-                ${fieldLine_('Ukuran Peniupan', data.ukuranBlow)}
+                ${fieldLine_('Ukuran Blowing', data.ukuranBlow)}
                 ${fieldLine_('L x P x T', joinNonEmpty_([
                   component.lebar,
                   component.panjang,
@@ -4742,8 +4742,8 @@
               ${fieldLine_('Tanggal Kirim', formatDate_(data.etd))}
               ${fieldLine_('Jumlah Bahan', quantityWithUom_(data.keluarBahan, data.uomKB))}
               ${fieldLine_('Toleransi', formatPercent_(data.toleransi))}
-              ${fieldLine_('Kg / Gulungan', kgPerRollText_(data))}
-              ${fieldLine_('Meter / Gulungan', meterPerRollText_(data))}
+              ${fieldLine_('Kg / Roll', kgPerRollText_(data))}
+              ${fieldLine_('Meter / Roll', meterPerRollText_(data))}
               ${fieldLine_('Pemasaran', data.marketing)}
               ${fieldLine_('PO Sebelumnya', data.spkReferensi)}
             </div>
@@ -4782,7 +4782,7 @@
       return `
         <section class="process-section">
           <div class="process-title">
-            <strong>PENCAMPURAN</strong>
+            <strong>MIXER</strong>
             <span>Komposisi dan pemakaian bahan baku</span>
           </div>
           <div class="mixer-layout">
@@ -4836,7 +4836,7 @@
           </div>
           <div class="process-fields cols-4">
             ${processField_('Mesin', formValue_(data, form, 'mesin-blowing'))}
-            ${processField_('Ukuran Peniupan', data.ukuranBlow)}
+            ${processField_('Ukuran Blowing', data.ukuranBlow)}
             ${processField_('Microne', component.tebalBlow)}
             ${processField_('Ket', data.film)}
             ${processField_('Kode Item', data.kodeItem)}
@@ -4917,9 +4917,9 @@
             <table class="grid-table roll-log printing-main">
               <thead>
                 <tr>
-                  <th rowspan="2">No. Gulungan</th><th rowspan="2">Tgl</th>
+                  <th rowspan="2">No. Roll</th><th rowspan="2">Tgl</th>
                   <th colspan="2">Hasil</th><th colspan="2">Jam</th><th rowspan="2">Ket.</th>
-                  <th rowspan="2">No. Gulungan</th><th rowspan="2">Tgl</th>
+                  <th rowspan="2">No. Roll</th><th rowspan="2">Tgl</th>
                   <th colspan="2">Hasil</th><th colspan="2">Jam</th><th rowspan="2">Ket.</th>
                 </tr>
                 <tr>
@@ -4929,7 +4929,7 @@
               </thead>
               <tbody>${blankRows_(14, 9)}</tbody>
               <tfoot>
-                <tr><th colspan="5">Total Hasil</th><td colspan="4">BS / NG Pencetakan</td><td colspan="5">BS / NG Polos</td></tr>
+                <tr><th colspan="5">Total Hasil</th><td colspan="4">BS / NG Printing</td><td colspan="5">BS / NG Polos</td></tr>
               </tfoot>
             </table>
             <div>
@@ -4958,7 +4958,7 @@
     // Ukuran Jadi; Ukuran Jadi adalah ukuran produk akhir dan tidak
     // menggambarkan ukuran yang dikerjakan divisi ini.
     const CONVERSION_FIELD_MAP = {
-      slitting: { label: 'Ukuran Pembelahan', ukuran: 'ukuranSlitting' },
+      slitting: { label: 'Ukuran Slitting', ukuran: 'ukuranSlitting' },
       folding: { label: 'Ukuran Lipat', ukuran: 'ukuranFolding' },
       gusset: { label: 'Ukuran Lipatan', ukuran: 'ukuranGusset', extraLabel: 'Lebar Lipatan', extra: 'lebarGusset' }
     };
@@ -5057,9 +5057,9 @@
         <table class="grid-table roll-log">
           <thead>
             <tr>
-              <th rowspan="2">No. Gulungan</th><th rowspan="2">Tgl</th>
+              <th rowspan="2">No. Roll</th><th rowspan="2">Tgl</th>
               <th colspan="2">Hasil</th><th colspan="2">Jam</th><th rowspan="2">Ket.</th>
-              <th rowspan="2">No. Gulungan</th><th rowspan="2">Tgl</th>
+              <th rowspan="2">No. Roll</th><th rowspan="2">Tgl</th>
               <th colspan="2">Hasil</th><th colspan="2">Jam</th><th rowspan="2">Ket.</th>
             </tr>
             <tr>
@@ -5075,7 +5075,7 @@
     function buildConversionLogTable_(uom, rowCount) {
       const unit = String(uom || 'KG').toUpperCase();
       const groupHeader = `
-        <th>Tgl / Operator</th><th>Gulungan Awal</th><th>Hasil ${escapeHtml_(unit)}</th>
+        <th>Tgl / Operator</th><th>Roll Awal</th><th>Hasil ${escapeHtml_(unit)}</th>
       `;
       return `
         <table class="grid-table fold-log">
@@ -5088,7 +5088,7 @@
     function buildCuttingLogTable_(uom, rowCount) {
       const unit = String(uom || 'KG').toUpperCase();
       const groupHeader = `
-        <th>Gulungan Awal / Tgl</th><th>Giliran Kerja</th><th>Hasil ${escapeHtml_(unit)}</th>
+        <th>Roll Awal / Tgl</th><th>Giliran Kerja</th><th>Hasil ${escapeHtml_(unit)}</th>
       `;
       return `
         <table class="grid-table cutting-log">

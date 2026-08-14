@@ -9175,14 +9175,14 @@
     <link rel="stylesheet" href="responsive.css?v=20260814-2">
     <link rel="stylesheet" href="routing-accessories.css?v=20260812-1">
     <style>
-      #spkInputRoot select#marketing {
+      #spkInputRoot input#marketing {
         width: min(100%, 240px);
         max-width: 240px;
         justify-self: start;
       }
 
       @media (max-width: 560px) {
-        #spkInputRoot select#marketing {
+        #spkInputRoot input#marketing {
           width: 100%;
           max-width: none;
         }
@@ -10171,8 +10171,10 @@
           </div>
           <div class="form-cell">
             <label class="field-label">Pemasaran</label>
-            <select id="marketing" class="field-input">
-              <option value="">Pilih pemasaran</option>
+            <input type="text" id="marketing" class="field-input" list="marketingOptionsList"
+              autocomplete="off" spellcheck="false" placeholder="Cari pemasaran"
+              aria-label="Cari dan pilih pemasaran dari Basis Data">
+            <datalist id="marketingOptionsList">
               <option value="Sri Yamtinah">Sri Yamtinah</option>
               <option value="Siti Juheriah">Siti Juheriah</option>
               <option value="Mutiara">Mutiara</option>
@@ -10182,7 +10184,7 @@
               <option value="Puput">Puput</option>
               <option value="Ersa">Ersa</option>
               <option value="Michelle">Michelle</option>
-            </select>
+            </datalist>
           </div>
           <div class="form-cell">
             <label class="field-label">Artikel / Merek</label>
@@ -13793,6 +13795,7 @@
       bindWizardSubmit_();
       bindDraftButton_();
       bindOrderTypeEvents_();
+      bindMarketingSearch_();
       bindSaveSuccessActions_();
       setOrderType_('New Order', { focus: false });
       recalculateRawMaterial_();
@@ -13846,7 +13849,7 @@
       const root = document.getElementById('spkInputRoot');
       if (!root) return;
 
-      root.querySelectorAll('input[placeholder], textarea[placeholder]').forEach(function(field) {
+      root.querySelectorAll('input[placeholder]:not(#marketing), textarea[placeholder]').forEach(function(field) {
         field.removeAttribute('placeholder');
       });
 
@@ -14821,11 +14824,18 @@
           missing.push(mode === 'repeat' ? 'Nomor SPK Ulang Baru' : 'Nomor SPK Pesanan Baru');
           targetUi.field.classList.add('wizard-invalid');
         }
-        if (tanggal.value === '') {
-          missing.push('Tanggal');
-          tanggal.classList.add('wizard-invalid');
-        }
-        if (customer.value.trim() === '') {
+      if (tanggal.value === '') {
+        missing.push('Tanggal');
+        tanggal.classList.add('wizard-invalid');
+      }
+      const marketing = document.getElementById('marketing');
+      if (marketing.value.trim() !== '' && !normalizeMarketingInputSelection_(marketing)) {
+        marketing.classList.add('wizard-invalid');
+        if (showAlert) showValidationAlert_('Pemasaran Belum Valid', 'Cari lalu pilih nama pemasaran yang tersedia dari Basis Data.');
+        marketing.focus();
+        return false;
+      }
+      if (customer.value.trim() === '') {
           missing.push('Pelanggan');
           customer.classList.add('wizard-invalid');
         }
@@ -15110,6 +15120,11 @@
       }));
 
       clearWizardInvalid_();
+      if (!isRepeat) {
+        marketingOptionsSnapshot.length
+          ? populateMarketingDropdown_(marketingOptionsSnapshot)
+          : warmSpkExistenceSnapshot_();
+      }
       recalculateRawMaterial_();
       updateWizardState_();
 
@@ -15716,51 +15731,73 @@
       return String(value || '').trim().replace(/\s+/g, ' ');
     }
 
-    function setMarketingDropdownValue_(value, select) {
+    function getMarketingOptionElements_(input) {
+      if (!input) return [];
+      const list = document.getElementById(input.getAttribute('list') || '');
+      return list ? Array.from(list.options || []) : [];
+    }
+
+    function findMarketingOption_(value, input) {
       const normalized = normalizeMarketingDropdownValue_(value);
-      if (!select || !normalized) {
-        if (select) select.value = '';
+      if (!input || !normalized) return null;
+      const key = normalized.toUpperCase();
+      return getMarketingOptionElements_(input).find(function(option) {
+        return normalizeMarketingDropdownValue_(option.value).toUpperCase() === key;
+      }) || null;
+    }
+
+    function normalizeMarketingInputSelection_(input) {
+      const field = input || document.getElementById('marketing');
+      if (!field) return '';
+      const match = findMarketingOption_(field.value, field);
+      if (!match) return '';
+      field.value = match.value;
+      field.classList.remove('wizard-invalid');
+      return match.value;
+    }
+
+    function setMarketingDropdownValue_(value, input) {
+      const normalized = normalizeMarketingDropdownValue_(value);
+      if (!input || !normalized) {
+        if (input) input.value = '';
         return '';
       }
 
-      const key = normalized.toUpperCase();
-      const match = Array.from(select.options || []).find(function(option) {
-        return normalizeMarketingDropdownValue_(option.value).toUpperCase() === key;
-      });
+      const match = findMarketingOption_(normalized, input);
 
       if (match) {
-        select.value = match.value;
+        input.value = match.value;
         return match.value;
       }
 
       // Menjaga Repeat tetap dapat dipakai bila respons daftar pilihan belum
       // selesai dimuat. Nilainya berasal langsung dari kolom Marketing.
+      const list = document.getElementById(input.getAttribute('list') || '');
+      if (!list) return '';
       const option = document.createElement('option');
       option.value = normalized;
-      option.textContent = normalized;
-      select.appendChild(option);
-      select.value = normalized;
+      list.appendChild(option);
+      input.value = normalized;
       return normalized;
     }
 
     function populateMarketingDropdown_(values) {
-      const select = document.getElementById('marketing');
-      if (!select || !Array.isArray(values)) return;
+      const input = document.getElementById('marketing');
+      const list = document.getElementById('marketingOptionsList');
+      if (!input || !list || !Array.isArray(values)) return;
 
-      const current = normalizeMarketingDropdownValue_(select.value);
+      const current = normalizeMarketingDropdownValue_(input.value);
       const unique = {};
-      values.forEach(function(value) {
+      const sourceValues = values.length
+        ? values
+        : getMarketingOptionElements_(input).map(function(option) { return option.value; });
+      sourceValues.forEach(function(value) {
         const normalized = normalizeMarketingDropdownValue_(value);
         const key = normalized.toUpperCase();
         if (normalized && !unique[key]) unique[key] = normalized;
       });
-      if (current && !unique[current.toUpperCase()]) unique[current.toUpperCase()] = current;
 
-      const placeholder = document.createElement('option');
-      placeholder.value = '';
-      placeholder.textContent = 'Pilih pemasaran';
-      select.innerHTML = '';
-      select.appendChild(placeholder);
+      list.innerHTML = '';
       Object.keys(unique)
         .map(function(key) { return unique[key]; })
         .sort(function(left, right) {
@@ -15769,10 +15806,25 @@
         .forEach(function(value) {
           const option = document.createElement('option');
           option.value = value;
-          option.textContent = value;
-          select.appendChild(option);
+          list.appendChild(option);
         });
-      setMarketingDropdownValue_(current, select);
+      input.value = current;
+      normalizeMarketingInputSelection_(input);
+    }
+
+    function bindMarketingSearch_() {
+      const input = document.getElementById('marketing');
+      if (!input) return;
+      input.addEventListener('input', function() {
+        input.classList.remove('wizard-invalid');
+      });
+      input.addEventListener('change', function() {
+        normalizeMarketingInputSelection_(input);
+        updateWizardState_();
+      });
+      input.addEventListener('blur', function() {
+        normalizeMarketingInputSelection_(input);
+      });
     }
 
     // Basis Data lama menyimpan material sebagai uraian, misalnya

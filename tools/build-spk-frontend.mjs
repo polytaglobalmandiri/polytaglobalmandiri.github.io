@@ -38,7 +38,7 @@ const assetVersions = {
   "responsive-header.js": "20260812-3",
   "footer-reveal.js": "20260813-1",
   "status.css": "20260814-4",
-  "status.js": "20260814-5"
+  "status.js": "20260815-1"
 };
 
 // Kaki halaman dipasang oleh build karena sumber GAS tidak memuatnya. Teksnya

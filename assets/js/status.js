@@ -623,6 +623,44 @@
   }
 
   /**
+   * Peringatan dari ResizeObserver dapat dikirim sebagai galat global oleh
+   * Chromium/WebView2 ketika tata letak masih berubah pada saat halaman
+   * dibuka. Halamannya tetap berjalan dan peramban akan mengulang pengukuran
+   * pada bingkai berikutnya, jadi keadaan itu bukan gangguan aplikasi.
+   * Pembatalan proses oleh peramban juga diperlakukan sama.
+   */
+  function isBenignError(error, event) {
+    var detail = describeError(error);
+    var normalized = detail.toLowerCase();
+
+    // Galat tanpa keterangan tidak memberi tindakan apa pun kepada pengguna.
+    if (!normalized) return true;
+
+    if (error && String(error.name || "").toLowerCase() === "aborterror") return true;
+
+    if (normalized.indexOf("resizeobserver loop") !== -1 ||
+        normalized === "script error." ||
+        normalized === "script error" ||
+        normalized.indexOf("the operation was aborted") !== -1 ||
+        normalized.indexOf("signal is aborted") !== -1) {
+      return true;
+    }
+
+    // Galat yang terjadi langsung di pustaka lintas situs tidak boleh membuat
+    // seluruh aplikasi tampak rusak. Bila pustaka itu memang dibutuhkan dan
+    // membuat kode halaman gagal, galat lanjutan dari halaman sendiri tetap
+    // akan tertangkap dan dilaporkan.
+    var filename = event && event.filename ? String(event.filename) : "";
+    if (filename && /^https?:/i.test(filename)) {
+      var source = document.createElement("a");
+      source.href = filename;
+      if (source.origin && source.origin !== window.location.origin) return true;
+    }
+
+    return false;
+  }
+
+  /**
    * Galat yang tidak tertangkap selalu dilaporkan lewat pita, tidak
    * pernah lewat panel yang menutup halaman. Satu galat kecil pada
    * bagian yang tidak dipakai tidak boleh menghentikan pekerjaan yang
@@ -630,7 +668,9 @@
    * justru merugikan. Panel disediakan untuk halaman yang memang tahu
    * dirinya gagal, lewat PolytaStatus.loadFailed.
    */
-  function reportError(error) {
+  function reportError(error, event) {
+    if (isBenignError(error, event)) return;
+
     var detail = describeError(error);
     if (detail && window.console && window.console.error) {
       window.console.error("[PolytaStatus]", detail);
@@ -655,7 +695,7 @@
       root.setAttribute("data-pgm-aset", "gagal");
       return;
     }
-    reportError(event ? event.error || event.message : null);
+    reportError(event ? event.error || event.message : null, event);
   }, true);
 
   window.addEventListener("unhandledrejection", function (event) {

@@ -46,8 +46,10 @@ internal static class DesktopApp
 
 internal sealed class PortalWindow : Form
 {
+    // Sama dengan --pgm-status-canvas terang pada assets/css/status.css.
+    private static readonly Color CanvasColor = Color.FromArgb(232, 233, 230);
+
     private readonly WebView2 webView;
-    private readonly Label loadingLabel;
     private Icon applicationIcon;
     private bool showingStatusPage;
 
@@ -57,7 +59,7 @@ internal sealed class PortalWindow : Form
         StartPosition = FormStartPosition.CenterScreen;
         WindowState = FormWindowState.Maximized;
         MinimumSize = new Size(960, 640);
-        BackColor = Color.FromArgb(245, 245, 243);
+        BackColor = CanvasColor;
 
         try
         {
@@ -72,25 +74,19 @@ internal sealed class PortalWindow : Form
             applicationIcon = null;
         }
 
+        // Tulisan "Memuat aplikasi" yang dulu ada di sini sudah dilepas.
+        // Halaman yang dimuat kini menggambar layar pemuatannya sendiri
+        // lengkap dengan cincin kemajuan, sehingga dua pemberitahuan yang
+        // saling menimpa hanya membuat pembukaan terasa berkedip. Warna
+        // dasarnya disamakan dengan kanvas layar pemuatan itu supaya jeda
+        // sebelum halaman tampil tidak terlihat sebagai kilatan warna lain.
         webView = new WebView2
         {
             Dock = DockStyle.Fill,
-            DefaultBackgroundColor = Color.FromArgb(245, 245, 243)
-        };
-
-        loadingLabel = new Label
-        {
-            AutoSize = false,
-            Dock = DockStyle.Fill,
-            Text = "Memuat aplikasi POLYTA GLOBAL MANDIRI...",
-            TextAlign = ContentAlignment.MiddleCenter,
-            Font = new Font("Segoe UI", 12F, FontStyle.Regular),
-            ForeColor = Color.FromArgb(55, 58, 62),
-            BackColor = Color.FromArgb(245, 245, 243)
+            DefaultBackgroundColor = CanvasColor
         };
 
         Controls.Add(webView);
-        Controls.Add(loadingLabel);
         Shown += OnWindowShown;
     }
 
@@ -133,8 +129,6 @@ internal sealed class PortalWindow : Form
 
     private void OnNavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs eventArgs)
     {
-        loadingLabel.Visible = false;
-
         if (eventArgs.IsSuccess)
         {
             showingStatusPage = false;
@@ -193,7 +187,6 @@ internal sealed class PortalWindow : Form
         }
 
         showingStatusPage = true;
-        loadingLabel.Visible = false;
 
         string html = StatusPageTemplate
             .Replace("__JUDUL__", System.Net.WebUtility.HtmlEncode(title))
@@ -353,10 +346,6 @@ internal sealed class PortalWindow : Form
             if (webView != null)
             {
                 webView.Dispose();
-            }
-            if (loadingLabel != null)
-            {
-                loadingLabel.Dispose();
             }
             if (applicationIcon != null)
             {

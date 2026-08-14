@@ -356,9 +356,6 @@
       ' stroke-dashoffset="' + KELILING.toFixed(2) + '"></circle>' +
       "</svg>";
 
-    var wajah = makeEl("div", "pgm-boot-face", "🙂");
-    wajah.setAttribute("aria-hidden", "true");
-    ring.appendChild(wajah);
     bootEl.appendChild(ring);
 
     var copy = makeEl("div", "pgm-boot-copy");

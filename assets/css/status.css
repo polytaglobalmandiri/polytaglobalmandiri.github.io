@@ -107,7 +107,6 @@
 }
 
 .pgm-boot-ring {
-  position: relative;
   width: clamp(112px, 30vw, 148px);
   height: clamp(112px, 30vw, 148px);
 }
@@ -133,18 +132,6 @@
   stroke-linecap: round;
   stroke-width: 8;
   transition: stroke-dashoffset .28s ease-out;
-}
-
-/* Wajah diletakkan pada lapisan terpisah agar tidak ikut terputar
-   bersama cincinnya. */
-.pgm-boot-face {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  font-size: clamp(2.1rem, 8vw, 2.8rem);
-  line-height: 1;
-  user-select: none;
 }
 
 .pgm-boot-copy {

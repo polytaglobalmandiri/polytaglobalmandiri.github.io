@@ -580,9 +580,11 @@
   .brand-subtitle,
   .app-brand-subtitle { display: none !important; }
 
+  /* Lebar kolom satuan mengikuti halaman: kalau di sini tetap 82px sedangkan
+     kotak pilihannya 100px, pilihan itu akan melimpah keluar kolomnya. */
   body[data-page="input-spk"] #spkInputRoot .input-pair {
     display: grid !important;
-    grid-template-columns: minmax(0, 1fr) 82px;
+    grid-template-columns: minmax(0, 1fr) 100px;
   }
 
   body[data-page="input-spk"] #spkInputRoot .spk-inline-group,

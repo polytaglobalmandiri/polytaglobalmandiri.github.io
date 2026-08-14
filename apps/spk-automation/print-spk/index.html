@@ -241,20 +241,21 @@
       box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 3px 0 #5f090e;
     }
 
-    /* Tombol cetak sengaja dibuat menonjol: ukurannya lebih besar daripada
-       tombol lain, memakai ikon printer, dan diberi cincin merah yang
-       berdenyut halus selama tombolnya masih dapat ditekan. */
+    /* Kedua tombol aksi berdiri di atas kanvas gelap, jadi keduanya memakai
+       lapisan tembus pandang dengan teks putih: cetak berlapis putih samar,
+       tutup berlapis merah tipis. Pilihan ini menggantikan gaya tombol logam
+       supaya keduanya tidak beradu ramai dengan lembar cetak di bawahnya. */
     .toolbar-button.print-cta {
       min-height: 54px;
       padding: 13px 28px;
       gap: 12px;
+      border: 1px solid rgba(255,255,255,.32);
       border-radius: 12px;
+      color: #fff;
+      background: rgba(255,255,255,.12);
       font-size: .95rem;
       letter-spacing: .05em;
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.45),
-        0 4px 0 #5f090e,
-        0 12px 24px rgba(150,18,28,.4);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.26);
     }
 
     .toolbar-button.print-cta > i {
@@ -266,31 +267,26 @@
     }
 
     .toolbar-button.print-cta:hover:not(:disabled) {
-      background: linear-gradient(180deg, #ff6b73, #e13e49 47%, #c22230 52%, #94141d);
+      border-color: rgba(255,255,255,.5);
+      background: rgba(255,255,255,.2);
     }
 
     .toolbar-button.print-cta:active:not(:disabled) {
-      transform: translateY(3px);
-      box-shadow:
-        inset 0 2px 4px rgba(0,0,0,.35),
-        0 1px 0 #5f090e;
+      transform: translateY(1px);
+      box-shadow: inset 0 2px 5px rgba(0,0,0,.3);
       animation: none;
     }
 
     @keyframes printCtaPulse {
       0%, 100% {
         box-shadow:
-          inset 0 1px 0 rgba(255,255,255,.45),
-          0 4px 0 #5f090e,
-          0 12px 24px rgba(150,18,28,.4),
-          0 0 0 0 rgba(214,50,61,.5);
+          inset 0 1px 0 rgba(255,255,255,.26),
+          0 0 0 0 rgba(255,255,255,.34);
       }
       50% {
         box-shadow:
-          inset 0 1px 0 rgba(255,255,255,.45),
-          0 4px 0 #5f090e,
-          0 12px 24px rgba(150,18,28,.4),
-          0 0 0 9px rgba(214,50,61,0);
+          inset 0 1px 0 rgba(255,255,255,.26),
+          0 0 0 9px rgba(255,255,255,0);
       }
     }
 
@@ -299,24 +295,28 @@
     }
 
     /* Tombol tutup mendampingi tombol cetak, jadi tingginya disamakan supaya
-       keduanya sejajar. Warnanya sengaja netral agar tidak menyaingi tombol
-       cetak yang berdenyut. */
+       keduanya sejajar. */
     .toolbar-button.close-cta {
       min-height: 54px;
       padding: 13px 24px;
       gap: 10px;
+      border: 1px solid rgba(227,38,54,.5);
       border-radius: 12px;
+      color: #fff;
+      background: rgba(227,38,54,.18);
       font-size: .85rem;
       letter-spacing: .05em;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.14);
     }
 
     .toolbar-button.close-cta:hover {
-      background: linear-gradient(180deg, #fff, #f5f5f3 48%, #d5d7d5 52%, #b6bab9);
+      border-color: rgba(227,38,54,.72);
+      background: rgba(227,38,54,.3);
     }
 
     .toolbar-button.close-cta:active {
-      transform: translateY(3px);
-      box-shadow: inset 0 2px 4px rgba(0,0,0,.25), 0 1px 0 #62666a;
+      transform: translateY(1px);
+      box-shadow: inset 0 2px 5px rgba(0,0,0,.3);
     }
 
     .toolbar-button:disabled {
@@ -3932,7 +3932,7 @@
     }
     @media print { .polyta-portal-home { display: none !important; } }
   </style>
-  <link rel="stylesheet" href="../responsive.css?v=20260813-7">
+  <link rel="stylesheet" href="../responsive.css?v=20260814-1">
 </head>
 <body
   class="tw:min-h-screen tw:text-polyta-ink selection:tw:bg-polyta-brand-soft selection:tw:text-polyta-brand"
@@ -4167,7 +4167,7 @@
           ? 'Mode Lihat Saja. Keadaan terbit tidak diubah.'
           : currentPrintData.release === 'YA'
             ? 'Paket SPK sudah pernah diterbitkan dan siap dicetak ulang.'
-            : 'Paket siap. Keadaan terbit menjadi YA setelah tombol cetak ditekan.',
+            : 'Paket SPK siap dicetak. Keadaan terbit akan diperbarui menjadi YA setelah tombol cetak ditekan.',
         'ready'
       );
     }

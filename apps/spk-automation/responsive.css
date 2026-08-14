@@ -1170,6 +1170,40 @@ body[data-page="cetak-spk"] .toolbar-button.primary {
   box-shadow: inset 0 1px 0 rgba(255,255,255,.38), 0 2px 5px rgba(0,0,0,.28) !important;
 }
 
+/* Tombol aksi di atas lembar cetak berdiri pada kanvas gelap, bukan pada bilah
+   logam, sehingga keduanya memakai latar tembus pandang dengan teks putih:
+   cetak berlapis putih samar, tutup berlapis merah tipis. Penindihan
+   !important diperlukan karena aturan bilah di atas menyeragamkan warna
+   seluruh .toolbar-button pada halaman ini, termasuk yang berada di luar
+   toolbar. */
+body[data-page="cetak-spk"] .print-content-actions .toolbar-button.print-cta {
+  color: #fff !important;
+  border-color: rgba(255,255,255,.32) !important;
+  background: rgba(255,255,255,.12) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.26) !important;
+}
+
+body[data-page="cetak-spk"] .print-content-actions .toolbar-button.print-cta:hover:not(:disabled),
+body[data-page="cetak-spk"] .print-content-actions .toolbar-button.print-cta:focus-visible {
+  color: #fff !important;
+  border-color: rgba(255,255,255,.5) !important;
+  background: rgba(255,255,255,.2) !important;
+}
+
+body[data-page="cetak-spk"] .print-content-actions .toolbar-button.close-cta {
+  color: #fff !important;
+  border-color: rgba(227,38,54,.5) !important;
+  background: rgba(227,38,54,.18) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.14) !important;
+}
+
+body[data-page="cetak-spk"] .print-content-actions .toolbar-button.close-cta:hover,
+body[data-page="cetak-spk"] .print-content-actions .toolbar-button.close-cta:focus-visible {
+  color: #fff !important;
+  border-color: rgba(227,38,54,.72) !important;
+  background: rgba(227,38,54,.3) !important;
+}
+
 @media screen and (max-width: 900px) {
   body[data-page] :is(.topbar-inner, .app-topbar-inner, .header-inner) {
     width: calc(100% - 2.5rem) !important;

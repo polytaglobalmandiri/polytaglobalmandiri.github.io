@@ -4604,11 +4604,11 @@
                 ${fieldLine_('Pelanggan', data.customer)}
                 ${fieldLine_('Artikel', data.artikel)}
                 ${fieldLine_('Pesanan', quantityWithUom_(data.jumlahOrder, data.uomOrder))}
-                ${fieldLine_('Stok', data.stokOst || '')}
+                ${fieldLine_('Stok', quantityWithUom_(data.stok, data.uomOrder))}
                 ${fieldLine_('Keluar Bahan', quantityWithUom_(data.keluarBahan, data.uomKB))}
-                ${fieldLine_('Bahan', data.material)}
+                ${fieldLine_('Bahan Utama', data.material)}
                 ${fieldLine_('Warna', data.keteranganWarna)}
-                ${fieldLine_('Bahan', data.keteranganBahan)}
+                ${fieldLine_('Keterangan Bahan', data.keteranganBahan)}
                 </div>
 
                 <div class="po-subtitle">Ukuran</div>

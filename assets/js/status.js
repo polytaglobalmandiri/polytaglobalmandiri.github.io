@@ -36,6 +36,58 @@
     '<rect x="84" y="64" width="11" height="44" rx="5.5" fill="#40b84e"/>' +
     "</svg>";
 
+  /**
+   * Lambang bervolume untuk layar pemuatan. Kesan timbulnya dibentuk dari
+   * tiga lapis: salinan badan yang digeser sebagai sisi tebalnya, muka
+   * depan bergradasi diagonal, lalu selaput kilau di atas semuanya. Tiap
+   * balok warna diberi gradasi tegak dan segaris cahaya di tepi atas,
+   * seperti benda padat yang disinari dari kiri atas.
+   *
+   * Nama gradasinya diawali pgmMark karena id pada SVG berlaku untuk
+   * seluruh dokumen; tanpa awalan itu ia bisa bertabrakan dengan gambar
+   * milik halaman yang memuatnya.
+   */
+  var JEJAK_LAMBANG = "M14 12h50v43h42v53h-8V63H64v45H14V55h42V20H14z";
+  var LOGO_3D_SVG =
+    '<svg viewBox="0 0 120 120" focusable="false" aria-hidden="true">' +
+    "<defs>" +
+    '<linearGradient id="pgmMarkBody" x1="0" y1="0" x2="1" y2="1">' +
+    '<stop offset="0" stop-color="#63676f"/>' +
+    '<stop offset=".34" stop-color="#2a2d33"/>' +
+    '<stop offset="1" stop-color="#0a0b0d"/>' +
+    "</linearGradient>" +
+    '<linearGradient id="pgmMarkGloss" x1="0" y1="0" x2="1" y2="1">' +
+    '<stop offset="0" stop-color="#fff" stop-opacity=".42"/>' +
+    '<stop offset=".42" stop-color="#fff" stop-opacity=".06"/>' +
+    '<stop offset=".62" stop-color="#fff" stop-opacity="0"/>' +
+    "</linearGradient>" +
+    '<linearGradient id="pgmMarkBlue" x1="0" y1="0" x2="0" y2="1">' +
+    '<stop offset="0" stop-color="#9db4f2"/>' +
+    '<stop offset=".45" stop-color="#4563b3"/>' +
+    '<stop offset="1" stop-color="#1f3178"/>' +
+    "</linearGradient>" +
+    '<linearGradient id="pgmMarkRed" x1="0" y1="0" x2="0" y2="1">' +
+    '<stop offset="0" stop-color="#ff8a90"/>' +
+    '<stop offset=".45" stop-color="#ef2631"/>' +
+    '<stop offset="1" stop-color="#96101a"/>' +
+    "</linearGradient>" +
+    '<linearGradient id="pgmMarkGreen" x1="0" y1="0" x2="0" y2="1">' +
+    '<stop offset="0" stop-color="#8ee79a"/>' +
+    '<stop offset=".45" stop-color="#40b84e"/>' +
+    '<stop offset="1" stop-color="#1a7a2c"/>' +
+    "</linearGradient>" +
+    "</defs>" +
+    '<path d="' + JEJAK_LAMBANG + '" transform="translate(3 3.6)" fill="#05060a" opacity=".55"/>' +
+    '<path d="' + JEJAK_LAMBANG + '" fill="url(#pgmMarkBody)"/>' +
+    '<rect x="15" y="22" width="41" height="12" rx="6" fill="url(#pgmMarkBlue)"/>' +
+    '<rect x="22" y="63" width="34" height="37" fill="url(#pgmMarkRed)"/>' +
+    '<rect x="84" y="64" width="11" height="44" rx="5.5" fill="url(#pgmMarkGreen)"/>' +
+    '<rect x="17" y="23.2" width="37" height="2.4" rx="1.2" fill="#fff" opacity=".38"/>' +
+    '<rect x="23.4" y="64.2" width="31" height="2.2" fill="#fff" opacity=".26"/>' +
+    '<rect x="85.4" y="65.4" width="8.2" height="2.2" rx="1.1" fill="#fff" opacity=".34"/>' +
+    '<path d="' + JEJAK_LAMBANG + '" fill="url(#pgmMarkGloss)"/>' +
+    "</svg>";
+
   var BANNER_TEXT_OFFLINE = "Koneksi terputus — menunggu jaringan kembali";
   var BANNER_TEXT_ONLINE = "Koneksi tersambung kembali";
   var BANNER_TEXT_ERROR = "Terjadi kendala — sebagian fitur mungkin tidak berjalan";
@@ -355,6 +407,13 @@
       ' stroke-dasharray="' + KELILING.toFixed(2) + '"' +
       ' stroke-dashoffset="' + KELILING.toFixed(2) + '"></circle>' +
       "</svg>";
+
+    var mark = makeEl("div", "pgm-boot-mark");
+    mark.setAttribute("aria-hidden", "true");
+    var ayun = makeEl("span", "pgm-boot-mark-ayun");
+    ayun.innerHTML = LOGO_3D_SVG;
+    mark.appendChild(ayun);
+    ring.appendChild(mark);
 
     bootEl.appendChild(ring);
 

@@ -37,8 +37,8 @@ const assetVersions = {
   "modal-scroll-lock.js": "20260812-1",
   "responsive-header.js": "20260812-3",
   "footer-reveal.js": "20260813-1",
-  "status.css": "20260814-3",
-  "status.js": "20260814-3"
+  "status.css": "20260814-4",
+  "status.js": "20260814-4"
 };
 
 // Kaki halaman dipasang oleh build karena sumber GAS tidak memuatnya. Teksnya

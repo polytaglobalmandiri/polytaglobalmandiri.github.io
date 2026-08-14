@@ -4906,7 +4906,7 @@
                 <option value="">Pilih jenis bahan</option>
                 <option value="HDPE">HDPE</option>
                 <option value="LLDPE">LLDPE</option>
-                <option value="PE SHRINK">PE SHRINK</option>
+                <option value="SHRINK">SHRINK</option>
                 <option value="PP">PP</option>
                 <option value="OPP">OPP</option>
                 <option value="CPP">CPP</option>
@@ -6119,6 +6119,10 @@
 
     function getCalculationDensity_(material) {
       const text = String(material || '').trim().toUpperCase();
+      // SHRINK tidak memuat penggal PE, HD, maupun PP. Tanpa baris ini
+      // massa jenisnya kosong dan hitungan meter per kg ikut gagal. Nilai
+      // lama 'PE SHRINK' pun tetap 0,92, jadi hasilnya tidak berubah.
+      if (text.includes('SHRINK')) return 0.92;
       if (text.includes('HD')) return 0.94;
       if (text.includes('PE')) return 0.92;
       if (text.includes('CPP') || text.includes('OPP') || text.includes('PP')) return 0.91;

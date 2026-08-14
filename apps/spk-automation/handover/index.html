@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <link rel="stylesheet" href="handover.css?v=20260815-1">
+  <link rel="stylesheet" href="handover.css?v=20260815-2">
   <link rel="stylesheet" href="../responsive.css?v=20260814-2">
   <script src="/assets/js/gas-rpc.js?v=20260815-1"></script>
 </head>
@@ -94,7 +94,6 @@
       <section class="panel scan-panel" aria-labelledby="scanPanelTitle">
         <header class="panel-header">
           <div>
-            <span class="step-number">01</span>
             <div><h2 id="scanPanelTitle">Pindai SPK</h2><p>QR berisi nomor SPK dan akan dicari otomatis.</p></div>
           </div>
           <strong id="scannedCount" class="selection-count">0 SPK</strong>
@@ -110,7 +109,7 @@
           <div class="manual-entry">
             <label for="manualSpkInput">Atau masukkan nomor SPK</label>
             <div>
-              <input id="manualSpkInput" type="text" maxlength="80" autocomplete="off" placeholder="Contoh: G26.125">
+              <input id="manualSpkInput" type="text" maxlength="80" autocomplete="off" placeholder="Masukkan nomor SPK">
               <button id="addSpkButton" class="button button-dark" type="button">
                 <i class="fa-solid fa-plus" aria-hidden="true"></i><span>Tambahkan</span>
               </button>
@@ -137,7 +136,6 @@
       <section class="panel routing-panel" aria-labelledby="routingPanelTitle">
         <header class="panel-header">
           <div>
-            <span class="step-number">02</span>
             <div><h2 id="routingPanelTitle">Serah Terima per Routing</h2><p>SPK dikelompokkan otomatis sesuai prosesnya.</p></div>
           </div>
           <strong id="routingCount" class="selection-count">0 routing</strong>
@@ -208,7 +206,7 @@
   </footer>
 
   <script src="/assets/js/jsqr.min.js?v=1.4.0"></script>
-  <script src="handover.js?v=20260815-1"></script>
+  <script src="handover.js?v=20260815-2"></script>
   <script src="../responsive-header.js?v=20260812-3"></script>
   <script src="../footer-reveal.js?v=20260813-1"></script>
 </body>

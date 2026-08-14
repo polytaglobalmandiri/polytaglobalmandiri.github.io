@@ -15,14 +15,15 @@
   var scannerReturnFocus = null;
   var MAX_SCANNED_SPK = 50;
   var ROUTE_ORDER = ["mixer", "blowing", "printing", "folding", "slitting", "gusset", "cutting"];
-  var ROUTE_ICONS = {
-    mixer: "fa-blender",
-    blowing: "fa-wind",
-    printing: "fa-print",
-    folding: "fa-layer-group",
-    slitting: "fa-scissors",
-    gusset: "fa-arrows-left-right-to-line",
-    cutting: "fa-box-open"
+  // Bentuk ikon disamakan dengan tab Urutan Proses pada halaman Input SPK.
+  var ROUTE_ICON_PATHS = {
+    mixer: '<path stroke-linecap="round" stroke-linejoin="round" d="M8 3h8M9 3v4l-4 7a4 4 0 0 0 3.5 6h7a4 4 0 0 0 3.5-6l-4-7V3M7.5 14h9M9 17h6"></path>',
+    blowing: '<path stroke-linecap="round" d="M3 8h10.5a2.5 2.5 0 1 0-2.2-3.7M3 12h15a2.5 2.5 0 1 1-2.2 3.7M3 16h7"></path>',
+    printing: '<path stroke-linecap="round" stroke-linejoin="round" d="M7 8V3h10v5M7 17H5a2 2 0 0 1-2-2v-4a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v4a2 2 0 0 1-2 2h-2M7 14h10v7H7zM17 11h.01"></path>',
+    folding: '<path stroke-linecap="round" stroke-linejoin="round" d="M4 4h10v16H4zM14 4l6 5v11h-6M14 9h6M9 8l2 2-2 2"></path>',
+    slitting: '<path stroke-linecap="round" stroke-linejoin="round" d="m4 4 8 8M4 20l6-6M14 10l6-6M14 14l6 6M8 12h8"></path><circle cx="5" cy="4" r="2"></circle><circle cx="5" cy="20" r="2"></circle>',
+    gusset: '<path stroke-linecap="round" stroke-linejoin="round" d="M5 3h14v18H5zM9 3v18M15 3v18M9 8l3 3 3-3M9 16l3-3 3 3"></path>',
+    cutting: '<path stroke-linecap="round" stroke-linejoin="round" d="m4 5 7 7-7 7M20 5l-7 7 7 7M9 12h6"></path><circle cx="4" cy="5" r="2"></circle><circle cx="4" cy="19" r="2"></circle>'
   };
 
   var form = document.getElementById("handoverForm");
@@ -295,7 +296,7 @@
       '<article class="routing-group-card' + (complete ? ' is-complete' : '') + '" data-route-card="' + escapeAttr(group.key) + '">' +
         '<header class="routing-group-head">' +
           '<span class="routing-order">' + String(index + 1).padStart(2, "0") + '</span>' +
-          '<span class="routing-icon"><i class="fa-solid ' + escapeAttr(routeIcon(group.key)) + '" aria-hidden="true"></i></span>' +
+          '<span class="routing-icon">' + routeIcon(group.key) + '</span>' +
           '<div><strong>' + escapeHtml(group.label) + '</strong><small>' + spks.length + ' SPK pada divisi ini</small></div>' +
           '<span class="routing-ready"><i class="fa-solid fa-check" aria-hidden="true"></i> Lengkap</span>' +
         '</header>' +
@@ -822,7 +823,8 @@
   }
 
   function routeIcon(value) {
-    return ROUTE_ICONS[normalizeRoute(value)] || "fa-gears";
+    var path = ROUTE_ICON_PATHS[normalizeRoute(value)] || ROUTE_ICON_PATHS.mixer;
+    return '<svg fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24" aria-hidden="true">' + path + '</svg>';
   }
 
   function joinMeta(values) {

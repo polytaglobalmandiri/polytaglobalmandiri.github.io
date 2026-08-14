@@ -13713,11 +13713,15 @@
       repeat: { state: 'idle', duplicate: false, timer: null, seq: 0 }
     };
     const SPK_SNAPSHOT_MAX_AGE_MS = 300000;
+    const INPUT_OPTIONS_CACHE_KEY = 'polyta-spk-input-options-v2';
+    const INPUT_OPTIONS_REFRESH_MS = 300000;
     let spkExistenceSnapshot = null;
     let spkExistenceSnapshotAt = 0;
     let spkExistenceWarmupStarted = false;
     let marketingOptionsSnapshot = [];
     let customerOptionsSnapshot = [];
+    let inputOptionsRefreshStarted = false;
+    let inputOptionsRefreshedAt = 0;
 
     const repeatLookupState = {
       state: 'idle', // idle | checking | found | notfound | error
@@ -13814,7 +13818,7 @@
       setOrderType_('New Order', { focus: false });
       recalculateRawMaterial_();
       updateWizardState_();
-      warmSpkExistenceSnapshot_();
+      loadInputOptionsFast_();
     }
 
     function getFreshSpkExistenceSnapshot_() {
@@ -13826,6 +13830,64 @@
       spkExistenceSnapshot = null;
       spkExistenceSnapshotAt = 0;
       return null;
+    }
+
+    function applyInputOptions_(marketingValues, customerValues, storeCache) {
+      if (Array.isArray(marketingValues)) marketingOptionsSnapshot = marketingValues;
+      if (Array.isArray(customerValues)) customerOptionsSnapshot = customerValues;
+      populateMarketingDropdown_(marketingOptionsSnapshot);
+      populateCustomerDropdown_(customerOptionsSnapshot);
+
+      if (!storeCache) return;
+      try {
+        window.localStorage.setItem(INPUT_OPTIONS_CACHE_KEY, JSON.stringify({
+          savedAt: Date.now(),
+          marketingOptions: marketingOptionsSnapshot,
+          customerOptions: customerOptionsSnapshot
+        }));
+      } catch (error) {
+        // Penyimpanan perangkat hanya akselerator; form tetap bekerja tanpanya.
+      }
+    }
+
+    function readCachedInputOptions_() {
+      try {
+        const cached = JSON.parse(window.localStorage.getItem(INPUT_OPTIONS_CACHE_KEY) || 'null');
+        if (!cached || !Array.isArray(cached.marketingOptions) || !Array.isArray(cached.customerOptions)) {
+          return null;
+        }
+        return cached;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function loadInputOptionsFast_() {
+      const cached = readCachedInputOptions_();
+      if (cached) applyInputOptions_(cached.marketingOptions, cached.customerOptions, false);
+
+      if (
+        inputOptionsRefreshStarted ||
+        (inputOptionsRefreshedAt && Date.now() - inputOptionsRefreshedAt < INPUT_OPTIONS_REFRESH_MS)
+      ) return;
+
+      inputOptionsRefreshStarted = true;
+      google.script.run
+        .withSuccessHandler(function(res) {
+          inputOptionsRefreshStarted = false;
+          if (!res || res.status !== 'success') {
+            window.setTimeout(warmSpkExistenceSnapshot_, 200);
+            return;
+          }
+          inputOptionsRefreshedAt = Date.now();
+          applyInputOptions_(res.marketingOptions, res.customerOptions, true);
+          window.setTimeout(warmSpkExistenceSnapshot_, 200);
+        })
+        .withFailureHandler(function() {
+          inputOptionsRefreshStarted = false;
+          window.setTimeout(warmSpkExistenceSnapshot_, 200);
+        })
+        .getInputSpkOptionsFast();
     }
 
     function warmSpkExistenceSnapshot_() {
@@ -13845,15 +13907,10 @@
           spkExistenceSnapshot = new Set(
             res.spks.map(normalizeClientSpk_).filter(Boolean)
           );
-          marketingOptionsSnapshot = Array.isArray(res.marketingOptions)
-            ? res.marketingOptions
-            : [];
-          customerOptionsSnapshot = Array.isArray(res.customerOptions)
-            ? res.customerOptions
-            : [];
+          if (Array.isArray(res.marketingOptions)) marketingOptionsSnapshot = res.marketingOptions;
+          if (Array.isArray(res.customerOptions)) customerOptionsSnapshot = res.customerOptions;
           spkExistenceSnapshotAt = Date.now();
-          populateMarketingDropdown_(marketingOptionsSnapshot);
-          populateCustomerDropdown_(customerOptionsSnapshot);
+          applyInputOptions_(marketingOptionsSnapshot, customerOptionsSnapshot, true);
         })
         .withFailureHandler(function() {
           spkExistenceWarmupStarted = false;
@@ -15152,7 +15209,7 @@
       if (!isRepeat) {
         populateMarketingDropdown_(marketingOptionsSnapshot);
         populateCustomerDropdown_(customerOptionsSnapshot);
-        warmSpkExistenceSnapshot_();
+        loadInputOptionsFast_();
       }
       recalculateRawMaterial_();
       updateWizardState_();

@@ -5772,6 +5772,7 @@
     let spkExistenceSnapshot = null;
     let spkExistenceSnapshotAt = 0;
     let spkExistenceWarmupStarted = false;
+    let marketingOptionsSnapshot = [];
 
     const repeatLookupState = {
       state: 'idle', // idle | checking | found | notfound | error
@@ -5881,7 +5882,11 @@
     }
 
     function warmSpkExistenceSnapshot_() {
-      if (getFreshSpkExistenceSnapshot_() || spkExistenceWarmupStarted) return;
+      if (getFreshSpkExistenceSnapshot_()) {
+        populateMarketingDropdown_(marketingOptionsSnapshot);
+        return;
+      }
+      if (spkExistenceWarmupStarted) return;
       spkExistenceWarmupStarted = true;
 
       google.script.run
@@ -5892,7 +5897,11 @@
           spkExistenceSnapshot = new Set(
             res.spks.map(normalizeClientSpk_).filter(Boolean)
           );
+          marketingOptionsSnapshot = Array.isArray(res.marketingOptions)
+            ? res.marketingOptions
+            : [];
           spkExistenceSnapshotAt = Date.now();
+          populateMarketingDropdown_(marketingOptionsSnapshot);
         })
         .withFailureHandler(function() {
           spkExistenceWarmupStarted = false;
@@ -7773,6 +7782,69 @@
         .trim();
     }
 
+    function normalizeMarketingDropdownValue_(value) {
+      return String(value || '').trim().replace(/\s+/g, ' ');
+    }
+
+    function setMarketingDropdownValue_(value, select) {
+      const normalized = normalizeMarketingDropdownValue_(value);
+      if (!select || !normalized) {
+        if (select) select.value = '';
+        return '';
+      }
+
+      const key = normalized.toUpperCase();
+      const match = Array.from(select.options || []).find(function(option) {
+        return normalizeMarketingDropdownValue_(option.value).toUpperCase() === key;
+      });
+
+      if (match) {
+        select.value = match.value;
+        return match.value;
+      }
+
+      // Menjaga Repeat tetap dapat dipakai bila respons daftar pilihan belum
+      // selesai dimuat. Nilainya berasal langsung dari kolom Marketing.
+      const option = document.createElement('option');
+      option.value = normalized;
+      option.textContent = normalized;
+      select.appendChild(option);
+      select.value = normalized;
+      return normalized;
+    }
+
+    function populateMarketingDropdown_(values) {
+      const select = document.getElementById('marketing');
+      if (!select || !Array.isArray(values)) return;
+
+      const current = normalizeMarketingDropdownValue_(select.value);
+      const unique = {};
+      values.forEach(function(value) {
+        const normalized = normalizeMarketingDropdownValue_(value);
+        const key = normalized.toUpperCase();
+        if (normalized && !unique[key]) unique[key] = normalized;
+      });
+      if (current && !unique[current.toUpperCase()]) unique[current.toUpperCase()] = current;
+
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.textContent = 'Pilih pemasaran';
+      select.innerHTML = '';
+      select.appendChild(placeholder);
+      Object.keys(unique)
+        .map(function(key) { return unique[key]; })
+        .sort(function(left, right) {
+          return left.toUpperCase().localeCompare(right.toUpperCase());
+        })
+        .forEach(function(value) {
+          const option = document.createElement('option');
+          option.value = value;
+          option.textContent = value;
+          select.appendChild(option);
+        });
+      setMarketingDropdownValue_(current, select);
+    }
+
     // Basis Data lama menyimpan material sebagai uraian, misalnya
     // "OPP POLOS", "HD SUSU", atau "PE SHRINK". Dropdown hanya menyimpan
     // kelompok bakunya, jadi uraian itu dicocokkan dulu dan hasil akhirnya
@@ -7814,6 +7886,10 @@
       }
       if (id === 'keteranganBahan') {
         element.value = normalizeKeteranganBahanValue_(value);
+        return;
+      }
+      if (id === 'marketing') {
+        setMarketingDropdownValue_(value, element);
         return;
       }
       if (id === 'material') {

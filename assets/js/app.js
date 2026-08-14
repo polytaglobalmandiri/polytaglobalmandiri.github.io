@@ -832,26 +832,10 @@
     }, 1600);
   }
 
-  /* Kemiringan halus mengikuti kursor — memperkuat kesan objek fisik */
-  function wireTilt() {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    if (window.matchMedia("(hover: none)").matches) return;
-
-    document.addEventListener("pointermove", function (e) {
-      var card = e.target.closest ? e.target.closest(".tile, .dept") : null;
-      if (!card) return;
-      var r = card.getBoundingClientRect();
-      var px = (e.clientX - r.left) / r.width - .5;
-      var py = (e.clientY - r.top) / r.height - .5;
-      card.style.transform =
-        "translateY(-4px) perspective(700px) rotateX(" + (-py * 4).toFixed(2) +
-        "deg) rotateY(" + (px * 5).toFixed(2) + "deg)";
-    });
-    document.addEventListener("pointerout", function (e) {
-      var card = e.target.closest ? e.target.closest(".tile, .dept") : null;
-      if (card) card.style.transform = "";
-    });
-  }
+  /* Kemiringan kartu yang mengikuti kursor sudah dilepas. Efek itu menulis
+     transform sebaris pada kartu, sehingga sekaligus menimpa transform
+     :hover dari skeuo.css selama kursor berada di atasnya. Setelah dilepas,
+     angkatan halus saat disentuh kursor kembali sepenuhnya diatur CSS. */
 
   /* Tombol kembali ke atas */
   function wireBackTop() {
@@ -964,7 +948,6 @@
 
     wireSearch();
     wireReveal();
-    wireTilt();
     wireBackTop();
     wirePageTransitions();
 

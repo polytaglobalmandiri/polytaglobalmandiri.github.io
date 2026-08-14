@@ -4685,14 +4685,16 @@
   <link rel="stylesheet" href="../responsive.css?v=20260814-2">
   <link rel="stylesheet" href="../routing-accessories.css?v=20260812-1">
   <style>
-    #spkInputRoot input#marketing {
-      width: min(100%, 240px);
-      max-width: 240px;
+    #spkInputRoot input#marketing,
+    #spkInputRoot input#customer {
+      width: min(100%, 180px);
+      max-width: 180px;
       justify-self: start;
     }
 
     @media (max-width: 560px) {
-      #spkInputRoot input#marketing {
+      #spkInputRoot input#marketing,
+      #spkInputRoot input#customer {
         width: 100%;
         max-width: none;
       }
@@ -4866,7 +4868,10 @@
           <!-- Baris 1: pemesan dan artikel -->
           <div class="form-cell">
             <label class="field-label">Pelanggan</label>
-            <input type="text" id="customer" class="field-input" required placeholder="Nama perusahaan pemesan">
+            <input type="text" id="customer" class="field-input" list="customerOptionsList" required
+              autocomplete="off" spellcheck="false" placeholder="Cari pelanggan"
+              aria-label="Cari dan pilih pelanggan dari Database Customers">
+            <datalist id="customerOptionsList"></datalist>
           </div>
           <div class="form-cell">
             <label class="field-label">Nomor PO Pelanggan</label>
@@ -5789,6 +5794,7 @@
     let spkExistenceSnapshotAt = 0;
     let spkExistenceWarmupStarted = false;
     let marketingOptionsSnapshot = [];
+    let customerOptionsSnapshot = [];
 
     const repeatLookupState = {
       state: 'idle', // idle | checking | found | notfound | error
@@ -5880,6 +5886,7 @@
       bindDraftButton_();
       bindOrderTypeEvents_();
       bindMarketingSearch_();
+      bindCustomerSearch_();
       bindSaveSuccessActions_();
       setOrderType_('New Order', { focus: false });
       recalculateRawMaterial_();
@@ -5901,6 +5908,7 @@
     function warmSpkExistenceSnapshot_() {
       if (getFreshSpkExistenceSnapshot_()) {
         populateMarketingDropdown_(marketingOptionsSnapshot);
+        populateCustomerDropdown_(customerOptionsSnapshot);
         return;
       }
       if (spkExistenceWarmupStarted) return;
@@ -5917,8 +5925,12 @@
           marketingOptionsSnapshot = Array.isArray(res.marketingOptions)
             ? res.marketingOptions
             : [];
+          customerOptionsSnapshot = Array.isArray(res.customerOptions)
+            ? res.customerOptions
+            : [];
           spkExistenceSnapshotAt = Date.now();
           populateMarketingDropdown_(marketingOptionsSnapshot);
+          populateCustomerDropdown_(customerOptionsSnapshot);
         })
         .withFailureHandler(function() {
           spkExistenceWarmupStarted = false;
@@ -5933,7 +5945,7 @@
       const root = document.getElementById('spkInputRoot');
       if (!root) return;
 
-      root.querySelectorAll('input[placeholder]:not(#marketing), textarea[placeholder]').forEach(function(field) {
+      root.querySelectorAll('input[placeholder]:not(#marketing):not(#customer), textarea[placeholder]').forEach(function(field) {
         field.removeAttribute('placeholder');
       });
 
@@ -6876,7 +6888,7 @@
       if (step === 1) {
         const missing = [];
         const tanggal = document.getElementById('tanggal');
-        const customer = document.getElementById('customer');
+      const customer = document.getElementById('customer');
         const material = document.getElementById('material');
         const etd = document.getElementById('etd');
         const etdDisplay = document.querySelector('[data-partial-date]') ||
@@ -6917,6 +6929,16 @@
         marketing.classList.add('wizard-invalid');
         if (showAlert) showValidationAlert_('Pemasaran Belum Valid', 'Cari lalu pilih nama pemasaran yang tersedia dari Basis Data.');
         marketing.focus();
+        return false;
+      }
+      if (
+        customer.value.trim() !== '' &&
+        getMarketingOptionElements_(customer).length > 0 &&
+        !normalizeMarketingInputSelection_(customer)
+      ) {
+        customer.classList.add('wizard-invalid');
+        if (showAlert) showValidationAlert_('Pelanggan Belum Valid', 'Cari lalu pilih nama pelanggan yang tersedia dari Database Customers.');
+        customer.focus();
         return false;
       }
       if (customer.value.trim() === '') {
@@ -7205,9 +7227,9 @@
 
       clearWizardInvalid_();
       if (!isRepeat) {
-        marketingOptionsSnapshot.length
-          ? populateMarketingDropdown_(marketingOptionsSnapshot)
-          : warmSpkExistenceSnapshot_();
+        populateMarketingDropdown_(marketingOptionsSnapshot);
+        populateCustomerDropdown_(customerOptionsSnapshot);
+        warmSpkExistenceSnapshot_();
       }
       recalculateRawMaterial_();
       updateWizardState_();
@@ -7911,6 +7933,52 @@
       });
     }
 
+    function populateCustomerDropdown_(values) {
+      const input = document.getElementById('customer');
+      const list = document.getElementById('customerOptionsList');
+      if (!input || !list || !Array.isArray(values)) return;
+
+      const current = normalizeMarketingDropdownValue_(input.value);
+      const unique = {};
+      const sourceValues = values.length
+        ? values
+        : getMarketingOptionElements_(input).map(function(option) { return option.value; });
+      sourceValues.forEach(function(value) {
+        const normalized = normalizeMarketingDropdownValue_(value);
+        const key = normalized.toUpperCase();
+        if (normalized && !unique[key]) unique[key] = normalized;
+      });
+
+      list.innerHTML = '';
+      Object.keys(unique)
+        .map(function(key) { return unique[key]; })
+        .sort(function(left, right) {
+          return left.toUpperCase().localeCompare(right.toUpperCase());
+        })
+        .forEach(function(value) {
+          const option = document.createElement('option');
+          option.value = value;
+          list.appendChild(option);
+        });
+      input.value = current;
+      normalizeMarketingInputSelection_(input);
+    }
+
+    function bindCustomerSearch_() {
+      const input = document.getElementById('customer');
+      if (!input) return;
+      input.addEventListener('input', function() {
+        input.classList.remove('wizard-invalid');
+      });
+      input.addEventListener('change', function() {
+        normalizeMarketingInputSelection_(input);
+        updateWizardState_();
+      });
+      input.addEventListener('blur', function() {
+        normalizeMarketingInputSelection_(input);
+      });
+    }
+
     // Basis Data lama menyimpan material sebagai uraian, misalnya
     // "OPP POLOS", "HD SUSU", atau "PE SHRINK". Dropdown hanya menyimpan
     // kelompok bakunya, jadi uraian itu dicocokkan dulu dan hasil akhirnya
@@ -7955,6 +8023,10 @@
         return;
       }
       if (id === 'marketing') {
+        setMarketingDropdownValue_(value, element);
+        return;
+      }
+      if (id === 'customer') {
         setMarketingDropdownValue_(value, element);
         return;
       }

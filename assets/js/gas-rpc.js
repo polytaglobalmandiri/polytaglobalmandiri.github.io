@@ -18,6 +18,7 @@
     updateEtaBeliBahanByManager: true,
     updateKeluarBahanByManager: true,
     saveHandover: true,
+    saveHandoverByRouting: true,
     beginExtractionJob: true,
     extractData: true,
     cancelExtractionJob: true

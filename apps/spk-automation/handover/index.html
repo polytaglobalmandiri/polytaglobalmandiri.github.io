@@ -14,9 +14,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <link rel="stylesheet" href="handover.css?v=20260813-2">
+  <link rel="stylesheet" href="handover.css?v=20260815-1">
   <link rel="stylesheet" href="../responsive.css?v=20260814-2">
-  <script src="/assets/js/gas-rpc.js?v=20260812-6"></script>
+  <script src="/assets/js/gas-rpc.js?v=20260815-1"></script>
 </head>
 <body data-page="serah-terima" data-ui-engine="tailwind-alpine">
   <!-- Pita luring khusus halaman ini dilepas. Kalimatnya juga keliru:
@@ -53,11 +53,11 @@
         <div>
           <p class="eyebrow">PPIC</p>
           <h1 id="pageTitle">Serah Terima SPK</h1>
-          <p class="page-description">Pilih SPK, lengkapi bukti penerimaan, lalu simpan dalam satu langkah.</p>
+          <p class="page-description">Pindai QR SPK, lalu lengkapi penerima dan bukti pada setiap routing.</p>
         </div>
       </div>
       <div class="heading-actions">
-        <span class="status-chip"><i class="fa-solid fa-shield-check" aria-hidden="true"></i> Bukti tersimpan</span>
+        <span class="status-chip"><i class="fa-solid fa-shield-check" aria-hidden="true"></i> Tersimpan per routing</span>
         <button id="refreshButton" class="button button-light" type="button">
           <i class="fa-solid fa-rotate-right" aria-hidden="true"></i><span>Muat Ulang</span>
         </button>
@@ -67,11 +67,11 @@
     <section id="summaryGrid" class="summary-grid" aria-label="Ringkasan serah terima">
       <article class="summary-card">
         <span class="summary-icon"><i class="fa-solid fa-file-circle-check" aria-hidden="true"></i></span>
-        <span><small>SPK tersedia</small><strong id="availableCount">0</strong></span>
+        <span><small>SPK tersimpan</small><strong id="availableCount">0</strong></span>
       </article>
       <article class="summary-card">
         <span class="summary-icon"><i class="fa-solid fa-handshake" aria-hidden="true"></i></span>
-        <span><small>Sudah diserahkan</small><strong id="handedCount">0</strong></span>
+        <span><small>Routing telah diserahkan</small><strong id="handedCount">0</strong></span>
       </article>
       <article class="summary-card">
         <span class="summary-icon"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i></span>
@@ -91,96 +91,70 @@
     </div>
 
     <form id="handoverForm" class="handover-workspace" hidden novalidate>
-      <section class="panel spk-panel" aria-labelledby="spkPanelTitle">
+      <section class="panel scan-panel" aria-labelledby="scanPanelTitle">
         <header class="panel-header">
           <div>
             <span class="step-number">01</span>
-            <div><h2 id="spkPanelTitle">Pilih SPK</h2><p>Pilih beberapa SPK dalam satu kali serah terima.</p></div>
+            <div><h2 id="scanPanelTitle">Pindai SPK</h2><p>QR berisi nomor SPK dan akan dicari otomatis.</p></div>
           </div>
-          <strong id="selectedCount" class="selection-count">0 dipilih</strong>
+          <strong id="scannedCount" class="selection-count">0 SPK</strong>
         </header>
 
-        <div class="spk-toolbar">
-          <label class="search-field">
-            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-            <span class="sr-only">Cari SPK</span>
-            <input id="spkSearch" type="search" placeholder="Cari SPK, pelanggan, atau artikel..." autocomplete="off">
-          </label>
-          <label class="compact-toggle">
-            <input id="showHandedToggle" type="checkbox">
-            <span>Tampilkan yang sudah diserahkan</span>
-          </label>
-          <button id="selectVisibleButton" class="button button-light" type="button">
-            <i class="fa-solid fa-check-double" aria-hidden="true"></i><span>Pilih Hasil</span>
+        <div class="scan-actions">
+          <button id="scanButton" class="scan-primary" type="button">
+            <span class="scan-primary-icon"><i class="fa-solid fa-qrcode" aria-hidden="true"></i></span>
+            <span><strong>Pindai QR SPK</strong><small>Buka kamera dan arahkan ke kode QR</small></span>
+            <i class="fa-solid fa-camera" aria-hidden="true"></i>
           </button>
+
+          <div class="manual-entry">
+            <label for="manualSpkInput">Atau masukkan nomor SPK</label>
+            <div>
+              <input id="manualSpkInput" type="text" maxlength="80" autocomplete="off" placeholder="Contoh: G26.125">
+              <button id="addSpkButton" class="button button-dark" type="button">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i><span>Tambahkan</span>
+              </button>
+            </div>
+          </div>
+
+          <div id="lookupState" class="lookup-state" hidden role="status" aria-live="polite"></div>
         </div>
 
-        <div id="selectedSpks" class="selected-spks" hidden aria-label="SPK terpilih"></div>
-        <div id="spkList" class="spk-list" role="listbox" aria-multiselectable="true"></div>
-        <div id="spkEmpty" class="empty-inline" hidden>Tidak ada SPK yang cocok.</div>
+        <div class="scanned-head">
+          <div><strong>SPK yang dipindai</strong><small>Dapat dipindai satu per satu</small></div>
+          <button id="clearScannedButton" class="text-button" type="button" hidden>
+            <i class="fa-solid fa-trash" aria-hidden="true"></i> Kosongkan
+          </button>
+        </div>
+        <div id="scannedSpkList" class="scanned-spk-list"></div>
+        <div id="scannedEmpty" class="empty-inline">
+          <i class="fa-solid fa-qrcode" aria-hidden="true"></i>
+          <strong>Belum ada SPK</strong>
+          <span>Pindai QR pada lembar SPK untuk mulai.</span>
+        </div>
       </section>
 
-      <section class="panel proof-panel" aria-labelledby="proofPanelTitle">
+      <section class="panel routing-panel" aria-labelledby="routingPanelTitle">
         <header class="panel-header">
           <div>
             <span class="step-number">02</span>
-            <div><h2 id="proofPanelTitle">Bukti Penerimaan</h2><p>Nama, foto, dan tanda tangan wajib diisi.</p></div>
+            <div><h2 id="routingPanelTitle">Serah Terima per Routing</h2><p>SPK dikelompokkan otomatis sesuai prosesnya.</p></div>
           </div>
+          <strong id="routingCount" class="selection-count">0 routing</strong>
         </header>
 
-        <div class="field-group">
-          <label for="recipientName">Nama penerima</label>
-          <div class="input-with-icon">
-            <i class="fa-solid fa-user-check" aria-hidden="true"></i>
-            <input id="recipientName" name="recipient" type="text" maxlength="100" autocomplete="name" placeholder="Ketik nama penerima">
-          </div>
+        <div id="routingGroups" class="routing-groups"></div>
+        <div id="routingEmpty" class="routing-empty">
+          <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+          <strong>Kelompok routing belum terbentuk</strong>
+          <span>Setelah SPK ditemukan, routing akan tersusun di sini.</span>
         </div>
 
-        <div class="evidence-grid">
-          <div class="evidence-card">
-            <div class="evidence-head">
-              <span><i class="fa-solid fa-camera" aria-hidden="true"></i> Foto bukti</span>
-              <small>Potret penerima dan SPK</small>
-            </div>
-            <label id="photoPicker" class="photo-picker" for="photoInput" tabindex="0">
-              <input id="photoInput" type="file" accept="image/jpeg,image/png,image/webp" capture="environment">
-              <span id="photoPlaceholder">
-                <i class="fa-solid fa-camera-retro" aria-hidden="true"></i>
-                <strong>Ambil Foto</strong>
-                <small>atau pilih dari perangkat</small>
-              </span>
-              <img id="photoPreview" alt="Pratinjau bukti serah terima" hidden>
-            </label>
-            <button id="removePhotoButton" class="text-button" type="button" hidden>
-              <i class="fa-solid fa-trash" aria-hidden="true"></i> Hapus foto
-            </button>
-          </div>
-
-          <div class="evidence-card">
-            <div class="evidence-head">
-              <span><i class="fa-solid fa-signature" aria-hidden="true"></i> Tanda tangan digital</span>
-              <small>Gunakan jari atau tetikus</small>
-            </div>
-            <div class="signature-wrap">
-              <canvas id="signatureCanvas" width="900" height="300" tabindex="0" aria-label="Bidang tanda tangan penerima"></canvas>
-              <span id="signatureHint">Tanda tangan di sini</span>
-            </div>
-            <button id="clearSignatureButton" class="text-button" type="button">
-              <i class="fa-solid fa-eraser" aria-hidden="true"></i> Bersihkan tanda tangan
-            </button>
-          </div>
-        </div>
-
-        <div class="field-group note-field">
-          <label for="handoverNotes">Catatan <span>Boleh dikosongkan</span></label>
-          <textarea id="handoverNotes" maxlength="500" rows="2" placeholder="Contoh: diterima lengkap, diberikan kepada kepala regu..."></textarea>
-        </div>
-
-        <div id="formAlert" class="form-alert" hidden role="alert"></div>
-        <button id="submitButton" class="submit-button" type="submit">
+        <div id="formAlert" class="form-alert routing-form-alert" hidden role="alert"></div>
+        <button id="submitButton" class="submit-button routing-submit" type="submit">
           <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
-          <span>Simpan Serah Terima</span>
-          <small id="submitSummary">Pilih SPK untuk melanjutkan</small>
+          <span>Simpan Semua Routing</span>
+          <small id="submitSummary">Pindai SPK untuk melanjutkan</small>
         </button>
       </section>
     </form>
@@ -201,11 +175,40 @@
     <i class="fa-solid fa-circle-check" aria-hidden="true"></i><span></span>
   </div>
 
+  <div id="scanModal" class="scan-modal" hidden>
+    <button class="scan-modal-backdrop" type="button" data-close-scanner aria-label="Tutup pemindai"></button>
+    <section class="scan-dialog" role="dialog" aria-modal="true" aria-labelledby="scanDialogTitle">
+      <header>
+        <div>
+          <span><i class="fa-solid fa-qrcode" aria-hidden="true"></i></span>
+          <div><strong id="scanDialogTitle">Pindai QR SPK</strong><small>Arahkan kamera ke QR di sudut lembar SPK</small></div>
+        </div>
+        <button id="closeScannerButton" type="button" data-close-scanner aria-label="Tutup pemindai">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </header>
+      <div class="scan-viewport">
+        <video id="scanVideo" playsinline muted aria-label="Pratinjau kamera"></video>
+        <canvas id="scanCanvas" hidden></canvas>
+        <span class="scan-frame" aria-hidden="true"></span>
+        <div id="cameraWaiting" class="camera-waiting">
+          <span class="spinner" aria-hidden="true"></span>
+          <strong>Menyiapkan kamera...</strong>
+        </div>
+      </div>
+      <p id="scanStatus" class="scan-status" role="status" aria-live="polite">Izinkan akses kamera jika diminta.</p>
+      <button id="scannerManualButton" class="button button-light" type="button">
+        <i class="fa-solid fa-keyboard" aria-hidden="true"></i><span>Masukkan nomor secara manual</span>
+      </button>
+    </section>
+  </div>
+
   <footer class="spk-app-footer no-print">
     <div class="spk-app-footer-inner">Dikembangkan dan dikelola oleh: <strong>Team POLYTA GLOBAL MANDIRI</strong></div>
   </footer>
 
-  <script src="handover.js?v=20260812-2"></script>
+  <script src="/assets/js/jsqr.min.js?v=1.4.0"></script>
+  <script src="handover.js?v=20260815-1"></script>
   <script src="../responsive-header.js?v=20260812-3"></script>
   <script src="../footer-reveal.js?v=20260813-1"></script>
 </body>

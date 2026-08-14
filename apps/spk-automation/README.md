@@ -24,6 +24,12 @@ Proses tersebut memperluas partial HTML, mengganti navigasi GAS menjadi rute Git
 
 Halaman `handover/` tidak dibangun dari GAS. Halaman itu hanya ada sebagai berkas statis di repositori ini, jadi jangan menghapusnya saat menyegarkan halaman lain.
 
+## Serah Terima per routing
+
+Halaman `handover/` memindai QR yang berisi nomor SPK, mengambil rincian SPK melalui `getHandoverSpkDetails`, lalu mengelompokkan SPK ke Mixer, Blowing, Printing, Folding, Slitting, Gusset, dan Cutting. Routing yang sama dari beberapa SPK digabung dalam satu kelompok.
+
+Nama penerima dan bukti disimpan terpisah untuk setiap routing melalui `saveHandoverByRouting`. Satu baris pada sheet `Serah Terima SPK` mewakili satu routing/divisi dan dapat berisi beberapa nomor SPK. Kolom `KODE ROUTING` dan `NAMA DIVISI` dipakai untuk mencegah routing SPK yang sama diserahkan dua kali. Implementasi backend berada pada `BE-Serah-Terima.js` di project GAS.
+
 ### Periksa selisihnya sebelum menimpa
 
 Bawaannya hasil build ditulis ke `tools/.build-spk/`, **bukan** ke folder yang terbit. Bandingkan dulu:

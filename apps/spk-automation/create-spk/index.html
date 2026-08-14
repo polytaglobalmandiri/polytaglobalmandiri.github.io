@@ -7764,6 +7764,43 @@
       );
     }
 
+    function normalizeMaterialMatchText_(value) {
+      return String(value || '')
+        .trim()
+        .toUpperCase()
+        .replace(/[^A-Z0-9]+/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    // Basis Data lama menyimpan material sebagai uraian, misalnya
+    // "OPP POLOS", "HD SUSU", atau "PE SHRINK". Dropdown hanya menyimpan
+    // kelompok bakunya, jadi uraian itu dicocokkan dulu dan hasil akhirnya
+    // selalu memakai value resmi yang benar-benar tersedia pada dropdown.
+    function matchMaterialDropdownValue_(value, select) {
+      const normalized = normalizeMaterialMatchText_(value);
+      if (!normalized || !select) return '';
+
+      const officialValues = {};
+      Array.from(select.options || []).forEach(function(option) {
+        const optionKey = normalizeMaterialMatchText_(option.value);
+        if (optionKey) officialValues[optionKey] = option.value;
+      });
+
+      // Data baru yang sudah memakai value resmi tidak perlu dipetakan lagi.
+      if (officialValues[normalized]) return officialValues[normalized];
+
+      let candidate = '';
+      if (/(^| )SHRINK( |$)/.test(normalized)) candidate = 'SHRINK';
+      else if (/(^| )(HDPE|HD)( |$)/.test(normalized)) candidate = 'HDPE';
+      else if (/(^| )OPP( |$)/.test(normalized)) candidate = 'OPP';
+      else if (/(^| )CPP( |$)/.test(normalized)) candidate = 'CPP';
+      else if (/(^| )(LLDPE|LDPE|PE)( |$)/.test(normalized)) candidate = 'LLDPE';
+      else if (/(^| )PP( |$)/.test(normalized)) candidate = 'PP';
+
+      return officialValues[candidate] || '';
+    }
+
     function setFieldValue_(id, value) {
       const element = document.getElementById(id);
       if (!element) return;
@@ -7777,6 +7814,10 @@
       }
       if (id === 'keteranganBahan') {
         element.value = normalizeKeteranganBahanValue_(value);
+        return;
+      }
+      if (id === 'material') {
+        element.value = matchMaterialDropdownValue_(value, element);
         return;
       }
       element.value = value === null || value === undefined ? '' : value;

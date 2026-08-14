@@ -3935,6 +3935,75 @@
     @media print { .polyta-portal-home { display: none !important; } }
   </style>
   <link rel="stylesheet" href="../responsive.css?v=20260814-2">
+  <style>
+    /* Barcode SPK menggantikan stempel Terbit di sudut kanan atas. Ukuran
+       menggunakan milimeter agar ketebalan batang konsisten saat dicetak. */
+    .master-topline {
+      grid-template-columns: minmax(0, .88fr) minmax(0, 1.08fr) minmax(0, 1.3fr) 30mm !important;
+    }
+
+    .spk-barcode {
+      display: flex !important;
+      flex-direction: column;
+      align-items: stretch !important;
+      justify-content: center;
+      min-width: 30mm;
+      padding: .65mm 1mm !important;
+      overflow: hidden;
+      color: #0a0a0a;
+      background: #fff;
+      text-align: center;
+    }
+
+    .spk-barcode-bars {
+      display: flex;
+      width: 100%;
+      height: 5.2mm;
+      padding: 0 1.2mm;
+      overflow: hidden;
+      background: #fff;
+      box-sizing: border-box;
+    }
+
+    .spk-barcode-bars > i {
+      display: block;
+      height: 100%;
+      flex: 1 1 0;
+      min-width: 0;
+      background: #fff;
+    }
+
+    .spk-barcode-bars > i.is-bar {
+      background: #000;
+    }
+
+    .spk-barcode-human {
+      display: block;
+      margin-top: .35mm;
+      overflow: hidden;
+      color: #111;
+      font-family: "Courier New", monospace;
+      font-size: 6.6px;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: .075em;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    @media print {
+      .spk-barcode,
+      .spk-barcode-bars {
+        background: #fff !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .spk-barcode-bars > i.is-bar {
+        background: #000 !important;
+      }
+    }
+  </style>
 </head>
 <body
   class="tw:min-h-screen tw:text-polyta-ink selection:tw:bg-polyta-brand-soft selection:tw:text-polyta-brand"
@@ -4056,6 +4125,26 @@
       { key: 'handle', label: 'Handle' },
       { key: 'sheetSlitting', label: 'Sheet Slitting' }
     ];
+
+    // Code 39 dipilih karena mendukung huruf kapital, angka, titik, dan tanda
+    // hubung yang lazim dipakai nomor SPK tanpa memerlukan pustaka eksternal.
+    const CODE39_PATTERNS = Object.freeze({
+      '0': '101001101101', '1': '110100101011', '2': '101100101011',
+      '3': '110110010101', '4': '101001101011', '5': '110100110101',
+      '6': '101100110101', '7': '101001011011', '8': '110100101101',
+      '9': '101100101101', 'A': '110101001011', 'B': '101101001011',
+      'C': '110110100101', 'D': '101011001011', 'E': '110101100101',
+      'F': '101101100101', 'G': '101010011011', 'H': '110101001101',
+      'I': '101101001101', 'J': '101011001101', 'K': '110101010011',
+      'L': '101101010011', 'M': '110110101001', 'N': '101011010011',
+      'O': '110101101001', 'P': '101101101001', 'Q': '101010110011',
+      'R': '110101011001', 'S': '101101011001', 'T': '101011011001',
+      'U': '110010101011', 'V': '100110101011', 'W': '110011010101',
+      'X': '100101101011', 'Y': '110010110101', 'Z': '100110110101',
+      '-': '100101011011', '.': '110010101101', ' ': '100110101101',
+      '$': '100100100101', '/': '100100101001', '+': '100101001001',
+      '%': '101001001001', '*': '100101101101'
+    });
 
     const printRootEl = document.getElementById('printRoot');
     const printButtonEl = document.getElementById('printButton');
@@ -4216,11 +4305,6 @@
       const released = release === 'YA';
       const releaseLabel = released ? 'TERBIT' : 'BELUM TERBIT';
 
-      document.querySelectorAll('[data-release-badge]').forEach(function (badge) {
-        badge.classList.toggle('is-released', released);
-        badge.classList.toggle('is-non-release', !released);
-        badge.innerHTML = '<span>' + releaseLabel + '</span>';
-      });
       document.querySelectorAll('[data-release-footer]').forEach(function (footer) {
         footer.textContent = 'Keadaan: ' + releaseLabel;
       });
@@ -4589,7 +4673,7 @@
                   <span>Nomor PO: ${escapeHtml_(displayValue_(data.nomorPO))}</span>
                   <span>PO Masuk: ${escapeHtml_(formatDate_(data.poMasuk))}</span>
                 </div>
-                ${releaseStamp_(data)}
+                ${spkBarcode_(data)}
               </div>
             </header>
 
@@ -4760,7 +4844,7 @@
                 <small>Industri Kemasan Plastik</small>
               </div>
             </div>
-            ${releaseStamp_(data)}
+            ${spkBarcode_(data)}
           </div>
 
           <div class="master-header-grid">
@@ -5350,12 +5434,30 @@
       `;
     }
 
-    function releaseStamp_(data) {
-      const released = data.release === 'YA';
-      const releaseLabel = released ? 'TERBIT' : 'BELUM TERBIT';
+    function normalizeBarcodeSpk_(value) {
+      const normalized = String(value === null || value === undefined ? '' : value)
+        .trim()
+        .toUpperCase();
+      return normalized.replace(/[^0-9A-Z. $/+%\-]/g, '-') || '-';
+    }
+
+    function code39Modules_(value) {
+      const encoded = '*' + normalizeBarcodeSpk_(value) + '*';
+      return encoded.split('').map(function(character, characterIndex) {
+        const pattern = CODE39_PATTERNS[character] || CODE39_PATTERNS['-'];
+        const modules = pattern.split('').map(function(module) {
+          return '<i class="' + (module === '1' ? 'is-bar' : 'is-space') + '"></i>';
+        }).join('');
+        return modules + (characterIndex < encoded.length - 1 ? '<i class="is-space"></i>' : '');
+      }).join('');
+    }
+
+    function spkBarcode_(data) {
+      const spk = normalizeBarcodeSpk_(data && data.spk);
       return `
-        <div class="release-stamp ${released ? 'is-released' : 'is-non-release'}" data-release-badge>
-          <span>${releaseLabel}</span>
+        <div class="spk-barcode" role="img" aria-label="Barcode SPK ${escapeHtml_(spk)}">
+          <div class="spk-barcode-bars" aria-hidden="true">${code39Modules_(spk)}</div>
+          <small class="spk-barcode-human">${escapeHtml_(spk)}</small>
         </div>
       `;
     }

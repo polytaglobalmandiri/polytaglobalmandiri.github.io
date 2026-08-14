@@ -36,7 +36,9 @@ const assetVersions = {
   "routing-accessories.js": "20260812-1",
   "modal-scroll-lock.js": "20260812-1",
   "responsive-header.js": "20260812-3",
-  "footer-reveal.js": "20260813-1"
+  "footer-reveal.js": "20260813-1",
+  "status.css": "20260814-1",
+  "status.js": "20260814-1"
 };
 
 // Kaki halaman dipasang oleh build karena sumber GAS tidak memuatnya. Teksnya
@@ -61,6 +63,14 @@ const routes = [
 // termuat saat skrip halaman menjalankan wizard.
 const wizardScriptPartial = "FE-SPK-Wizard-Script";
 
+// Partial lapisan status. Pada GAS isinya ditulis sebaris karena di sana
+// berkas terpisah tidak dapat dilayani; pada versi web isinya digantikan oleh
+// assets/css/status.css dan assets/js/status.js yang dimuat sebagai berkas
+// bersama, sehingga salinan sebarisnya tidak ikut ditulis.
+const statusPartial = "FE-Polyta-Status";
+const statusPartialNote =
+  "<!-- Lapisan status dimuat dari /assets/css/status.css dan /assets/js/status.js. -->";
+
 function asset(fileName) {
   const version = assetVersions[fileName];
   if (!version) throw new Error(`Versi aset ${fileName} belum didaftarkan.`);
@@ -77,6 +87,7 @@ function expandPartials(html, indent, state) {
   do {
     previous = html;
     html = html.replace(pattern, (_, partialName) => {
+      if (partialName === statusPartial) return statusPartialNote;
       const content = readSource(partialName + ".html");
       if (partialName !== wizardScriptPartial) return content;
       state.usesWizard = true;
@@ -121,6 +132,13 @@ function convertTemplate(route) {
       "let requestedDbRow = Math.max(0, Math.floor(Number(new URLSearchParams(window.location.search).get('row')) || 0));"
     );
   }
+
+  // Lapisan status disisipkan tepat sesudah <title>, bukan menjelang
+  // </head>. Penangkap galat di dalamnya harus sudah terpasang sebelum skrip
+  // apa pun pada halaman ini dijalankan.
+  const statusAssets = `\n${route.indent}<link rel="stylesheet" href="/assets/css/${asset("status.css")}">`
+    + `\n${route.indent}<script src="/assets/js/${asset("status.js")}"></script>`;
+  html = html.replace(/<title>[^<]*<\/title>/, match => match + statusAssets);
 
   const rpcScript = `  <script src="/assets/js/${asset("gas-rpc.js")}"></script>\n`;
   html = html.replace("</head>", rpcScript + "</head>");

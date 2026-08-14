@@ -93,26 +93,8 @@ button { cursor: pointer; }
 .nav-link { display: inline-flex; align-items: center; gap: 7px; padding: 0 11px; }
 .nav-link:hover { background: linear-gradient(180deg, #555960, #34363c); }
 
-.offline-notice {
-  position: fixed;
-  top: 12px;
-  left: 50%;
-  z-index: 1000;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  max-width: calc(100% - 24px);
-  padding: 8px 13px;
-  border: 1px solid #d39898;
-  border-radius: 999px;
-  background: rgba(255,246,246,.96);
-  box-shadow: 0 8px 24px rgba(60,20,20,.16);
-  color: #7f171d;
-  font-size: .68rem;
-  font-weight: 800;
-}
-.offline-notice > span { width: 8px; height: 8px; border-radius: 50%; background: #bd2832; }
+/* Pita luring khusus halaman ini dilepas; bentuk bakunya kini datang dari
+   assets/css/status.css supaya sama dengan halaman lain. */
 
 /* Pelat isi mengikuti dasbor PPIC: pelat logam dengan kepala sekrup di tiap
    sudut, sehingga kedua halaman terbaca sebagai satu keluarga. */

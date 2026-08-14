@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Cetak SPK | Polyta Global Mandiri</title>
+  <link rel="stylesheet" href="/assets/css/status.css?v=20260814-1">
+  <script src="/assets/js/status.js?v=20260814-1"></script>
   <meta name="theme-color" content="#20242a">
   <base target="_top">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='22' fill='%23f4f4f1'/%3E%3Cpath fill='%23111216' d='M14 12h50v43h42v53h-8V63H64v45H14V55h42V20H14z'/%3E%3Crect x='15' y='22' width='41' height='12' rx='6' fill='%234563b3'/%3E%3Crect x='22' y='63' width='34' height='37' fill='%23ef2631'/%3E%3Crect x='84' y='64' width='11' height='44' rx='5.5' fill='%2340b84e'/%3E%3C/svg%3E">
@@ -3947,19 +3949,7 @@
   x-on:online.window="setOnline(true)"
   x-on:offline.window="setOnline(false)"
 >
-  <div
-  class="no-print tw:pointer-events-none tw:fixed tw:inset-x-0 tw:top-3 tw:z-[9999] tw:flex tw:justify-center tw:px-4"
-  x-cloak
-  x-show="!online"
-  x-transition.opacity.duration.200ms
-  role="status"
-  aria-live="polite"
->
-  <div class="tw:flex tw:items-center tw:gap-2 tw:rounded-full tw:border tw:border-red-300/70 tw:bg-red-50/95 tw:px-4 tw:py-2 tw:text-xs tw:font-bold tw:text-red-800 tw:shadow-lg tw:backdrop-blur">
-    <span class="tw:h-2 tw:w-2 tw:rounded-full tw:bg-red-600" aria-hidden="true"></span>
-    Koneksi terputus — menunggu jaringan kembali
-  </div>
-</div>
+  <!-- Lapisan status dimuat dari /assets/css/status.css dan /assets/js/status.js. -->
 
   <header class="print-toolbar no-print">
     <div class="toolbar-brand">
@@ -4251,6 +4241,28 @@
           <p>${escapeHtml_(message)}</p>
         </div>
       `;
+
+      // Panel status baku dinaikkan di atas kartu tersebut. Kartunya sendiri
+      // hanya memberi tahu, tanpa jalan keluar; panel inilah yang menyediakan
+      // tombol mencoba lagi. Penjagaan diperlukan karena berkas status hanya
+      // termuat pada versi web, tidak pada versi Apps Script.
+      if (!window.PolytaStatus) return;
+
+      window.PolytaStatus.loadFailed(
+        'Paket cetak SPK belum dapat disiapkan.',
+        message,
+        function () {
+          setToolbarStatus_('Memuat data SPK...', '');
+          printRootEl.innerHTML = `
+            <div class="loading-card">
+              <div class="spinner" aria-hidden="true"></div>
+              <strong>Menyiapkan paket SPK</strong>
+              <p>PO Produksi dan formulir setiap alur sedang disusun.</p>
+            </div>
+          `;
+          loadPrintData_();
+        }
+      );
     }
 
     // Satu lembar untuk satu langkah alur. Proses yang dijalankan dua kali

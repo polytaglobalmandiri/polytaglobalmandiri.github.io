@@ -1,0 +1,419 @@
+/* =====================================================================
+   TAMPILAN STATUS BAKU — POLYTA GLOBAL MANDIRI
+   ---------------------------------------------------------------------
+   Bentuk baku untuk keadaan yang bukan keadaan normal: jaringan
+   terputus, data gagal dimuat, pustaka pihak ketiga tidak sampai, dan
+   galat yang tidak terduga. Seluruh halaman portal maupun Otomasi SPK
+   memakai berkas yang sama supaya pesannya tampil serupa, baik dibuka
+   lewat peramban maupun lewat aplikasi desktop.
+
+   Dua keputusan penting pada berkas ini:
+
+   1. Paletnya berdiri sendiri, tidak mewarisi token halaman induk.
+      Halaman portal memakai skeuo.css sedangkan halaman Otomasi SPK
+      memakai paletnya sendiri; kalau warnanya diwarisi, panel yang
+      seharusnya seragam justru berubah-ubah menurut halamannya.
+
+   2. Tidak ada satu pun permintaan ke luar — tanpa font web, tanpa
+      ikon dari CDN, tanpa gambar. Berkas ini justru dipakai ketika
+      jaringan sedang bermasalah, jadi ia harus utuh tanpa unduhan
+      apa pun. Lambang perusahaan digambar sebagai SVG sebaris.
+   ===================================================================== */
+
+:root {
+  --pgm-status-canvas: #e8e9e6;
+  --pgm-status-veil: rgba(20, 21, 24, .58);
+  --pgm-status-panel-a: #ffffff;
+  --pgm-status-panel-b: #ececef;
+  --pgm-status-panel-edge: #bfbfc8;
+  --pgm-status-ink: #15151a;
+  --pgm-status-ink-soft: #4c4c56;
+  --pgm-status-ink-mute: #7c7c88;
+  --pgm-status-accent: #c8102e;
+  --pgm-status-accent-hi: #e63b52;
+  --pgm-status-accent-lo: #8a0b1f;
+  --pgm-status-detail-bg: rgba(20, 21, 26, .05);
+  --pgm-status-shadow: 0 20px 44px rgba(12, 12, 18, .28), 0 2px 0 rgba(255, 255, 255, .7) inset;
+  --pgm-status-radius: 20px;
+  --pgm-status-font: "Segoe UI", Inter, system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --pgm-status-font-mono: "Cascadia Mono", Consolas, "SF Mono", ui-monospace, monospace;
+}
+
+/* Gelap mengikuti pola tiga keadaan yang dipakai skeuo.css: pilihan
+   eksplisit lewat data-theme selalu menang, sedangkan tanpa pilihan
+   barulah selera sistem yang dipakai. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --pgm-status-canvas: #17181b;
+    --pgm-status-veil: rgba(4, 4, 6, .72);
+    --pgm-status-panel-a: #26262b;
+    --pgm-status-panel-b: #17171b;
+    --pgm-status-panel-edge: #09090b;
+    --pgm-status-ink: #f6f6f8;
+    --pgm-status-ink-soft: #b6b6c0;
+    --pgm-status-ink-mute: #85858f;
+    --pgm-status-accent: #ff4757;
+    --pgm-status-accent-hi: #ff8892;
+    --pgm-status-accent-lo: #a3101f;
+    --pgm-status-detail-bg: rgba(255, 255, 255, .06);
+    --pgm-status-shadow: 0 22px 48px rgba(0, 0, 0, .62), 0 1px 0 rgba(255, 255, 255, .07) inset;
+  }
+}
+
+:root[data-theme="dark"] {
+  --pgm-status-canvas: #17181b;
+  --pgm-status-veil: rgba(4, 4, 6, .72);
+  --pgm-status-panel-a: #26262b;
+  --pgm-status-panel-b: #17171b;
+  --pgm-status-panel-edge: #09090b;
+  --pgm-status-ink: #f6f6f8;
+  --pgm-status-ink-soft: #b6b6c0;
+  --pgm-status-ink-mute: #85858f;
+  --pgm-status-accent: #ff4757;
+  --pgm-status-accent-hi: #ff8892;
+  --pgm-status-accent-lo: #a3101f;
+  --pgm-status-detail-bg: rgba(255, 255, 255, .06);
+  --pgm-status-shadow: 0 22px 48px rgba(0, 0, 0, .62), 0 1px 0 rgba(255, 255, 255, .07) inset;
+}
+
+/* --------------------------------------------------- 1. PITA STATUS */
+/* Pita tipis di puncak layar untuk keadaan yang masih bisa ditunggu,
+   misalnya jaringan terputus sesaat. Halaman di belakangnya tetap bisa
+   dipakai, jadi pita ini tidak boleh menghalangi sentuhan. */
+.pgm-status-banner {
+  position: fixed;
+  z-index: 2147483000;
+  top: calc(env(safe-area-inset-top, 0px) + 10px);
+  right: 12px;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: fit-content;
+  max-width: calc(100% - 24px);
+  margin-inline: auto;
+  padding: 9px 17px;
+  border: 1px solid var(--pgm-status-panel-edge);
+  border-radius: 999px;
+  color: var(--pgm-status-ink);
+  background: linear-gradient(180deg, var(--pgm-status-panel-a), var(--pgm-status-panel-b));
+  box-shadow: var(--pgm-status-shadow);
+  font-family: var(--pgm-status-font);
+  font-size: .76rem;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: center;
+  pointer-events: none;
+  animation: pgmStatusBannerIn .28s cubic-bezier(.34, 1.4, .64, 1);
+}
+
+.pgm-status-banner[hidden] {
+  display: none;
+}
+
+.pgm-status-banner-dot {
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--pgm-status-accent);
+  box-shadow: 0 0 0 0 rgba(200, 16, 46, .5);
+  animation: pgmStatusPulse 2s ease-out infinite;
+}
+
+/* Keadaan pulih memakai hijau dan menghilang sendiri, jadi denyutnya
+   dimatikan supaya tidak terbaca sebagai peringatan baru. */
+.pgm-status-banner[data-kind="pulih"] .pgm-status-banner-dot {
+  background: #2ca846;
+  animation: none;
+}
+
+@keyframes pgmStatusBannerIn {
+  from { opacity: 0; transform: translateY(-12px) scale(.96); }
+}
+
+@keyframes pgmStatusPulse {
+  0% { box-shadow: 0 0 0 0 rgba(200, 16, 46, .5); }
+  70% { box-shadow: 0 0 0 7px rgba(200, 16, 46, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(200, 16, 46, 0); }
+}
+
+/* ------------------------------------------------ 2. HALAMAN STATUS */
+/* Dipakai ketika halaman benar-benar tidak dapat melanjutkan. Panelnya
+   menutupi seluruh layar supaya tidak ada kendali setengah hidup yang
+   masih terlihat bisa ditekan padahal datanya tidak ada. */
+.pgm-status-page {
+  position: fixed;
+  z-index: 2147483001;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+  padding: clamp(16px, 4vw, 40px);
+  padding-top: calc(env(safe-area-inset-top, 0px) + clamp(16px, 4vw, 40px));
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + clamp(16px, 4vw, 40px));
+  background: var(--pgm-status-veil);
+  font-family: var(--pgm-status-font);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  animation: pgmStatusPageIn .2s ease-out;
+}
+
+.pgm-status-page[hidden] {
+  display: none;
+}
+
+@keyframes pgmStatusPageIn {
+  from { opacity: 0; }
+}
+
+.pgm-status-plate {
+  position: relative;
+  width: min(520px, 100%);
+  margin: auto;
+  padding: clamp(22px, 5vw, 36px) clamp(20px, 5vw, 38px) clamp(18px, 4vw, 28px);
+  border: 1px solid var(--pgm-status-panel-edge);
+  border-radius: var(--pgm-status-radius);
+  color: var(--pgm-status-ink);
+  background: linear-gradient(180deg, var(--pgm-status-panel-a), var(--pgm-status-panel-b));
+  box-shadow: var(--pgm-status-shadow);
+  text-align: center;
+  overflow: hidden;
+}
+
+/* Kilau diagonal yang sama dengan panel portal, supaya panel ini
+   terbaca sebagai bagian dari sistem yang sama. */
+.pgm-status-plate::before {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(122deg, rgba(255, 255, 255, .5) 0%, rgba(255, 255, 255, .05) 32%, transparent 55%);
+  content: "";
+  pointer-events: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .pgm-status-plate::before {
+    background: linear-gradient(122deg, rgba(255, 255, 255, .08) 0%, transparent 48%);
+  }
+}
+
+:root[data-theme="dark"] .pgm-status-plate::before {
+  background: linear-gradient(122deg, rgba(255, 255, 255, .08) 0%, transparent 48%);
+}
+
+.pgm-status-plate > * {
+  position: relative;
+}
+
+.pgm-status-mark {
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  margin: 0 auto 15px;
+  padding: 8px;
+  border: 1px solid var(--pgm-status-panel-edge);
+  border-radius: 16px;
+  background: linear-gradient(145deg, #f8f8fa, #c8c8d1 55%, #9a9aa7);
+  box-shadow: inset 0 1px 0 #fff, 0 3px 8px rgba(12, 12, 18, .22);
+}
+
+.pgm-status-mark svg {
+  width: 100%;
+  height: 100%;
+}
+
+.pgm-status-eyebrow {
+  margin: 0 0 6px;
+  color: var(--pgm-status-ink-mute);
+  font-size: .62rem;
+  font-weight: 700;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+
+.pgm-status-title {
+  margin: 0 0 10px;
+  color: var(--pgm-status-ink);
+  font-size: clamp(1.12rem, 1rem + 1vw, 1.42rem);
+  font-weight: 800;
+  letter-spacing: -.01em;
+  line-height: 1.25;
+}
+
+.pgm-status-message {
+  margin: 0;
+  color: var(--pgm-status-ink-soft);
+  font-size: clamp(.82rem, .78rem + .2vw, .9rem);
+  line-height: 1.65;
+}
+
+/* Keterangan teknis disembunyikan sampai benar-benar ada isinya supaya
+   panelnya tidak menyisakan ruang kosong pada kasus yang sederhana. */
+.pgm-status-detail {
+  margin: 14px 0 0;
+  padding: 9px 12px;
+  border-radius: 10px;
+  color: var(--pgm-status-ink-mute);
+  background: var(--pgm-status-detail-bg);
+  font-family: var(--pgm-status-font-mono);
+  font-size: .7rem;
+  line-height: 1.55;
+  text-align: left;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.pgm-status-detail[hidden] {
+  display: none;
+}
+
+.pgm-status-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  margin-top: 20px;
+}
+
+.pgm-status-actions:empty {
+  display: none;
+}
+
+.pgm-status-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 10px 18px;
+  border: 1px solid var(--pgm-status-panel-edge);
+  border-radius: 10px;
+  color: var(--pgm-status-ink);
+  background: linear-gradient(180deg, var(--pgm-status-panel-a), var(--pgm-status-panel-b));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8), 0 2px 4px rgba(12, 12, 18, .16);
+  font: inherit;
+  font-size: .76rem;
+  font-weight: 700;
+  letter-spacing: .02em;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.pgm-status-button:hover {
+  border-color: var(--pgm-status-ink-mute);
+}
+
+.pgm-status-button:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 4px rgba(12, 12, 18, .22);
+}
+
+.pgm-status-button:focus-visible {
+  outline: 3px solid var(--pgm-status-accent-hi);
+  outline-offset: 2px;
+}
+
+.pgm-status-button.is-primary {
+  border-color: var(--pgm-status-accent-lo);
+  color: #fff;
+  background: linear-gradient(180deg, var(--pgm-status-accent-hi), var(--pgm-status-accent) 55%, var(--pgm-status-accent-lo));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 2px 5px rgba(140, 15, 28, .35);
+}
+
+.pgm-status-button.is-primary:hover {
+  border-color: var(--pgm-status-accent-lo);
+  filter: brightness(1.06);
+}
+
+.pgm-status-foot {
+  margin: 18px 0 0;
+  color: var(--pgm-status-ink-mute);
+  font-size: .6rem;
+  font-weight: 400;
+  letter-spacing: .07em;
+  line-height: 1.6;
+}
+
+.pgm-status-foot strong {
+  color: var(--pgm-status-ink-soft);
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+/* Ketika halaman status tampil, halaman di belakangnya tidak boleh
+   ikut bergulir. */
+html.pgm-status-locked,
+html.pgm-status-locked body {
+  overflow: hidden;
+}
+
+/* ------------------------------------------- 3. PENYESUAIAN PERANGKAT */
+/* Layar sangat sempit: panelnya melebar penuh dan tombolnya ditumpuk
+   supaya sasaran sentuhnya tetap lebar. */
+@media (max-width: 380px) {
+  .pgm-status-plate {
+    padding-inline: 17px;
+  }
+
+  .pgm-status-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pgm-status-button {
+    width: 100%;
+  }
+}
+
+/* Layar rebah yang pendek, misalnya ponsel dimiringkan: panelnya
+   dirapatkan agar tombolnya tetap terlihat tanpa menggulir. */
+@media (max-height: 460px) and (orientation: landscape) {
+  .pgm-status-page {
+    align-items: flex-start;
+  }
+
+  .pgm-status-mark {
+    width: 46px;
+    height: 46px;
+    margin-bottom: 10px;
+  }
+
+  .pgm-status-plate {
+    padding-block: 18px 14px;
+  }
+
+  .pgm-status-foot {
+    display: none;
+  }
+}
+
+/* Perangkat sentuh memerlukan sasaran yang lebih besar. */
+@media (pointer: coarse) {
+  .pgm-status-button {
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pgm-status-banner,
+  .pgm-status-page {
+    animation: none;
+  }
+
+  .pgm-status-banner-dot {
+    animation: none;
+  }
+}
+
+/* Keadaan sesaat tidak pernah ikut tercetak. */
+@media print {
+  .pgm-status-banner,
+  .pgm-status-page {
+    display: none !important;
+  }
+}

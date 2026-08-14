@@ -7,6 +7,8 @@
   <meta name="theme-color" content="#202226">
   <meta name="description" content="Pencatatan serah terima SPK dengan bukti foto, tanda tangan digital, dan nama penerima.">
   <title>Serah Terima | PPIC</title>
+  <link rel="stylesheet" href="/assets/css/status.css?v=20260814-1">
+  <script src="/assets/js/status.js?v=20260814-1"></script>
   <link rel="icon" type="image/png" href="/assets/img/logo-app.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,10 +19,9 @@
   <script src="/assets/js/gas-rpc.js?v=20260812-6"></script>
 </head>
 <body data-page="serah-terima" data-ui-engine="tailwind-alpine">
-  <div id="offlineNotice" class="offline-notice" hidden role="status" aria-live="polite">
-    <span aria-hidden="true"></span>
-    Koneksi terputus — data akan disimpan setelah jaringan kembali
-  </div>
+  <!-- Pita luring khusus halaman ini dilepas. Kalimatnya juga keliru:
+       formulir justru menolak disimpan saat luring, bukan menunda.
+       Pita bakunya sekarang datang dari assets/js/status.js. -->
 
   <header class="app-header spk-simple-header">
     <div class="header-inner">

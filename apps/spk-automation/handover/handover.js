@@ -42,7 +42,6 @@
   document.addEventListener("DOMContentLoaded", initialize);
 
   function initialize() {
-    initializeNetworkNotice();
     initializeSignatureCanvas();
 
     spkSearch.addEventListener("input", debounce(renderSpkList, 100));
@@ -67,13 +66,9 @@
     loadPageData();
   }
 
-  function initializeNetworkNotice() {
-    var notice = document.getElementById("offlineNotice");
-    function sync() { notice.hidden = navigator.onLine; }
-    window.addEventListener("online", sync);
-    window.addEventListener("offline", sync);
-    sync();
-  }
+  // Pemberitahuan luring dulu digambar sendiri di sini. Sekarang seluruh
+  // halaman memakai pita baku dari assets/js/status.js supaya bentuk dan
+  // kalimatnya sama di mana pun, jadi versi khusus halaman ini dilepas.
 
   function loadPageData() {
     setView("loading");

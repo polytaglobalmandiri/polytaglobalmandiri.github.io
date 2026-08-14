@@ -365,6 +365,33 @@
   var bootTimer = null;
   var bootSelesai = false;
 
+  var KUNCI_SESI = "pgm:layar-pemuatan";
+
+  /**
+   * Layar pemuatan hanya untuk saat aplikasi dibuka, bukan untuk setiap
+   * perpindahan halaman. Penandanya disimpan pada penyimpanan sesi karena
+   * lingkupnya persis sama dengan yang dimaksud: satu tab, bertahan selama
+   * berpindah-pindah halaman, dan hilang begitu tabnya ditutup. Membuka
+   * aplikasi lagi berarti sesi baru, sehingga layarnya muncul lagi.
+   *
+   * Portal dan Otomasi SPK berbagi satu asal, jadi berpindah dari portal
+   * ke aplikasi pun terhitung masih dalam sesi yang sama.
+   */
+  function pemuatanPertama() {
+    try {
+      if (window.sessionStorage.getItem(KUNCI_SESI)) return false;
+      window.sessionStorage.setItem(KUNCI_SESI, "1");
+      return true;
+    } catch (galat) {
+      // Penyimpanan sesi bisa ditolak, misalnya pada mode privat atau bila
+      // izin penyimpanan dimatikan. Di situ tidak ada cara membedakan
+      // membuka aplikasi dari berpindah halaman, dan menampilkannya pada
+      // setiap perpindahan justru mengulang persoalan yang mau dihindari.
+      // Karena itu pilihan amannya adalah tidak menampilkan sama sekali.
+      return false;
+    }
+  }
+
   /**
    * Warna dasar layar pemuatan diambil dari meta theme-color halaman bila
    * ada. Tanpa ini layar pemuatan akan memakai kanvas terang lalu berganti
@@ -472,6 +499,13 @@
   }
 
   function mulaiPemuatan() {
+    if (!pemuatanPertama()) {
+      // Ditandai selesai supaya sisa alurnya tahu tidak ada yang perlu
+      // dilepas, termasuk bila halaman memanggil doneLoading sendiri.
+      bootSelesai = true;
+      return;
+    }
+
     buatLayarPemuatan();
     gambarKemajuan();
     bootTimer = window.setInterval(detakKemajuan, 220);

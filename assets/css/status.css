@@ -76,6 +76,112 @@
   --pgm-status-shadow: 0 22px 48px rgba(0, 0, 0, .62), 0 1px 0 rgba(255, 255, 255, .07) inset;
 }
 
+/* ------------------------------------------------ 0. LAYAR PEMUATAN */
+/* Tampil sejak halaman mulai dimuat dan menutup seluruh layar, supaya
+   susunan yang belum jadi tidak sempat terlihat setengah rakit. Cincin
+   kemajuannya digambar dengan SVG dan digerakkan lewat stroke-dashoffset,
+   bukan lewat lebar kotak, sehingga bentuknya benar-benar bulat. */
+.pgm-boot {
+  position: fixed;
+  z-index: 2147483002;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  padding: 24px;
+  background: var(--pgm-status-canvas);
+  font-family: var(--pgm-status-font);
+  opacity: 1;
+  transition: opacity .32s ease;
+}
+
+.pgm-boot[hidden] {
+  display: none;
+}
+
+.pgm-boot.is-selesai {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pgm-boot-ring {
+  position: relative;
+  width: clamp(112px, 30vw, 148px);
+  height: clamp(112px, 30vw, 148px);
+}
+
+.pgm-boot-ring svg {
+  width: 100%;
+  height: 100%;
+  /* Titik nol lingkaran ada di sisi kanan; diputar agar kemajuannya
+     mulai dari puncak seperti yang orang harapkan dari cincin. */
+  transform: rotate(-90deg);
+}
+
+.pgm-boot-track {
+  fill: none;
+  stroke: var(--pgm-status-panel-edge);
+  stroke-width: 8;
+  opacity: .45;
+}
+
+.pgm-boot-bar {
+  fill: none;
+  stroke: var(--pgm-status-accent);
+  stroke-linecap: round;
+  stroke-width: 8;
+  transition: stroke-dashoffset .28s ease-out;
+}
+
+/* Wajah diletakkan pada lapisan terpisah agar tidak ikut terputar
+   bersama cincinnya. */
+.pgm-boot-face {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: clamp(2.1rem, 8vw, 2.8rem);
+  line-height: 1;
+  user-select: none;
+}
+
+.pgm-boot-copy {
+  display: grid;
+  gap: 7px;
+  justify-items: center;
+  text-align: center;
+}
+
+.pgm-boot-text {
+  margin: 0;
+  color: var(--pgm-status-ink);
+  font-size: clamp(.86rem, .8rem + .3vw, .98rem);
+  font-weight: 700;
+  letter-spacing: .04em;
+  animation: pgmBootPulse 1.6s ease-in-out infinite;
+}
+
+.pgm-boot-persen {
+  margin: 0;
+  color: var(--pgm-status-ink-mute);
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes pgmBootPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .42; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pgm-boot-text { animation: none; }
+  .pgm-boot-bar { transition: none; }
+}
+
 /* --------------------------------------------------- 1. PITA STATUS */
 /* Pita tipis di puncak layar untuk keadaan yang masih bisa ditunggu,
    misalnya jaringan terputus sesaat. Halaman di belakangnya tetap bisa
@@ -412,6 +518,7 @@ html.pgm-status-locked body {
 
 /* Keadaan sesaat tidak pernah ikut tercetak. */
 @media print {
+  .pgm-boot,
   .pgm-status-banner,
   .pgm-status-page {
     display: none !important;

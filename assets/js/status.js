@@ -293,6 +293,173 @@
     });
   }
 
+  /* -------------------------------------------------- layar pemuatan */
+
+  /**
+   * Layar pemuatan dengan cincin kemajuan. Kemajuannya tidak dikarang:
+   * setiap tonggak nyata dari peramban menaikkan sasarannya, lalu angkanya
+   * merayap mendekati sasaran itu tanpa pernah melewatinya. Dengan begitu
+   * cincinnya selalu bergerak, tetapi tidak pernah menunjukkan selesai
+   * sebelum halamannya benar-benar selesai.
+   */
+  var KELILING = 2 * Math.PI * 52;
+  var BATAS_TUNGGU_MS = 12000;
+
+  var bootEl = null;
+  var bootBarEl = null;
+  var bootPersenEl = null;
+  var bootNilai = 0;
+  var bootSasaran = 8;
+  var bootTimer = null;
+  var bootSelesai = false;
+
+  /**
+   * Warna dasar layar pemuatan diambil dari meta theme-color halaman bila
+   * ada. Tanpa ini layar pemuatan akan memakai kanvas terang lalu berganti
+   * ke halaman Otomasi SPK yang berkanvas gelap, dan kedipannya terlihat
+   * jelas. Nilai meta itu memang sudah menyatakan warna dasar halaman.
+   */
+  function warnaTemaHalaman() {
+    var meta = document.querySelector('meta[name="theme-color"]');
+    var nilai = meta ? String(meta.getAttribute("content") || "").trim() : "";
+    return /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(nilai) ? nilai : "";
+  }
+
+  function terangnya(hex) {
+    var isi = hex.slice(1);
+    if (isi.length === 3) isi = isi[0] + isi[0] + isi[1] + isi[1] + isi[2] + isi[2];
+    var angka = parseInt(isi, 16);
+    var merah = (angka >> 16) & 255;
+    var hijau = (angka >> 8) & 255;
+    var biru = angka & 255;
+    // Pembobotan terang yang lazim dipakai; cukup untuk memutuskan tulisan
+    // gelap atau terang, tanpa perlu perhitungan sRGB penuh.
+    return (merah * 0.299 + hijau * 0.587 + biru * 0.114) / 255;
+  }
+
+  function buatLayarPemuatan() {
+    if (bootEl || bootSelesai) return;
+
+    bootEl = makeEl("div", "pgm-boot no-print");
+    bootEl.setAttribute("role", "progressbar");
+    bootEl.setAttribute("aria-label", "Memuat aplikasi");
+    bootEl.setAttribute("aria-valuemin", "0");
+    bootEl.setAttribute("aria-valuemax", "100");
+    bootEl.setAttribute("aria-valuenow", "0");
+
+    var ring = makeEl("div", "pgm-boot-ring");
+    ring.innerHTML =
+      '<svg viewBox="0 0 120 120" focusable="false" aria-hidden="true">' +
+      '<circle class="pgm-boot-track" cx="60" cy="60" r="52"></circle>' +
+      '<circle class="pgm-boot-bar" cx="60" cy="60" r="52"' +
+      ' stroke-dasharray="' + KELILING.toFixed(2) + '"' +
+      ' stroke-dashoffset="' + KELILING.toFixed(2) + '"></circle>' +
+      "</svg>";
+
+    var wajah = makeEl("div", "pgm-boot-face", "🙂");
+    wajah.setAttribute("aria-hidden", "true");
+    ring.appendChild(wajah);
+    bootEl.appendChild(ring);
+
+    var copy = makeEl("div", "pgm-boot-copy");
+    copy.appendChild(makeEl("p", "pgm-boot-text", "waiting for me"));
+    bootPersenEl = makeEl("p", "pgm-boot-persen", "0%");
+    copy.appendChild(bootPersenEl);
+    bootEl.appendChild(copy);
+
+    var tema = warnaTemaHalaman();
+    if (tema) {
+      bootEl.style.background = tema;
+      if (terangnya(tema) < 0.45) {
+        bootEl.style.setProperty("--pgm-status-ink", "#f6f6f8");
+        bootEl.style.setProperty("--pgm-status-ink-mute", "rgba(246,246,248,.62)");
+        bootEl.style.setProperty("--pgm-status-panel-edge", "rgba(255,255,255,.24)");
+      }
+    }
+
+    // Ditempelkan ke elemen html karena berkas ini berjalan di dalam
+    // <head>, saat <body> belum ada. Begitu body terbentuk, layarnya
+    // dipindahkan ke sana supaya susunannya kembali wajar.
+    (document.body || root).appendChild(bootEl);
+    bootBarEl = bootEl.querySelector(".pgm-boot-bar");
+
+    if (!document.body) {
+      document.addEventListener("DOMContentLoaded", function () {
+        if (bootEl && bootEl.parentNode !== document.body && document.body) {
+          document.body.appendChild(bootEl);
+        }
+      });
+    }
+  }
+
+  function gambarKemajuan() {
+    if (!bootEl) return;
+    var persen = Math.max(0, Math.min(100, bootNilai));
+    if (bootBarEl) {
+      bootBarEl.setAttribute("stroke-dashoffset", (KELILING * (1 - persen / 100)).toFixed(2));
+    }
+    if (bootPersenEl) bootPersenEl.textContent = Math.round(persen) + "%";
+    bootEl.setAttribute("aria-valuenow", String(Math.round(persen)));
+  }
+
+  function detakKemajuan() {
+    if (bootSelesai) return;
+    // Merayap sepertiga dari sisa jarak ke sasaran. Geraknya cepat di awal
+    // lalu melambat, dan tidak pernah menyentuh sasaran sebelum tonggak
+    // berikutnya menaikkannya.
+    bootNilai += (bootSasaran - bootNilai) / 3;
+    gambarKemajuan();
+  }
+
+  function naikkanSasaran(nilai) {
+    if (nilai > bootSasaran) bootSasaran = nilai;
+  }
+
+  function mulaiPemuatan() {
+    buatLayarPemuatan();
+    gambarKemajuan();
+    bootTimer = window.setInterval(detakKemajuan, 220);
+
+    // Pengaman: bila satu permintaan menggantung dan peristiwa load tidak
+    // pernah tiba, layar ini tetap dilepas supaya halaman yang sudah
+    // terbentuk bisa dipakai.
+    window.setTimeout(selesaikanPemuatan, BATAS_TUNGGU_MS);
+  }
+
+  function selesaikanPemuatan() {
+    if (bootSelesai) return;
+    bootSelesai = true;
+
+    if (bootTimer) {
+      window.clearInterval(bootTimer);
+      bootTimer = null;
+    }
+    if (!bootEl) return;
+
+    bootNilai = 100;
+    gambarKemajuan();
+
+    // Cincinnya dibiarkan penuh sesaat sebelum memudar, supaya lompatan ke
+    // 100% sempat terlihat dan tidak terasa terpotong.
+    window.setTimeout(function () {
+      if (!bootEl) return;
+      bootEl.className += " is-selesai";
+      window.setTimeout(function () {
+        if (bootEl && bootEl.parentNode) bootEl.parentNode.removeChild(bootEl);
+        bootEl = null;
+      }, 360);
+    }, 260);
+  }
+
+  document.addEventListener("readystatechange", function () {
+    if (document.readyState === "interactive") naikkanSasaran(68);
+    if (document.readyState === "complete") naikkanSasaran(96);
+  });
+
+  document.addEventListener("DOMContentLoaded", function () {
+    naikkanSasaran(78);
+  });
+
   /* --------------------------------------------------------- jaringan */
 
   function applyConnection(online) {
@@ -405,7 +572,12 @@
     reportError(event ? event.reason : null);
   });
 
-  window.addEventListener("load", checkExternalLibraries);
+  window.addEventListener("load", function () {
+    checkExternalLibraries();
+    selesaikanPemuatan();
+  });
+
+  mulaiPemuatan();
 
   // Jaring kedua: bila peristiwa load tidak pernah tiba karena satu
   // permintaan menggantung, pustaka luar tetap diperiksa agar
@@ -422,6 +594,9 @@
     dialog: dialog,
     banner: showBanner,
     hideBanner: hideBanner,
+    /** Melepas layar pemuatan lebih awal, dipakai halaman yang sudah siap
+     *  sebelum seluruh berkas pelengkapnya selesai diunduh. */
+    doneLoading: selesaikanPemuatan,
     isOnline: function () {
       return navigator.onLine !== false;
     },

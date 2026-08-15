@@ -32,8 +32,6 @@
   var errorMessage = document.getElementById("errorMessage");
   var refreshButton = document.getElementById("refreshButton");
   var scanButton = document.getElementById("scanButton");
-  var manualSpkInput = document.getElementById("manualSpkInput");
-  var addSpkButton = document.getElementById("addSpkButton");
   var clearScannedButton = document.getElementById("clearScannedButton");
   var scannedSpkList = document.getElementById("scannedSpkList");
   var scannedEmpty = document.getElementById("scannedEmpty");
@@ -58,12 +56,6 @@
 
   function initialize() {
     scanButton.addEventListener("click", openScanner);
-    addSpkButton.addEventListener("click", function () { lookupSpk(manualSpkInput.value, "manual"); });
-    manualSpkInput.addEventListener("keydown", function (event) {
-      if (event.key !== "Enter") return;
-      event.preventDefault();
-      lookupSpk(manualSpkInput.value, "manual");
-    });
     clearScannedButton.addEventListener("click", clearScannedRecords);
     scannedSpkList.addEventListener("click", handleScannedClick);
     routingGroupsElement.addEventListener("input", handleRoutingInput);
@@ -74,10 +66,6 @@
     document.getElementById("retryButton").addEventListener("click", loadOverview);
     document.querySelectorAll("[data-close-scanner]").forEach(function (button) {
       button.addEventListener("click", closeScanner);
-    });
-    document.getElementById("scannerManualButton").addEventListener("click", function () {
-      closeScanner();
-      window.setTimeout(function () { manualSpkInput.focus(); }, 0);
     });
     document.addEventListener("keydown", function (event) {
       if (event.key === "Escape" && !scanModal.hidden) closeScanner();
@@ -134,8 +122,7 @@
   function lookupSpk(rawValue, source) {
     var spk = extractSpkNumber(rawValue);
     if (!spk) {
-      setLookupState("Masukkan atau pindai nomor SPK yang valid.", "error");
-      manualSpkInput.focus();
+      setLookupState("Pindai kode QR SPK yang valid.", "error");
       return;
     }
     if (lookupBusy) return;
@@ -196,7 +183,6 @@
       routingGroups.get(key).spks.add(spk);
     });
 
-    manualSpkInput.value = "";
     clearFormAlert();
     renderScannedRecords();
     renderRoutingGroups();
@@ -651,7 +637,7 @@
 
   function startCamera() {
     if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== "function") {
-      showScannerError("Kamera tidak tersedia pada perangkat ini. Gunakan masukan nomor SPK.");
+      showScannerError("Kamera tidak tersedia pada perangkat ini. Gunakan perangkat lain yang memiliki kamera.");
       return;
     }
     if (typeof window.BarcodeDetector === "function") {
@@ -674,8 +660,8 @@
     }).catch(function (error) {
       var denied = error && (error.name === "NotAllowedError" || error.name === "PermissionDeniedError");
       showScannerError(denied
-        ? "Izin kamera ditolak. Izinkan kamera atau masukkan nomor SPK secara manual."
-        : "Kamera belum dapat dibuka. Gunakan masukan nomor SPK.");
+        ? "Izin kamera ditolak. Izinkan akses kamera melalui pengaturan peramban."
+        : "Kamera belum dapat dibuka. Muat ulang halaman lalu coba kembali.");
     });
   }
 
@@ -750,9 +736,6 @@
   function setLookupBusy(value) {
     lookupBusy = Boolean(value);
     scanButton.disabled = lookupBusy;
-    addSpkButton.disabled = lookupBusy;
-    manualSpkInput.disabled = lookupBusy;
-    addSpkButton.querySelector("i").className = lookupBusy ? "fa-solid fa-spinner fa-spin" : "fa-solid fa-plus";
   }
 
   function setLookupState(message, tone) {

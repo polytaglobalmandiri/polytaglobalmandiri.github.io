@@ -412,6 +412,7 @@ button { cursor: pointer; }
 .route-photo-picker img { height: 118px; }
 .route-signature-wrap canvas { height: 118px; }
 .route-note { margin: 0 10px; }
+.route-note textarea::placeholder { font-size: .55rem; }
 .route-proof-hint { display: flex; align-items: center; gap: 5px; margin: 8px 10px 10px; color: #6b7074; font-size: .54rem; line-height: 1.35; }
 .route-proof-hint i { color: #8f2027; }
 .routing-form-alert { margin: 10px; }

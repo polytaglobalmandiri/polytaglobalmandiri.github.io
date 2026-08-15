@@ -26,7 +26,7 @@ const SITE = {
      folder agar alamatnya bersih tanpa akhiran .html */
   nav: [
     { id: "beranda", label: "BERANDA", path: "" },
-    { id: "marketing", label: "PEMASARAN", path: "pages/marketing/" },
+    { id: "marketing", label: "MARKETING", path: "pages/marketing/" },
     { id: "ppic", label: "PPIC", path: "pages/ppic/" },
     { id: "purchasing", label: "PEMBELIAN", path: "pages/purchasing/" },
     { id: "produksi", label: "PRODUKSI", path: "pages/production/" },
@@ -40,7 +40,7 @@ const SITE = {
       heading: "Pusat Akses Terpadu",
       lead: "Pusat tautan menuju folder dan berkas cloud seluruh departemen. Akses dibatasi berdasarkan peran masing-masing pengguna.",
       departments: [
-        { id: "marketing", label: "PEMASARAN", path: "pages/marketing/", desc: "Folder tim, laporan, dan tautan operasional pemasaran.", image: "assets/img/departments/marketing.webp" },
+        { id: "marketing", label: "MARKETING", path: "pages/marketing/", desc: "Folder tim, laporan, dan tautan operasional Marketing.", image: "assets/img/departments/marketing.webp" },
         { id: "ppic", label: "PPIC", path: "pages/ppic/", desc: "Manajemen SPK, database OTS, back-up produksi, dashboard.", image: "assets/img/departments/ppic.webp" },
         { id: "purchasing", label: "PEMBELIAN", path: "pages/purchasing/", desc: "Purchase order dan perbandingan harga supplier.", image: "assets/img/departments/purchasing.webp" },
         { id: "produksi", label: "PRODUKSI", path: "pages/production/", desc: "Input problem, dokumentasi foto, dan data production issue.", image: "assets/img/departments/marketing.webp" },
@@ -49,7 +49,7 @@ const SITE = {
       ]
     },
     marketing: {
-      title: "TIM PEMASARAN",
+      title: "TIM MARKETING",
       heading: "Folder &amp; File Marketing",
       sections: [
         {

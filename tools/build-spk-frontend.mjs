@@ -38,7 +38,8 @@ const assetVersions = {
   "responsive-header.js": "20260812-3",
   "footer-reveal.js": "20260813-1",
   "status.css": "20260814-4",
-  "status.js": "20260815-1"
+  "status.js": "20260815-1",
+  "ui-labels.js": "20260815-1"
 };
 
 // Kaki halaman dipasang oleh build karena sumber GAS tidak memuatnya. Teksnya
@@ -137,7 +138,8 @@ function convertTemplate(route) {
   // </head>. Penangkap galat di dalamnya harus sudah terpasang sebelum skrip
   // apa pun pada halaman ini dijalankan.
   const statusAssets = `\n${route.indent}<link rel="stylesheet" href="/assets/css/${asset("status.css")}">`
-    + `\n${route.indent}<script src="/assets/js/${asset("status.js")}"></script>`;
+    + `\n${route.indent}<script src="/assets/js/${asset("status.js")}"></script>`
+    + `\n${route.indent}<script src="/assets/js/${asset("ui-labels.js")}" defer></script>`;
   html = html.replace(/<title>[^<]*<\/title>/, match => match + statusAssets);
 
   const rpcScript = `  <script src="/assets/js/${asset("gas-rpc.js")}"></script>\n`;

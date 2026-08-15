@@ -146,12 +146,16 @@ dibatasi hanya untuk repositori portal.
 ## Installer Windows
 
 Installer siap dibagikan tersedia di
-[`release/Polyta-Portal-Setup.exe`](release/Polyta-Portal-Setup.exe). Penerima cukup
+[`desktop/release/Polyta-Portal-Setup.exe`](desktop/release/Polyta-Portal-Setup.exe). Penerima cukup
 menjalankan berkas tersebut untuk membuat pintasan portal di Desktop dan Start Menu,
 tanpa perlu mengetik URL. Untuk administrator, gunakan
-[`release/Polyta-Admin-Setup.exe`](release/Polyta-Admin-Setup.exe) agar pintasan
+[`desktop/release/Polyta-Admin-Setup.exe`](desktop/release/Polyta-Admin-Setup.exe) agar pintasan
 langsung membuka panel admin. Petunjuk build dan catatan distribusi tersedia di
-[`installer/README.md`](installer/README.md).
+[`desktop/installer/README.md`](desktop/installer/README.md).
+
+Pengguna dapat mengunduh pemasang melalui halaman [`/unduh/`](unduh/index.html),
+sedangkan petunjuk pemasangan dan pemecahan masalah tersedia terpisah pada
+halaman [`/dokumentasi/`](dokumentasi/index.html).
 
 ---
 

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Dokumentasi pemasangan dan penggunaan aplikasi desktop POLYTA GLOBAL MANDIRI.">
+  <meta name="color-scheme" content="light dark">
+  <title>POLYTA GLOBAL MANDIRI — Dokumentasi Aplikasi</title>
+  <link rel="icon" href="../assets/img/logo-app.png" type="image/png">
+  <link rel="stylesheet" href="../assets/css/skeuo.css?v=20260812-18">
+  <link rel="stylesheet" href="../assets/css/download-docs.css?v=20260815-1">
+  <script>
+    try { var t = JSON.parse(localStorage.getItem("pgm:theme")); if (t) document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+  </script>
+</head>
+<body>
+  <a class="sr-only" href="#konten">Lewati ke konten utama</a>
+  <div class="resource-shell">
+    <header class="topbar">
+      <div class="wrap topbar__in">
+        <a class="brand" href="../" aria-label="Kembali ke Beranda">
+          <span class="brand__plate"><img src="../assets/img/logo-spk.svg" alt="" width="120" height="120"></span>
+          <span class="brand__txt"><span class="brand__name">POLYTA GLOBAL MANDIRI</span><span class="brand__sub">Portal Akses Internal</span></span>
+        </a>
+        <nav class="nav resource-nav" aria-label="Navigasi halaman">
+          <ul class="nav__list">
+            <li><a class="nav__link" href="../">BERANDA</a></li>
+            <li><a class="nav__link" href="../unduh/">UNDUH</a></li>
+            <li><a class="nav__link is-active" href="./" aria-current="page">DOKUMENTASI</a></li>
+          </ul>
+        </nav>
+        <div class="resource-tools">
+          <button class="iconbtn resource-theme" type="button" aria-label="Ganti tema">
+            <svg class="theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+            <svg class="theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5"/></svg>
+          </button>
+          <button class="iconbtn resource-menu" type="button" aria-label="Buka menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+        </div>
+      </div>
+    </header>
+
+    <main id="konten" class="resource-main">
+      <section class="pagehead">
+        <div class="wrap pagehead__in">
+          <div class="pagehead__id">
+            <nav class="crumb" aria-label="Remah jejak"><i class="dot-led"></i><a href="../">Beranda</a><span class="crumb__sep">/</span><span class="crumb__now">Dokumentasi</span></nav>
+            <h1 class="pagehead__title engrave">Dokumentasi Aplikasi Desktop</h1>
+            <p class="pagehead__sub">Panduan lengkap untuk memasang, membuka, memperbarui, dan menghapus pintasan POLYTA pada komputer Windows.</p>
+          </div>
+          <a class="resource-button" href="../unduh/">Buka Halaman Unduh</a>
+        </div>
+      </section>
+
+      <div class="wrap doc-layout">
+        <aside class="plate doc-toc" aria-label="Daftar isi">
+          <strong>Daftar isi</strong>
+          <nav>
+            <a href="#pilihan-aplikasi">Pilihan aplikasi</a>
+            <a href="#pemasangan">Cara memasang</a>
+            <a href="#penggunaan">Cara menggunakan</a>
+            <a href="#administrator">Akses administrator</a>
+            <a href="#pembaruan">Pembaruan</a>
+            <a href="#penghapusan">Cara menghapus</a>
+            <a href="#keamanan">Keamanan berkas</a>
+            <a href="#masalah">Pemecahan masalah</a>
+          </nav>
+        </aside>
+
+        <div class="doc-content">
+          <section id="pilihan-aplikasi" class="plate doc-card">
+            <h2>Pilih aplikasi yang sesuai</h2>
+            <p>Tersedia dua pemasang terpisah. Keduanya dapat dipasang pada komputer yang sama dan menghasilkan pintasan masing-masing.</p>
+            <ul>
+              <li><strong>Portal Akses Internal</strong> digunakan oleh seluruh pengguna untuk membuka beranda dan layanan operasional perusahaan.</li>
+              <li><strong>Panel Administrator</strong> digunakan oleh pengelola berwenang untuk menambah, mengubah, menghapus, dan menerbitkan susunan menu portal.</li>
+            </ul>
+            <div class="resource-actions">
+              <a class="resource-button" href="../desktop/release/Polyta-Portal-Setup.exe" download>Unduh Portal</a>
+              <a class="resource-button resource-button--secondary" href="../desktop/release/Polyta-Admin-Setup.exe" download>Unduh Administrator</a>
+            </div>
+          </section>
+
+          <section id="pemasangan" class="plate doc-card">
+            <h2>Cara memasang</h2>
+            <ol>
+              <li>Buka <a href="../unduh/"><strong>halaman Unduh</strong></a>, lalu pilih pemasang yang dibutuhkan.</li>
+              <li>Setelah unduhan selesai, buka berkas <code>Polyta-Portal-Setup.exe</code> atau <code>Polyta-Admin-Setup.exe</code>.</li>
+              <li>Jika perlindungan Windows menampilkan pemeriksaan keamanan, pastikan nama berkas sesuai dan sumbernya adalah situs resmi POLYTA ini sebelum melanjutkan.</li>
+              <li>Tunggu sampai pesan pemasangan berhasil tampil. Pemasang tidak memerlukan hak administrator Windows karena dipasang khusus untuk pengguna yang sedang aktif.</li>
+              <li>Buka ikon POLYTA yang telah dibuat pada Desktop atau cari namanya melalui menu Mulai.</li>
+            </ol>
+          </section>
+
+          <section id="penggunaan" class="plate doc-card">
+            <h2>Cara menggunakan</h2>
+            <ul>
+              <li>Pastikan komputer terhubung ke internet, kemudian klik dua kali pintasan POLYTA.</li>
+              <li>Aplikasi membuka portal di jendela tersendiri dan selalu mengambil versi halaman yang terbaru.</li>
+              <li>Izin terhadap folder, lembar kerja, kamera, atau layanan lain tetap mengikuti akun dan peran pengguna.</li>
+              <li>Untuk kembali ke halaman utama dari layanan SPK, gunakan tombol <strong>Portal Utama</strong> pada kepala halaman.</li>
+            </ul>
+          </section>
+
+          <section id="administrator" class="plate doc-card">
+            <h2>Ketentuan akses administrator</h2>
+            <p>Pintasan Administrator hanya mempermudah pembukaan panel pengelolaan; pemasang tidak memberikan hak administrator secara otomatis. Gunakan hanya pada perangkat pengelola yang berwenang.</p>
+            <ul>
+              <li>Periksa kembali alamat tujuan sebelum menerbitkan perubahan menu.</li>
+              <li>Simpan salinan data konfigurasi sebelum melakukan perubahan besar.</li>
+              <li>Jangan membagikan kredensial atau akses pengelolaan kepada pengguna lain.</li>
+            </ul>
+          </section>
+
+          <section id="pembaruan" class="plate doc-card">
+            <h2>Pembaruan aplikasi</h2>
+            <p>Isi portal diperbarui otomatis karena dimuat dari situs resmi. Pemasangan ulang hanya diperlukan jika tersedia pembaruan untuk jendela desktop, ikon, alamat aplikasi, atau komponen pemasang.</p>
+            <ol>
+              <li>Unduh pemasang terbaru dari halaman Unduh.</li>
+              <li>Tutup aplikasi POLYTA yang sedang terbuka.</li>
+              <li>Jalankan pemasang terbaru; berkas aplikasi dan pintasan lama akan diperbarui.</li>
+            </ol>
+          </section>
+
+          <section id="penghapusan" class="plate doc-card">
+            <h2>Cara menghapus aplikasi</h2>
+            <ol>
+              <li>Buka <strong>Pengaturan Windows</strong>, lalu masuk ke daftar aplikasi yang terpasang.</li>
+              <li>Cari <strong>POLYTA GLOBAL MANDIRI Portal</strong> atau <strong>POLYTA GLOBAL MANDIRI Administrator</strong>.</li>
+              <li>Pilih tindakan untuk menghapus aplikasi, kemudian setujui konfirmasi.</li>
+              <li>Aplikasi beserta pintasan Desktop dan menu Mulai akan dihapus. Data portal di server tidak ikut terhapus.</li>
+            </ol>
+          </section>
+
+          <section id="keamanan" class="plate doc-card">
+            <h2>Keamanan dan pemeriksaan berkas</h2>
+            <p>Versi 2.0 saat ini belum ditandatangani dengan sertifikat tanda tangan kode perusahaan. Oleh karena itu, perlindungan Windows dapat meminta konfirmasi tambahan saat berkas pertama kali dijalankan.</p>
+            <p>Unduh hanya dari domain <strong>polytaglobalmandiri.github.io</strong>. Untuk pemeriksaan teknis, nilai SHA-256 berkas resmi saat ini adalah:</p>
+            <div class="hash-list">
+              <div class="hash-row"><strong>Portal</strong><span class="hash-code">33A2DE87DFAF2A627B5E906C45502B688118AAE452C66B261E5D2CCA6079D20D</span></div>
+              <div class="hash-row"><strong>Administrator</strong><span class="hash-code">ABC1E4CF67CD85DC8C97C19615E574614870A453B76F8E0F733A52255282751B</span></div>
+            </div>
+          </section>
+
+          <section id="masalah" class="plate doc-card">
+            <h2>Pemecahan masalah</h2>
+            <div class="faq-list">
+              <details><summary>Aplikasi tidak dapat dibuka</summary><p>Pastikan koneksi internet tersedia. Mulai ulang komputer bila perlu, lalu coba jalankan kembali melalui menu Mulai.</p></details>
+              <details><summary>Komponen WebView2 tidak tersedia</summary><p>Perbarui Microsoft Edge atau pasang Microsoft Edge WebView2 Runtime, kemudian buka kembali aplikasi.</p></details>
+              <details><summary>Pintasan tidak muncul di Desktop</summary><p>Cari aplikasi melalui menu Mulai. Jika tidak ditemukan, jalankan kembali pemasang dari halaman Unduh.</p></details>
+              <details><summary>Halaman tampil kosong atau data tidak dimuat</summary><p>Periksa koneksi internet dan coba muat ulang aplikasi. Jika gangguan hanya terjadi pada fitur SPK, laporkan waktu kejadian serta halaman yang dibuka kepada administrator.</p></details>
+              <details><summary>Ikon masih menampilkan ikon peramban</summary><p>Hapus pemasangan versi lama, pasang versi terbaru dari halaman ini, lalu mulai ulang Windows agar simpanan ikon diperbarui.</p></details>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <footer class="foot"><div class="wrap foot__in"><span class="foot__text">Dikembangkan dan dikelola oleh: Team POLYTA GLOBAL MANDIRI</span></div></footer>
+  </div>
+  <script src="../assets/js/download-docs.js?v=20260815-1"></script>
+</body>
+</html>

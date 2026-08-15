@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="stylesheet" href="handover.css?v=20260815-3">
+  <link rel="stylesheet" href="handover.css?v=20260815-4">
   <link rel="stylesheet" href="../responsive.css?v=20260814-2">
   <script src="/assets/js/gas-rpc.js?v=20260815-1"></script>
 </head>
@@ -107,6 +107,16 @@
             <i class="fa-solid fa-camera" aria-hidden="true"></i>
           </button>
 
+          <div class="manual-entry">
+            <label for="manualSpkInput">Atau masukkan nomor SPK</label>
+            <div>
+              <input id="manualSpkInput" type="text" maxlength="80" autocomplete="off">
+              <button id="addSpkButton" class="button button-dark" type="button">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i><span>Tambahkan</span>
+              </button>
+            </div>
+          </div>
+
           <div id="lookupState" class="lookup-state" hidden role="status" aria-live="polite"></div>
         </div>
 
@@ -186,6 +196,9 @@
         </div>
       </div>
       <p id="scanStatus" class="scan-status" role="status" aria-live="polite">Izinkan akses kamera jika diminta.</p>
+      <button id="scannerManualButton" class="button button-light" type="button">
+        <i class="fa-solid fa-keyboard" aria-hidden="true"></i><span>Masukkan nomor secara manual</span>
+      </button>
     </section>
   </div>
 
@@ -194,7 +207,7 @@
   </footer>
 
   <script src="/assets/js/jsqr.min.js?v=1.4.0"></script>
-  <script src="handover.js?v=20260815-3"></script>
+  <script src="handover.js?v=20260815-4"></script>
   <script src="../responsive-header.js?v=20260812-3"></script>
   <script src="../footer-reveal.js?v=20260813-1"></script>
 </body>

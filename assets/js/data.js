@@ -246,7 +246,7 @@ const SITE = {
           hint: "Dokumentasi dan pemasangan aplikasi",
           items: [
             { label: "Dokumentasi Aplikasi", url: "/dokumentasi/", type: "site", icon: "book" },
-            { label: "Unduh Aplikasi", url: "/unduh/", type: "site", icon: "download" },
+            { label: "Download Aplikasi", url: "/unduh/", type: "site", icon: "download" },
             { label: "Panduan Presentasi", url: "https://docs.google.com/presentation/d/1_oko31SZ2AmY0lv61rlOx4u8Ew0hsgN19rxX0A5sr60/present", type: "slides", icon: "book" }
           ]
         }

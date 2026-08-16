@@ -44,7 +44,7 @@
           <div class="pagehead__id">
             <nav class="crumb" aria-label="Remah jejak"><i class="dot-led"></i><a href="../">Beranda</a><span class="crumb__sep">/</span><span class="crumb__now">Dokumentasi</span></nav>
             <h1 class="pagehead__title engrave">Dokumentasi Aplikasi Desktop</h1>
-            <p class="pagehead__sub">Panduan lengkap untuk memasang, membuka, memperbarui, dan menghapus pintasan POLYTA pada komputer Windows.</p>
+            <p class="pagehead__sub">Panduan memasang, membuka, memperbarui, dan menghapus aplikasi POLYTA pada Windows, Linux, dan macOS.</p>
           </div>
           <a class="resource-button" href="../unduh/">Buka Halaman Download</a>
         </div>
@@ -68,32 +68,40 @@
         <div class="doc-content">
           <section id="pilihan-aplikasi" class="plate doc-card">
             <h2>Pilih aplikasi yang sesuai</h2>
-            <p>Tersedia dua pemasang terpisah. Keduanya dapat dipasang pada komputer yang sama dan menghasilkan pintasan masing-masing.</p>
+            <p>Tersedia dua aplikasi terpisah. Keduanya dapat dipasang pada komputer yang sama dan tersedia untuk Windows, Linux, serta macOS.</p>
             <ul>
               <li><strong>Portal Akses Internal</strong> digunakan oleh seluruh pengguna untuk membuka beranda dan layanan operasional perusahaan.</li>
               <li><strong>Panel Administrator</strong> digunakan oleh pengelola berwenang untuk menambah, mengubah, menghapus, dan menerbitkan susunan menu portal.</li>
             </ul>
             <div class="resource-actions">
-              <a class="resource-button" href="../desktop/release/Polyta-Portal-Setup.exe" download>Unduh Portal</a>
-              <a class="resource-button resource-button--secondary" href="../desktop/release/Polyta-Admin-Setup.exe" download>Unduh Administrator</a>
+              <a class="resource-button" href="../unduh/">Pilih paket aplikasi</a>
+              <a class="resource-button resource-button--secondary" href="https://github.com/polytaglobalmandiri/polytaglobalmandiri.github.io/releases">Buka Releases</a>
             </div>
           </section>
 
           <section id="pemasangan" class="plate doc-card">
             <h2>Cara memasang</h2>
+            <h3>Windows</h3>
             <ol>
-              <li>Buka <a href="../unduh/"><strong>halaman Download</strong></a>, lalu pilih pemasang yang dibutuhkan.</li>
-              <li>Setelah unduhan selesai, buka berkas <code>Polyta-Portal-Setup.exe</code> atau <code>Polyta-Admin-Setup.exe</code>.</li>
-              <li>Jika perlindungan Windows menampilkan pemeriksaan keamanan, pastikan nama berkas sesuai dan sumbernya adalah situs resmi POLYTA ini sebelum melanjutkan.</li>
-              <li>Tunggu sampai pesan pemasangan berhasil tampil. Pemasang tidak memerlukan hak administrator Windows karena dipasang khusus untuk pengguna yang sedang aktif.</li>
-              <li>Buka ikon POLYTA yang telah dibuat pada Desktop atau cari namanya melalui menu Mulai.</li>
+              <li>Unduh paket <code>.exe</code>. Versi klasik tetap tersedia, sedangkan versi Electron berada di halaman Releases.</li>
+              <li>Jalankan pemasang dan ikuti petunjuknya, lalu buka Polyta melalui Desktop atau menu Mulai.</li>
+            </ol>
+            <h3>Linux</h3>
+            <ol>
+              <li>Unduh <code>.deb</code> untuk sistem berbasis Debian/Ubuntu, atau <code>.AppImage</code> untuk paket portabel.</li>
+              <li>Pasang berkas <code>.deb</code> melalui pengelola aplikasi. Untuk AppImage, beri izin eksekusi pada properti berkas lalu jalankan.</li>
+            </ol>
+            <h3>macOS</h3>
+            <ol>
+              <li>Unduh paket <code>.dmg</code>, buka berkas tersebut, lalu seret aplikasi Polyta ke folder Applications.</li>
+              <li>Buka Polyta dari Applications. macOS mungkin meminta konfirmasi karena paket belum dinotariskan.</li>
             </ol>
           </section>
 
           <section id="penggunaan" class="plate doc-card">
             <h2>Cara menggunakan</h2>
             <ul>
-              <li>Pastikan komputer terhubung ke internet, kemudian klik dua kali pintasan POLYTA.</li>
+              <li>Pastikan komputer terhubung ke internet, kemudian buka aplikasi POLYTA melalui menu aplikasi sistem.</li>
               <li>Aplikasi membuka portal di jendela tersendiri dan selalu mengambil versi halaman yang terbaru.</li>
               <li>Izin terhadap folder, lembar kerja, kamera, atau layanan lain tetap mengikuti akun dan peran pengguna.</li>
               <li>Untuk kembali ke halaman utama dari layanan SPK, gunakan tombol <strong>Portal Utama</strong> pada kepala halaman.</li>
@@ -116,24 +124,24 @@
             <ol>
               <li>Unduh pemasang terbaru dari halaman Unduh.</li>
               <li>Tutup aplikasi POLYTA yang sedang terbuka.</li>
-              <li>Jalankan pemasang terbaru; berkas aplikasi dan pintasan lama akan diperbarui.</li>
+              <li>Jalankan paket terbaru untuk mengganti versi aplikasi yang terpasang.</li>
             </ol>
           </section>
 
           <section id="penghapusan" class="plate doc-card">
             <h2>Cara menghapus aplikasi</h2>
-            <ol>
-              <li>Buka <strong>Pengaturan Windows</strong>, lalu masuk ke daftar aplikasi yang terpasang.</li>
-              <li>Cari <strong>POLYTA GLOBAL MANDIRI Portal</strong> atau <strong>POLYTA GLOBAL MANDIRI Administrator</strong>.</li>
-              <li>Pilih tindakan untuk menghapus aplikasi, kemudian setujui konfirmasi.</li>
-              <li>Aplikasi beserta pintasan Desktop dan menu Mulai akan dihapus. Data portal di server tidak ikut terhapus.</li>
-            </ol>
+            <ul>
+              <li><strong>Windows:</strong> buka Settings &gt; Apps, cari Polyta Portal atau Polyta Administrator, lalu pilih Uninstall.</li>
+              <li><strong>Linux:</strong> hapus paket melalui pengelola aplikasi; untuk AppImage cukup hapus berkasnya.</li>
+              <li><strong>macOS:</strong> pindahkan aplikasi Polyta dari folder Applications ke Trash.</li>
+            </ul>
+            <p>Penghapusan aplikasi desktop tidak menghapus data portal yang tersimpan di server.</p>
           </section>
 
           <section id="keamanan" class="plate doc-card">
             <h2>Keamanan dan pemeriksaan berkas</h2>
-            <p>Versi 2.0 saat ini belum ditandatangani dengan sertifikat tanda tangan kode perusahaan. Oleh karena itu, perlindungan Windows dapat meminta konfirmasi tambahan saat berkas pertama kali dijalankan.</p>
-            <p>Unduh hanya dari domain <strong>polytaglobalmandiri.github.io</strong>. Untuk pemeriksaan teknis, nilai SHA-256 berkas resmi saat ini adalah:</p>
+            <p>Paket saat ini belum ditandatangani dengan sertifikat perusahaan. Windows SmartScreen atau macOS Gatekeeper dapat meminta konfirmasi tambahan. Paket macOS juga belum melalui notarization Apple.</p>
+            <p>Unduh hanya dari domain <strong>polytaglobalmandiri.github.io</strong> atau halaman Releases milik repositori <strong>polytaglobalmandiri/polytaglobalmandiri.github.io</strong>. Nilai SHA-256 berikut berlaku khusus untuk pemasang Windows klasik versi 2.0:</p>
             <div class="hash-list">
               <div class="hash-row"><strong>Portal</strong><span class="hash-code">33A2DE87DFAF2A627B5E906C45502B688118AAE452C66B261E5D2CCA6079D20D</span></div>
               <div class="hash-row"><strong>Administrator</strong><span class="hash-code">ABC1E4CF67CD85DC8C97C19615E574614870A453B76F8E0F733A52255282751B</span></div>
@@ -145,6 +153,8 @@
             <div class="faq-list">
               <details><summary>Aplikasi tidak dapat dibuka</summary><p>Pastikan koneksi internet tersedia. Mulai ulang komputer bila perlu, lalu coba jalankan kembali melalui menu Mulai.</p></details>
               <details><summary>Komponen WebView2 tidak tersedia</summary><p>Perbarui Microsoft Edge atau pasang Microsoft Edge WebView2 Runtime, kemudian buka kembali aplikasi.</p></details>
+              <details><summary>AppImage Linux tidak dapat dijalankan</summary><p>Buka properti berkas dan aktifkan izin untuk menjalankannya sebagai program. Pada beberapa distribusi, komponen FUSE mungkin perlu dipasang melalui pengelola paket sistem.</p></details>
+              <details><summary>macOS memblokir aplikasi</summary><p>Pastikan paket berasal dari Releases resmi. Buka pengaturan Privacy &amp; Security dan gunakan pilihan untuk membuka aplikasi hanya setelah sumbernya diverifikasi.</p></details>
               <details><summary>Pintasan tidak muncul di Desktop</summary><p>Cari aplikasi melalui menu Mulai. Jika tidak ditemukan, jalankan kembali pemasang dari halaman Unduh.</p></details>
               <details><summary>Halaman tampil kosong atau data tidak dimuat</summary><p>Periksa koneksi internet dan coba muat ulang aplikasi. Jika gangguan hanya terjadi pada fitur SPK, laporkan waktu kejadian serta halaman yang dibuka kepada administrator.</p></details>
               <details><summary>Ikon masih menampilkan ikon peramban</summary><p>Hapus pemasangan versi lama, pasang versi terbaru dari halaman ini, lalu mulai ulang Windows agar simpanan ikon diperbarui.</p></details>

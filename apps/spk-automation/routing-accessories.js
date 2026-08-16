@@ -4,70 +4,9 @@
   var MAX_ACCESSORIES = 12;
   var UOM_GROUPS = [
     {
-      label: "Jumlah & hitungan",
+      label: "UOM Aksesoris",
       options: [
-        ["PCS", "PCS — Buah"], ["UNIT", "UNIT — Unit"], ["SET", "SET — Set"],
-        ["PASANG", "PASANG — Pasang"], ["LUSIN", "LUSIN — 12 buah"],
-        ["KODI", "KODI — 20 buah"], ["GROSS", "GROSS — 144 buah"]
-      ]
-    },
-    {
-      label: "Panjang & jarak",
-      options: [
-        ["MM", "MM — Milimeter"], ["CM", "CM — Sentimeter"],
-        ["M", "M — Meter"], ["KM", "KM — Kilometer"],
-        ["INCH", "INCH — Inci"], ["FT", "FT — Kaki"], ["YARD", "YARD — Yard"]
-      ]
-    },
-    {
-      label: "Berat & massa",
-      options: [
-        ["MG", "MG — Miligram"], ["GRAM", "GRAM — Gram"], ["ONS", "ONS — Ons"],
-        ["KG", "KG — Kilogram"], ["KWINTAL", "KWINTAL — 100 kg"], ["TON", "TON — Ton"]
-      ]
-    },
-    {
-      label: "Luas",
-      options: [
-        ["MM2", "MM² — Milimeter persegi"], ["CM2", "CM² — Sentimeter persegi"],
-        ["M2", "M² — Meter persegi"], ["HEKTAR", "HEKTAR — Hektare"]
-      ]
-    },
-    {
-      label: "Volume",
-      options: [
-        ["ML", "ML — Mililiter"], ["CL", "CL — Sentiliter"], ["CC", "CC — Sentimeter kubik"],
-        ["LITER", "LITER — Liter"], ["M3", "M³ — Meter kubik"], ["GALON", "GALON — Galon"]
-      ]
-    },
-    {
-      label: "Kemasan",
-      options: [
-        ["PACK", "PACK — Paket"], ["PAK", "PAK — Pak"], ["BOX", "BOX — Boks"],
-        ["KOTAK", "KOTAK — Kotak"], ["KARTON", "KARTON — Karton"],
-        ["SAK", "SAK — Sak"], ["KARUNG", "KARUNG — Karung"],
-        ["BOTOL", "BOTOL — Botol"], ["KALENG", "KALENG — Kaleng"],
-        ["JERIGEN", "JERIGEN — Jerigen"], ["DRUM", "DRUM — Drum"],
-        ["PALLET", "PALLET — Palet"], ["BUNDLE", "BUNDLE — Bundel"],
-        ["BAL", "BAL — Bal"], ["RIM", "RIM — Rim"]
-      ]
-    },
-    {
-      label: "Bentuk material & produksi",
-      options: [
-        ["ROLL", "ROLL — Gulungan"], ["GULUNG", "GULUNG — Gulung"],
-        ["LEMBAR", "LEMBAR — Lembar"], ["SHEET", "SHEET — Lembaran"],
-        ["BATANG", "BATANG — Batang"], ["SPOL", "SPOL — Spol"],
-        ["CONE", "CONE — Kerucut"], ["TUBE", "TUBE — Tabung"],
-        ["BOBBIN", "BOBBIN — Bobbin"], ["LOT", "LOT — Lot"]
-      ]
-    },
-    {
-      label: "Waktu & layanan",
-      options: [
-        ["DETIK", "DETIK — Detik"], ["MENIT", "MENIT — Menit"],
-        ["JAM", "JAM — Jam"], ["HARI", "HARI — Hari"],
-        ["SHIFT", "SHIFT — Giliran kerja"], ["JASA", "JASA — Layanan"]
+        ["KG", "KG"], ["PCS", "PCS"], ["ROLL", "ROLL"]
       ]
     }
   ];

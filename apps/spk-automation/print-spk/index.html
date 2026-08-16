@@ -4412,8 +4412,9 @@
       });
       return {
         names: clean.map(function(entry) { return entry.nama; }).join(' / '),
-        needs: clean.map(function(entry) { return entry.kebutuhan; }).join(' / '),
-        uoms: clean.map(function(entry) { return entry.uom; }).join(' / ')
+        usage: clean.map(function(entry) {
+          return String(entry.kebutuhan).trim() + ' ' + String(entry.uom).trim();
+        }).join(' / ')
       };
     }
 
@@ -4966,8 +4967,7 @@
             ${processField_('Mode Cetak', formValue_(data, form, 'blowingModeCetak'))}
             ${processField_('Massa Jenis', formatNumber_(data.density, 2))}
             ${processField_('Aksesoris', formAccessoryColumns_(form).names)}
-            ${processField_('Kebutuhan', formAccessoryColumns_(form).needs)}
-            ${processField_('UOM Aksesoris', formAccessoryColumns_(form).uoms)}
+            ${processField_('Pemakaian / UOM', formAccessoryColumns_(form).usage)}
           </div>
           <div class="process-table-wrap">
             ${buildRollLogTable_(9)}
@@ -5025,8 +5025,7 @@
             ${processField_('Pitch', component.panjang)}
             ${processField_('Keterangan', formNote_(data, form))}
             ${processField_('Aksesoris', formAccessoryColumns_(form).names)}
-            ${processField_('Kebutuhan', formAccessoryColumns_(form).needs)}
-            ${processField_('UOM Aksesoris', formAccessoryColumns_(form).uoms)}
+            ${processField_('Pemakaian / UOM', formAccessoryColumns_(form).usage)}
           </div>
           <div class="printing-grid">
             <table class="grid-table roll-log printing-main">
@@ -5099,8 +5098,7 @@
             ${processField_('Model Kantong', data.modelKantong)}
             ${processField_('Keterangan', formNote_(data, form))}
             ${processField_('Aksesoris', formAccessoryColumns_(form).names)}
-            ${processField_('Kebutuhan', formAccessoryColumns_(form).needs)}
-            ${processField_('UOM Aksesoris', formAccessoryColumns_(form).uoms)}
+            ${processField_('Pemakaian / UOM', formAccessoryColumns_(form).usage)}
           </div>
           <div class="process-table-wrap">
             ${buildConversionLogTable_(data.uomOrder, 9)}
@@ -5133,8 +5131,7 @@
               ${processField_('BS (KG)', targetBsKg_(data, bsValue))}
               ${processField_('Keterangan', formNote_(data, form))}
               ${processField_('Aksesoris', formAccessoryColumns_(form).names)}
-              ${processField_('Kebutuhan', formAccessoryColumns_(form).needs)}
-              ${processField_('UOM Aksesoris', formAccessoryColumns_(form).uoms)}
+              ${processField_('Pemakaian / UOM', formAccessoryColumns_(form).usage)}
             </div>
             <div class="cutting-metrics">
               ${/* Kolom MIC.PO dan MIC.ACT diisi tangan saat penimbangan,

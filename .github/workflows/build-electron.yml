@@ -40,7 +40,7 @@ jobs:
           path: |
             desktop/electron/release/**/*.AppImage
             desktop/electron/release/**/*.deb
-            desktop/electron/release/**/*.exe
+            desktop/electron/release/**/*-win-*.exe
             desktop/electron/release/**/*.dmg
           if-no-files-found: error
 
@@ -51,5 +51,5 @@ jobs:
           files: |
             desktop/electron/release/**/*.AppImage
             desktop/electron/release/**/*.deb
-            desktop/electron/release/**/*.exe
+            desktop/electron/release/**/*-win-*.exe
             desktop/electron/release/**/*.dmg

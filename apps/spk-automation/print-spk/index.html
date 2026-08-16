@@ -4229,10 +4229,10 @@
       printButtonEl.disabled = PRINT_MODE !== 'release';
       setToolbarStatus_(
         PRINT_MODE === 'view'
-          ? 'Mode Lihat Saja. Keadaan terbit tidak diubah.'
+          ? 'Mode Lihat Saja. Status terbit tidak diubah.'
           : currentPrintData.release === 'YA'
             ? 'Paket SPK sudah pernah diterbitkan dan siap dicetak ulang.'
-            : 'Paket SPK siap dicetak. Keadaan terbit akan diperbarui menjadi YA setelah tombol cetak ditekan.',
+            : 'Paket SPK siap dicetak. Status terbit akan diperbarui menjadi YA setelah tombol cetak ditekan.',
         'ready'
       );
     }
@@ -4264,21 +4264,21 @@
 
           if (!response || response.status !== 'success') {
             setToolbarStatus_(
-              response && response.message ? response.message : 'Keadaan terbit gagal diperbarui.',
+              response && response.message ? response.message : 'Status terbit gagal diperbarui.',
               'error'
             );
             return;
           }
 
           applyReleaseToUi_('YA');
-          setToolbarStatus_(response.message || 'Keadaan terbit berhasil diperbarui.', 'ready');
+          setToolbarStatus_(response.message || 'Status terbit berhasil diperbarui.', 'ready');
         })
         .withFailureHandler(function (error) {
           releaseRequestInFlight = false;
           printButtonEl.disabled = false;
           printButtonLabelEl.textContent = 'CETAK DAN TANDAI TERBIT';
           setToolbarStatus_(
-            error && error.message ? error.message : 'Keadaan terbit gagal diperbarui.',
+            error && error.message ? error.message : 'Status terbit gagal diperbarui.',
             'error'
           );
         })
@@ -4292,7 +4292,7 @@
       const releaseLabel = released ? 'TERBIT' : 'BELUM TERBIT';
 
       document.querySelectorAll('[data-release-footer]').forEach(function (footer) {
-        footer.textContent = 'Keadaan: ' + releaseLabel;
+        footer.textContent = 'Status: ' + releaseLabel;
       });
     }
 
@@ -5605,7 +5605,7 @@
         <footer class="page-footer">
           <span>SPK ${escapeHtml_(displayValue_(data.spk))} - ${escapeHtml_(formLabel)}</span>
           <span>Halaman ${pageNumber} dari ${totalPages} - ${escapeHtml_(generatedText)}</span>
-          <span data-release-footer>Keadaan: ${data.release === 'YA' ? 'TERBIT' : 'BELUM TERBIT'}</span>
+          <span data-release-footer>Status: ${data.release === 'YA' ? 'TERBIT' : 'BELUM TERBIT'}</span>
         </footer>
       `;
     }

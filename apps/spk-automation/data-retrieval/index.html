@@ -1961,7 +1961,7 @@
         <div>
           <p class="eyebrow">Sinkronisasi Data</p>
           <h1 id="pageTitle">Penarikan Data</h1>
-          <p class="page-description">Cari nomor SPK, periksa keadaan Basis Data, lalu tarik seluruh direktori atau satu berkas tertentu.</p>
+          <p class="page-description">Cari nomor SPK, periksa status Basis Data, lalu tarik seluruh direktori atau satu berkas tertentu.</p>
         </div>
       </div>
       <div class="connection-chip">
@@ -2006,7 +2006,7 @@
 
         <div class="guide-note">
           <i class="fa-solid fa-forward-fast" aria-hidden="true"></i>
-          <span>Kedua mode berjalan bertahap: SPK lama tidak ditimpa. SPK baru ditambahkan dan disusun dari kecil ke besar; rumus, keadaan terbit, serta keterangan manual tetap dilindungi.</span>
+          <span>Kedua mode berjalan bertahap: SPK lama tidak ditimpa. SPK baru ditambahkan dan disusun dari kecil ke besar; rumus, status terbit, serta keterangan manual tetap dilindungi.</span>
         </div>
       </aside>
 
@@ -2014,7 +2014,7 @@
         <div class="panel-header">
           <div>
             <h2 id="explorerTitle" class="panel-title">Direktori Sumber</h2>
-            <p class="panel-caption">Telusuri direktori, cari SPK, dan periksa keadaan</p>
+            <p class="panel-caption">Telusuri direktori, cari SPK, dan periksa status</p>
           </div>
           <i class="fa-brands fa-google-drive" aria-hidden="true"></i>
         </div>
@@ -2095,7 +2095,7 @@
           fetchFolder(null);
 
           if (res && res.status === 'error') {
-            showError(res.message || 'Keadaan penarikan sebelumnya tidak dapat dibaca.');
+            showError(res.message || 'Status penarikan sebelumnya tidak dapat dibaca.');
           }
         })
         .withFailureHandler(() => fetchFolder(null))
@@ -2338,12 +2338,12 @@
         const statusFilter = document.createElement('div');
         statusFilter.className = 'source-status-filter';
         statusFilter.setAttribute('role', 'group');
-        statusFilter.setAttribute('aria-label', 'Penyaring keadaan penarikan');
+        statusFilter.setAttribute('aria-label', 'Penyaring status penarikan');
         fileSection.dataset.statusFilter = 'all';
 
         const statusFilterLabel = document.createElement('span');
         statusFilterLabel.className = 'source-status-filter-label';
-        statusFilterLabel.textContent = 'Keadaan:';
+        statusFilterLabel.textContent = 'Status:';
         statusFilter.appendChild(statusFilterLabel);
 
         const savedCount = sourceFiles.filter(file => (
@@ -2396,7 +2396,7 @@
           warning.className = 'database-status-warning';
           warning.innerHTML =
             '<i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>' +
-            '<span>Keadaan Basis Data tidak dapat dibaca. Berkas tetap bisa ditarik dan akan diperiksa saat proses berjalan.</span>';
+            '<span>Status Basis Data tidak dapat dibaca. Berkas tetap bisa ditarik dan akan diperiksa saat proses berjalan.</span>';
           fileSection.appendChild(warning);
         }
 
@@ -2460,7 +2460,7 @@
               '<span>' +
                 (
                   file.spk
-                    ? 'Keadaan belum tersedia'
+                    ? 'Status belum tersedia'
                     : 'SPK tidak terdeteksi'
                 ) +
               '</span>';

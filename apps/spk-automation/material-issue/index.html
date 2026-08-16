@@ -3152,10 +3152,10 @@
             autocomplete="off"
           >
         </label>
-        <select id="statusFilter" class="filter-select" aria-label="Penyaring keadaan">
+        <select id="statusFilter" class="filter-select" aria-label="Penyaring status">
           <option value="pending">Menunggu diatur</option>
           <option value="complete">Sudah lengkap</option>
-          <option value="all">Semua keadaan</option>
+          <option value="all">Semua status</option>
         </select>
         <button id="refreshButton" class="button button-refresh" type="button">
           <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
@@ -3198,7 +3198,7 @@
               <th>Pelanggan / Artikel</th>
               <th>Bahan</th>
               <th>Jumlah Pesanan</th>
-              <th>Keadaan</th>
+              <th>Status</th>
               <th>Keluar Bahan</th>
               <th>ETA Beli Bahan</th>
               <th>Aksi</th>
@@ -4824,9 +4824,9 @@
           ? 'Data tidak ditemukan'
           : statusFilter.value === 'pending'
             ? 'Semua Keluar Bahan sudah diatur'
-            : 'Belum ada data pada keadaan ini';
+            : 'Belum ada data pada status ini';
         document.getElementById('emptyMessage').textContent = hasSearch
-          ? 'Periksa kembali kata pencarian atau ubah penyaring keadaan.'
+          ? 'Periksa kembali kata pencarian atau ubah penyaring status.'
           : statusFilter.value === 'pending'
             ? 'Tidak ada SPK yang masih menunggu pengisian Manajer PPIC.'
           : 'Ubah penyaring untuk melihat data SPK lainnya.';

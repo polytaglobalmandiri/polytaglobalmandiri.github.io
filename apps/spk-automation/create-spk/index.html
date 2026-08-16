@@ -5121,7 +5121,7 @@
           <section class="route-panel" id="route-blowing" aria-label="Blowing" hidden>
             <div class="route-panel-head">
               <span class="route-panel-title">Blowing</span>
-              <span class="route-panel-meta">Ukuran, perlakuan, dan mode cetak</span>
+              <span class="route-panel-meta">Ukuran, treat, dan mode cetak</span>
             </div>
             <div class="form-grid route-fields route-fields--blowing">
               <div class="form-cell">
@@ -5144,12 +5144,12 @@
               </div>
 
               <div class="form-cell">
-                <label class="field-label">Perlakuan</label>
+                <label class="field-label">Treat</label>
                 <select id="blowingThreat" class="field-input">
-                  <option value="NON THREAT">Tanpa Perlakuan</option>
-                  <option value="THREAT 1 SISI">Perlakuan 1 Sisi</option>
-                  <option value="THREAT 2 SISI">Perlakuan 2 Sisi</option>
-                  <option value="THREAT POTONG">Perlakuan Potong</option>
+                  <option value="NON THREAT">Non Treat</option>
+                  <option value="THREAT 1 SISI">Treat 1 Sisi</option>
+                  <option value="THREAT 2 SISI">Treat 2 Sisi</option>
+                  <option value="THREAT POTONG">Treat Potong</option>
                 </select>
               </div>
               <div class="form-cell">
@@ -9038,7 +9038,7 @@
         // dibaca dari Data Utama walau langkah Blowing lebih dari satu.
         add('Ukuran', routeFieldText_('ukuranBlow'));
         add('Film', routeFieldText_('film'));
-        add('Perlakuan', stepFieldText_(step, 'blowingThreat'));
+        add('Treat', stepFieldText_(step, 'blowingThreat'));
         add('Mesin', stepFieldText_(step, 'mesin-blowing'));
         add('Mode Cetak', stepFieldText_(step, 'blowingModeCetak'));
         // Sengaja tidak lewat add(): Keterangan Warna tetap ditampilkan walau

@@ -1,9 +1,13 @@
 {
   "name": "polyta-desktop",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "private": true,
   "description": "Aplikasi desktop lintas platform untuk Portal POLYTA GLOBAL MANDIRI",
-  "author": "POLYTA GLOBAL MANDIRI",
+  "homepage": "https://polytaglobalmandiri.github.io/",
+  "author": {
+    "name": "POLYTA GLOBAL MANDIRI",
+    "email": "285249829+polytaglobalmandiri@users.noreply.github.com"
+  },
   "license": "UNLICENSED",
   "main": "main.js",
   "scripts": {

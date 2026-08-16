@@ -5121,7 +5121,7 @@
           <section class="route-panel" id="route-blowing" aria-label="Blowing" hidden>
             <div class="route-panel-head">
               <span class="route-panel-title">Blowing</span>
-              <span class="route-panel-meta">Ukuran, treat, dan mode cetak</span>
+              <span class="route-panel-meta">Ukuran, treat, dan inline</span>
             </div>
             <div class="form-grid route-fields route-fields--blowing">
               <div class="form-cell">
@@ -5153,10 +5153,10 @@
                 </select>
               </div>
               <div class="form-cell">
-                <label class="field-label">Mode Cetak</label>
+                <label class="field-label">Inline</label>
                 <select id="blowingModeCetak" class="field-input" onchange="syncWarnaVisibility_()">
-                  <option value="NON PRINT">Tanpa Cetak</option>
-                  <option value="INLINE">Langsung</option>
+                  <option value="TIDAK">Tidak</option>
+                  <option value="YA">Ya</option>
                 </select>
               </div>
               <div class="form-cell">
@@ -7507,7 +7507,7 @@
       setFieldValue_('ukuranBlow', data.ukuranBlow);
       setFieldValue_('ukuranJadi', data.ukuranJadi);
       setFieldValue_('blowingThreat', data.blowingThreat || 'NON THREAT');
-      setFieldValue_('blowingModeCetak', data.blowingModeCetak || 'NON PRINT');
+      setFieldValue_('blowingModeCetak', data.inline || data.blowingModeCetak || 'TIDAK');
       setFieldValue_('printingKodeSilinder', data.printingKodeSilinder);
       setFieldValue_('ukuranFolding', data.ukuranFolding);
       setFieldValue_('ukuranSlitting', data.ukuranSlitting);
@@ -7660,7 +7660,7 @@
       setFieldValue_('uomOrder', 'PCS');
       setFieldValue_('uomKB', '');
       setFieldValue_('blowingThreat', 'NON THREAT');
-      setFieldValue_('blowingModeCetak', 'NON PRINT');
+      setFieldValue_('blowingModeCetak', 'TIDAK');
 
       PROSES_LIST.forEach(item => {
         const input = document.getElementById('proses-' + item.key);
@@ -8072,9 +8072,20 @@
       return officialValues[candidate] || '';
     }
 
+    // Kolom baru memakai YA/TIDAK. Nilai lama tetap diterima agar SPK yang
+    // masih menyimpan INLINE/NON PRINT dapat dibuka dan disunting.
+    function normalizeInlineValue_(value) {
+      const normalized = String(value === null || value === undefined ? '' : value).trim().toUpperCase();
+      return ['YA', 'YES', 'INLINE', 'LANGSUNG'].indexOf(normalized) > -1 ? 'YA' : 'TIDAK';
+    }
+
     function setFieldValue_(id, value) {
       const element = document.getElementById(id);
       if (!element) return;
+      if (id === 'blowingModeCetak') {
+        element.value = normalizeInlineValue_(value);
+        return;
+      }
       if (id === 'etd') {
         setEtdValue_(value);
         return;
@@ -8427,9 +8438,10 @@
 
     function stepValue_(step, fieldId) {
       const values = step && step.values ? step.values : {};
-      return Object.prototype.hasOwnProperty.call(values, fieldId)
+      const value = Object.prototype.hasOwnProperty.call(values, fieldId)
         ? values[fieldId]
         : routeStepFieldDefault_(fieldId);
+      return fieldId === 'blowingModeCetak' ? normalizeInlineValue_(value) : value;
     }
 
     function captureRouteStepValues_(key) {
@@ -8459,9 +8471,10 @@
       (ROUTE_STEP_FIELDS[key] || []).forEach(function(fieldId) {
         const field = document.getElementById(fieldId);
         if (!field) return;
-        field.value = values && Object.prototype.hasOwnProperty.call(values, fieldId)
+        const value = values && Object.prototype.hasOwnProperty.call(values, fieldId)
           ? values[fieldId]
           : routeStepFieldDefault_(fieldId);
+        field.value = fieldId === 'blowingModeCetak' ? normalizeInlineValue_(value) : value;
         // Penanda isi otomatis dilepas supaya ukuran hasil edit operator tidak
         // ikut tertimpa saat Ukuran Jadi berubah.
         if (field.dataset && field.dataset.automaticRouteSize) {
@@ -9040,12 +9053,12 @@
         add('Film', routeFieldText_('film'));
         add('Treat', stepFieldText_(step, 'blowingThreat'));
         add('Mesin', stepFieldText_(step, 'mesin-blowing'));
-        add('Mode Cetak', stepFieldText_(step, 'blowingModeCetak'));
+        add('Inline', stepFieldText_(step, 'blowingModeCetak'));
         // Sengaja tidak lewat add(): Keterangan Warna tetap ditampilkan walau
         // kosong, agar posisinya pada detail Blowing dan Printing konsisten
         // antar SPK. Nilainya berasal dari Data Utama, bukan panel routing.
         items.push({ label: 'Keterangan Warna', value: routeFieldText_('keteranganWarna', '-') });
-        if (stepFieldText_(step, 'blowingModeCetak') === 'INLINE') add('Warna', getWarnaSummaryText_());
+        if (stepFieldText_(step, 'blowingModeCetak') === 'YA') add('Warna', getWarnaSummaryText_());
         add('Target BS', getStepBsSummary_(step));
       }
       if (key !== 'mixer') add('Aksesoris', getStepAccessorySummary_(step));
@@ -9148,7 +9161,7 @@
 
       const modeCetak = document.getElementById('blowingModeCetak');
       const inlineOn = modeCetak
-        && String(modeCetak.value).toUpperCase() === 'INLINE';
+        && normalizeInlineValue_(modeCetak.value) === 'YA';
 
       let host = null;
       if (activeRoutingKey === 'printing') {
@@ -9915,7 +9928,7 @@
         keteranganArtikel: document.getElementById('keteranganArtikel').value,
         modelKantong: document.getElementById('modelKantong').value,
         blowingThreat: firstValue('blowing', 'blowingThreat'),
-        blowingModeCetak: firstValue('blowing', 'blowingModeCetak'),
+        inline: normalizeInlineValue_(firstValue('blowing', 'blowingModeCetak')),
         printingKodeSilinder: firstValue('printing', 'printingKodeSilinder'),
         ukuranFolding: firstValue('folding', 'ukuranFolding'),
         ukuranSlitting: firstValue('slitting', 'ukuranSlitting'),
@@ -9997,9 +10010,9 @@
             }).join(' | ');
       });
 
-      // Warna dipakai Printing, atau Blowing bila mode cetaknya Inline.
+      // Warna dipakai Printing, atau Blowing bila pilihan Inline adalah YA.
       const inlineActive = Boolean(blowingStep) &&
-        String(stepValue_(blowingStep, 'blowingModeCetak') || '').toUpperCase() === 'INLINE';
+        normalizeInlineValue_(stepValue_(blowingStep, 'blowingModeCetak')) === 'YA';
       if (payload.proses.printing || inlineActive) {
         payload.warna = warnaRows.map(row => ({ nama: row.nama, pemakaian: row.pemakaian }));
       }

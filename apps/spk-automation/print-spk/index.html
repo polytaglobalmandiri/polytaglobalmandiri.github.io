@@ -4418,6 +4418,11 @@
       };
     }
 
+    function inlineLabel_(value) {
+      const normalized = String(value === null || value === undefined ? '' : value).trim().toUpperCase();
+      return ['YA', 'YES', 'INLINE', 'LANGSUNG'].indexOf(normalized) > -1 ? 'Ya' : 'Tidak';
+    }
+
     function formBs_(data, form, bsKey) {
       const values = formStepValues_(form);
       const fieldId = 'bs-' + bsKey;
@@ -4964,7 +4969,7 @@
             ${processField_('Gram. Max.', formatNumber_(gramatur.max, 2))}
             ${processField_('Gram. Min.', formatNumber_(gramatur.min, 2))}
             ${processField_('Threat', formValue_(data, form, 'blowingThreat'))}
-            ${processField_('Mode Cetak', formValue_(data, form, 'blowingModeCetak'))}
+            ${processField_('Inline', inlineLabel_(formValue_(data, form, 'blowingModeCetak', 'inline') || data.blowingModeCetak))}
             ${processField_('Massa Jenis', formatNumber_(data.density, 2))}
             ${processField_('Aksesoris', formAccessoryColumns_(form).names)}
             ${processField_('Pemakaian / UOM', formAccessoryColumns_(form).usage)}
@@ -5733,7 +5738,7 @@
         keteranganWarna: '1+0',
         spkReferensi: 'G26.081',
         blowingThreat: 'NON THREAT',
-        blowingModeCetak: 'INLINE',
+        inline: 'YA',
         printingKodeSilinder: 'SIL-2026-014',
         ukuranSlitting: '63 X 0.08',
         ukuranFolding: '63 + 10 LIDAH X 0.08',

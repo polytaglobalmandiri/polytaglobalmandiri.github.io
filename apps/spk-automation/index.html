@@ -10402,7 +10402,8 @@
             <div class="form-grid route-fields route-fields--split">
               <div class="form-cell">
                 <label class="field-label">Mesin</label>
-                <select id="mesin-mixer" class="field-input"></select>
+                <input type="text" id="mesin-mixer" class="field-input" list="mesinOptions-mixer" autocomplete="off" spellcheck="false" placeholder="Cari mesin Mixer" aria-label="Cari dan pilih mesin Mixer dari Database Mesin">
+                <datalist id="mesinOptions-mixer"></datalist>
               </div>
             </div>
             <div id="bahanList" class="space-y-3"></div>
@@ -10437,7 +10438,8 @@
               </div>
               <div class="form-cell">
                 <label class="field-label">Mesin</label>
-                <select id="mesin-blowing" class="field-input"></select>
+                <input type="text" id="mesin-blowing" class="field-input" list="mesinOptions-blowing" autocomplete="off" spellcheck="false" placeholder="Cari mesin Blowing" aria-label="Cari dan pilih mesin Blowing dari Database Mesin">
+                <datalist id="mesinOptions-blowing"></datalist>
               </div>
 
               <div class="form-cell">
@@ -10486,7 +10488,8 @@
               </div>
               <div class="form-cell">
                 <label class="field-label">Mesin</label>
-                <select id="mesin-printing" class="field-input"></select>
+                <input type="text" id="mesin-printing" class="field-input" list="mesinOptions-printing" autocomplete="off" spellcheck="false" placeholder="Cari mesin Printing" aria-label="Cari dan pilih mesin Printing dari Database Mesin">
+                <datalist id="mesinOptions-printing"></datalist>
               </div>
             </div>
             <div id="bahanUkuranHost-printing" class="bahan-ukuran-host"></div>
@@ -10514,7 +10517,8 @@
               </div>
               <div class="form-cell">
                 <label class="field-label">Mesin</label>
-                <select id="mesin-folding" class="field-input"></select>
+                <input type="text" id="mesin-folding" class="field-input" list="mesinOptions-folding" autocomplete="off" spellcheck="false" placeholder="Cari mesin Folding" aria-label="Cari dan pilih mesin Folding dari Database Mesin">
+                <datalist id="mesinOptions-folding"></datalist>
               </div>
             </div>
             <div id="bahanUkuranHost-folding" class="bahan-ukuran-host"></div>
@@ -10542,7 +10546,8 @@
               </div>
               <div class="form-cell">
                 <label class="field-label">Mesin</label>
-                <select id="mesin-slitting" class="field-input"></select>
+                <input type="text" id="mesin-slitting" class="field-input" list="mesinOptions-slitting" autocomplete="off" spellcheck="false" placeholder="Cari mesin Slitting" aria-label="Cari dan pilih mesin Slitting dari Database Mesin">
+                <datalist id="mesinOptions-slitting"></datalist>
               </div>
             </div>
             <div id="bahanUkuranHost-slitting" class="bahan-ukuran-host"></div>
@@ -10574,7 +10579,8 @@
               </div>
               <div class="form-cell">
                 <label class="field-label">Mesin</label>
-                <select id="mesin-gusset" class="field-input"></select>
+                <input type="text" id="mesin-gusset" class="field-input" list="mesinOptions-gusset" autocomplete="off" spellcheck="false" placeholder="Cari mesin Gusset" aria-label="Cari dan pilih mesin Gusset dari Database Mesin">
+                <datalist id="mesinOptions-gusset"></datalist>
               </div>
             </div>
             <div id="bahanUkuranHost-gusset" class="bahan-ukuran-host"></div>
@@ -10622,7 +10628,8 @@
                 <div class="form-cell">
                   <label class="field-label">Mesin</label>
                   <!-- Daftar mesinnya mengikuti jenis finishing yang dipilih. -->
-                  <select id="mesin-cutting" class="field-input"></select>
+                  <input type="text" id="mesin-cutting" class="field-input" list="mesinOptions-cutting" autocomplete="off" spellcheck="false" placeholder="Pilih jenis penyelesaian terlebih dahulu" aria-label="Cari dan pilih mesin Cutting dari Database Mesin">
+                  <datalist id="mesinOptions-cutting"></datalist>
                 </div>
                 <div class="form-cell">
                   <label class="field-label">Jenis Pengepakan</label>
@@ -13714,13 +13721,14 @@
       repeat: { state: 'idle', duplicate: false, timer: null, seq: 0 }
     };
     const SPK_SNAPSHOT_MAX_AGE_MS = 300000;
-    const INPUT_OPTIONS_CACHE_KEY = 'polyta-spk-input-options-v2';
+    const INPUT_OPTIONS_CACHE_KEY = 'polyta-spk-input-options-v3';
     const INPUT_OPTIONS_REFRESH_MS = 300000;
     let spkExistenceSnapshot = null;
     let spkExistenceSnapshotAt = 0;
     let spkExistenceWarmupStarted = false;
     let marketingOptionsSnapshot = [];
     let customerOptionsSnapshot = [];
+    let machineOptionsSnapshot = null;
     let inputOptionsRefreshStarted = false;
     let inputOptionsRefreshedAt = 0;
 
@@ -13816,6 +13824,7 @@
       bindMarketingSearch_();
       bindCustomerSearch_();
       bindSaveSuccessActions_();
+      bindMachineSearch_();
       setOrderType_('New Order', { focus: false });
       recalculateRawMaterial_();
       updateWizardState_();
@@ -13833,18 +13842,21 @@
       return null;
     }
 
-    function applyInputOptions_(marketingValues, customerValues, storeCache) {
+    function applyInputOptions_(marketingValues, customerValues, machineValues, storeCache) {
       if (Array.isArray(marketingValues)) marketingOptionsSnapshot = marketingValues;
       if (Array.isArray(customerValues)) customerOptionsSnapshot = customerValues;
+      if (machineValues && typeof machineValues === 'object') machineOptionsSnapshot = machineValues;
       populateMarketingDropdown_(marketingOptionsSnapshot);
       populateCustomerDropdown_(customerOptionsSnapshot);
+      renderMachineOptions_();
 
       if (!storeCache) return;
       try {
         window.localStorage.setItem(INPUT_OPTIONS_CACHE_KEY, JSON.stringify({
           savedAt: Date.now(),
           marketingOptions: marketingOptionsSnapshot,
-          customerOptions: customerOptionsSnapshot
+          customerOptions: customerOptionsSnapshot,
+          machineOptions: machineOptionsSnapshot
         }));
       } catch (error) {
         // Penyimpanan perangkat hanya akselerator; form tetap bekerja tanpanya.
@@ -13865,7 +13877,7 @@
 
     function loadInputOptionsFast_() {
       const cached = readCachedInputOptions_();
-      if (cached) applyInputOptions_(cached.marketingOptions, cached.customerOptions, false);
+      if (cached) applyInputOptions_(cached.marketingOptions, cached.customerOptions, cached.machineOptions, false);
 
       if (
         inputOptionsRefreshStarted ||
@@ -13881,7 +13893,7 @@
             return;
           }
           inputOptionsRefreshedAt = Date.now();
-          applyInputOptions_(res.marketingOptions, res.customerOptions, true);
+          applyInputOptions_(res.marketingOptions, res.customerOptions, res.machineOptions, true);
           window.setTimeout(warmSpkExistenceSnapshot_, 200);
         })
         .withFailureHandler(function() {
@@ -13895,6 +13907,7 @@
       if (getFreshSpkExistenceSnapshot_()) {
         populateMarketingDropdown_(marketingOptionsSnapshot);
         populateCustomerDropdown_(customerOptionsSnapshot);
+        renderMachineOptions_();
         return;
       }
       if (spkExistenceWarmupStarted) return;
@@ -13910,8 +13923,9 @@
           );
           if (Array.isArray(res.marketingOptions)) marketingOptionsSnapshot = res.marketingOptions;
           if (Array.isArray(res.customerOptions)) customerOptionsSnapshot = res.customerOptions;
+          if (res.machineOptions && typeof res.machineOptions === 'object') machineOptionsSnapshot = res.machineOptions;
           spkExistenceSnapshotAt = Date.now();
-          applyInputOptions_(marketingOptionsSnapshot, customerOptionsSnapshot, true);
+          applyInputOptions_(marketingOptionsSnapshot, customerOptionsSnapshot, machineOptionsSnapshot, true);
         })
         .withFailureHandler(function() {
           spkExistenceWarmupStarted = false;
@@ -16178,35 +16192,101 @@
     // ==========================================
     // LANGKAH ROUTING (URUTAN BEBAS, BOLEH BERULANG)
     // ==========================================
-    function fillSelectOptions_(select, options, placeholder) {
-      if (!select) return;
-      const previous = select.value;
-      select.innerHTML = '<option value="">' + placeholder + '</option>' +
-        options.map(function(option) {
-          return '<option value="' + escapeAttr_(option) + '">' + escapeAttr_(option) + '</option>';
-        }).join('');
-      // Pilihan sebelumnya dipertahankan bila masih ada di daftar yang baru.
-      select.value = options.indexOf(previous) > -1 ? previous : '';
+    function normalizeMachineOptions_(values) {
+      const unique = {};
+      (Array.isArray(values) ? values : []).forEach(function(value) {
+        const normalized = String(value || '').trim().replace(/\s+/g, ' ');
+        const key = normalized.toUpperCase();
+        if (normalized && !unique[key]) unique[key] = normalized;
+      });
+      return Object.keys(unique).map(function(key) { return unique[key]; });
+    }
+
+    function machineOptionsFor_(key, finishing) {
+      const source = machineOptionsSnapshot && typeof machineOptionsSnapshot === 'object'
+        ? machineOptionsSnapshot
+        : {};
+      if (key === 'cutting') {
+        const cutting = source.cutting && typeof source.cutting === 'object'
+          ? source.cutting
+          : CUTTING_MACHINE_OPTIONS;
+        return normalizeMachineOptions_(cutting[String(finishing || '').toUpperCase()] || []);
+      }
+      return normalizeMachineOptions_(Array.isArray(source[key]) ? source[key] : MACHINE_OPTIONS[key]);
+    }
+
+    function fillMachineOptions_(key, options, placeholder) {
+      const input = document.getElementById('mesin-' + key);
+      const list = document.getElementById('mesinOptions-' + key);
+      if (!input || !list) return;
+      const previous = String(input.value || '').trim();
+      const values = normalizeMachineOptions_(options);
+      if (previous && !values.some(function(value) { return value.toUpperCase() === previous.toUpperCase(); })) {
+        values.push(previous);
+      }
+      list.innerHTML = values.map(function(value) {
+        return '<option value="' + escapeAttr_(value) + '"></option>';
+      }).join('');
+      input.placeholder = placeholder;
     }
 
     function renderMachineOptions_() {
       Object.keys(MACHINE_OPTIONS).forEach(function(key) {
-        fillSelectOptions_(
-          document.getElementById('mesin-' + key),
-          MACHINE_OPTIONS[key],
-          'Pilih mesin'
-        );
+        fillMachineOptions_(key, machineOptionsFor_(key), 'Cari mesin ' + routingItemByKey_(key).label);
       });
       syncCuttingMachineOptions_();
     }
 
     function syncCuttingMachineOptions_() {
       const finishing = String(getFieldValue_('finishing') || '-').toUpperCase();
-      fillSelectOptions_(
-        document.getElementById('mesin-cutting'),
-        CUTTING_MACHINE_OPTIONS[finishing] || [],
-        CUTTING_MACHINE_OPTIONS[finishing] ? 'Pilih mesin' : 'Pilih jenis penyelesaian terlebih dahulu'
+      const options = machineOptionsFor_('cutting', finishing);
+      fillMachineOptions_(
+        'cutting',
+        options,
+        options.length ? 'Cari mesin Cutting' : 'Pilih jenis penyelesaian terlebih dahulu'
       );
+    }
+
+    function normalizeMachineSelection_(key) {
+      const input = document.getElementById('mesin-' + key);
+      if (!input) return true;
+      const typed = String(input.value || '').trim().replace(/\s+/g, ' ');
+      if (!typed) {
+        input.value = '';
+        input.classList.remove('wizard-invalid');
+        return true;
+      }
+      const finishing = key === 'cutting' ? getFieldValue_('finishing') : '';
+      const match = machineOptionsFor_(key, finishing).find(function(value) {
+        return value.toUpperCase() === typed.toUpperCase();
+      });
+      if (!match) {
+        input.classList.add('wizard-invalid');
+        return false;
+      }
+      input.value = match;
+      input.classList.remove('wizard-invalid');
+      return true;
+    }
+
+    function bindMachineSearch_() {
+      ROUTING_LIST.forEach(function(item) {
+        const input = document.getElementById('mesin-' + item.key);
+        if (!input || input.dataset.machineSearchBound) return;
+        input.dataset.machineSearchBound = 'true';
+        input.addEventListener('input', function() { input.classList.remove('wizard-invalid'); });
+        input.addEventListener('change', function() { normalizeMachineSelection_(item.key); });
+        input.addEventListener('blur', function() { normalizeMachineSelection_(item.key); });
+      });
+    }
+
+    function validateMachineSelection_(key) {
+      if (normalizeMachineSelection_(key)) return true;
+      const item = routingItemByKey_(key);
+      const input = document.getElementById('mesin-' + key);
+      showRoutingFeedback_('Pilih mesin ' + (item ? item.label : key) + ' dari Database Mesin.', 'error');
+      if (input) input.focus();
+      return false;
     }
 
     // Bag memerlukan jumlah ball per outer, sedangkan Roll memerlukan isi per
@@ -16711,6 +16791,7 @@
       const item = routingItemByKey_(key);
       if (!item) return;
 
+      if (!validateMachineSelection_(key)) return;
       if (key !== 'mixer' && !validateRoutingBs_(key)) return;
       if (key !== 'mixer' && !validateRoutingAccessories_(key)) return;
 

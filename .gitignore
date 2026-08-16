@@ -15,6 +15,7 @@ $RECYCLE.BIN/
 # Build & dependensi (jika kelak dipakai)
 node_modules/
 dist/
+desktop/electron/release/
 installer/.build/
 tools/.build-spk/
 .cache/

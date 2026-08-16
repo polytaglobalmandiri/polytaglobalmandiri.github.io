@@ -153,6 +153,14 @@ tanpa perlu mengetik URL. Untuk administrator, gunakan
 langsung membuka panel admin. Petunjuk build dan catatan distribusi tersedia di
 [`desktop/installer/README.md`](desktop/installer/README.md).
 
+## Aplikasi Desktop Linux, macOS, dan Windows
+
+Versi lintas platform berbasis Electron tersedia di [`desktop/electron/`](desktop/electron/).
+Versi ini menghasilkan paket `.AppImage`/`.deb` untuk Linux, `.dmg` untuk macOS, dan `.exe`
+untuk Windows. Portal dan Administrator tetap dibangun sebagai dua aplikasi terpisah.
+Petunjuk build lokal dan GitHub Actions tersedia di
+[`desktop/electron/README.md`](desktop/electron/README.md).
+
 Pengguna dapat mengunduh pemasang melalui halaman [`/unduh/`](unduh/index.html),
 sedangkan petunjuk pemasangan dan pemecahan masalah tersedia terpisah pada
 halaman [`/dokumentasi/`](dokumentasi/index.html).

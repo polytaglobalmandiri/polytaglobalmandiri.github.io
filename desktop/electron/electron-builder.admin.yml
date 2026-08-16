@@ -1,0 +1,28 @@
+appId: com.polytaglobalmandiri.admin
+productName: Polyta Administrator
+artifactName: Polyta-Administrator-${version}-${os}-${arch}.${ext}
+directories:
+  output: release/admin
+files:
+  - main.js
+  - assets/icon.png
+linux:
+  target:
+    - AppImage
+    - deb
+  category: Office
+  icon: assets/icon.png
+mac:
+  target: dmg
+  category: public.app-category.business
+  icon: assets/icon.png
+  identity: null
+win:
+  target: nsis
+  icon: assets/icon.png
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true

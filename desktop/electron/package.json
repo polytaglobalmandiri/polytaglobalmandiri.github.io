@@ -1,0 +1,20 @@
+{
+  "name": "polyta-desktop",
+  "version": "3.0.0",
+  "private": true,
+  "description": "Aplikasi desktop lintas platform untuk Portal POLYTA GLOBAL MANDIRI",
+  "author": "POLYTA GLOBAL MANDIRI",
+  "license": "UNLICENSED",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "start:admin": "electron . --admin",
+    "build:portal": "electron-builder --config electron-builder.portal.yml",
+    "build:admin": "electron-builder --config electron-builder.admin.yml",
+    "build": "npm run build:portal && npm run build:admin"
+  },
+  "devDependencies": {
+    "electron": "^37.2.6",
+    "electron-builder": "^26.0.12"
+  }
+}

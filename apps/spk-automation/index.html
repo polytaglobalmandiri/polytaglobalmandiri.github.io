@@ -15062,6 +15062,28 @@
       return true;
     }
 
+    function validateMixerKg_(showAlert) {
+      if (!isRoutingProcessSelected_('mixer')) return true;
+
+      syncMixerKgFromPercent_();
+      const missingKgRow = bahanRows.find(function(row, index) {
+        if (index === MAX_BAHAN - 1) return false;
+        return String(row.material || '').trim() !== '' && String(row.kg || '').trim() === '';
+      });
+      if (!missingKgRow) return true;
+
+      const kgInput = document.getElementById('bahanKg-' + missingKgRow.id);
+      if (kgInput) kgInput.classList.add('wizard-invalid');
+      if (showAlert) {
+        showValidationAlert_(
+          'KB Belum Terisi',
+          'Lengkapi persentase bahan dan Keluar Bahan agar KG bahan baku terisi.'
+        );
+      }
+      focusFirstInvalid_();
+      return false;
+    }
+
     function validateAllSteps_() {
       if (!validateStep_(1, false)) {
         changeStep_(1, 'backward');
@@ -15073,6 +15095,7 @@
         validateStep_(5, true);
         return false;
       }
+      if (!validateMixerKg_(true)) return false;
       return true;
     }
 

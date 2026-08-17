@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="dashboard.css?v=20260817-2">
   <link rel="stylesheet" href="header-alignment.css?v=20260817-6">
   <link rel="stylesheet" href="otd-dashboard.css?v=20260817-1">
+  <link rel="stylesheet" href="production-recap.css?v=20260817-1">
   <script src="/assets/js/status.js?v=20260815-1"></script>
 </head>
 <body data-page="dashboard-ppic">
@@ -59,6 +60,42 @@
       <article class="otd-kpi"><span class="overview-icon danger"><i class="fa-solid fa-clock"></i></span><div><small>Aging ≥ 30 Hari</small><strong id="kpiAging">—</strong><p id="kpiOldest">aging tertinggi —</p></div></article>
     </section>
 
+    <section class="production-recap" aria-labelledby="recapTitle">
+      <header class="recap-hero">
+        <div class="recap-title-group"><span class="recap-orb"><i class="fa-solid fa-wand-magic-sparkles"></i></span><div><p class="eyebrow">ANALITIK PRODUKSI TAHUNAN</p><h2 id="recapTitle">Rekapan Outstanding Produksi Periode</h2><p>Analisis proses, bahan, mesin/routing, SPK bulanan, dan performa marketing.</p></div></div>
+        <label class="year-control"><span>Pilih Tahun</span><select id="recapYear" aria-label="Pilih tahun rekapan"></select></label>
+      </header>
+
+      <div class="recap-total-strip" id="recapTotals" aria-label="Total rekapan tahunan"></div>
+
+      <div class="recap-grid">
+        <article class="recap-panel routing-panel">
+          <header><span class="recap-number">01</span><div><h3>Proses per Routing</h3><p>SPK dan kuantitas yang masuk ke setiap alur proses.</p></div><i class="fa-solid fa-route"></i></header>
+          <div class="recap-panel-body" id="routingRecap"></div>
+        </article>
+
+        <article class="recap-panel material-panel">
+          <header><span class="recap-number">02</span><div><h3>Produksi per Bahan</h3><p>Jenis bahan dan total kuantitas produksi tahun terpilih.</p></div><i class="fa-solid fa-cubes-stacked"></i></header>
+          <div class="recap-panel-body" id="materialRecap"></div>
+        </article>
+
+        <article class="recap-panel route-material-panel recap-wide">
+          <header><span class="recap-number">03</span><div><h3>Mesin/Routing × Bahan</h3><p>Pemetaan bahan yang diproses oleh setiap routing beserta kuantitasnya.</p></div><i class="fa-solid fa-diagram-project"></i></header>
+          <div class="recap-panel-body route-material-grid" id="routeMaterialRecap"></div>
+        </article>
+
+        <article class="recap-panel monthly-panel recap-wide">
+          <header><span class="recap-number">04</span><div><h3>SPK Bulanan berdasarkan Bahan</h3><p>Jumlah SPK per bulan, dikelompokkan menurut bahan dan dijumlahkan.</p></div><i class="fa-solid fa-calendar-days"></i></header>
+          <div class="recap-panel-body monthly-table-wrap" id="monthlyRecap"></div>
+        </article>
+
+        <article class="recap-panel marketing-panel recap-wide">
+          <header><span class="recap-number">05</span><div><h3>Peringkat Marketing</h3><p>Jumlah SPK yang masuk berdasarkan marketing pada tahun terpilih.</p></div><i class="fa-solid fa-trophy"></i></header>
+          <div class="recap-panel-body marketing-ranking" id="marketingRecap"></div>
+        </article>
+      </div>
+    </section>
+
     <section class="otd-insights">
       <article class="workspace insight-panel">
         <header class="workspace-head"><div><h2>Outstanding per Proses</h2><p>Jumlah SPK berdasarkan proses aktif saat ini.</p></div><span><i class="fa-solid fa-gears"></i></span></header>
@@ -92,6 +129,6 @@
       <a href="/apps/spk-automation/handover/"><i class="fa-solid fa-clipboard-check"></i><span><strong>Serah Terima</strong><small>Dokumen produksi</small></span></a>
     </section>
   </main>
-  <script src="otd-dashboard.js?v=20260817-1"></script>
+  <script src="otd-dashboard.js?v=20260817-2"></script>
 </body>
 </html>

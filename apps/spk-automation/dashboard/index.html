@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Dashboard akses cepat dan ringkasan layanan PPIC Polyta Global Mandiri.">
+  <title>Dashboard PPIC — Polyta Global Mandiri</title>
+  <link rel="icon" href="/assets/img/logo-app.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="dashboard.css?v=20260817-1">
+  <script src="/assets/js/status.js?v=20260815-1"></script>
+</head>
+<body data-page="dashboard-ppic">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/" aria-label="Portal utama">
+        <span class="brand-mark"><img src="/assets/img/logo-app.png" alt=""></span>
+        <span><strong>POLYTA GLOBAL MANDIRI</strong><small>Portal Akses Internal</small></span>
+      </a>
+      <nav class="topnav" aria-label="Navigasi utama">
+        <a class="nav-link" href="/"><i class="fa-solid fa-house"></i><span>Portal Utama</span></a>
+        <a class="nav-link" href="/pages/ppic/"><i class="fa-solid fa-arrow-left"></i><span>Portal PPIC</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <section class="page-heading">
+      <div class="heading-group">
+        <span class="heading-icon"><i class="fa-solid fa-chart-line"></i></span>
+        <div><p class="eyebrow">RINGKASAN PPIC</p><h1>Dashboard PPIC</h1><p>Pusat akses cepat untuk seluruh alur kerja Production Planning &amp; Inventory Control.</p></div>
+      </div>
+      <span class="status-chip"><i class="fa-solid fa-circle-check"></i> Sistem tersedia</span>
+    </section>
+
+    <section class="overview" aria-label="Ringkasan layanan">
+      <article><span class="overview-icon red"><i class="fa-solid fa-layer-group"></i></span><div><small>Layanan PPIC</small><strong>5 Menu</strong><p>alur kerja dalam satu portal</p></div></article>
+      <article><span class="overview-icon blue"><i class="fa-solid fa-database"></i></span><div><small>Sumber Data</small><strong>Terpusat</strong><p>akses data operasional PPIC</p></div></article>
+      <article><span class="overview-icon green"><i class="fa-solid fa-bolt"></i></span><div><small>Akses</small><strong>Langsung</strong><p>pilih menu untuk mulai bekerja</p></div></article>
+    </section>
+
+    <section class="workspace">
+      <header class="workspace-head"><div><h2>Menu Kerja PPIC</h2><p>Pilih modul sesuai aktivitas yang akan dikerjakan.</p></div><span><i class="fa-solid fa-grip"></i></span></header>
+      <div class="menu-grid">
+        <a class="menu-card featured" href="/apps/spk-automation/"><span class="menu-icon"><i class="fa-solid fa-file-circle-check"></i></span><div><span class="menu-kicker">Pesanan &amp; Produksi</span><h3>PO &amp; SPK</h3><p>Kelola pesanan, buat SPK, pantau status, dan lihat rincian produksi.</p><b>Buka menu <i class="fa-solid fa-arrow-right"></i></b></div></a>
+        <a class="menu-card" href="/apps/spk-automation/material-management/"><span class="menu-icon amber"><i class="fa-solid fa-flask-vial"></i></span><div><span class="menu-kicker">Master Persediaan</span><h3>Bahan &amp; Tinta</h3><p>Cari dan kelola database resin, masterbatch, tinta, serta thinner.</p><b>Buka menu <i class="fa-solid fa-arrow-right"></i></b></div></a>
+        <a class="menu-card" href="/apps/spk-automation/material-issue/"><span class="menu-icon green"><i class="fa-solid fa-truck-ramp-box"></i></span><div><span class="menu-kicker">Distribusi Bahan</span><h3>Keluar Bahan</h3><p>Catat dan pantau pengeluaran bahan untuk kebutuhan proses produksi.</p><b>Buka menu <i class="fa-solid fa-arrow-right"></i></b></div></a>
+        <a class="menu-card" href="/apps/spk-automation/data-retrieval/"><span class="menu-icon blue"><i class="fa-solid fa-cloud-arrow-down"></i></span><div><span class="menu-kicker">Integrasi Data</span><h3>Penarikan Data</h3><p>Tarik dan sinkronkan data operasional dari sumber yang tersedia.</p><b>Buka menu <i class="fa-solid fa-arrow-right"></i></b></div></a>
+        <a class="menu-card" href="/apps/spk-automation/handover/"><span class="menu-icon purple"><i class="fa-solid fa-clipboard-check"></i></span><div><span class="menu-kicker">Dokumen Produksi</span><h3>Serah Terima</h3><p>Kelola proses serah terima dokumen dan SPK antarbagian.</p><b>Buka menu <i class="fa-solid fa-arrow-right"></i></b></div></a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

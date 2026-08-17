@@ -7999,7 +7999,8 @@
 
     function getMarketingOptionElements_(input) {
       if (!input) return [];
-      const list = document.getElementById(input.getAttribute('list') || '');
+      const listId = input.dataset.optionsListId || input.getAttribute('list') || '';
+      const list = document.getElementById(listId);
       return list ? Array.from(list.options || []) : [];
     }
 
@@ -8038,7 +8039,8 @@
 
       // Menjaga Repeat tetap dapat dipakai bila respons daftar pilihan belum
       // selesai dimuat. Nilainya berasal langsung dari kolom Marketing.
-      const list = document.getElementById(input.getAttribute('list') || '');
+      const listId = input.dataset.optionsListId || input.getAttribute('list') || '';
+      const list = document.getElementById(listId);
       if (!list) return '';
       const option = document.createElement('option');
       option.value = normalized;
@@ -8076,21 +8078,11 @@
         });
       input.value = current;
       normalizeMarketingInputSelection_(input);
+      if (input.getAttribute('aria-expanded') === 'true') renderMasterSearchMenu_('marketing');
     }
 
     function bindMarketingSearch_() {
-      const input = document.getElementById('marketing');
-      if (!input) return;
-      input.addEventListener('input', function() {
-        input.classList.remove('wizard-invalid');
-      });
-      input.addEventListener('change', function() {
-        normalizeMarketingInputSelection_(input);
-        updateWizardState_();
-      });
-      input.addEventListener('blur', function() {
-        normalizeMarketingInputSelection_(input);
-      });
+      bindMasterSearch_('marketing');
     }
 
     function populateCustomerDropdown_(values) {
@@ -8122,21 +8114,121 @@
         });
       input.value = current;
       normalizeMarketingInputSelection_(input);
+      if (input.getAttribute('aria-expanded') === 'true') renderMasterSearchMenu_('customer');
     }
 
     function bindCustomerSearch_() {
-      const input = document.getElementById('customer');
-      if (!input) return;
+      bindMasterSearch_('customer');
+    }
+
+    function bindMasterSearch_(inputId) {
+      const input = document.getElementById(inputId);
+      if (!input || input.dataset.masterSearchBound) return;
+      input.dataset.masterSearchBound = 'true';
+      input.dataset.optionsListId = input.getAttribute('list') || '';
+      input.removeAttribute('list');
+      input.setAttribute('role', 'combobox');
+      input.setAttribute('aria-autocomplete', 'list');
+      input.setAttribute('aria-expanded', 'false');
+
+      const shell = document.createElement('div');
+      shell.className = 'machine-search-shell';
+      input.parentNode.insertBefore(shell, input);
+      shell.appendChild(input);
+      const menu = document.createElement('div');
+      menu.id = 'masterSearchMenu-' + inputId;
+      menu.className = 'machine-search-menu';
+      menu.setAttribute('role', 'listbox');
+      shell.appendChild(menu);
+      input.setAttribute('aria-controls', menu.id);
+
+      input.addEventListener('focus', function() { renderMasterSearchMenu_(inputId); });
       input.addEventListener('input', function() {
         input.classList.remove('wizard-invalid');
+        renderMasterSearchMenu_(inputId);
       });
       input.addEventListener('change', function() {
         normalizeMarketingInputSelection_(input);
         updateWizardState_();
       });
+      input.addEventListener('keydown', function(event) { navigateMasterSearchMenu_(event, inputId); });
       input.addEventListener('blur', function() {
-        normalizeMarketingInputSelection_(input);
+        window.setTimeout(function() {
+          closeMasterSearchMenu_(inputId);
+          normalizeMarketingInputSelection_(input);
+        }, 120);
       });
+    }
+
+    function renderMasterSearchMenu_(inputId) {
+      const input = document.getElementById(inputId);
+      const menu = document.getElementById('masterSearchMenu-' + inputId);
+      if (!input || !menu) return;
+      const needle = normalizeMarketingDropdownValue_(input.value).toUpperCase();
+      const values = getMarketingOptionElements_(input)
+        .map(function(option) { return normalizeMarketingDropdownValue_(option.value); })
+        .filter(function(value) { return value && (!needle || value.toUpperCase().indexOf(needle) > -1); });
+      menu.innerHTML = '';
+      values.forEach(function(value) {
+        const option = document.createElement('button');
+        option.type = 'button';
+        option.className = 'machine-search-option';
+        option.setAttribute('role', 'option');
+        option.textContent = value;
+        option.addEventListener('mousedown', function(event) { event.preventDefault(); });
+        option.addEventListener('click', function() {
+          input.value = value;
+          input.classList.remove('wizard-invalid');
+          closeMasterSearchMenu_(inputId);
+          input.focus();
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+        menu.appendChild(option);
+      });
+      if (!values.length) {
+        const empty = document.createElement('div');
+        empty.className = 'machine-search-empty';
+        empty.textContent = needle ? 'Data tidak ditemukan' : 'Belum ada data tersedia';
+        menu.appendChild(empty);
+      }
+      menu.classList.add('is-open');
+      input.setAttribute('aria-expanded', 'true');
+    }
+
+    function closeMasterSearchMenu_(inputId) {
+      const input = document.getElementById(inputId);
+      const menu = document.getElementById('masterSearchMenu-' + inputId);
+      if (menu) menu.classList.remove('is-open');
+      if (input) input.setAttribute('aria-expanded', 'false');
+    }
+
+    function navigateMasterSearchMenu_(event, inputId) {
+      const input = document.getElementById(inputId);
+      const menu = document.getElementById('masterSearchMenu-' + inputId);
+      if (!input || !menu) return;
+      if (event.key === 'Escape') {
+        closeMasterSearchMenu_(inputId);
+        return;
+      }
+      if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp' && event.key !== 'Enter') return;
+      if (!menu.classList.contains('is-open')) renderMasterSearchMenu_(inputId);
+      const options = Array.prototype.slice.call(menu.querySelectorAll('.machine-search-option'));
+      if (!options.length) return;
+      const current = options.findIndex(function(option) { return option.classList.contains('is-active'); });
+      if (event.key === 'Enter') {
+        if (current > -1) {
+          event.preventDefault();
+          options[current].click();
+        }
+        return;
+      }
+      event.preventDefault();
+      const next = event.key === 'ArrowDown'
+        ? (current + 1) % options.length
+        : (current <= 0 ? options.length - 1 : current - 1);
+      options.forEach(function(option) { option.classList.remove('is-active'); });
+      options[next].classList.add('is-active');
+      options[next].scrollIntoView({ block: 'nearest' });
     }
 
     // Basis Data lama menyimpan material sebagai uraian, misalnya

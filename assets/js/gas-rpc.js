@@ -13,6 +13,7 @@
     updateSpkFromDashboard: true,
     saveCustomerMaster: true,
     saveBrandMaster: true,
+    saveMaterialMaster: true,
     submitDatabase: true,
     saveEtaBeliBahanScheduleByManager: true,
     updateEtaBeliBahanByManager: true,

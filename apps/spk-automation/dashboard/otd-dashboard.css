@@ -3,3 +3,10 @@
 .bar-track.has-value{position:relative;height:16px}
 .bar-track-value{position:absolute;z-index:2;inset:0;display:grid;place-items:center;color:#25272b;font-size:.5rem;font-style:normal;font-weight:900;font-variant-numeric:tabular-nums;text-shadow:0 1px 0 rgba(255,255,255,.8);pointer-events:none}
 .bar-value{white-space:nowrap;font-variant-numeric:tabular-nums}
+.bar-item.has-share .bar-track{height:14px}
+.bar-item.has-share.color-1 .bar-fill{background:linear-gradient(180deg,#ff6b76,#b51624)}
+.bar-item.has-share.color-2 .bar-fill{background:linear-gradient(180deg,#5f8fe8,#3159a4)}
+.bar-item.has-share.color-3 .bar-fill{background:linear-gradient(180deg,#39b98a,#147153)}
+.bar-item.has-share.color-4 .bar-fill{background:linear-gradient(180deg,#f1af43,#b46a12)}
+.bar-item.has-share.color-5 .bar-fill{background:linear-gradient(180deg,#a875e8,#6740a5)}
+.bar-item.has-share.color-6 .bar-fill{background:linear-gradient(180deg,#38b7d2,#19748a)}

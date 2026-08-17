@@ -12,3 +12,5 @@
 .bar-item.has-share.color-6 .bar-fill{background:linear-gradient(180deg,#38b7d2,#19748a)}
 .bar-fill{display:block}
 .bar-item.has-share .bar-fill{animation:meterGrow .75s cubic-bezier(.2,.8,.2,1) both}
+.routing-volume .bar-value{min-width:76px}
+.bar-value small{display:block;margin-top:2px;color:#777b81;font-size:.48rem;font-weight:700}

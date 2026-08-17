@@ -15,3 +15,22 @@
 .tier-4 .marketing-rank{border-color:#a66538;background:linear-gradient(#fff1e5,#cc895a);color:#663619}
 @keyframes diamondGlow{from{box-shadow:inset 0 1px 0 #fff,0 3px 0 #278ca2,0 0 16px rgba(65,205,235,.38)}to{box-shadow:inset 0 1px 0 #fff,0 3px 0 #278ca2,0 0 34px rgba(85,226,255,.82)}}
 @keyframes diamondFloat{0%,100%{transform:scale(.92) rotate(-5deg);opacity:.1;filter:drop-shadow(0 0 2px #fff)}50%{transform:scale(1.1) rotate(5deg);opacity:.24;filter:drop-shadow(0 0 10px #8cecff)}}
+.marketing-list-row.tier-1{isolation:isolate;border:1px solid transparent;background:radial-gradient(circle at 12% 18%,rgba(255,255,255,.98),transparent 20%),radial-gradient(circle at 82% 25%,rgba(126,235,255,.52),transparent 24%),linear-gradient(112deg,#f9feff 0,#d9faff 25%,#8edff0 54%,#c8f7ff 76%,#f8feff 100%) padding-box,linear-gradient(120deg,#2cb8d7,#fff 28%,#68e7ff 48%,#0e83a2 72%,#d8fbff) border-box;box-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -12px 24px rgba(18,145,173,.12),0 4px 0 #176f86,0 0 0 2px rgba(157,238,255,.28),0 0 24px rgba(56,209,241,.62);animation:tierOneEntrance .7s cubic-bezier(.2,.9,.25,1) both,diamondLuxuryGlow 1.7s ease-in-out .7s infinite alternate}
+.marketing-list-row.tier-1::before{z-index:-1;inset:-55% -20%;background:linear-gradient(112deg,transparent 27%,rgba(255,255,255,.16) 38%,rgba(255,255,255,.96) 48%,rgba(124,233,255,.82) 52%,rgba(255,255,255,.2) 61%,transparent 72%);animation:diamondSweep 2.65s cubic-bezier(.35,.05,.2,1) .65s infinite}
+.marketing-list-row.tier-1::after{z-index:-1;right:20px;color:rgba(5,105,132,.18);font-size:4.35rem;text-shadow:0 0 3px #fff,0 0 14px rgba(96,231,255,.9),0 0 28px rgba(26,179,213,.52);animation:diamondGemFloat 1.65s ease-in-out infinite}
+.tier-1 .marketing-rank{width:36px;height:36px;border:1px solid transparent;background:linear-gradient(145deg,#fff,#c8f8ff 52%,#66d4eb) padding-box,linear-gradient(135deg,#fff,#1ca5c4,#fff) border-box;color:#006e88;box-shadow:inset 0 1px 0 #fff,inset 0 -5px 10px rgba(0,124,154,.16),0 3px 0 #14778e,0 0 18px rgba(54,218,250,.9)}
+.tier-1 .marketing-rank::before,.tier-1 .marketing-rank::after{position:absolute;width:4px;height:4px;border-radius:50%;background:#fff;box-shadow:0 0 4px #fff,0 0 9px #65e7ff;content:"";animation:diamondSparkle 1.35s ease-in-out infinite}
+.tier-1 .marketing-rank::before{top:-3px;right:1px}
+.tier-1 .marketing-rank::after{bottom:2px;left:-4px;animation-delay:.55s}
+.tier-1 .marketing-rank i{font-size:1rem;color:#007c98;filter:drop-shadow(0 1px 0 #fff) drop-shadow(0 0 4px #fff) drop-shadow(0 0 9px #54ddf8)}
+.tier-1 .marketing-person strong{color:#073d50;font-size:.74rem;letter-spacing:.01em;text-shadow:0 1px 0 #fff,0 0 8px rgba(255,255,255,.72)}
+.tier-1 .marketing-tier-tag{border-color:#28a9c5;background:linear-gradient(100deg,rgba(255,255,255,.92),rgba(169,240,253,.82),rgba(255,255,255,.92));color:#006a83;box-shadow:inset 0 1px 0 #fff,0 1px 4px rgba(0,127,156,.2)}
+.tier-1 .marketing-tier-tag::before{margin-right:4px;color:#0099b8;text-shadow:0 0 5px #fff,0 0 8px #4ee5ff;content:"✦"}
+.tier-1 .contribution-track{border-color:#72c9da;background:rgba(225,249,253,.78);box-shadow:inset 0 1px 3px rgba(0,91,112,.2),0 0 5px rgba(90,223,249,.35)}
+.tier-1 .marketing-contribution.kg .contribution-track span{background:linear-gradient(90deg,#087d9a,#36d1ee 55%,#d6fbff);box-shadow:0 0 8px rgba(41,206,238,.7)}
+.tier-1 .marketing-contribution.pcs .contribution-track span{background:linear-gradient(90deg,#4968b4,#8c82df 55%,#e4e6ff);box-shadow:0 0 8px rgba(118,112,218,.55)}
+.marketing-list-row.tier-1:hover{transform:translateX(4px) translateY(-1px);box-shadow:inset 0 1px 0 #fff,inset 0 -12px 24px rgba(18,145,173,.13),0 5px 0 #176f86,0 0 0 2px rgba(185,245,255,.44),0 0 38px rgba(67,222,253,.82)}
+@keyframes diamondLuxuryGlow{from{box-shadow:inset 0 1px 0 #fff,inset 0 -12px 24px rgba(18,145,173,.1),0 4px 0 #176f86,0 0 0 2px rgba(157,238,255,.25),0 0 20px rgba(56,209,241,.5)}to{box-shadow:inset 0 1px 0 #fff,inset 0 -12px 24px rgba(18,145,173,.16),0 4px 0 #176f86,0 0 0 2px rgba(213,251,255,.62),0 0 43px rgba(93,229,255,.92)}}
+@keyframes diamondSweep{0%,50%{transform:translateX(-78%)}78%,100%{transform:translateX(78%)}}
+@keyframes diamondGemFloat{0%,100%{transform:translateY(2px) scale(.92) rotate(-5deg);opacity:.12}50%{transform:translateY(-3px) scale(1.1) rotate(5deg);opacity:.28}}
+@keyframes diamondSparkle{0%,100%{opacity:.22;transform:scale(.45)}48%{opacity:1;transform:scale(1.45)}}

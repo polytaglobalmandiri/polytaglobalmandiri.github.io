@@ -2204,6 +2204,18 @@
     position: relative;
     width: 100%;
   }
+  #spkInputRoot .data-main-card .machine-search-shell {
+    margin-top: auto;
+  }
+  #spkInputRoot .machine-search-shell > input.field-input {
+    display: block;
+    width: 100% !important;
+    max-width: none !important;
+    min-height: var(--polyta-input-height, 34px) !important;
+    height: var(--polyta-input-height, 34px) !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+  }
   #spkInputRoot .machine-search-menu {
     position: absolute;
     z-index: 90;
@@ -4746,24 +4758,13 @@
   <style>
     #spkInputRoot input#marketing,
     #spkInputRoot input#customer {
-      width: min(100%, 180px);
-      max-width: 180px;
-      height: 30px !important;
-      min-height: 30px !important;
-      padding-block: 4px !important;
-      border-radius: 7px;
-      justify-self: start;
-    }
-
-    @media (max-width: 560px) {
-      #spkInputRoot input#marketing,
-      #spkInputRoot input#customer {
-        width: 100%;
-        max-width: none;
-        height: 34px !important;
-        min-height: 34px !important;
-        padding-block: 5px !important;
-      }
+      width: 100%;
+      max-width: none;
+      height: var(--polyta-input-height, 34px) !important;
+      min-height: var(--polyta-input-height, 34px) !important;
+      padding-block: 0 !important;
+      border-radius: var(--polyta-control-radius, 8px);
+      justify-self: stretch;
     }
   </style>
 </head>

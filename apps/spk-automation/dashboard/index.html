@@ -51,21 +51,21 @@
     <section class="page-heading">
       <div class="heading-group">
         <span class="heading-icon"><i class="fa-solid fa-chart-line"></i></span>
-        <div><p class="eyebrow">RINGKASAN PPIC</p><h1>Dashboard PPIC</h1><p>Pantau outstanding PO, progres produksi, aging, dan target pengiriman dari data OTD.</p></div>
+        <div><p class="eyebrow">RINGKASAN PPIC</p><h1>Dashboard PPIC</h1><p>Analisis SPK, volume produksi, bahan, routing, dan kontribusi marketing langsung dari Database SPK.</p></div>
       </div>
-      <span class="status-chip" id="dataStatus"><i class="fa-solid fa-arrows-rotate fa-spin"></i> Memuat OTD</span>
+      <span class="status-chip" id="dataStatus"><i class="fa-solid fa-arrows-rotate fa-spin"></i> Memuat Database SPK</span>
     </section>
 
-    <section class="otd-kpi-grid" aria-label="Ringkasan OTD">
-      <article class="otd-kpi"><span class="overview-icon red"><i class="fa-solid fa-file-circle-exclamation"></i></span><div><small>SPK Outstanding</small><strong id="kpiSpk">—</strong><p>SPK masih memiliki selisih</p></div></article>
-      <article class="otd-kpi"><span class="overview-icon amber"><i class="fa-solid fa-weight-scale"></i></span><div><small>Outstanding KG</small><strong id="kpiKg">—</strong><p>khusus pesanan satuan KG</p></div></article>
-      <article class="otd-kpi"><span class="overview-icon blue"><i class="fa-solid fa-boxes-stacked"></i></span><div><small>Outstanding PCS</small><strong id="kpiPcs">—</strong><p>khusus pesanan satuan PCS</p></div></article>
+    <section class="otd-kpi-grid" aria-label="Ringkasan Database SPK">
+      <article class="otd-kpi"><span class="overview-icon red"><i class="fa-solid fa-file-circle-check"></i></span><div><small>Total SPK</small><strong id="kpiSpk">—</strong><p>seluruh SPK pada database</p></div></article>
+      <article class="otd-kpi"><span class="overview-icon amber"><i class="fa-solid fa-weight-scale"></i></span><div><small>Volume Produksi</small><strong id="kpiKg">—</strong><p>acuan utama hasil konversi KG</p></div></article>
+      <article class="otd-kpi"><span class="overview-icon blue"><i class="fa-solid fa-boxes-stacked"></i></span><div><small>Informasi PCS</small><strong id="kpiPcs">—</strong><p>jumlah order asli satuan PCS</p></div></article>
       <article class="otd-kpi"><span class="overview-icon danger"><i class="fa-solid fa-clock"></i></span><div><small>Aging ≥ 30 Hari</small><strong id="kpiAging">—</strong><p id="kpiOldest">aging tertinggi —</p></div></article>
     </section>
 
     <section class="production-recap" aria-labelledby="recapTitle">
       <header class="recap-hero">
-        <div class="recap-title-group"><span class="recap-orb"><i class="fa-solid fa-wand-magic-sparkles"></i></span><div><p class="eyebrow">ANALITIK PRODUKSI TAHUNAN</p><h2 id="recapTitle">Rekapan Outstanding Produksi Periode</h2><p>Analisis proses, bahan, mesin/routing, SPK bulanan, dan performa marketing.</p></div></div>
+        <div class="recap-title-group"><span class="recap-orb"><i class="fa-solid fa-wand-magic-sparkles"></i></span><div><p class="eyebrow">ANALITIK PRODUKSI TAHUNAN</p><h2 id="recapTitle">Rekapan Produksi Berdasarkan SPK</h2><p>Analisis routing, bahan, SPK bulanan, dan kontribusi marketing dari Database SPK.</p></div></div>
         <label class="year-control"><span>Pilih Tahun</span><select id="recapYear" aria-label="Pilih tahun rekapan"></select></label>
       </header>
 
@@ -101,17 +101,17 @@
 
     <section class="otd-insights">
       <article class="workspace insight-panel">
-        <header class="workspace-head"><div><h2>Outstanding per Proses</h2><p>Jumlah SPK berdasarkan proses aktif saat ini.</p></div><span><i class="fa-solid fa-gears"></i></span></header>
+        <header class="workspace-head"><div><h2>SPK per Routing</h2><p>Distribusi SPK berdasarkan routing yang tercatat.</p></div><span><i class="fa-solid fa-gears"></i></span></header>
         <div class="bar-list" id="processBars"></div>
       </article>
       <article class="workspace insight-panel">
-        <header class="workspace-head"><div><h2>Outstanding per Marketing</h2><p>Distribusi SPK berdasarkan penanggung jawab.</p></div><span><i class="fa-solid fa-users"></i></span></header>
+        <header class="workspace-head"><div><h2>SPK per Marketing</h2><p>Distribusi SPK berdasarkan penanggung jawab.</p></div><span><i class="fa-solid fa-users"></i></span></header>
         <div class="bar-list" id="marketingBars"></div>
       </article>
     </section>
 
     <section class="workspace otd-workspace">
-      <header class="workspace-head otd-workspace-head"><div><h2>Prioritas Outstanding PO</h2><p id="resultCaption">Menyiapkan data OTD…</p></div><div class="source-meta"><span id="snapshotLabel">Snapshot —</span><a href="https://docs.google.com/spreadsheets/d/1pbxEmI25G-zwb7HE28drXm0UqtbtNXnr/edit" target="_blank" rel="noopener"><i class="fa-solid fa-table"></i> Sumber OTD</a></div></header>
+      <header class="workspace-head otd-workspace-head"><div><h2>Daftar Produksi SPK</h2><p id="resultCaption">Menyiapkan Database SPK…</p></div><div class="source-meta"><span id="snapshotLabel">Database SPK —</span></div></header>
       <div class="otd-toolbar">
         <label class="otd-search"><i class="fa-solid fa-magnifying-glass"></i><input id="searchInput" type="search" placeholder="Cari SPK, customer, brand, atau marketing…"></label>
         <select id="uomFilter" aria-label="Filter UOM"><option value="">Semua UOM</option><option value="KG">KG</option><option value="PCS">PCS</option></select>
@@ -119,7 +119,7 @@
         <select id="agingFilter" aria-label="Filter aging"><option value="">Semua Aging</option><option value="30">≥ 30 hari</option><option value="45">≥ 45 hari</option><option value="60">≥ 60 hari</option></select>
       </div>
       <div class="otd-table-wrap">
-        <table class="otd-table"><thead><tr><th>SPK &amp; Customer</th><th>Brand / Bahan</th><th class="number">Order</th><th class="number">Hasil</th><th class="number">Outstanding</th><th>Proses</th><th class="number">Aging</th><th>Target Kirim</th></tr></thead><tbody id="otdRows"></tbody></table>
+        <table class="otd-table"><thead><tr><th>SPK &amp; Customer</th><th>Artikel / Bahan</th><th class="number">Order</th><th class="number">Volume KG</th><th class="number">PCS</th><th>Routing</th><th class="number">Umur SPK</th><th>Tanggal SPK</th></tr></thead><tbody id="otdRows"></tbody></table>
         <div class="otd-empty" id="emptyState" hidden><i class="fa-solid fa-magnifying-glass"></i><strong>Data tidak ditemukan</strong><span>Ubah kata pencarian atau filter.</span></div>
       </div>
     </section>
@@ -132,6 +132,6 @@
       <a href="/apps/spk-automation/handover/"><i class="fa-solid fa-clipboard-check"></i><span><strong>Serah Terima</strong><small>Dokumen produksi</small></span></a>
     </section>
   </main>
-  <script src="otd-dashboard.js?v=20260817-5"></script>
+  <script src="otd-dashboard.js?v=20260817-6"></script>
 </body>
 </html>

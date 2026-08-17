@@ -4,3 +4,7 @@
 .tier-2 .marketing-tier-tag{background:rgba(247,249,251,.74);color:#555d67}
 .tier-3 .marketing-tier-tag{background:rgba(255,239,225,.72);color:#75401f}
 .marketing-person .marketing-tier-tag+small{margin-top:3px}
+.tier-1 .marketing-tier-tag{background:rgba(222,251,255,.82);color:#086d85}
+.tier-2 .marketing-tier-tag{background:rgba(255,246,180,.78);color:#795500}
+.tier-3 .marketing-tier-tag{background:rgba(247,249,251,.82);color:#555d67}
+.tier-4 .marketing-tier-tag{background:rgba(255,239,225,.78);color:#75401f}

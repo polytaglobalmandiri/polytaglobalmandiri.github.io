@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="../responsive.css?v=20260817-2">
-  <link rel="stylesheet" href="material-management.css?v=20260817-3">
+  <link rel="stylesheet" href="material-management.css?v=20260817-4">
   <script src="/assets/js/status.js?v=20260815-1"></script>
 </head>
 <body data-page="manajemen-bahan" data-ui-engine="tailwind-alpine">
@@ -79,6 +79,38 @@
         <footer class="pagination"><p id="pageInfo">—</p><div><button id="prevButton" class="button button-light"><i class="fa-solid fa-chevron-left"></i> Sebelumnya</button><button id="nextButton" class="button button-light">Berikutnya <i class="fa-solid fa-chevron-right"></i></button></div></footer>
       </section>
     </main>
+  <div class="modal" id="detailMaterialModal" hidden>
+    <div class="modal-backdrop" data-close-detail></div>
+    <section class="modal-dialog detail-material-dialog" role="dialog" aria-modal="true" aria-labelledby="detailModalTitle">
+      <header class="detail-modal-header">
+        <div><p class="eyebrow">RINCIAN MASTER BAHAN</p><h2 id="detailModalTitle">Detail Bahan</h2></div>
+        <div class="detail-header-actions"><span id="detailHeaderStatus" class="detail-status-chip">—</span><button class="modal-close" data-close-detail aria-label="Tutup"><i class="fa-solid fa-xmark"></i></button></div>
+      </header>
+      <div class="detail-modal-body">
+        <section class="detail-hero" aria-label="Ringkasan bahan">
+          <div class="detail-hero-copy"><span>Nama Bahan</span><strong id="detailHeroName">—</strong><p id="detailHeroIdentity">—</p></div>
+          <div class="detail-hero-metrics">
+            <div class="detail-hero-metric"><span>Stok Referensi</span><strong id="detailHeroStock">—</strong></div>
+            <div class="detail-hero-metric"><span>Kategori</span><strong id="detailHeroCategory">—</strong></div>
+            <div class="detail-hero-metric"><span>Tanggal Acuan</span><strong id="detailHeroDate">—</strong></div>
+          </div>
+        </section>
+        <section class="detail-section">
+          <div class="detail-section-heading"><div><span class="detail-section-icon"><i class="fa-solid fa-flask-vial"></i></span><div><h3>Identitas Bahan</h3><p>Kode, kategori, varian, dan satuan bahan</p></div></div><span class="detail-section-chip">Data utama</span></div>
+          <div id="detailIdentityGrid" class="detail-info-grid"></div>
+        </section>
+        <section class="detail-section">
+          <div class="detail-section-heading"><div><span class="detail-section-icon"><i class="fa-solid fa-truck-field"></i></span><div><h3>Supplier &amp; Persediaan</h3><p>Informasi pemasok, kemasan, dan posisi stok</p></div></div><span class="detail-section-chip">Persediaan</span></div>
+          <div id="detailSupplyGrid" class="detail-info-grid"></div>
+        </section>
+        <section class="detail-section detail-note-section">
+          <div class="detail-section-heading"><div><span class="detail-section-icon"><i class="fa-solid fa-note-sticky"></i></span><div><h3>Catatan</h3><p>Keterangan tambahan pada master bahan</p></div></div><span class="detail-section-chip">Informasi</span></div>
+          <p id="detailNotes" class="detail-note">Tidak ada catatan.</p>
+        </section>
+      </div>
+      <footer class="detail-modal-footer"><button type="button" class="button" data-close-detail>Tutup</button><button type="button" class="button button-primary" id="detailEditButton"><i class="fa-solid fa-pen-to-square"></i> Edit Data</button></footer>
+    </section>
+  </div>
   <div class="modal" id="materialModal" hidden>
     <div class="modal-backdrop" data-close-modal></div>
     <section class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
@@ -107,6 +139,6 @@
   </div>
   <div class="toast" id="toast" role="status"></div>
   <script src="/assets/js/gas-rpc.js?v=20260817-1"></script>
-  <script src="material-management.js?v=20260817-2"></script>
+  <script src="material-management.js?v=20260817-4"></script>
 </body>
 </html>

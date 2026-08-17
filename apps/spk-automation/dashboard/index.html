@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="dashboard.css?v=20260817-2">
   <link rel="stylesheet" href="header-alignment.css?v=20260817-1">
+  <link rel="stylesheet" href="otd-dashboard.css?v=20260817-1">
   <script src="/assets/js/status.js?v=20260815-1"></script>
 </head>
 <body data-page="dashboard-ppic">
@@ -46,27 +47,51 @@
     <section class="page-heading">
       <div class="heading-group">
         <span class="heading-icon"><i class="fa-solid fa-chart-line"></i></span>
-        <div><p class="eyebrow">RINGKASAN PPIC</p><h1>Dashboard PPIC</h1><p>Pusat akses cepat untuk seluruh alur kerja Production Planning &amp; Inventory Control.</p></div>
+        <div><p class="eyebrow">RINGKASAN PPIC</p><h1>Dashboard PPIC</h1><p>Pantau outstanding PO, progres produksi, aging, dan target pengiriman dari data OTD.</p></div>
       </div>
-      <span class="status-chip"><i class="fa-solid fa-circle-check"></i> Sistem tersedia</span>
+      <span class="status-chip" id="dataStatus"><i class="fa-solid fa-arrows-rotate fa-spin"></i> Memuat OTD</span>
     </section>
 
-    <section class="overview" aria-label="Ringkasan layanan">
-      <article><span class="overview-icon red"><i class="fa-solid fa-layer-group"></i></span><div><small>Layanan PPIC</small><strong>5 Menu</strong><p>alur kerja dalam satu portal</p></div></article>
-      <article><span class="overview-icon blue"><i class="fa-solid fa-database"></i></span><div><small>Sumber Data</small><strong>Terpusat</strong><p>akses data operasional PPIC</p></div></article>
-      <article><span class="overview-icon green"><i class="fa-solid fa-bolt"></i></span><div><small>Akses</small><strong>Langsung</strong><p>pilih menu untuk mulai bekerja</p></div></article>
+    <section class="otd-kpi-grid" aria-label="Ringkasan OTD">
+      <article class="otd-kpi"><span class="overview-icon red"><i class="fa-solid fa-file-circle-exclamation"></i></span><div><small>SPK Outstanding</small><strong id="kpiSpk">—</strong><p>SPK masih memiliki selisih</p></div></article>
+      <article class="otd-kpi"><span class="overview-icon amber"><i class="fa-solid fa-weight-scale"></i></span><div><small>Outstanding KG</small><strong id="kpiKg">—</strong><p>khusus pesanan satuan KG</p></div></article>
+      <article class="otd-kpi"><span class="overview-icon blue"><i class="fa-solid fa-boxes-stacked"></i></span><div><small>Outstanding PCS</small><strong id="kpiPcs">—</strong><p>khusus pesanan satuan PCS</p></div></article>
+      <article class="otd-kpi"><span class="overview-icon danger"><i class="fa-solid fa-clock"></i></span><div><small>Aging ≥ 30 Hari</small><strong id="kpiAging">—</strong><p id="kpiOldest">aging tertinggi —</p></div></article>
     </section>
 
-    <section class="workspace">
-      <header class="workspace-head"><div><h2>Menu Kerja PPIC</h2><p>Pilih modul sesuai aktivitas yang akan dikerjakan.</p></div><span><i class="fa-solid fa-grip"></i></span></header>
-      <div class="menu-grid">
-        <a class="menu-card featured" href="/apps/spk-automation/"><span class="menu-icon"><i class="fa-solid fa-file-circle-check"></i></span><div><span class="menu-kicker">Pesanan &amp; Produksi</span><h3>PO &amp; SPK</h3><p>Kelola pesanan, buat SPK, pantau status, dan lihat rincian produksi.</p><b>Buka menu <i class="fa-solid fa-arrow-right"></i></b></div></a>
-        <a class="menu-card" href="/apps/spk-automation/material-management/"><span class="menu-icon amber"><i class="fa-solid fa-flask-vial"></i></span><div><span class="menu-kicker">Master Persediaan</span><h3>Bahan &amp; Tinta</h3><p>Cari dan kelola database resin, masterbatch, tinta, serta thinner.</p><b>Buka menu <i class="fa-solid fa-arrow-right"></i></b></div></a>
-        <a class="menu-card" href="/apps/spk-automation/material-issue/"><span class="menu-icon green"><i class="fa-solid fa-truck-ramp-box"></i></span><div><span class="menu-kicker">Distribusi Bahan</span><h3>Keluar Bahan</h3><p>Catat dan pantau pengeluaran bahan untuk kebutuhan proses produksi.</p><b>Buka menu <i class="fa-solid fa-arrow-right"></i></b></div></a>
-        <a class="menu-card" href="/apps/spk-automation/data-retrieval/"><span class="menu-icon blue"><i class="fa-solid fa-cloud-arrow-down"></i></span><div><span class="menu-kicker">Integrasi Data</span><h3>Penarikan Data</h3><p>Tarik dan sinkronkan data operasional dari sumber yang tersedia.</p><b>Buka menu <i class="fa-solid fa-arrow-right"></i></b></div></a>
-        <a class="menu-card" href="/apps/spk-automation/handover/"><span class="menu-icon purple"><i class="fa-solid fa-clipboard-check"></i></span><div><span class="menu-kicker">Dokumen Produksi</span><h3>Serah Terima</h3><p>Kelola proses serah terima dokumen dan SPK antarbagian.</p><b>Buka menu <i class="fa-solid fa-arrow-right"></i></b></div></a>
+    <section class="otd-insights">
+      <article class="workspace insight-panel">
+        <header class="workspace-head"><div><h2>Outstanding per Proses</h2><p>Jumlah SPK berdasarkan proses aktif saat ini.</p></div><span><i class="fa-solid fa-gears"></i></span></header>
+        <div class="bar-list" id="processBars"></div>
+      </article>
+      <article class="workspace insight-panel">
+        <header class="workspace-head"><div><h2>Outstanding per Marketing</h2><p>Distribusi SPK berdasarkan penanggung jawab.</p></div><span><i class="fa-solid fa-users"></i></span></header>
+        <div class="bar-list" id="marketingBars"></div>
+      </article>
+    </section>
+
+    <section class="workspace otd-workspace">
+      <header class="workspace-head otd-workspace-head"><div><h2>Prioritas Outstanding PO</h2><p id="resultCaption">Menyiapkan data OTD…</p></div><div class="source-meta"><span id="snapshotLabel">Snapshot —</span><a href="https://docs.google.com/spreadsheets/d/1pbxEmI25G-zwb7HE28drXm0UqtbtNXnr/edit" target="_blank" rel="noopener"><i class="fa-solid fa-table"></i> Sumber OTD</a></div></header>
+      <div class="otd-toolbar">
+        <label class="otd-search"><i class="fa-solid fa-magnifying-glass"></i><input id="searchInput" type="search" placeholder="Cari SPK, customer, brand, atau marketing…"></label>
+        <select id="uomFilter" aria-label="Filter UOM"><option value="">Semua UOM</option><option value="KG">KG</option><option value="PCS">PCS</option></select>
+        <select id="processFilter" aria-label="Filter proses"><option value="">Semua Proses</option></select>
+        <select id="agingFilter" aria-label="Filter aging"><option value="">Semua Aging</option><option value="30">≥ 30 hari</option><option value="45">≥ 45 hari</option><option value="60">≥ 60 hari</option></select>
       </div>
+      <div class="otd-table-wrap">
+        <table class="otd-table"><thead><tr><th>SPK &amp; Customer</th><th>Brand / Bahan</th><th class="number">Order</th><th class="number">Hasil</th><th class="number">Outstanding</th><th>Proses</th><th class="number">Aging</th><th>Target Kirim</th></tr></thead><tbody id="otdRows"></tbody></table>
+        <div class="otd-empty" id="emptyState" hidden><i class="fa-solid fa-magnifying-glass"></i><strong>Data tidak ditemukan</strong><span>Ubah kata pencarian atau filter.</span></div>
+      </div>
+    </section>
+
+    <section class="quick-links" aria-label="Menu kerja PPIC">
+      <a href="/apps/spk-automation/"><i class="fa-solid fa-file-circle-check"></i><span><strong>PO &amp; SPK</strong><small>Kelola pesanan dan SPK</small></span></a>
+      <a href="/apps/spk-automation/material-management/"><i class="fa-solid fa-flask-vial"></i><span><strong>Bahan &amp; Tinta</strong><small>Master persediaan</small></span></a>
+      <a href="/apps/spk-automation/material-issue/"><i class="fa-solid fa-truck-ramp-box"></i><span><strong>Keluar Bahan</strong><small>Distribusi produksi</small></span></a>
+      <a href="/apps/spk-automation/data-retrieval/"><i class="fa-solid fa-cloud-arrow-down"></i><span><strong>Penarikan Data</strong><small>Integrasi data</small></span></a>
+      <a href="/apps/spk-automation/handover/"><i class="fa-solid fa-clipboard-check"></i><span><strong>Serah Terima</strong><small>Dokumen produksi</small></span></a>
     </section>
   </main>
+  <script src="otd-dashboard.js?v=20260817-1"></script>
 </body>
 </html>

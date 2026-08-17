@@ -7,7 +7,7 @@
 .polyta-logo{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 2px 1px rgba(0,0,0,.28))}
 .brand-name,.brand-subtitle{display:block}
 .brand-name{font-size:.95rem;font-weight:700;letter-spacing:.14em;line-height:1.15;text-shadow:none}
-.brand-subtitle{margin-top:3px;color:#85858f;font-size:.6rem;letter-spacing:.2em;line-height:1.2;text-shadow:none}
+.brand .brand-subtitle{margin-top:3px;color:#85858f;font-size:.6rem;letter-spacing:.2em;line-height:1.2;text-shadow:none}
 .topnav{align-items:center;gap:5px}
 .nav-link-app{height:34px;min-height:34px;padding:8px 11px;display:inline-flex;align-items:center;gap:6px;border:1px solid transparent;border-radius:9px;background:none;color:#b6b6c0;box-shadow:none;font-size:.71875rem;font-weight:700;text-decoration:none;text-shadow:none}
 .nav-link-app:hover{border-color:rgba(255,255,255,.1);background:rgba(255,255,255,.08);color:#fff}

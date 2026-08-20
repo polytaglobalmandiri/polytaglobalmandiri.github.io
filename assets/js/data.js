@@ -97,7 +97,7 @@ const SITE = {
     },
     ppic: {
       title: "TIM PPIC",
-      heading: "Production Planning &amp; Inventory Control",
+      heading: "Perencanaan Produksi &amp; Pengendalian Persediaan",
       sections: [
         {
           title: "Manajemen SPK",

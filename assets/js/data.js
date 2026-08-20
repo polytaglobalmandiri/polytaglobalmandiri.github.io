@@ -43,9 +43,9 @@ const SITE = {
         { id: "marketing", label: "MARKETING", path: "pages/marketing/", desc: "Folder tim, laporan, dan tautan operasional Marketing.", image: "assets/img/departments/marketing.webp" },
         { id: "ppic", label: "PPIC", path: "pages/ppic/", desc: "Manajemen SPK, database OTS, back-up produksi, dashboard.", image: "assets/img/departments/ppic.webp" },
         { id: "purchasing", label: "PEMBELIAN", path: "pages/purchasing/", desc: "Purchase order dan perbandingan harga supplier.", image: "assets/img/departments/purchasing.webp" },
-        { id: "produksi", label: "PRODUKSI", path: "pages/production/", desc: "Input problem, dokumentasi foto, dan data production issue.", image: "assets/img/departments/marketing.webp" },
+        { id: "produksi", label: "PRODUKSI", path: "pages/production/", desc: "Input problem, dokumentasi foto, dan data production issue.", image: "assets/img/departments/production.webp" },
         { id: "finance", label: "KEUANGAN", path: "pages/finance/", desc: "Arsip laporan piutang, hutang, dan kas pabrik.", image: "assets/img/departments/finance.webp" },
-        { id: "bantuan", label: "BANTUAN", path: "pages/support/", desc: "Panduan penggunaan portal dan kontak administrator.", image: "assets/img/departments/marketing.webp" }
+        { id: "bantuan", label: "BANTUAN", path: "pages/support/", desc: "Panduan penggunaan portal dan kontak administrator.", image: "assets/img/departments/support.webp" }
       ]
     },
     marketing: {

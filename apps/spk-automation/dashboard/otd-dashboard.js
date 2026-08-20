@@ -350,13 +350,19 @@
     }).join('');
   }
 
-  function renderStatList(target, entries, kind) {
-    var max = Math.max.apply(null, entries.map(function (x) { return x.count; }).concat([1]));
+  /* Bilah dan angka yang tertera harus mengukur hal yang sama. Untuk
+     routing acuannya KG, sejalan dengan panel volume produksi; untuk bahan
+     utama acuannya masih jumlah SPK. Parameter ukurKg yang memilihnya. */
+  function renderStatList(target, entries, kind, ukurKg) {
+    var ukur = ukurKg
+      ? function (item) { return Number(item.qty.KG || 0); }
+      : function (item) { return item.count; };
+    var max = Math.max.apply(null, entries.map(ukur).concat([1]));
     target.innerHTML = '<div class="recap-stat-list">' + entries.map(function (item, index) {
       return '<div class="recap-stat-row" style="animation-delay:' + (index * .045) +
         's"><div class="recap-stat-copy"><strong title="' + esc(item.name) + '">' + esc(item.name) +
         '</strong><small>' + item.count + ' SPK</small></div><span class="recap-meter"><span style="width:' +
-        Math.max(7, item.count / max * 100) + '%"></span></span><span class="recap-qty">' +
+        Math.max(7, ukur(item) / max * 100) + '%"></span></span><span class="recap-qty">' +
         qtyLabel(item.qty) + '</span></div>';
     }).join('') + '</div>' +
       (entries.length ? '' : '<div class="recap-empty">Belum ada data ' + esc(kind) + ' untuk tahun ini.</div>');
@@ -472,7 +478,7 @@
   function renderRecap(agg, onDone) {
     var langkah = [
       [72, 'Menyusun ringkasan tahunan', function () { renderTotals(agg); renderKpis(agg); }],
-      [79, 'Menyusun proses per routing', function () { renderStatList(els.routingRecap, agg.routeEntries, 'routing'); }],
+      [79, 'Menyusun proses per routing', function () { renderStatList(els.routingRecap, agg.routingByKg, 'routing', true); }],
       [85, 'Menyusun produksi per bahan', function () { renderStatList(els.materialRecap, agg.materialEntries, 'bahan utama'); }],
       [91, 'Memetakan routing dan bahan', function () { renderRouteMaterial(agg); }],
       [96, 'Menyusun tabel bulanan', function () { renderMonthly(agg); }],
@@ -506,7 +512,7 @@
     if (!withProgress) {
       renderTotals(agg);
       renderKpis(agg);
-      renderStatList(els.routingRecap, agg.routeEntries, 'routing');
+      renderStatList(els.routingRecap, agg.routingByKg, 'routing', true);
       renderStatList(els.materialRecap, agg.materialEntries, 'bahan utama');
       renderRouteMaterial(agg);
       renderMonthly(agg);

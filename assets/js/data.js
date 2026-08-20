@@ -25,27 +25,27 @@ const SITE = {
   /* Urutan menu navigasi. `path` adalah folder halaman, dibuat berbasis
      folder agar alamatnya bersih tanpa akhiran .html */
   nav: [
-    { id: "beranda", label: "BERANDA", path: "" },
+    { id: "beranda", label: "HOME", path: "" },
     { id: "marketing", label: "MARKETING", path: "pages/marketing/" },
     { id: "ppic", label: "PPIC", path: "pages/ppic/" },
-    { id: "purchasing", label: "PEMBELIAN", path: "pages/purchasing/" },
-    { id: "produksi", label: "PRODUKSI", path: "pages/production/" },
-    { id: "finance", label: "KEUANGAN", path: "pages/finance/" },
-    { id: "bantuan", label: "BANTUAN", path: "pages/support/" }
+    { id: "purchasing", label: "PURCHASING", path: "pages/purchasing/" },
+    { id: "produksi", label: "PRODUCTION", path: "pages/production/" },
+    { id: "finance", label: "FINANCE", path: "pages/finance/" },
+    { id: "bantuan", label: "SUPPORT", path: "pages/support/" }
   ],
 
   pages: {
     beranda: {
-      title: "BERANDA",
+      title: "HOME",
       heading: "Pusat Akses Terpadu",
       lead: "Pusat tautan menuju folder dan berkas cloud seluruh departemen. Akses dibatasi berdasarkan peran masing-masing pengguna.",
       departments: [
         { id: "marketing", label: "MARKETING", path: "pages/marketing/", desc: "Folder tim, laporan, dan tautan operasional Marketing.", image: "assets/img/departments/marketing.webp" },
         { id: "ppic", label: "PPIC", path: "pages/ppic/", desc: "Manajemen SPK, database OTS, back-up produksi, dashboard.", image: "assets/img/departments/ppic.webp" },
-        { id: "purchasing", label: "PEMBELIAN", path: "pages/purchasing/", desc: "Purchase order dan perbandingan harga supplier.", image: "assets/img/departments/purchasing.webp" },
-        { id: "produksi", label: "PRODUKSI", path: "pages/production/", desc: "Input problem, dokumentasi foto, dan data production issue.", image: "assets/img/departments/production.webp" },
-        { id: "finance", label: "KEUANGAN", path: "pages/finance/", desc: "Arsip laporan piutang, hutang, dan kas pabrik.", image: "assets/img/departments/finance.webp" },
-        { id: "bantuan", label: "BANTUAN", path: "pages/support/", desc: "Panduan penggunaan portal dan kontak administrator.", image: "assets/img/departments/support.webp" }
+        { id: "purchasing", label: "PURCHASING", path: "pages/purchasing/", desc: "Purchase order dan perbandingan harga supplier.", image: "assets/img/departments/purchasing.webp" },
+        { id: "produksi", label: "PRODUCTION", path: "pages/production/", desc: "Input problem, dokumentasi foto, dan data production issue.", image: "assets/img/departments/production.webp" },
+        { id: "finance", label: "FINANCE", path: "pages/finance/", desc: "Arsip laporan piutang, hutang, dan kas pabrik.", image: "assets/img/departments/finance.webp" },
+        { id: "bantuan", label: "SUPPORT", path: "pages/support/", desc: "Panduan penggunaan portal dan kontak administrator.", image: "assets/img/departments/support.webp" }
       ]
     },
     marketing: {
@@ -166,7 +166,7 @@ const SITE = {
       ]
     },
     purchasing: {
-      title: "TIM PEMBELIAN",
+      title: "PURCHASING TEAM",
       heading: "Pengadaan &amp; Perbandingan Harga",
       sections: [
         {
@@ -181,7 +181,7 @@ const SITE = {
       ]
     },
     produksi: {
-      title: "PRODUKSI TEAM",
+      title: "PRODUCTION TEAM",
       heading: "Pelaporan &amp; Pengendalian Produksi",
       sections: [
         {
@@ -224,7 +224,7 @@ const SITE = {
       ]
     },
     finance: {
-      title: "TIM KEUANGAN",
+      title: "FINANCE TEAM",
       heading: "Arsip Laporan Keuangan",
       sections: [
         {
@@ -240,7 +240,7 @@ const SITE = {
       ]
     },
     bantuan: {
-      title: "BANTUAN",
+      title: "SUPPORT",
       heading: "Panduan Penggunaan Portal",
       sections: [
         {

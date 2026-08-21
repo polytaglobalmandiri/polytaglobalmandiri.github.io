@@ -407,7 +407,7 @@
       ['Total Routing', agg.routeEntries.length + ' Proses', ''],
       ['Total Bahan Utama', agg.materialEntries.length + ' Jenis', ''],
       ['Total Marketing', agg.marketingByKg.length + ' Orang', ''],
-      ['Qty KG', num(agg.trackedQty.KG || 0, 1) + ' KG', '']
+      ['Total Outstanding', num(agg.trackedQty.KG || 0, 1) + ' KG', '']
     ].map(function (x) {
       return '<article class="recap-total ' + x[2] + '"><small>' + x[0] + '</small><strong>' +
         x[1] + '</strong></article>';

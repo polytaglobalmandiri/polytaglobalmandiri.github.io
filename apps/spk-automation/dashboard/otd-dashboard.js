@@ -37,11 +37,6 @@
 
   var els = {
     status: document.getElementById('dataStatus'),
-    spk: document.getElementById('kpiSpk'),
-    kg: document.getElementById('kpiKg'),
-    pcs: document.getElementById('kpiPcs'),
-    aging: document.getElementById('kpiAging'),
-    oldest: document.getElementById('kpiOldest'),
     processBars: document.getElementById('processBars'),
     marketingBars: document.getElementById('marketingBars'),
     recapTotals: document.getElementById('recapTotals'),
@@ -68,12 +63,27 @@
     });
   }
 
+  function setPeriodTitle() {
+    var monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    var today = new Date();
+    var title = 'Outstanding On Hand Periode (' + today.getDate() + ' ' +
+      monthNames[today.getMonth()] + ' ' + today.getFullYear() + ')';
+    var heading = document.getElementById('recapTitle');
+    if (heading) heading.textContent = title;
+  }
+
   function mainMaterial(value) {
     var material = String(value || '').trim();
     var main = material ? material.split(/\s+/)[0].toUpperCase() : '';
     if (main === 'HD') return 'HDPE';
     if (main === 'PE') return 'LLDPE';
     return main || 'Belum ditentukan';
+  }
+
+  function spkYear(value) {
+    var match = String(value || '').trim().toUpperCase().match(/^[A-Z](\d{2})\./);
+    return match ? 2000 + Number(match[1]) : 0;
   }
 
   function kgValue(row) {
@@ -223,6 +233,7 @@
     var routeMaterials = {};
     var marketing = {};
     var marketingOrder = [];
+    var marketingByYear = {};
     var tracking = {};
     var months = [];
     var totalQty = { KG: 0, PCS: 0 };
@@ -273,6 +284,17 @@
       orang.kg += kg;
       orang.pcs += pcs;
 
+      var year = spkYear(row.spk);
+      if (year) {
+        var yearMarketing = marketingByYear[year] || (marketingByYear[year] = {});
+        var yearPerson = yearMarketing[person] || (yearMarketing[person] = {
+          name: person, count: 0, kg: 0, pcs: 0
+        });
+        yearPerson.count++;
+        yearPerson.kg += kg;
+        yearPerson.pcs += pcs;
+      }
+
       if (monthIndex >= 0 && monthIndex < 12) {
         months[monthIndex][material] = (months[monthIndex][material] || 0) + 1;
       }
@@ -312,6 +334,7 @@
       kpi: kpi,
       marketing: marketing,
       marketingOrder: marketingOrder,
+      marketingByYear: marketingByYear,
       tracking: tracking,
       // Grafik batang KPI mengurutkan berdasarkan volume, sedangkan daftar
       // kontribusi memakai urutan yang sama; keduanya berbagi satu susunan.
@@ -375,19 +398,6 @@
       (entries.length ? '' : '<div class="recap-empty">Belum ada data ' + esc(kind) + ' untuk tahun ini.</div>');
   }
 
-  function renderKpis(agg) {
-    var counts = {};
-    agg.marketingOrder.forEach(function (name) { counts[name] = agg.marketing[name].count; });
-
-    els.spk.textContent = agg.totalTrackedSpk + ' SPK';
-    els.kg.textContent = num(agg.kpi.kg, 1) + ' KG';
-    els.pcs.textContent = num(agg.kpi.pcs, 0) + ' PCS';
-    els.aging.textContent = agg.kpi.aging30 + ' SPK';
-    els.oldest.textContent = 'umur tertinggi ' + agg.kpi.oldest + ' hari';
-    routingKgBars(els.processBars, agg.routingByKg);
-    bars(els.marketingBars, counts, true);
-  }
-
   function renderTotals(agg) {
     els.recapTotals.innerHTML = [
       ['Total SPK', agg.totalTrackedSpk + ' SPK', 'accent'],
@@ -400,6 +410,13 @@
       return '<article class="recap-total ' + x[2] + '"><small>' + x[0] + '</small><strong>' +
         x[1] + '</strong></article>';
     }).join('');
+  }
+
+  function renderInsights(agg) {
+    var counts = {};
+    agg.marketingOrder.forEach(function (name) { counts[name] = agg.marketing[name].count; });
+    routingKgBars(els.processBars, agg.routingByKg);
+    bars(els.marketingBars, counts, true);
   }
 
   function renderRouteMaterial(agg) {
@@ -440,14 +457,19 @@
   }
 
   function renderMarketing(agg) {
-    var totalKg = agg.totalQty.KG;
-    var totalPcs = agg.totalQty.PCS;
     var head = '<div class="marketing-list-head"><span>Peringkat</span><span>Marketing</span>' +
       '<span>SPK</span><span>Kontribusi KG (Acuan)</span><span>PCS (Informasi)</span></div>';
 
-    els.marketingRecap.innerHTML = head + agg.marketingByKg.map(function (item, index) {
-      var kgPct = totalKg ? item.kg / totalKg * 100 : 0;
-      var pcsPct = totalPcs ? item.pcs / totalPcs * 100 : 0;
+    var years = Object.keys(agg.marketingByYear).map(Number).sort(function (a, b) { return b - a; });
+    els.marketingRecap.innerHTML = years.map(function (year) {
+      var entries = values(agg.marketingByYear[year]).sort(function (a, b) {
+        return b.kg - a.kg || b.count - a.count || a.name.localeCompare(b.name);
+      });
+      var totalKg = entries.reduce(function (sum, item) { return sum + item.kg; }, 0);
+      var totalPcs = entries.reduce(function (sum, item) { return sum + item.pcs; }, 0);
+      var rows = entries.map(function (item, index) {
+        var kgPct = totalKg ? item.kg / totalKg * 100 : 0;
+        var pcsPct = totalPcs ? item.pcs / totalPcs * 100 : 0;
       var tier = index < 4 ? ' tier-' + (index + 1) : '';
       var tierName = index === 0 ? 'Diamond' : index === 1 ? 'Gold' : index === 2 ? 'Silver' : index === 3 ? 'Bronze' : '';
       var recommendation = index === 0 ? 'Kontribusi Istimewa'
@@ -457,7 +479,7 @@
         : 'Kontributor Produksi';
       var icon = index === 0 ? 'fa-gem' : index === 1 ? 'fa-trophy' : index === 2 ? 'fa-medal' : index === 3 ? 'fa-award' : '';
       var title = index < 4 ? 'Peringkat ' + (index + 1) + ' · ' + tierName : 'Peringkat ' + (index + 1);
-      var subtitle = recommendation + ' · Kontribusi KG seluruh SPK';
+      var subtitle = recommendation + ' · Kontribusi KG tahun ' + year;
 
       return '<article class="marketing-list-row' + tier + '" style="animation-delay:' + (index * .08) +
         's"><span class="marketing-rank" title="' + title + '">' +
@@ -472,7 +494,10 @@
         '<div class="marketing-contribution pcs"><div class="marketing-contribution-head">' +
         '<span>PCS asli</span><b>' + num(item.pcs, 0) + ' · ' + num(pcsPct, 1) + '%</b></div>' +
         '<div class="contribution-track"><span style="width:' + pcsPct + '%"></span></div></div></article>';
-    }).join('');
+      }).join('');
+      return '<section class="marketing-year-group"><h4 class="marketing-year-title">Tahun SPK ' + year + '</h4>' +
+        head + rows + '</section>';
+    }).join('') || '<div class="recap-empty">Belum ada data marketing.</div>';
   }
 
   function renderTracking(agg) {
@@ -507,7 +532,7 @@
      pada saat yang ingin kita perlihatkan sedang berjalan. */
   function renderRecap(agg, onDone) {
     var langkah = [
-      [72, 'Menyusun ringkasan tahunan', function () { renderTotals(agg); renderKpis(agg); }],
+      [72, 'Menyusun ringkasan seluruh SPK', function () { renderTotals(agg); renderInsights(agg); }],
       [79, 'Menyusun proses per routing', function () { renderStatList(els.routingRecap, agg.routingByKg, 'routing', true); }],
       [85, 'Menyusun produksi per bahan', function () { renderStatList(els.materialRecap, agg.materialEntries, 'bahan utama'); }],
       [91, 'Memetakan routing dan bahan', function () { renderRouteMaterial(agg); }],
@@ -539,7 +564,7 @@
     var agg = aggregate();
     if (!withProgress) {
       renderTotals(agg);
-      renderKpis(agg);
+      renderInsights(agg);
       renderStatList(els.routingRecap, agg.routingByKg, 'routing', true);
       renderStatList(els.materialRecap, agg.materialEntries, 'bahan utama');
       renderRouteMaterial(agg);
@@ -668,6 +693,7 @@
           uom: uom,
           pcsPerKg: pcsPerKg,
           aging: age,
+          tracking: String(detail.tracking || '').trim().toUpperCase(),
           proses: String(detail.proses || '').trim(),
           routing: Array.isArray(detail.routing) ? detail.routing.filter(Boolean) : []
         };
@@ -746,5 +772,6 @@
     fetchAndRender(true).catch(showError);
   }
 
+  setPeriodTitle();
   load();
 })();

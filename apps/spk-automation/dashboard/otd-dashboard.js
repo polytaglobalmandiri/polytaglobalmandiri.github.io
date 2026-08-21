@@ -250,6 +250,7 @@
     var months = [];
     var totalQty = { KG: 0, PCS: 0 };
     var kpi = { kg: 0, pcs: 0, aging30: 0, oldest: 0 };
+    var totalTrackedSpk = 0;
 
     for (var m = 0; m < 12; m++) months.push({});
 
@@ -262,6 +263,7 @@
       if (row.tracking) {
         tracking[row.tracking] = (tracking[row.tracking] || 0) + 1;
       }
+      if (row.tracking && row.tracking !== 'F') totalTrackedSpk++;
 
       totalQty.KG += kg;
       totalQty.PCS += pcs;
@@ -320,6 +322,7 @@
       routeMaterials: routeMaterials,
       months: months,
       totalQty: totalQty,
+      totalTrackedSpk: totalTrackedSpk,
       kpi: kpi,
       marketing: marketing,
       marketingOrder: marketingOrder,
@@ -390,7 +393,7 @@
     var counts = {};
     agg.marketingOrder.forEach(function (name) { counts[name] = agg.marketing[name].count; });
 
-    els.spk.textContent = agg.rows.length + ' SPK';
+    els.spk.textContent = agg.totalTrackedSpk + ' SPK';
     els.kg.textContent = num(agg.kpi.kg, 1) + ' KG';
     els.pcs.textContent = num(agg.kpi.pcs, 0) + ' PCS';
     els.aging.textContent = agg.kpi.aging30 + ' SPK';
@@ -401,7 +404,7 @@
 
   function renderTotals(agg) {
     els.recapTotals.innerHTML = [
-      ['Total SPK', agg.rows.length + ' SPK', 'accent'],
+      ['Total SPK', agg.totalTrackedSpk + ' SPK', 'accent'],
       ['Total Routing', agg.routeEntries.length + ' Proses', ''],
       ['Total Bahan Utama', agg.materialEntries.length + ' Jenis', ''],
       ['Total Marketing', agg.marketingByKg.length + ' Orang', ''],

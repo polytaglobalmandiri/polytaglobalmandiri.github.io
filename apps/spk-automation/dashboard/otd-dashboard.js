@@ -98,9 +98,7 @@
   }
 
   function qtyLabel(q) {
-    var labels = [num(q.KG || 0, 1) + ' KG'];
-    if (q.PCS) labels.push(num(q.PCS, 0) + ' PCS');
-    return labels.join(' · ');
+    return num(q.KG || 0, 1) + ' KG';
   }
 
   function sortByCount(a, b) {
@@ -409,8 +407,7 @@
       ['Total Routing', agg.routeEntries.length + ' Proses', ''],
       ['Total Bahan Utama', agg.materialEntries.length + ' Jenis', ''],
       ['Total Marketing', agg.marketingByKg.length + ' Orang', ''],
-      ['Qty KG', num(agg.trackedQty.KG || 0, 1) + ' KG', ''],
-      ['Qty PCS', num(agg.trackedQty.PCS || 0, 0) + ' PCS', '']
+      ['Qty KG', num(agg.trackedQty.KG || 0, 1) + ' KG', '']
     ].map(function (x) {
       return '<article class="recap-total ' + x[2] + '"><small>' + x[0] + '</small><strong>' +
         x[1] + '</strong></article>';
@@ -463,7 +460,7 @@
 
   function renderMarketing(agg) {
     var head = '<div class="marketing-list-head"><span>Peringkat</span><span>Marketing</span>' +
-      '<span>SPK</span><span>Kontribusi KG (Acuan)</span><span>PCS (Informasi)</span></div>';
+      '<span>SPK</span><span>Kontribusi KG</span></div>';
 
     var years = Object.keys(agg.marketingByYear).map(Number).sort(function (a, b) { return b - a; });
     if (marketingYear !== 'all' && (!marketingYear || years.indexOf(marketingYear) === -1)) {
@@ -476,10 +473,8 @@
         return b.kg - a.kg || b.count - a.count || a.name.localeCompare(b.name);
       });
       var totalKg = entries.reduce(function (sum, item) { return sum + item.kg; }, 0);
-      var totalPcs = entries.reduce(function (sum, item) { return sum + item.pcs; }, 0);
       var rows = entries.map(function (item, index) {
         var kgPct = totalKg ? item.kg / totalKg * 100 : 0;
-        var pcsPct = totalPcs ? item.pcs / totalPcs * 100 : 0;
       var tier = index < 4 ? ' tier-' + (index + 1) : '';
       var tierName = index === 0 ? 'Diamond' : index === 1 ? 'Gold' : index === 2 ? 'Silver' : index === 3 ? 'Bronze' : '';
       var recommendation = index === 0 ? 'Kontribusi Istimewa'
@@ -501,10 +496,7 @@
         '<small>SPK</small></div><div class="marketing-contribution kg">' +
         '<div class="marketing-contribution-head"><span>KG hasil konversi</span><b>' +
         num(item.kg, 1) + ' KG · ' + num(kgPct, 1) + '%</b></div>' +
-        '<div class="contribution-track"><span style="width:' + kgPct + '%"></span></div></div>' +
-        '<div class="marketing-contribution pcs"><div class="marketing-contribution-head">' +
-        '<span>PCS asli</span><b>' + num(item.pcs, 0) + ' · ' + num(pcsPct, 1) + '%</b></div>' +
-        '<div class="contribution-track"><span style="width:' + pcsPct + '%"></span></div></div></article>';
+        '<div class="contribution-track"><span style="width:' + kgPct + '%"></span></div></div></article>';
       }).join('');
     els.marketingRecap.innerHTML = '<div class="marketing-year-toolbar"><label for="marketingYearSelect">Periode Tahun</label>' +
       '<select id="marketingYearSelect" aria-label="Pilih tahun peringkat marketing">' +

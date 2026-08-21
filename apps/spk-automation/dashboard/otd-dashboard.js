@@ -22,7 +22,7 @@
 (function () {
   'use strict';
 
-  var state = { rows: [], filtered: [], meta: null, byYear: null, cache: {} };
+  var state = { rows: [], filtered: [], meta: null, cache: {} };
 
   var DATABASE_TABLE_COL = {
     SPK: 0,
@@ -44,7 +44,6 @@
     oldest: document.getElementById('kpiOldest'),
     processBars: document.getElementById('processBars'),
     marketingBars: document.getElementById('marketingBars'),
-    recapYear: document.getElementById('recapYear'),
     recapTotals: document.getElementById('recapTotals'),
     routingRecap: document.getElementById('routingRecap'),
     materialRecap: document.getElementById('materialRecap'),
@@ -75,11 +74,6 @@
     if (main === 'HD') return 'HDPE';
     if (main === 'PE') return 'LLDPE';
     return main || 'Belum ditentukan';
-  }
-
-  function yearOf(row) {
-    var match = String(row.spk || '').trim().toUpperCase().match(/^[A-Z](\d{2})\./);
-    return match ? 2000 + Number(match[1]) : 0;
   }
 
   function kgValue(row) {
@@ -214,33 +208,16 @@
 
   /* ---------------------------------------------------- perhitungan */
 
-  // Baris dikelompokkan per tahun sekali saja. Sebelumnya seluruh baris
-  // disaring ulang empat kali setiap tahun diganti.
-  function indexByYear() {
-    var index = {};
-    state.rows.forEach(function (row) {
-      var year = row._year;
-      (index[year] || (index[year] = [])).push(row);
-    });
-    state.byYear = index;
-  }
-
-  function rowsOfYear(year) {
-    if (!year) return state.rows;
-    if (!state.byYear) indexByYear();
-    return state.byYear[year] || [];
-  }
-
   /**
    * Satu lintasan menghasilkan seluruh bahan untuk KPI, kelima panel
    * rekapan, dan kedua grafik batang. Hasilnya disimpan per tahun,
    * sehingga berpindah tahun yang sudah pernah dibuka tidak menghitung
    * ulang apa pun.
    */
-  function aggregate(year) {
-    if (state.cache[year]) return state.cache[year];
+  function aggregate() {
+    if (state.cache.all) return state.cache.all;
 
-    var rows = rowsOfYear(year);
+    var rows = state.rows;
     var routing = {};
     var materials = {};
     var routeMaterials = {};
@@ -323,7 +300,7 @@
     });
 
     var hasil = {
-      year: year,
+      year: 'Semua SPK',
       rows: rows,
       routeEntries: values(routing).sort(sortByCount),
       materialEntries: values(materials).sort(sortByCount),
@@ -346,7 +323,7 @@
       })
     };
 
-    state.cache[year] = hasil;
+    state.cache.all = hasil;
     return hasil;
   }
 
@@ -463,7 +440,6 @@
   }
 
   function renderMarketing(agg) {
-    var year = agg.year;
     var totalKg = agg.totalQty.KG;
     var totalPcs = agg.totalQty.PCS;
     var head = '<div class="marketing-list-head"><span>Peringkat</span><span>Marketing</span>' +
@@ -481,7 +457,7 @@
         : 'Kontributor Produksi';
       var icon = index === 0 ? 'fa-gem' : index === 1 ? 'fa-trophy' : index === 2 ? 'fa-medal' : index === 3 ? 'fa-award' : '';
       var title = index < 4 ? 'Peringkat ' + (index + 1) + ' · ' + tierName : 'Peringkat ' + (index + 1);
-      var subtitle = recommendation + ' · Kontribusi KG ' + year;
+      var subtitle = recommendation + ' · Kontribusi KG seluruh SPK';
 
       return '<article class="marketing-list-row' + tier + '" style="animation-delay:' + (index * .08) +
         's"><span class="marketing-rank" title="' + title + '">' +
@@ -556,14 +532,11 @@
   }
 
   function applyFilters() {
-    var year = Number(els.recapYear.value);
-    state.filtered = year ? rowsOfYear(year) : state.rows;
+    state.filtered = state.rows;
   }
 
-  // Berpindah tahun tidak perlu bilah kemajuan: hasil tahun yang sudah
-  // pernah dibuka tersimpan, dan yang belum pun hanya satu lintasan.
-  function showYear(year, withProgress, onDone) {
-    var agg = aggregate(year);
+  function showAll(withProgress, onDone) {
+    var agg = aggregate();
     if (!withProgress) {
       renderTotals(agg);
       renderKpis(agg);
@@ -709,7 +682,6 @@
   function prepareRows(rows) {
     rows.forEach(function (row) {
       row._kg = kgValue(row);
-      row._year = yearOf(row);
     });
     return rows;
   }
@@ -719,19 +691,7 @@
   function adoptPayload(data) {
     state.meta = data;
     state.rows = prepareRows(Array.isArray(data.rows) ? data.rows : []);
-    state.byYear = null;
     state.cache = {};
-    indexByYear();
-
-    var previous = els.recapYear.value;
-    var years = Object.keys(state.byYear).map(Number).filter(Boolean)
-      .sort(function (a, b) { return b - a; });
-    els.recapYear.innerHTML = years.map(function (y) {
-      return '<option value="' + y + '">' + y + '</option>';
-    }).join('');
-    if (previous && years.indexOf(Number(previous)) !== -1) els.recapYear.value = previous;
-
-    return Number(els.recapYear.value);
   }
 
   function setStatus(html, isError) {
@@ -748,10 +708,10 @@
   function fetchAndRender(withProgress) {
     return requestDatabase().then(function (payload) {
       stepProgress(64, 'Menghitung rekapan');
-      var year = adoptPayload(payload);
+      adoptPayload(payload);
       writeCache(payload, payload.revision);
       return new Promise(function (resolve) {
-        showYear(year, withProgress, function () {
+        showAll(withProgress, function () {
           setStatus('<i class="fa-solid fa-circle-check"></i> Database SPK live');
           endProgress();
           resolve();
@@ -766,8 +726,8 @@
     if (cached) {
       // Rekapan tampil seketika dari simpanan, lalu kebaruannya diperiksa
       // lewat token revisi yang jauh lebih ringan daripada seluruh tabel.
-      var year = adoptPayload(cached.payload);
-      showYear(year, false, function () {
+      adoptPayload(cached.payload);
+      showAll(false, function () {
         setStatus('<i class="fa-solid fa-clock-rotate-left"></i> Rekapan tersimpan · memeriksa pembaruan');
       });
 
@@ -785,10 +745,6 @@
     startProgress('Menghubungi Database SPK');
     fetchAndRender(true).catch(showError);
   }
-
-  els.recapYear.addEventListener('change', function () {
-    showYear(Number(els.recapYear.value), false);
-  });
 
   load();
 })();

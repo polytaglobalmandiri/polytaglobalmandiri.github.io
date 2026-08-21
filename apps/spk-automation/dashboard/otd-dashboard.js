@@ -811,6 +811,23 @@
     });
   }
 
+  function syncTrackingNow() {
+    if (realtimeInFlight || !hasRuntime()) return Promise.resolve();
+    realtimeInFlight = true;
+    return requestTrackingData().then(function(data) {
+      var trackingBySpk = data.trackingBySpk || {};
+      state.rows.forEach(function(row) {
+        row.tracking = normalizeTracking(trackingBySpk[String(row.spk || '').toUpperCase()]);
+      });
+      state.cache = {};
+      showAll(false);
+    }).catch(function(error) {
+      if (window.console && window.console.warn) window.console.warn('Tracking awal tertunda:', error);
+    }).then(function() {
+      realtimeInFlight = false;
+    });
+  }
+
   function startRealtime() {
     if (realtimeTimer || !hasRuntime()) return;
     realtimeTimer = window.setInterval(syncRealtime, REALTIME_INTERVAL_MS);
@@ -825,6 +842,7 @@
       adoptPayload(cached.payload);
       showAll(false, function () {
         setStatus('<i class="fa-solid fa-clock-rotate-left"></i> Rekapan tersimpan · memeriksa pembaruan');
+        syncTrackingNow();
       });
 
       requestRevision().then(function (revision) {

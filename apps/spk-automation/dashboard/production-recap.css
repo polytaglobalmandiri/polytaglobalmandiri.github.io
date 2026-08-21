@@ -9,6 +9,22 @@
   min-width: 0;
 }
 
+.recap-total-strip {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+@media (max-width: 980px) {
+  .recap-total-strip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .recap-total-strip {
+    grid-template-columns: 1fr;
+  }
+}
+
 .recap-meter,
 .recap-qty {
   width: 100%;

@@ -36,7 +36,8 @@
     ARTIKEL: 5,
     MATERIAL: 7,
     JUMLAH: 8,
-    UOM: 9
+    UOM: 9,
+    TRACKING: 12
   };
 
   var els = {
@@ -714,7 +715,7 @@
           uom: uom,
           pcsPerKg: pcsPerKg,
           aging: age,
-          tracking: String(detail.tracking || '').trim().toUpperCase(),
+          tracking: String(row[DATABASE_TABLE_COL.TRACKING] || detail.tracking || '').trim().toUpperCase(),
           proses: String(detail.proses || '').trim(),
           routing: Array.isArray(detail.routing) ? detail.routing.filter(Boolean) : []
         };

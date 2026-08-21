@@ -22,8 +22,11 @@
 (function () {
   'use strict';
 
-  var state = { rows: [], filtered: [], meta: null, cache: {} };
+  var state = { rows: [], filtered: [], meta: null, cache: {}, signature: '' };
   var marketingYear = 0;
+  var REALTIME_INTERVAL_MS = 5000;
+  var realtimeTimer = null;
+  var realtimeInFlight = false;
 
   var DATABASE_TABLE_COL = {
     SPK: 0,
@@ -643,7 +646,7 @@
     });
   }
 
-  function requestDatabase() {
+  function requestDatabase(forceRefresh) {
     return new Promise(function (resolve, reject) {
       if (!hasRuntime()) {
         reject(new Error('Koneksi Database SPK tidak tersedia.'));
@@ -663,7 +666,7 @@
           });
         })
         .withFailureHandler(reject)
-        .getDashboardData(false);
+        .getDashboardData(Boolean(forceRefresh));
     });
   }
 
@@ -715,6 +718,14 @@
     };
   }
 
+  function payloadSignature(payload) {
+    return JSON.stringify([
+      payload && payload.tableData || [],
+      payload && payload.volumeKgBySpk || {},
+      payload && payload.dashboardRecapBySpk || {}
+    ]);
+  }
+
   /* Nilai turunan dihitung sekali di sini, bukan berulang di setiap
      penggambar. Sebelumnya kgValue dipanggil ulang untuk baris yang sama
      pada KPI, rekap bahan, rekap routing, pemetaan routing x bahan, dan
@@ -732,6 +743,7 @@
     state.meta = data;
     state.rows = prepareRows(Array.isArray(data.rows) ? data.rows : []);
     state.cache = {};
+    state.signature = payloadSignature(data);
   }
 
   function setStatus(html, isError) {
@@ -760,6 +772,26 @@
     });
   }
 
+  function syncRealtime() {
+    if (realtimeInFlight || !hasRuntime()) return;
+    realtimeInFlight = true;
+    requestDatabase(true).then(function(payload) {
+      var nextSignature = payloadSignature(payload);
+      if (nextSignature === state.signature) return;
+      adoptPayload(payload);
+      showAll(false);
+    }).catch(function(error) {
+      if (window.console && window.console.warn) window.console.warn('Sinkronisasi realtime tertunda:', error);
+    }).then(function() {
+      realtimeInFlight = false;
+    });
+  }
+
+  function startRealtime() {
+    if (realtimeTimer || !hasRuntime()) return;
+    realtimeTimer = window.setInterval(syncRealtime, REALTIME_INTERVAL_MS);
+  }
+
   function load() {
     var cached = readCache();
 
@@ -774,16 +806,18 @@
       requestRevision().then(function (revision) {
         if (revision && cached.revision && revision === cached.revision) {
           setStatus('<i class="fa-solid fa-circle-check"></i> Database SPK live');
+          startRealtime();
           return null;
         }
         startProgress('Memperbarui rekapan');
         return fetchAndRender(true);
       }).catch(showError);
+      startRealtime();
       return;
     }
 
     startProgress('Menghubungi Database SPK');
-    fetchAndRender(true).catch(showError);
+    fetchAndRender(true).then(startRealtime).catch(showError);
   }
 
   setPeriodTitle();

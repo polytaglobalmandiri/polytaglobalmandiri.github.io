@@ -465,11 +465,13 @@
       '<span>SPK</span><span>Kontribusi KG (Acuan)</span><span>PCS (Informasi)</span></div>';
 
     var years = Object.keys(agg.marketingByYear).map(Number).sort(function (a, b) { return b - a; });
-    if (!marketingYear || years.indexOf(marketingYear) === -1) {
+    if (marketingYear !== 'all' && (!marketingYear || years.indexOf(marketingYear) === -1)) {
       var currentYear = new Date().getFullYear();
       marketingYear = years.indexOf(currentYear) !== -1 ? currentYear : (years[0] || 0);
     }
-    var entries = values(agg.marketingByYear[marketingYear] || {}).sort(function (a, b) {
+    var entries = (marketingYear === 'all'
+      ? agg.marketingByKg.slice()
+      : values(agg.marketingByYear[marketingYear] || {})).sort(function (a, b) {
         return b.kg - a.kg || b.count - a.count || a.name.localeCompare(b.name);
       });
       var totalKg = entries.reduce(function (sum, item) { return sum + item.kg; }, 0);
@@ -486,7 +488,8 @@
         : 'Kontributor Produksi';
       var icon = index === 0 ? 'fa-gem' : index === 1 ? 'fa-trophy' : index === 2 ? 'fa-medal' : index === 3 ? 'fa-award' : '';
       var title = index < 4 ? 'Peringkat ' + (index + 1) + ' · ' + tierName : 'Peringkat ' + (index + 1);
-      var subtitle = recommendation + ' · Kontribusi KG tahun ' + marketingYear;
+      var subtitle = recommendation + ' · Kontribusi KG ' +
+        (marketingYear === 'all' ? 'semua periode' : 'tahun ' + marketingYear);
 
       return '<article class="marketing-list-row' + tier + '" style="animation-delay:' + (index * .08) +
         's"><span class="marketing-rank" title="' + title + '">' +
@@ -504,6 +507,7 @@
       }).join('');
     els.marketingRecap.innerHTML = '<div class="marketing-year-toolbar"><label for="marketingYearSelect">Periode Tahun</label>' +
       '<select id="marketingYearSelect" aria-label="Pilih tahun peringkat marketing">' +
+      '<option value="all">Semua Periode</option>' +
       years.map(function(year) { return '<option value="' + year + '">' + year + '</option>'; }).join('') +
       '</select></div>' +
       (entries.length ? head + rows : '<div class="recap-empty">Belum ada data marketing untuk tahun ini.</div>');
@@ -511,7 +515,7 @@
     if (select) {
       select.value = String(marketingYear);
       select.onchange = function() {
-        marketingYear = Number(select.value) || 0;
+        marketingYear = select.value === 'all' ? 'all' : Number(select.value) || 0;
         renderMarketing(agg);
       };
     }

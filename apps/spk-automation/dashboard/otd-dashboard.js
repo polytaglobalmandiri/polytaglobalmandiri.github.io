@@ -275,11 +275,13 @@
         if (age > kpi.oldest) kpi.oldest = age;
       }
 
-      var bucket = materials[material] ||
-        (materials[material] = { name: material, count: 0, qty: { KG: 0, PCS: 0 } });
-      bucket.count++;
-      bucket.qty.KG += kg;
-      bucket.qty.PCS += pcs;
+      if (isTracked) {
+        var bucket = materials[material] ||
+          (materials[material] = { name: material, count: 0, qty: { KG: 0, PCS: 0 } });
+        bucket.count++;
+        bucket.qty.KG += kg;
+        bucket.qty.PCS += pcs;
+      }
 
       var person = row.marketing || 'Belum ditentukan';
       var orang = marketing[person];

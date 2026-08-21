@@ -259,7 +259,7 @@
       var pcs = row.uom === 'PCS' ? Number(row.order || 0) : 0;
       var monthIndex = Number(String(row.tanggalPo).slice(5, 7)) - 1;
       var age = Number(row.aging) || 0;
-      if (row.tracking && row.tracking !== 'F') {
+      if (row.tracking) {
         tracking[row.tracking] = (tracking[row.tracking] || 0) + 1;
       }
 
@@ -488,7 +488,7 @@
   }
 
   function renderTracking(agg) {
-    var order = ['Q', 'MX', 'BL', 'PR', 'FL', 'GS', 'CT'];
+    var order = ['Q', 'MX', 'BL', 'PR', 'FL', 'GS', 'CT', 'F'];
     var labels = {
       Q: 'Queue',
       MX: 'Mixer',
@@ -496,7 +496,8 @@
       PR: 'Printing',
       FL: 'Folding',
       GS: 'Gusset',
-      CT: 'Cutting'
+      CT: 'Cutting',
+      F: 'Finish'
     };
     var total = order.reduce(function(sum, code) {
       return sum + Number(agg.tracking[code] || 0);

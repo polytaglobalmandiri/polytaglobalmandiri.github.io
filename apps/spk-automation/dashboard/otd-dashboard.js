@@ -111,11 +111,7 @@
 
   /* ------------------------------------------------ bilah kemajuan */
 
-  /* Kemajuan tidak dikarang. Setiap tahap yang benar-benar selesai
-     menaikkan sasaran, lalu angkanya merayap mendekati sasaran itu tanpa
-     pernah melewatinya. Menunggu jawaban server adalah bagian terlama
-     dan tidak dapat diukur dari sini, jadi di situ angkanya merayap
-     pelan dan berhenti di bawah sasaran sampai datanya benar-benar tiba. */
+  /* Persentase hanya berubah setelah tahap pemuatan benar-benar selesai. */
 
   var progress = { el: null, bar: null, persen: null, tahap: null, nilai: 0, sasaran: 0, timer: null };
 
@@ -157,26 +153,19 @@
   function startProgress(label) {
     if (!buildProgress()) return;
     progress.nilai = 0;
-    progress.sasaran = 6;
+    progress.sasaran = 0;
     progress.el.hidden = false;
     progress.el.classList.remove('is-selesai');
     progress.tahap.textContent = label || 'Menyiapkan rekapan';
     paintProgress();
 
-    if (progress.timer) window.clearInterval(progress.timer);
-    progress.timer = window.setInterval(function () {
-      progress.nilai += (progress.sasaran - progress.nilai) / 4;
-      paintProgress();
-    }, 180);
   }
 
   function stepProgress(sasaran, label) {
     if (!progress.el) return;
-    if (sasaran > progress.sasaran) progress.sasaran = sasaran;
+    progress.sasaran = sasaran;
     if (label) progress.tahap.textContent = label;
-    // Tahap yang selesai langsung mengangkat angkanya, tidak menunggu
-    // detak berikutnya, supaya lompatannya terbaca sebagai kemajuan nyata.
-    if (progress.nilai < sasaran - 12) progress.nilai = sasaran - 12;
+    progress.nilai = sasaran;
     paintProgress();
   }
 
@@ -649,14 +638,16 @@
         reject(new Error('Koneksi Database SPK tidak tersedia.'));
         return;
       }
+      stepProgress(10, 'Menghubungi Database SPK');
       google.script.run
         .withSuccessHandler(function (data) {
           if (!data || data.error) {
             reject(new Error(data && data.error || 'Format Database SPK tidak dikenali.'));
             return;
           }
-          stepProgress(52, 'Menyiapkan baris SPK');
+          stepProgress(48, 'Data Spreadsheet diterima');
           nextFrame(function () {
+            stepProgress(56, 'Menyiapkan baris SPK');
             var payload = databasePayload(data);
             payload.revision = data.revision ? String(data.revision) : '';
             resolve(payload);
@@ -784,6 +775,7 @@
     return requestDatabase().then(function (payload) {
       stepProgress(64, 'Menghitung rekapan');
       adoptPayload(payload);
+      stepProgress(68, 'Data siap digambar');
       writeCache(payload, payload.revision);
       return new Promise(function (resolve) {
         showAll(withProgress, function () {

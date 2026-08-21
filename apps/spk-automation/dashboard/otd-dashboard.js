@@ -24,6 +24,17 @@
 
   var state = { rows: [], filtered: [], meta: null, byYear: null, cache: {} };
 
+  var DATABASE_TABLE_COL = {
+    SPK: 0,
+    TANGGAL: 1,
+    MARKETING: 3,
+    CUSTOMER: 4,
+    ARTIKEL: 5,
+    MATERIAL: 7,
+    JUMLAH: 8,
+    UOM: 9
+  };
+
   var els = {
     status: document.getElementById('dataStatus'),
     spk: document.getElementById('kpiSpk'),
@@ -66,7 +77,8 @@
   }
 
   function yearOf(row) {
-    return Number(String(row.tanggalPo || '').slice(0, 4)) || 0;
+    var match = String(row.spk || '').trim().toUpperCase().match(/^[A-Z](\d{2})\./);
+    return match ? 2000 + Number(match[1]) : 0;
   }
 
   function kgValue(row) {
@@ -616,23 +628,25 @@
       source: 'database-spk',
       snapshotAt: new Date().toISOString(),
       rows: (data && Array.isArray(data.tableData) ? data.tableData : []).map(function (row) {
-        var spk = String(row[0] || '').trim();
+        var spk = String(row[DATABASE_TABLE_COL.SPK] || '').trim();
         var key = spk.toUpperCase();
         var detail = details[spk] || details[key] || {};
-        var order = Number(row[8] || 0);
-        var uom = String(row[9] || '').trim().toUpperCase();
+        var order = Number(row[DATABASE_TABLE_COL.JUMLAH] || 0);
+        var uom = String(row[DATABASE_TABLE_COL.UOM] || '').trim().toUpperCase();
         var kg = Number(volumes[spk] || volumes[key] || detail.kg || 0);
-        var date = dashboardDate(detail.tanggalPo || detail.poMasuk || row[1]);
+        var date = dashboardDate(
+          detail.tanggalPo || detail.poMasuk || row[DATABASE_TABLE_COL.TANGGAL]
+        );
         var age = date ? Math.max(0, Math.floor((now - new Date(date + 'T00:00:00').getTime()) / 86400000)) : 0;
         var pcsPerKg = uom === 'PCS' && kg > 0 ? order / kg : Number(detail.pcsPerKg || 0);
 
         return {
           spk: spk,
           tanggalPo: date,
-          marketing: String(row[3] || detail.marketing || '').trim(),
-          customer: String(row[4] || detail.customer || '').trim(),
-          brand: String(row[5] || detail.brand || detail.artikel || '').trim(),
-          material: String(row[7] || detail.material || '').trim(),
+          marketing: String(row[DATABASE_TABLE_COL.MARKETING] || detail.marketing || '').trim(),
+          customer: String(row[DATABASE_TABLE_COL.CUSTOMER] || detail.customer || '').trim(),
+          brand: String(row[DATABASE_TABLE_COL.ARTIKEL] || detail.brand || detail.artikel || '').trim(),
+          material: String(row[DATABASE_TABLE_COL.MATERIAL] || detail.material || '').trim(),
           order: order,
           uom: uom,
           pcsPerKg: pcsPerKg,

@@ -67,8 +67,8 @@
     var monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
       'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
     var today = new Date();
-    var title = 'Outstanding On Hand Periode (' + today.getDate() + ' ' +
-      monthNames[today.getMonth()] + ' ' + today.getFullYear() + ')';
+    var title = 'Outstanding On Hand Periode ' + today.getDate() + ' ' +
+      monthNames[today.getMonth()] + ' ' + today.getFullYear();
     var heading = document.getElementById('recapTitle');
     if (heading) heading.textContent = title;
   }

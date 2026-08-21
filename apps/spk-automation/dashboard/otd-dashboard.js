@@ -249,6 +249,7 @@
     var tracking = {};
     var months = [];
     var totalQty = { KG: 0, PCS: 0 };
+    var trackedQty = { KG: 0, PCS: 0 };
     var kpi = { kg: 0, pcs: 0, aging30: 0, oldest: 0 };
     var totalTrackedSpk = 0;
 
@@ -269,6 +270,8 @@
       totalQty.KG += kg;
       totalQty.PCS += pcs;
       if (isTracked) {
+        trackedQty.KG += kg;
+        trackedQty.PCS += pcs;
         kpi.kg += kg;
         kpi.pcs += pcs;
         if (age >= 30) kpi.aging30++;
@@ -327,6 +330,7 @@
       routeMaterials: routeMaterials,
       months: months,
       totalQty: totalQty,
+      trackedQty: trackedQty,
       totalTrackedSpk: totalTrackedSpk,
       kpi: kpi,
       marketing: marketing,
@@ -413,8 +417,8 @@
       ['Total Routing', agg.routeEntries.length + ' Proses', ''],
       ['Total Bahan Utama', agg.materialEntries.length + ' Jenis', ''],
       ['Total Marketing', agg.marketingByKg.length + ' Orang', ''],
-      ['Qty KG', num(agg.totalQty.KG || 0, 1) + ' KG', ''],
-      ['Qty PCS', num(agg.totalQty.PCS || 0, 0) + ' PCS', '']
+      ['Qty KG', num(agg.trackedQty.KG || 0, 1) + ' KG', ''],
+      ['Qty PCS', num(agg.trackedQty.PCS || 0, 0) + ' PCS', '']
     ].map(function (x) {
       return '<article class="recap-total ' + x[2] + '"><small>' + x[0] + '</small><strong>' +
         x[1] + '</strong></article>';

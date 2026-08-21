@@ -50,7 +50,8 @@
     materialRecap: document.getElementById('materialRecap'),
     routeMaterialRecap: document.getElementById('routeMaterialRecap'),
     monthlyRecap: document.getElementById('monthlyRecap'),
-    marketingRecap: document.getElementById('marketingRecap')
+    marketingRecap: document.getElementById('marketingRecap'),
+    trackingRecap: document.getElementById('trackingRecap')
   };
 
   /* ------------------------------------------------------- pembantu */
@@ -245,6 +246,7 @@
     var routeMaterials = {};
     var marketing = {};
     var marketingOrder = [];
+    var tracking = {};
     var months = [];
     var totalQty = { KG: 0, PCS: 0 };
     var kpi = { kg: 0, pcs: 0, aging30: 0, oldest: 0 };
@@ -257,6 +259,9 @@
       var pcs = row.uom === 'PCS' ? Number(row.order || 0) : 0;
       var monthIndex = Number(String(row.tanggalPo).slice(5, 7)) - 1;
       var age = Number(row.aging) || 0;
+      if (row.tracking && row.tracking !== 'F') {
+        tracking[row.tracking] = (tracking[row.tracking] || 0) + 1;
+      }
 
       totalQty.KG += kg;
       totalQty.PCS += pcs;
@@ -318,6 +323,7 @@
       kpi: kpi,
       marketing: marketing,
       marketingOrder: marketingOrder,
+      tracking: tracking,
       // Grafik batang KPI mengurutkan berdasarkan volume, sedangkan daftar
       // kontribusi memakai urutan yang sama; keduanya berbagi satu susunan.
       marketingByKg: values(marketing).sort(function (a, b) {
@@ -481,6 +487,29 @@
     }).join('');
   }
 
+  function renderTracking(agg) {
+    var order = ['Q', 'MX', 'BL', 'PR', 'FL', 'GS', 'CT'];
+    var labels = {
+      Q: 'Queue',
+      MX: 'Mixer',
+      BL: 'Blowing',
+      PR: 'Printing',
+      FL: 'Folding',
+      GS: 'Gusset',
+      CT: 'Cutting'
+    };
+    var total = order.reduce(function(sum, code) {
+      return sum + Number(agg.tracking[code] || 0);
+    }, 0);
+    els.trackingRecap.innerHTML = '<div class="tracking-recap-grid">' + order.map(function(code) {
+      var count = Number(agg.tracking[code] || 0);
+      var share = total ? count / total * 100 : 0;
+      return '<article class="tracking-recap-item tracking-' + code.toLowerCase() + '">' +
+        '<span class="tracking-code">' + code + '</span><div><strong>' + labels[code] +
+        '</strong><small>' + count + ' SPK</small></div><b>' + num(share, 1) + '%</b></article>';
+    }).join('') + '</div>';
+  }
+
   /* ------------------------------------------------- alur tampilan */
 
   /* Panel digambar bertahap, satu per bingkai. Menggambar kelimanya
@@ -494,6 +523,7 @@
       [85, 'Menyusun produksi per bahan', function () { renderStatList(els.materialRecap, agg.materialEntries, 'bahan utama'); }],
       [91, 'Memetakan routing dan bahan', function () { renderRouteMaterial(agg); }],
       [96, 'Menyusun tabel bulanan', function () { renderMonthly(agg); }],
+      [98, 'Menyusun status tracking', function () { renderTracking(agg); }],
       [100, 'Menyusun peringkat marketing', function () { renderMarketing(agg); }]
     ];
 
@@ -528,6 +558,7 @@
       renderStatList(els.materialRecap, agg.materialEntries, 'bahan utama');
       renderRouteMaterial(agg);
       renderMonthly(agg);
+      renderTracking(agg);
       renderMarketing(agg);
       applyFilters();
       if (onDone) onDone();

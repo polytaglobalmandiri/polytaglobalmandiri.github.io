@@ -23,6 +23,7 @@
   'use strict';
 
   var state = { rows: [], filtered: [], meta: null, cache: {} };
+  var marketingYear = 0;
 
   var DATABASE_TABLE_COL = {
     SPK: 0,
@@ -461,8 +462,11 @@
       '<span>SPK</span><span>Kontribusi KG (Acuan)</span><span>PCS (Informasi)</span></div>';
 
     var years = Object.keys(agg.marketingByYear).map(Number).sort(function (a, b) { return b - a; });
-    els.marketingRecap.innerHTML = years.map(function (year) {
-      var entries = values(agg.marketingByYear[year]).sort(function (a, b) {
+    if (!marketingYear || years.indexOf(marketingYear) === -1) {
+      var currentYear = new Date().getFullYear();
+      marketingYear = years.indexOf(currentYear) !== -1 ? currentYear : (years[0] || 0);
+    }
+    var entries = values(agg.marketingByYear[marketingYear] || {}).sort(function (a, b) {
         return b.kg - a.kg || b.count - a.count || a.name.localeCompare(b.name);
       });
       var totalKg = entries.reduce(function (sum, item) { return sum + item.kg; }, 0);
@@ -479,7 +483,7 @@
         : 'Kontributor Produksi';
       var icon = index === 0 ? 'fa-gem' : index === 1 ? 'fa-trophy' : index === 2 ? 'fa-medal' : index === 3 ? 'fa-award' : '';
       var title = index < 4 ? 'Peringkat ' + (index + 1) + ' · ' + tierName : 'Peringkat ' + (index + 1);
-      var subtitle = recommendation + ' · Kontribusi KG tahun ' + year;
+      var subtitle = recommendation + ' · Kontribusi KG tahun ' + marketingYear;
 
       return '<article class="marketing-list-row' + tier + '" style="animation-delay:' + (index * .08) +
         's"><span class="marketing-rank" title="' + title + '">' +
@@ -495,9 +499,19 @@
         '<span>PCS asli</span><b>' + num(item.pcs, 0) + ' · ' + num(pcsPct, 1) + '%</b></div>' +
         '<div class="contribution-track"><span style="width:' + pcsPct + '%"></span></div></div></article>';
       }).join('');
-      return '<section class="marketing-year-group"><h4 class="marketing-year-title">Tahun SPK ' + year + '</h4>' +
-        head + rows + '</section>';
-    }).join('') || '<div class="recap-empty">Belum ada data marketing.</div>';
+    els.marketingRecap.innerHTML = '<div class="marketing-year-toolbar"><label for="marketingYearSelect">Periode Tahun</label>' +
+      '<select id="marketingYearSelect" aria-label="Pilih tahun peringkat marketing">' +
+      years.map(function(year) { return '<option value="' + year + '">' + year + '</option>'; }).join('') +
+      '</select></div>' +
+      (entries.length ? head + rows : '<div class="recap-empty">Belum ada data marketing untuk tahun ini.</div>');
+    var select = document.getElementById('marketingYearSelect');
+    if (select) {
+      select.value = String(marketingYear);
+      select.onchange = function() {
+        marketingYear = Number(select.value) || 0;
+        renderMarketing(agg);
+      };
+    }
   }
 
   function renderTracking(agg) {

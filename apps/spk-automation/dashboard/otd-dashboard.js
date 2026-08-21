@@ -260,17 +260,20 @@
       var pcs = row.uom === 'PCS' ? Number(row.order || 0) : 0;
       var monthIndex = Number(String(row.tanggalPo).slice(5, 7)) - 1;
       var age = Number(row.aging) || 0;
+      var isTracked = row.tracking && row.tracking !== 'F';
       if (row.tracking) {
         tracking[row.tracking] = (tracking[row.tracking] || 0) + 1;
       }
-      if (row.tracking && row.tracking !== 'F') totalTrackedSpk++;
+      if (isTracked) totalTrackedSpk++;
 
       totalQty.KG += kg;
       totalQty.PCS += pcs;
-      kpi.kg += kg;
-      kpi.pcs += pcs;
-      if (age >= 30) kpi.aging30++;
-      if (age > kpi.oldest) kpi.oldest = age;
+      if (isTracked) {
+        kpi.kg += kg;
+        kpi.pcs += pcs;
+        if (age >= 30) kpi.aging30++;
+        if (age > kpi.oldest) kpi.oldest = age;
+      }
 
       var bucket = materials[material] ||
         (materials[material] = { name: material, count: 0, qty: { KG: 0, PCS: 0 } });

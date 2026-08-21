@@ -675,6 +675,25 @@
     });
   }
 
+  function requestTrackingData() {
+    return new Promise(function (resolve, reject) {
+      if (!hasRuntime()) {
+        reject(new Error('Koneksi Database SPK tidak tersedia.'));
+        return;
+      }
+      google.script.run
+        .withSuccessHandler(function (data) {
+          if (!data || data.error) {
+            reject(new Error(data && data.error || 'Tracking Database SPK tidak dikenali.'));
+            return;
+          }
+          resolve(data);
+        })
+        .withFailureHandler(reject)
+        .getDashboardTrackingData();
+    });
+  }
+
   function dashboardDate(value) {
     var text = String(value || '').trim();
     var match = text.match(/^(\d{1,2})[-\/]([0-1]?\d)[-\/](\d{4})$/);
@@ -715,12 +734,19 @@
           uom: uom,
           pcsPerKg: pcsPerKg,
           aging: age,
-          tracking: String(row[DATABASE_TABLE_COL.TRACKING] || detail.tracking || '').trim().toUpperCase(),
+          tracking: normalizeTracking(row[DATABASE_TABLE_COL.TRACKING] || detail.tracking),
           proses: String(detail.proses || '').trim(),
           routing: Array.isArray(detail.routing) ? detail.routing.filter(Boolean) : []
         };
       }).filter(function (row) { return row.spk; })
     };
+  }
+
+  function normalizeTracking(value) {
+    var tracking = String(value == null ? '' : value).trim().toUpperCase();
+    return ['Q', 'MX', 'BL', 'PR', 'FL', 'GS', 'CT', 'F'].indexOf(tracking) > -1
+      ? tracking
+      : '';
   }
 
   function payloadSignature(payload) {
@@ -780,11 +806,20 @@
   function syncRealtime() {
     if (realtimeInFlight || !hasRuntime()) return;
     realtimeInFlight = true;
-    requestDatabase(true).then(function(payload) {
-      var nextSignature = payloadSignature(payload);
-      if (nextSignature === state.signature) return;
-      adoptPayload(payload);
-      showAll(false);
+    requestTrackingData().then(function(data) {
+      var trackingBySpk = data.trackingBySpk || {};
+      var changed = false;
+      state.rows.forEach(function(row) {
+        var nextTracking = normalizeTracking(trackingBySpk[String(row.spk || '').toUpperCase()]);
+        if (nextTracking !== row.tracking) {
+          row.tracking = nextTracking;
+          changed = true;
+        }
+      });
+      if (changed) {
+        state.cache = {};
+        showAll(false);
+      }
     }).catch(function(error) {
       if (window.console && window.console.warn) window.console.warn('Sinkronisasi realtime tertunda:', error);
     }).then(function() {

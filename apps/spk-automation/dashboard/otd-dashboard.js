@@ -103,6 +103,15 @@
     return Boolean(row && row.tracking && row.tracking !== 'F');
   }
 
+  // Pada rekapan outstanding, Mixer merupakan bagian dari proses Blowing.
+  // Normalisasi dilakukan tanpa mengubah data routing asli SPK.
+  function outstandingRoute(value) {
+    var route = String(value || '').trim();
+    var key = route.toLowerCase();
+    if (key === 'mixer' || key === 'blowing') return 'Blowing';
+    return route;
+  }
+
   function qtyLabel(q) {
     return num(q.KG || 0, 1) + ' KG';
   }
@@ -295,12 +304,14 @@
         months[monthIndex][material] = (months[monthIndex][material] || 0) + 1;
       }
 
-      // Satu SPK dapat melewati routing yang sama lebih dari sekali;
-      // yang dihitung adalah routing uniknya, bukan pengulangannya.
+      // Mixer dilebur ke Blowing sebelum routing unik dihitung. Dengan begitu
+      // SPK yang memiliki Mixer dan Blowing hanya dihitung sekali sebagai Blowing.
       var seen = {};
-      (row.routing || []).forEach(function (route) {
-        if (!route || seen[route]) return;
-        seen[route] = true;
+      (row.routing || []).forEach(function (value) {
+        var route = outstandingRoute(value);
+        var routeKey = route.toLowerCase();
+        if (!route || seen[routeKey]) return;
+        seen[routeKey] = true;
 
         var jalur = routing[route] ||
           (routing[route] = { name: route, count: 0, qty: { KG: 0, PCS: 0 } });

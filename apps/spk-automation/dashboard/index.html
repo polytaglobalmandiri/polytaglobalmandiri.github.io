@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="dashboard.css?v=20260817-2">
   <link rel="stylesheet" href="header-alignment.css?v=20260817-6">
-  <link rel="stylesheet" href="otd-dashboard.css?v=20260817-5">
+  <link rel="stylesheet" href="otd-dashboard.css?v=20260822-6">
   <link rel="stylesheet" href="production-recap.css?v=20260822-1">
   <link rel="stylesheet" href="marketing-ranking-list.css?v=20260822-1">
   <link rel="stylesheet" href="marketing-tier-effects.css?v=20260822-2">
@@ -66,6 +66,19 @@
 
       <div class="recap-total-strip" id="recapTotals" aria-label="Total rekapan tahunan"></div>
 
+      <article class="otd-sheet-panel" aria-labelledby="otdSheetTitle">
+        <header class="otd-sheet-head">
+          <div>
+            <p class="eyebrow">FORMAT OTD PRODUKSI</p>
+            <h3 id="otdSheetTitle">Rekap Outstanding per Proses</h3>
+            <p>Volume aktif dari Database Spreadsheet, dikelompokkan seperti matriks OTD kerja PPIC.</p>
+          </div>
+          <span class="otd-live-badge"><i class="fa-solid fa-database" aria-hidden="true"></i> Database SPK</span>
+        </header>
+        <div class="otd-sheet-table-wrap" id="otdProcessMatrix"></div>
+        <footer class="otd-sheet-note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><span>Kapasitas harian mengikuti acuan OTD PPIC. Durasi = outstanding proses ÷ kapasitas per hari.</span></footer>
+      </article>
+
       <div class="recap-grid">
         <article class="recap-panel routing-panel">
           <header><span class="recap-number">01</span><div><h3>Proses per Routing</h3><p>Volume KG dan jumlah SPK pada setiap alur proses, diurutkan menurut KG.</p></div><i class="fa-solid fa-route"></i></header>
@@ -118,6 +131,6 @@
       <a href="/apps/spk-automation/handover/"><i class="fa-solid fa-clipboard-check"></i><span><strong>Serah Terima</strong><small>Dokumen produksi</small></span></a>
     </section>
   </main>
-  <script src="otd-dashboard.js?v=20260822-12"></script>
+  <script src="otd-dashboard.js?v=20260822-13"></script>
 </body>
 </html>

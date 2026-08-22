@@ -28,26 +28,6 @@
   var realtimeTimer = null;
   var realtimeInFlight = false;
 
-  // Kapasitas harian diambil dari tabel utama sheet OTD workbook PPIC.
-  // Angka ini menjadi acuan durasi; volume outstanding tetap selalu berasal
-  // dari Database Spreadsheet melalui GAS.
-  var OTD_CAPACITY_KG = {
-    Blowing: 14484,
-    Printing: 9865.98,
-    Slitting: 2336,
-    Folding: 6235.31112,
-    Gusset: 3837.304,
-    Cutting: 19195
-  };
-  var OTD_PROCESS_ORDER = ['Blowing', 'Printing', 'Slitting', 'Folding', 'Gusset', 'Cutting'];
-  var OTD_MATERIALS = [
-    { key: 'HDPE', label: 'HD' },
-    { key: 'LLDPE', label: 'PE' },
-    { key: 'PP', label: 'PP' },
-    { key: 'OPP', label: 'OPP' },
-    { key: 'CPP', label: 'CPP' }
-  ];
-
   var DATABASE_TABLE_COL = {
     SPK: 0,
     TANGGAL: 1,
@@ -65,7 +45,6 @@
     processBars: document.getElementById('processBars'),
     marketingBars: document.getElementById('marketingBars'),
     recapTotals: document.getElementById('recapTotals'),
-    otdProcessMatrix: document.getElementById('otdProcessMatrix'),
     routingRecap: document.getElementById('routingRecap'),
     materialRecap: document.getElementById('materialRecap'),
     routeMaterialRecap: document.getElementById('routeMaterialRecap'),
@@ -439,66 +418,6 @@
     }).join('');
   }
 
-  function renderOtdProcessMatrix(agg) {
-    if (!els.otdProcessMatrix) return;
-
-    var processMap = {};
-    agg.routeEntries.forEach(function (route) { processMap[route.name] = route; });
-    var processNames = OTD_PROCESS_ORDER.filter(function (name) { return processMap[name]; });
-    agg.routeEntries.forEach(function (route) {
-      if (processNames.indexOf(route.name) === -1) processNames.push(route.name);
-    });
-
-    if (!processNames.length) {
-      els.otdProcessMatrix.innerHTML = '<div class="recap-empty">Belum ada proses outstanding aktif.</div>';
-      return;
-    }
-
-    var materialTotals = {};
-    var totalProcessKg = 0;
-    var totalProcessSpk = 0;
-    var body = processNames.map(function (name) {
-      var route = processMap[name];
-      var materials = agg.routeMaterials[name] || {};
-      var knownKg = 0;
-      var cells = OTD_MATERIALS.map(function (material) {
-        var kg = Number(materials[material.key] && materials[material.key].qty.KG || 0);
-        knownKg += kg;
-        materialTotals[material.key] = (materialTotals[material.key] || 0) + kg;
-        return '<td class="number ' + (kg ? 'has-value' : '') + '">' + (kg ? num(kg, 1) : '—') + '</td>';
-      }).join('');
-      var otherKg = Math.max(0, Number(route.qty.KG || 0) - knownKg);
-      materialTotals.other = (materialTotals.other || 0) + otherKg;
-      var capacity = Number(OTD_CAPACITY_KG[name] || 0);
-      var duration = capacity ? Number(route.qty.KG || 0) / capacity : 0;
-      totalProcessKg += Number(route.qty.KG || 0);
-      totalProcessSpk += Number(route.count || 0);
-
-      return '<tr><th scope="row"><strong>' + esc(name) + '</strong><small>' + route.count +
-        ' SPK aktif</small></th><td class="number outstanding-positive"><strong>' +
-        num(route.qty.KG, 1) + '</strong></td><td class="number">' +
-        (capacity ? num(capacity, 1) : '—') + '</td><td class="number duration-cell ' +
-        (duration > 1 ? 'is-busy' : '') + '">' + (capacity ? num(duration, 2) : '—') +
-        '</td>' + cells + '<td class="number ' + (otherKg ? 'has-value' : '') + '">' +
-        (otherKg ? num(otherKg, 1) : '—') + '</td></tr>';
-    }).join('');
-
-    var materialFooter = OTD_MATERIALS.map(function (material) {
-      return '<td class="number">' + num(materialTotals[material.key] || 0, 1) + '</td>';
-    }).join('');
-
-    els.otdProcessMatrix.innerHTML = '<table class="otd-process-table"><thead><tr>' +
-      '<th rowspan="2">Proses</th><th rowspan="2" class="number">Outstanding<br>(KG)</th>' +
-      '<th rowspan="2" class="number">Kapasitas<br>(KG/Hari)</th><th rowspan="2" class="number">Durasi<br>(Hari)</th>' +
-      '<th colspan="6" class="material-group">Outstanding per Bahan (KG)</th></tr><tr>' +
-      OTD_MATERIALS.map(function (material) { return '<th class="number">' + material.label + '</th>'; }).join('') +
-      '<th class="number">Lainnya</th></tr></thead><tbody>' + body +
-      '</tbody><tfoot><tr><th>Total Beban Proses<small>' + totalProcessSpk + ' lintasan SPK</small></th>' +
-      '<td class="number"><strong>' + num(totalProcessKg, 1) + '</strong></td><td colspan="2">—</td>' +
-      materialFooter + '<td class="number">' + num(materialTotals.other || 0, 1) +
-      '</td></tr></tfoot></table>';
-  }
-
   function renderInsights(agg) {
     var counts = {};
     agg.marketingOrder.forEach(function (name) { counts[name] = agg.marketing[name].count; });
@@ -632,8 +551,7 @@
   function renderRecap(agg, onDone) {
     var langkah = [
       [72, 'Menyusun ringkasan seluruh SPK', function () { renderTotals(agg); renderInsights(agg); }],
-      [77, 'Menyusun matriks OTD produksi', function () { renderOtdProcessMatrix(agg); }],
-      [81, 'Menyusun proses per routing', function () { renderStatList(els.routingRecap, agg.routingByKg, 'routing', true); }],
+      [79, 'Menyusun proses per routing', function () { renderStatList(els.routingRecap, agg.routingByKg, 'routing', true); }],
       [85, 'Menyusun produksi per bahan', function () { renderStatList(els.materialRecap, agg.materialEntries, 'bahan utama'); }],
       [91, 'Memetakan routing dan bahan', function () { renderRouteMaterial(agg); }],
       [96, 'Menyusun tabel bulanan', function () { renderMonthly(agg); }],
@@ -665,7 +583,6 @@
     if (!withProgress) {
       renderTotals(agg);
       renderInsights(agg);
-      renderOtdProcessMatrix(agg);
       renderStatList(els.routingRecap, agg.routingByKg, 'routing', true);
       renderStatList(els.materialRecap, agg.materialEntries, 'bahan utama');
       renderRouteMaterial(agg);

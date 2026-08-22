@@ -10659,15 +10659,15 @@
 
                   <label class="field-label">Jenis Penyelesaian</label>
             <div class="finishing-choice-grid" id="finishingChoiceGrid">
-              <button type="button" class="finishing-choice" data-finishing="BOTTOM SEAL" onclick="setFinishingChoice_('BOTTOM SEAL')">Segel Bawah</button>
-              <button type="button" class="finishing-choice" data-finishing="SIDE SEAL" onclick="setFinishingChoice_('SIDE SEAL')">Segel Samping</button>
-              <button type="button" class="finishing-choice" data-finishing="TSHIRT" onclick="setFinishingChoice_('TSHIRT')">Kantong Kaos</button>
+              <button type="button" class="finishing-choice" data-finishing="BOTTOM SEAL" onclick="setFinishingChoice_('BOTTOM SEAL')">Bottom Seal</button>
+              <button type="button" class="finishing-choice" data-finishing="SIDE SEAL" onclick="setFinishingChoice_('SIDE SEAL')">Side Seal</button>
+              <button type="button" class="finishing-choice" data-finishing="TSHIRT" onclick="setFinishingChoice_('TSHIRT')">T-Shirt</button>
             </div>
             <select id="finishing" class="is-hidden" aria-hidden="true" tabindex="-1">
               <option value="-">-</option>
-              <option value="BOTTOM SEAL">Segel Bawah</option>
-              <option value="SIDE SEAL">Segel Samping</option>
-              <option value="TSHIRT">Kantong Kaos</option>
+              <option value="BOTTOM SEAL">Bottom Seal</option>
+              <option value="SIDE SEAL">Side Seal</option>
+              <option value="TSHIRT">T-Shirt</option>
             </select>
 
             <div id="bahanUkuranHost-cutting" class="bahan-ukuran-host"></div>
@@ -10675,12 +10675,12 @@
             <div id="cuttingDetail" class="routing-subpanel" hidden>
               <div class="form-grid route-fields route-fields--cutting">
                 <div class="form-cell">
-                  <label class="field-label">Pegangan/Pon</label>
+                  <label class="field-label">Handle/Pon</label>
                   <!-- Pon dan Handle saling meniadakan, dan pilihan di sini
                        menentukan BS mana yang ikut dihitung. -->
                   <select id="handlePm" class="field-input" onchange="hitungTotalBs()">
                     <option value="-">-</option>
-                    <option value="HANDLE">Pegangan</option>
+                    <option value="HANDLE">Handle</option>
                     <option value="PON">Pon</option>
                   </select>
                 </div>
@@ -10696,7 +10696,7 @@
                     <option value="">Pilih jenis pengepakan</option>
                     <option value="KARUNG">Karung</option>
                     <option value="DUS">Dus</option>
-                    <option value="INNER">Dalam</option>
+                    <option value="INNER">Inner</option>
                   </select>
                 </div>
                 <div class="form-cell">
@@ -10748,7 +10748,7 @@
                     <input type="number" step="any" min="0" max="100" id="bs-pon" class="field-input" placeholder="0" value="0" oninput="hitungTotalBs()">
                   </div>
                   <div class="form-cell">
-                    <label class="field-label">BS Pegangan (%)</label>
+                    <label class="field-label">BS Handle (%)</label>
                     <input type="number" step="any" min="0" max="100" id="bs-handle" class="field-input" placeholder="0" value="0" oninput="hitungTotalBs()">
                   </div>
                 </div>
@@ -10756,16 +10756,16 @@
 
               <div id="finishingNoteArea" class="finishing-note-area">
                 <div id="finishing-note-bottomSeal" class="finishing-note-panel" data-finishing-note="BOTTOM SEAL" hidden>
-                  <label class="field-label" for="ket-bottomSeal">Keterangan Segel Bawah</label>
-                  <textarea id="ket-bottomSeal" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Segel Bawah."></textarea>
+                  <label class="field-label" for="ket-bottomSeal">Keterangan Bottom Seal</label>
+                  <textarea id="ket-bottomSeal" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Bottom Seal."></textarea>
                 </div>
                 <div id="finishing-note-sideSeal" class="finishing-note-panel" data-finishing-note="SIDE SEAL" hidden>
-                  <label class="field-label" for="ket-sideSeal">Keterangan Segel Samping</label>
-                  <textarea id="ket-sideSeal" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Segel Samping."></textarea>
+                  <label class="field-label" for="ket-sideSeal">Keterangan Side Seal</label>
+                  <textarea id="ket-sideSeal" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Side Seal."></textarea>
                 </div>
                 <div id="finishing-note-tshirt" class="finishing-note-panel" data-finishing-note="TSHIRT" hidden>
                   <label class="field-label" for="ket-tshirt">Keterangan T-Shirt</label>
-                  <textarea id="ket-tshirt" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Kantong Kaos."></textarea>
+                  <textarea id="ket-tshirt" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi T-Shirt."></textarea>
                 </div>
               </div>
             </div>
@@ -11338,9 +11338,9 @@
             { key: 'slitting', label: 'Keterangan Slitting' },
             { key: 'folding', label: 'Keterangan Folding' },
             { key: 'gusset', label: 'Keterangan Gusset' },
-            { key: 'bottomSeal', label: 'Keterangan Segel Bawah' },
-            { key: 'sideSeal', label: 'Keterangan Segel Samping' },
-            { key: 'tshirt', label: 'Keterangan Kantong Kaos' }
+            { key: 'bottomSeal', label: 'Keterangan Bottom Seal' },
+            { key: 'sideSeal', label: 'Keterangan Side Seal' },
+            { key: 'tshirt', label: 'Keterangan T-Shirt' }
         ];
 
         var DETAIL_BS_META = [
@@ -11351,10 +11351,10 @@
             { key: 'gusset', label: 'Gusset' },
             { key: 'sheet', label: 'Lembaran' },
             { key: 'pon', label: 'Pon' },
-            { key: 'tshirt', label: 'Kantong Kaos' },
-            { key: 'bottomSeal', label: 'Segel Bawah' },
-            { key: 'sideSeal', label: 'Segel Samping' },
-            { key: 'handle', label: 'Pegangan' },
+            { key: 'tshirt', label: 'T-Shirt' },
+            { key: 'bottomSeal', label: 'Bottom Seal' },
+            { key: 'sideSeal', label: 'Side Seal' },
+            { key: 'handle', label: 'Handle' },
             { key: 'sheetSlitting', label: 'Slitting Lembaran' }
         ];
 
@@ -12680,7 +12680,7 @@
                 '</div>' +
                 '<div class="detail-finishing-card">' +
                     '<i class="fa-solid fa-hand" aria-hidden="true"></i>' +
-                    '<div><span>Pegangan/Pon</span><strong>' + escapeHtml(detailText(handlePm)) + '</strong></div>' +
+                    '<div><span>Handle/Pon</span><strong>' + escapeHtml(detailText(handlePm)) + '</strong></div>' +
                 '</div>';
         }
 
@@ -13673,10 +13673,10 @@
       { key: 'gusset', label: 'Gusset' },
       { key: 'sheet', label: 'Lembaran' },
       { key: 'pon', label: 'Pon' },
-      { key: 'tshirt', label: 'Kantong Kaos' },
-      { key: 'bottomSeal', label: 'Segel Bawah' },
-      { key: 'sideSeal', label: 'Segel Samping' },
-      { key: 'handle', label: 'Pegangan' },
+      { key: 'tshirt', label: 'T-Shirt' },
+      { key: 'bottomSeal', label: 'Bottom Seal' },
+      { key: 'sideSeal', label: 'Side Seal' },
+      { key: 'handle', label: 'Handle' },
       { key: 'sheetSlitting', label: 'Slitting Lembaran' }
     ];
 

@@ -4454,14 +4454,20 @@
       return form.pageLabel.slice(form.label.length);
     }
 
-    // Bag dicatat sebagai jumlah ball per outer, Roll sebagai isi per roll
+    // Bag dicatat sebagai jumlah ball per outer beserta isi tiap ball, Roll
+    // sebagai isi per roll
     // beserta satuannya. Keduanya berasal dari langkah Cutting yang dicetak.
     function packingDetailText_(data, form) {
       const packing = String(formValue_(data, form, 'packing') || '').trim();
       const upper = packing.toUpperCase();
       if (upper === 'BAG') {
         const ball = String(formValue_(data, form, 'packingOuterBall') || '').trim();
-        return ball === '' ? packing : packing + ' · ' + ball + ' bal/kemasan luar';
+        const isi = String(formValue_(data, form, 'packingBallNilai') || '').trim();
+        const isiUom = String(formValue_(data, form, 'packingBallUom') || '').trim();
+        const bagian = [];
+        if (ball !== '') bagian.push(ball + ' ball/outer');
+        if (isi !== '') bagian.push(isi + (isiUom ? ' ' + isiUom : '') + '/ball');
+        return bagian.length ? packing + ' · ' + bagian.join(' · ') : packing;
       }
       if (upper === 'ROLL') {
         const nilai = String(formValue_(data, form, 'packingRollNilai') || '').trim();

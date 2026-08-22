@@ -10703,13 +10703,24 @@
                   <label class="field-label">Pengepakan</label>
                   <select id="packing" class="field-input" onchange="updatePackingDetailVisibility_()">
                     <option value="">Pilih bentuk pengepakan</option>
-                    <option value="BAG">Kantong</option>
+                    <option value="BAG">Bag</option>
                     <option value="ROLL">Roll</option>
                   </select>
                 </div>
                 <div class="form-cell" id="packingBagCell" hidden>
-                  <label class="field-label">Luar (Bal)</label>
-                  <input type="number" min="0" step="any" id="packingOuterBall" class="field-input" placeholder="Jumlah bal pada kemasan luar">
+                  <label class="field-label">Outer (Ball)</label>
+                  <input type="number" min="0" step="any" id="packingOuterBall" class="field-input" placeholder="Berapa ball per outer">
+                </div>
+                <div class="form-cell" id="packingBallCell" hidden>
+                  <label class="field-label">Isi per Ball</label>
+                  <div class="input-pair">
+                    <input type="number" min="0" step="any" id="packingBallNilai" class="field-input" placeholder="Nilai">
+                    <select id="packingBallUom" class="field-input input-pair-uom">
+                      <option value="">UOM</option>
+                      <option value="PCS">PCS</option>
+                      <option value="KG">KG</option>
+                    </select>
+                  </div>
                 </div>
                 <div class="form-cell" id="packingRollCell" hidden>
                   <label class="field-label">Isi per Roll</label>
@@ -13701,7 +13712,8 @@
       gusset: ['mesin-gusset', 'ukuranGusset', 'lebarGusset', 'bsDaftar-gusset', 'bsJenis-gusset', 'bsNilai-gusset', 'bs-gusset', 'bs-sheet', 'aksesorisData-gusset', 'ket-gusset'],
       cutting: [
         'mesin-cutting', 'finishing', 'handlePm',
-        'jenisPacking', 'packing', 'packingOuterBall', 'packingRollNilai', 'packingRollUom',
+        'jenisPacking', 'packing', 'packingOuterBall', 'packingBallNilai', 'packingBallUom',
+        'packingRollNilai', 'packingRollUom',
         'bsDaftar-cutting', 'bsJenis-cutting', 'bsNilai-cutting',
         'bs-bottomSeal', 'bs-sideSeal', 'bs-tshirt',
         'bs-pon', 'bs-handle', 'bs-sheetSlitting', 'aksesorisData-cutting',
@@ -15658,7 +15670,8 @@
         'keteranganWarna', 'keteranganBahan', 'keteranganArtikel', 'modelKantong', 'ukuranBlow', 'ukuranJadi', 'jumlahOrder',
         'meterRoll', 'keluarBahan', 'toleransi', 'printingKodeSilinder',
         'ukuranFolding', 'ukuranSlitting', 'ukuranGusset', 'lebarGusset',
-        'jenisPacking', 'packing', 'packingOuterBall', 'packingRollNilai', 'packingRollUom',
+        'jenisPacking', 'packing', 'packingOuterBall', 'packingBallNilai', 'packingBallUom',
+        'packingRollNilai', 'packingRollUom',
         'pcsKgMode', 'jenisPotongan', 'toleransiProduksi', 'stok', 'ots', 'wip'
       ].forEach(id => setFieldValue_(id, ''));
       setPoMasukValue_('');
@@ -16548,7 +16561,11 @@
       const packing = String(getFieldValue_('packing') || '').toUpperCase();
       const bagCell = document.getElementById('packingBagCell');
       const rollCell = document.getElementById('packingRollCell');
+      const ballCell = document.getElementById('packingBallCell');
       if (bagCell) bagCell.hidden = packing !== 'BAG';
+      // Isi per Ball mendampingi Outer (Ball): keduanya hanya berlaku bila
+      // barang dipak sebagai bag, jadi tampil dan tersembunyi bersamaan.
+      if (ballCell) ballCell.hidden = packing !== 'BAG';
       if (rollCell) rollCell.hidden = packing !== 'ROLL';
     }
 
@@ -17275,7 +17292,12 @@
       const packing = String(stepValue_(step, 'packing') || '').toUpperCase();
       if (packing === 'BAG') {
         const ball = String(stepValue_(step, 'packingOuterBall') || '').trim();
-        return ball === '' ? '' : ball + ' ball / outer';
+        const isi = String(stepValue_(step, 'packingBallNilai') || '').trim();
+        const isiUom = String(stepValue_(step, 'packingBallUom') || '').trim();
+        const bagian = [];
+        if (ball !== '') bagian.push(ball + ' ball / outer');
+        if (isi !== '') bagian.push(isi + (isiUom ? ' ' + isiUom : '') + ' / ball');
+        return bagian.join(' · ');
       }
       if (packing === 'ROLL') {
         const nilai = String(stepValue_(step, 'packingRollNilai') || '').trim();

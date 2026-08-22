@@ -97,6 +97,12 @@
     return row.uom === 'KG' ? order : (factor > 0 ? order / factor : 0);
   }
 
+  // Satu penentu dipakai oleh Total Outstanding dan seluruh panel rekapan.
+  // SPK tanpa tracking belum masuk proses, sedangkan F sudah selesai.
+  function isOutstanding(row) {
+    return Boolean(row && row.tracking && row.tracking !== 'F');
+  }
+
   function qtyLabel(q) {
     return num(q.KG || 0, 1) + ' KG';
   }
@@ -241,30 +247,28 @@
       var pcs = row.uom === 'PCS' ? Number(row.order || 0) : 0;
       var monthIndex = Number(String(row.tanggalPo).slice(5, 7)) - 1;
       var age = Number(row.aging) || 0;
-      var isTracked = row.tracking && row.tracking !== 'F';
+      var outstanding = isOutstanding(row);
       if (row.tracking) {
         tracking[row.tracking] = (tracking[row.tracking] || 0) + 1;
       }
-      if (isTracked) totalTrackedSpk++;
 
       totalQty.KG += kg;
       totalQty.PCS += pcs;
-      if (isTracked) {
-        trackedQty.KG += kg;
-        trackedQty.PCS += pcs;
-        kpi.kg += kg;
-        kpi.pcs += pcs;
-        if (age >= 30) kpi.aging30++;
-        if (age > kpi.oldest) kpi.oldest = age;
-      }
+      if (!outstanding) return;
 
-      if (isTracked) {
-        var bucket = materials[material] ||
-          (materials[material] = { name: material, count: 0, qty: { KG: 0, PCS: 0 } });
-        bucket.count++;
-        bucket.qty.KG += kg;
-        bucket.qty.PCS += pcs;
-      }
+      totalTrackedSpk++;
+      trackedQty.KG += kg;
+      trackedQty.PCS += pcs;
+      kpi.kg += kg;
+      kpi.pcs += pcs;
+      if (age >= 30) kpi.aging30++;
+      if (age > kpi.oldest) kpi.oldest = age;
+
+      var bucket = materials[material] ||
+        (materials[material] = { name: material, count: 0, qty: { KG: 0, PCS: 0 } });
+      bucket.count++;
+      bucket.qty.KG += kg;
+      bucket.qty.PCS += pcs;
 
       var person = row.marketing || 'Belum ditentukan';
       var orang = marketing[person];
@@ -444,7 +448,7 @@
         var total = Object.keys(month).reduce(function (n, k) { return n + month[k]; }, 0);
         return '<td>' + total + '</td>';
       }).join('') +
-      '<td>' + agg.rows.length + '</td></tr></tfoot></table>';
+      '<td>' + agg.totalTrackedSpk + '</td></tr></tfoot></table>';
   }
 
   function renderMarketing(agg) {

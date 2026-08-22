@@ -601,7 +601,11 @@
 
   /* ------------------------------------------------ simpanan lokal */
 
-  var CACHE_KEY = 'pgm:dashboard-spk';
+  // Kunci dinaikkan ketika bentuk muatan berubah. Token revisi hanya
+  // berubah bila datanya bermutasi, jadi perubahan kode di sisi server tidak
+  // akan menggugurkan simpanan lama; mengganti kunci inilah yang menggugurkan.
+  // Naik ke v2: rekap routing kini memecah Cutting menjadi jenis finishing.
+  var CACHE_KEY = 'pgm:dashboard-spk-v2';
   var CACHE_MAX_CHARS = 4000000;
 
   function readCache() {

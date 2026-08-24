@@ -120,6 +120,31 @@
     return b.count - a.count || a.name.localeCompare(b.name);
   }
 
+  // Urutan proses mengikuti alur produksi yang ditetapkan PPIC, bukan besar
+  // volume atau jumlah SPK. Proses lain yang belum dikenal tetap ditampilkan
+  // setelah daftar utama agar data baru tidak hilang dari dashboard.
+  var ROUTING_ORDER = {
+    blowing: 0,
+    printing: 1,
+    cutting: 2,
+    folding: 3,
+    gusset: 4,
+    slitting: 5,
+    bottomseal: 6,
+    sideseal: 7,
+    tshirt: 8
+  };
+
+  function sortByRoutingOrder(a, b) {
+    var aKey = String(a && a.name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    var bKey = String(b && b.name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    var aOrder = Object.prototype.hasOwnProperty.call(ROUTING_ORDER, aKey)
+      ? ROUTING_ORDER[aKey] : 999;
+    var bOrder = Object.prototype.hasOwnProperty.call(ROUTING_ORDER, bKey)
+      ? ROUTING_ORDER[bKey] : 999;
+    return aOrder - bOrder || String(a.name).localeCompare(String(b.name));
+  }
+
   function values(map) {
     return Object.keys(map).map(function (key) { return map[key]; });
   }
@@ -331,7 +356,7 @@
     var hasil = {
       year: 'Semua SPK',
       rows: rows,
-      routeEntries: values(routing).sort(sortByCount),
+      routeEntries: values(routing).sort(sortByRoutingOrder),
       materialEntries: values(materials).sort(sortByCount),
       routeMaterials: routeMaterials,
       months: months,
@@ -348,9 +373,7 @@
       marketingByKg: values(marketing).sort(function (a, b) {
         return b.kg - a.kg || b.count - a.count || a.name.localeCompare(b.name);
       }),
-      routingByKg: values(routing).sort(function (a, b) {
-        return b.qty.KG - a.qty.KG || b.count - a.count || a.name.localeCompare(b.name);
-      })
+      routingByKg: values(routing).sort(sortByRoutingOrder)
     };
 
     state.cache.all = hasil;

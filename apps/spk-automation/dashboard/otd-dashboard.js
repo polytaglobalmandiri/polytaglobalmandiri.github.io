@@ -605,7 +605,7 @@
   // berubah bila datanya bermutasi, jadi perubahan kode di sisi server tidak
   // akan menggugurkan simpanan lama; mengganti kunci inilah yang menggugurkan.
   // Naik ke v2: rekap routing kini memecah Cutting menjadi jenis finishing.
-  var CACHE_KEY = 'pgm:dashboard-spk-v3';
+  var CACHE_KEY = 'pgm:dashboard-spk-v4';
   var CACHE_MAX_CHARS = 4000000;
 
   function readCache() {
@@ -790,8 +790,8 @@
     if (window.console && window.console.error) window.console.error(err);
   }
 
-  function fetchAndRender(withProgress) {
-    return requestDatabase().then(function (payload) {
+  function fetchAndRender(withProgress, forceRefresh) {
+    return requestDatabase(Boolean(forceRefresh)).then(function (payload) {
       stepProgress(64, 'Menghitung rekapan');
       adoptPayload(payload);
       stepProgress(68, 'Data siap digambar');
@@ -809,39 +809,17 @@
   function syncRealtime() {
     if (realtimeInFlight || !hasRuntime()) return;
     realtimeInFlight = true;
-    requestTrackingData().then(function(data) {
-      var trackingBySpk = data.trackingBySpk || {};
-      var changed = false;
-      state.rows.forEach(function(row) {
-        var nextTracking = normalizeTracking(trackingBySpk[String(row.spk || '').toUpperCase()]);
-        if (nextTracking !== row.tracking) {
-          row.tracking = nextTracking;
-          changed = true;
-        }
-      });
-      if (changed) {
-        state.cache = {};
-        showAll(false);
-      }
+    requestRevision().then(function(revision) {
+      var currentRevision = state.meta && state.meta.revision
+        ? String(state.meta.revision)
+        : '';
+      if (!revision || revision === currentRevision) return null;
+
+      startProgress('Database berubah · memperbarui rekapan');
+      setStatus('<i class="fa-solid fa-arrows-rotate fa-spin"></i> Menyinkronkan perubahan Database SPK');
+      return fetchAndRender(true, true);
     }).catch(function(error) {
       if (window.console && window.console.warn) window.console.warn('Sinkronisasi realtime tertunda:', error);
-    }).then(function() {
-      realtimeInFlight = false;
-    });
-  }
-
-  function syncTrackingNow() {
-    if (realtimeInFlight || !hasRuntime()) return Promise.resolve();
-    realtimeInFlight = true;
-    return requestTrackingData().then(function(data) {
-      var trackingBySpk = data.trackingBySpk || {};
-      state.rows.forEach(function(row) {
-        row.tracking = normalizeTracking(trackingBySpk[String(row.spk || '').toUpperCase()]);
-      });
-      state.cache = {};
-      showAll(false);
-    }).catch(function(error) {
-      if (window.console && window.console.warn) window.console.warn('Tracking awal tertunda:', error);
     }).then(function() {
       realtimeInFlight = false;
     });
@@ -861,7 +839,6 @@
       adoptPayload(cached.payload);
       showAll(false, function () {
         setStatus('<i class="fa-solid fa-clock-rotate-left"></i> Rekapan tersimpan · memeriksa pembaruan');
-        syncTrackingNow();
       });
 
       requestRevision().then(function (revision) {
@@ -871,14 +848,14 @@
           return null;
         }
         startProgress('Memperbarui rekapan');
-        return fetchAndRender(true);
+        return fetchAndRender(true, true);
       }).catch(showError);
       startRealtime();
       return;
     }
 
     startProgress('Menghubungi Database SPK');
-    fetchAndRender(true).then(startRealtime).catch(showError);
+    fetchAndRender(true, true).then(startRealtime).catch(showError);
   }
 
   setPeriodTitle();

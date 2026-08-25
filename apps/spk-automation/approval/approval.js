@@ -3,6 +3,8 @@
   var AUTH_KEY='pgm:spk-auth-v1';
   var state={token:'',user:null,roles:[],users:[],queue:null};
   var $=function(id){return document.getElementById(id)};
+  var setupSignaturePad=null;
+  var userSignaturePad=null;
 
   function rpc(method){
     var args=Array.prototype.slice.call(arguments,1);
@@ -14,10 +16,46 @@
   function alertError(message){return Swal.fire({icon:'error',title:'Tidak berhasil',text:message||'Terjadi kesalahan.',confirmButtonColor:'#17191f'});}
   function setBusy(value){document.body.classList.toggle('loading',Boolean(value));}
   function escapeHtml(value){return String(value==null?'':value).replace(/[&<>'"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c];});}
-  function savedAuth(){try{return JSON.parse(localStorage.getItem(AUTH_KEY)||'null')||{};}catch(e){return {};}}
-  function saveAuth(token,user){state.token=token;state.user=user;localStorage.setItem(AUTH_KEY,JSON.stringify({token:token,user:user}));}
-  function clearAuth(){state.token='';state.user=null;localStorage.removeItem(AUTH_KEY);}
+  function savedAuth(){
+    var raw=localStorage.getItem(AUTH_KEY),remember=true;
+    if(!raw){raw=sessionStorage.getItem(AUTH_KEY);remember=false;}
+    try{var auth=JSON.parse(raw||'null')||{};auth.remember=remember;return auth;}catch(e){return {};}
+  }
+  function saveAuth(token,user,remember){
+    state.token=token;state.user=user;
+    localStorage.removeItem(AUTH_KEY);sessionStorage.removeItem(AUTH_KEY);
+    (remember?localStorage:sessionStorage).setItem(AUTH_KEY,JSON.stringify({token:token,user:user,remember:Boolean(remember)}));
+  }
+  function clearAuth(){state.token='';state.user=null;localStorage.removeItem(AUTH_KEY);sessionStorage.removeItem(AUTH_KEY);}
   function fileData(file){return new Promise(function(resolve,reject){if(!file){resolve('');return;}if(file.size>1000000){reject(new Error('Ukuran gambar maksimal 1 MB.'));return;}var reader=new FileReader();reader.onload=function(){resolve(reader.result);};reader.onerror=function(){reject(new Error('Gambar gagal dibaca.'));};reader.readAsDataURL(file);});}
+
+  function createSignaturePad(canvas,clearButton){
+    var context=canvas.getContext('2d'),drawing=false,hasInk=false;
+    function resize(){
+      var rect=canvas.getBoundingClientRect();
+      if(!rect.width)return;
+      var ratio=Math.max(window.devicePixelRatio||1,1);
+      canvas.width=Math.round(rect.width*ratio);canvas.height=Math.round(rect.height*ratio);
+      context.setTransform(ratio,0,0,ratio,0,0);context.lineWidth=2.2;context.lineCap='round';context.lineJoin='round';context.strokeStyle='#15171b';
+      hasInk=false;
+    }
+    function point(event){var rect=canvas.getBoundingClientRect();return{x:event.clientX-rect.left,y:event.clientY-rect.top};}
+    canvas.addEventListener('pointerdown',function(event){event.preventDefault();drawing=true;hasInk=true;canvas.setPointerCapture(event.pointerId);var p=point(event);context.beginPath();context.moveTo(p.x,p.y);});
+    canvas.addEventListener('pointermove',function(event){if(!drawing)return;event.preventDefault();var p=point(event);context.lineTo(p.x,p.y);context.stroke();});
+    function stop(event){if(!drawing)return;drawing=false;if(event&&canvas.hasPointerCapture(event.pointerId))canvas.releasePointerCapture(event.pointerId);}
+    canvas.addEventListener('pointerup',stop);canvas.addEventListener('pointercancel',stop);canvas.addEventListener('pointerleave',stop);
+    function clear(){context.clearRect(0,0,canvas.width,canvas.height);hasInk=false;}
+    clearButton.addEventListener('click',clear);
+    resize();
+    return{resize:resize,clear:clear,hasInk:function(){return hasInk;},dataUrl:function(){return hasInk?canvas.toDataURL('image/png'):'';}};
+  }
+
+  async function selectedSignatureData(file,pad,required){
+    var uploaded=await fileData(file);
+    var signature=uploaded||(pad&&pad.dataUrl())||'';
+    if(required&&!signature)throw new Error('Upload atau gambar tanda tangan terlebih dahulu.');
+    return signature;
+  }
 
   async function init(){
     bind();setBusy(true);
@@ -26,14 +64,16 @@
       state.roles=bootstrap.roles||[];
       $('showSetupButton').hidden=!bootstrap.needsBootstrap;
       var auth=savedAuth();
-      if(auth.token){var session=await rpc('getApprovalSession',auth.token);if(session&&session.status==='success'){saveAuth(auth.token,session.user);await showApp();return;}clearAuth();}
+      if(auth.token){var session=await rpc('getApprovalSession',auth.token);if(session&&session.status==='success'){saveAuth(auth.token,session.user,auth.remember);await showApp();return;}clearAuth();}
       showLogin();
     }catch(error){alertError(error.message);showLogin();}finally{setBusy(false);}
   }
   function bind(){
+    setupSignaturePad=createSignaturePad($('setupSignaturePad'),$('clearSetupSignature'));
+    userSignaturePad=createSignaturePad($('userSignaturePad'),$('clearUserSignature'));
     $('loginForm').addEventListener('submit',login);
     $('logoutButton').addEventListener('click',logout);
-    $('showSetupButton').addEventListener('click',function(){$('loginView').hidden=true;$('setupView').hidden=false;});
+    $('showSetupButton').addEventListener('click',function(){$('loginView').hidden=true;$('setupView').hidden=false;window.setTimeout(function(){setupSignaturePad.resize();},0);});
     $('cancelSetup').addEventListener('click',showLogin);
     $('setupForm').addEventListener('submit',setup);
     $('refreshButton').addEventListener('click',loadQueue);
@@ -45,9 +85,9 @@
     $('userList').addEventListener('click',function(event){var button=event.target.closest('[data-user]');if(button)openUser(state.users.find(function(u){return u.userId===button.dataset.user;}));});
   }
   function showLogin(){$('loginView').hidden=false;$('setupView').hidden=true;$('appView').hidden=true;$('userbar').hidden=true;}
-  async function login(event){event.preventDefault();setBusy(true);try{var response=await rpc('loginApprovalUser',$('loginEmail').value,$('loginPassword').value);if(!response||response.status!=='success')throw new Error(response&&response.message);saveAuth(response.token,response.user);$('loginPassword').value='';await showApp();}catch(error){alertError(error.message);}finally{setBusy(false);}}
+  async function login(event){event.preventDefault();setBusy(true);try{var remember=$('rememberMe').checked;var response=await rpc('loginApprovalUser',$('loginEmail').value,$('loginPassword').value,remember);if(!response||response.status!=='success')throw new Error(response&&response.message);saveAuth(response.token,response.user,remember);$('loginPassword').value='';await showApp();}catch(error){alertError(error.message);}finally{setBusy(false);}}
   async function logout(){try{if(state.token)await rpc('logoutApprovalUser',state.token);}catch(e){}clearAuth();showLogin();}
-  async function setup(event){event.preventDefault();setBusy(true);try{var form=new FormData(event.currentTarget);var signature=await fileData(form.get('signature'));var response=await rpc('bootstrapApprovalAdmin',form.get('setupCode'),{email:form.get('email'),name:form.get('name'),password:form.get('password'),signatureData:signature,signatureName:form.get('name')});if(!response||response.status!=='success')throw new Error(response&&response.message);await Swal.fire({icon:'success',title:'Akun dibuat',text:'Silakan masuk memakai email dan password Admin PPIC.',confirmButtonColor:'#17191f'});event.currentTarget.reset();$('showSetupButton').hidden=true;showLogin();}catch(error){alertError(error.message);}finally{setBusy(false);}}
+  async function setup(event){event.preventDefault();setBusy(true);try{var form=new FormData(event.currentTarget);var signature=await selectedSignatureData(form.get('signature'),setupSignaturePad,true);var response=await rpc('bootstrapApprovalAdmin',form.get('setupCode'),{email:form.get('email'),name:form.get('name'),password:form.get('password'),signatureData:signature,signatureName:form.get('name')});if(!response||response.status!=='success')throw new Error(response&&response.message);await Swal.fire({icon:'success',title:'Akun dibuat',text:'Silakan masuk memakai email dan password Admin PPIC.',confirmButtonColor:'#17191f'});event.currentTarget.reset();setupSignaturePad.clear();$('showSetupButton').hidden=true;showLogin();}catch(error){alertError(error.message);}finally{setBusy(false);}}
   async function showApp(){$('loginView').hidden=true;$('setupView').hidden=true;$('appView').hidden=false;$('userbar').hidden=false;$('currentName').textContent=state.user.name||state.user.email;$('currentRole').textContent=state.user.roleLabel||'';$('adminPanel').hidden=state.user.roleKey!=='admin_ppic';await loadQueue();if(state.user.roleKey==='admin_ppic')await loadUsers();}
   async function loadQueue(){setBusy(true);try{var response=await rpc('getApprovalQueue',state.token);if(!response||response.status!=='success')throw new Error(response&&response.message);state.queue=response;$('pendingCount').textContent=response.counts.pending;$('approvedCount').textContent=response.counts.approved;$('signatureState').textContent=response.signatureReady?'TERSEDIA':'BELUM ADA';$('signatureWarning').hidden=response.signatureReady;renderQueue(response.items||[],response.signatureReady);}catch(error){if(/sesi|login|akun/i.test(error.message||'')){clearAuth();showLogin();}alertError(error.message);}finally{setBusy(false);}}
   function renderQueue(items,signatureReady){
@@ -64,7 +104,7 @@
   async function loadUsers(){var response=await rpc('listApprovalUsers',state.token);if(!response||response.status!=='success')throw new Error(response&&response.message);state.users=response.users||[];state.roles=response.roles||state.roles;renderUsers();fillRoles();}
   function renderUsers(){$('userList').innerHTML=state.users.map(function(user){return '<article class="user-card"><div><h3>'+escapeHtml(user.name)+'</h3><p>'+escapeHtml(user.email)+'</p><p>'+escapeHtml(user.roleLabel)+' · TTD '+(user.signatureReady?'tersedia':'belum ada')+'</p></div><button class="button ghost" data-user="'+escapeHtml(user.userId)+'">Ubah</button></article>';}).join('')||'<div class="empty">Belum ada pengguna.</div>';}
   function fillRoles(){$('roleSelect').innerHTML=state.roles.map(function(role){return '<option value="'+escapeHtml(role.key)+'">'+escapeHtml(role.label)+'</option>';}).join('');}
-  function openUser(user){var form=$('userForm');form.reset();fillRoles();form.elements.userId.value=user?user.userId:'';form.elements.email.value=user?user.email:'';form.elements.name.value=user?user.name:'';form.elements.roleKey.value=user?user.roleKey:'head_blowing';form.elements.active.checked=user?user.active:true;form.elements.password.required=!user;$('userDialogTitle').textContent=user?'Ubah pengguna':'Tambah pengguna';$('userDialog').showModal();}
-  async function saveUser(event){event.preventDefault();var form=event.currentTarget;setBusy(true);try{var data=new FormData(form);var signature=await fileData(data.get('signature'));var payload={userId:data.get('userId'),email:data.get('email'),name:data.get('name'),roleKey:data.get('roleKey'),password:data.get('password'),active:form.elements.active.checked,signatureData:signature,signatureName:data.get('name')};var response=await rpc('saveApprovalUser',state.token,payload);if(!response||response.status!=='success')throw new Error(response&&response.message);$('userDialog').close();await loadUsers();await Swal.fire({icon:'success',title:'Pengguna tersimpan',text:response.message,confirmButtonColor:'#17191f'});}catch(error){alertError(error.message);}finally{setBusy(false);}}
+  function openUser(user){var form=$('userForm');form.reset();userSignaturePad.clear();fillRoles();form.elements.userId.value=user?user.userId:'';form.elements.email.value=user?user.email:'';form.elements.name.value=user?user.name:'';form.elements.roleKey.value=user?user.roleKey:'head_blowing';form.elements.active.checked=user?user.active:true;form.elements.password.required=!user;$('userDialogTitle').textContent=user?'Ubah pengguna':'Tambah pengguna';$('userDialog').showModal();window.setTimeout(function(){userSignaturePad.resize();},0);}
+  async function saveUser(event){event.preventDefault();var form=event.currentTarget;setBusy(true);try{var data=new FormData(form);var isNew=!data.get('userId');var signature=await selectedSignatureData(data.get('signature'),userSignaturePad,isNew);var payload={userId:data.get('userId'),email:data.get('email'),name:data.get('name'),roleKey:data.get('roleKey'),password:data.get('password'),active:form.elements.active.checked,signatureData:signature,signatureName:data.get('name')};var response=await rpc('saveApprovalUser',state.token,payload);if(!response||response.status!=='success')throw new Error(response&&response.message);$('userDialog').close();await loadUsers();await Swal.fire({icon:'success',title:'Pengguna tersimpan',text:response.message,confirmButtonColor:'#17191f'});}catch(error){alertError(error.message);}finally{setBusy(false);}}
   init();
 })();

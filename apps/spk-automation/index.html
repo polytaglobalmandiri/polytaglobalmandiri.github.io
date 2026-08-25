@@ -18184,17 +18184,23 @@
 
     async function ensureCreatorApprovalLogin_() {
       let saved = null;
-      try { saved = JSON.parse(localStorage.getItem(SPK_AUTH_STORAGE_KEY_) || 'null'); } catch (ignore) {}
+      let savedPermanently = false;
+      try {
+        const localAuth = localStorage.getItem(SPK_AUTH_STORAGE_KEY_);
+        savedPermanently = Boolean(localAuth);
+        saved = JSON.parse(localAuth || sessionStorage.getItem(SPK_AUTH_STORAGE_KEY_) || 'null');
+      } catch (ignore) {}
       if (saved && saved.token) {
         try {
           const current = await approvalRpcPromise_('getApprovalSession', saved.token);
           if (current && current.status === 'success' && current.user.roleKey === 'admin_ppic') {
             saved.user = current.user;
-            localStorage.setItem(SPK_AUTH_STORAGE_KEY_, JSON.stringify(saved));
+            (savedPermanently ? localStorage : sessionStorage).setItem(SPK_AUTH_STORAGE_KEY_, JSON.stringify(saved));
             return saved;
           }
         } catch (ignore) {}
         localStorage.removeItem(SPK_AUTH_STORAGE_KEY_);
+        sessionStorage.removeItem(SPK_AUTH_STORAGE_KEY_);
       }
 
       const result = await Swal.fire({
@@ -18202,7 +18208,8 @@
         title: 'Login Admin PPIC',
         html: '<p style="font-size:.9rem;color:#5f6670">SPK baru hanya dapat dibuat oleh Admin PPIC. Paraf pembuat akan terisi otomatis.</p>' +
           '<input id="approvalLoginEmail" class="swal2-input" type="email" autocomplete="username" placeholder="Email">' +
-          '<input id="approvalLoginPassword" class="swal2-input" type="password" autocomplete="current-password" placeholder="Password">',
+          '<input id="approvalLoginPassword" class="swal2-input" type="password" autocomplete="current-password" placeholder="Password">' +
+          '<label style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;font-size:.9rem"><input id="approvalLoginRemember" type="checkbox"> Remember me</label>',
         showCancelButton: true,
         confirmButtonText: 'Masuk & Lanjutkan',
         cancelButtonText: 'Batal',
@@ -18214,16 +18221,20 @@
           const password = document.getElementById('approvalLoginPassword').value;
           if (!email || !password) { Swal.showValidationMessage('Email dan password wajib diisi.'); return false; }
           try {
-            const response = await approvalRpcPromise_('loginApprovalUser', email, password);
+            const remember = document.getElementById('approvalLoginRemember').checked;
+            const response = await approvalRpcPromise_('loginApprovalUser', email, password, remember);
             if (!response || response.status !== 'success') throw new Error(response && response.message || 'Login gagal.');
             if (!response.user || response.user.roleKey !== 'admin_ppic') throw new Error('Hanya akun Admin PPIC/pembuat yang dapat membuat SPK.');
+            response.remember = remember;
             return response;
           } catch (error) { Swal.showValidationMessage(error.message || 'Login gagal.'); return false; }
         }
       });
       if (!result.isConfirmed || !result.value) return null;
       const auth = { token: result.value.token, user: result.value.user };
-      localStorage.setItem(SPK_AUTH_STORAGE_KEY_, JSON.stringify(auth));
+      localStorage.removeItem(SPK_AUTH_STORAGE_KEY_);
+      sessionStorage.removeItem(SPK_AUTH_STORAGE_KEY_);
+      (result.value.remember ? localStorage : sessionStorage).setItem(SPK_AUTH_STORAGE_KEY_, JSON.stringify(auth));
       return auth;
     }
 

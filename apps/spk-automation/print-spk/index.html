@@ -4161,7 +4161,7 @@
 
     function getPrintAuthToken_() {
       try {
-        const auth = JSON.parse(localStorage.getItem(PRINT_AUTH_STORAGE_KEY_) || 'null');
+        const auth = JSON.parse(localStorage.getItem(PRINT_AUTH_STORAGE_KEY_) || sessionStorage.getItem(PRINT_AUTH_STORAGE_KEY_) || 'null');
         return auth && auth.token ? auth.token : '';
       } catch (ignore) { return ''; }
     }

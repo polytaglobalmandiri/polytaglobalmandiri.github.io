@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#17191f">
   <title>Persetujuan SPK | Polyta Global Mandiri</title>
-  <link rel="stylesheet" href="approval.css?v=20260825-1">
+  <link rel="stylesheet" href="approval.css?v=20260825-2">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
@@ -25,6 +25,7 @@
       <form id="loginForm" class="form-stack">
         <label>Email<input id="loginEmail" type="email" autocomplete="email" required></label>
         <label>Password<input id="loginPassword" type="password" autocomplete="current-password" required></label>
+        <label class="check"><input id="rememberMe" type="checkbox"> Remember me</label>
         <button class="button primary" type="submit">Masuk</button>
       </form>
       <button class="text-button" id="showSetupButton" type="button" hidden>Aktivasi Admin PPIC pertama</button>
@@ -38,7 +39,12 @@
         <label>Email login<input name="email" type="email" required></label>
         <label>Nama lengkap<input name="name" required></label>
         <label>Password<input name="password" type="password" minlength="8" required></label>
-        <label>Gambar tanda tangan<input name="signature" type="file" accept="image/png,image/jpeg" required></label>
+        <label>Upload gambar tanda tangan <small>(opsional jika menggambar manual)</small><input name="signature" type="file" accept="image/png,image/jpeg"></label>
+        <div class="signature-field">
+          <div class="signature-field-head"><span>Tanda tangan manual</span><button class="text-button compact" id="clearSetupSignature" type="button">Hapus / Ulangi</button></div>
+          <canvas id="setupSignaturePad" class="signature-pad" aria-label="Area menggambar tanda tangan Admin PPIC"></canvas>
+          <small>Gunakan mouse atau jari untuk menggambar di dalam kotak.</small>
+        </div>
         <div class="form-actions"><button class="button ghost" id="cancelSetup" type="button">Kembali</button><button class="button primary" type="submit">Aktifkan akun</button></div>
       </form>
     </section>
@@ -71,13 +77,18 @@
       <label>Nama lengkap<input name="name" required></label>
       <label>Jabatan<select name="roleKey" id="roleSelect" required></select></label>
       <label>Password <small>(kosongkan jika tidak diubah)</small><input name="password" type="password" minlength="8"></label>
-      <label>Gambar tanda tangan <small>(PNG/JPG maks. 1 MB)</small><input name="signature" type="file" accept="image/png,image/jpeg"></label>
+      <label>Upload gambar tanda tangan <small>(PNG/JPG maks. 1 MB)</small><input name="signature" type="file" accept="image/png,image/jpeg"></label>
+      <div class="signature-field">
+        <div class="signature-field-head"><span>Tanda tangan manual</span><button class="text-button compact" id="clearUserSignature" type="button">Hapus / Ulangi</button></div>
+        <canvas id="userSignaturePad" class="signature-pad" aria-label="Area menggambar tanda tangan pengguna"></canvas>
+        <small>Biarkan kosong saat mengubah pengguna jika tanda tangan lama tetap dipakai.</small>
+      </div>
       <label class="check"><input name="active" type="checkbox" checked> Akun aktif</label>
       <div class="form-actions"><button class="button ghost" id="cancelUser" type="button">Batal</button><button class="button primary" type="submit">Simpan pengguna</button></div>
     </form>
   </dialog>
 
   <script src="/assets/js/gas-rpc.js?v=20260825-1"></script>
-  <script src="approval.js?v=20260825-1"></script>
+  <script src="approval.js?v=20260825-2"></script>
 </body>
 </html>

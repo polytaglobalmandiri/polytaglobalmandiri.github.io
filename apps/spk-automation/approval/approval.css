@@ -279,7 +279,41 @@ dialog::backdrop { background: rgba(12,13,16,.7); backdrop-filter: blur(3px); }
 .dialog-head { display: flex; align-items: center; justify-content: space-between; }
 .dialog-head h2 { font-size: 1.15rem; }
 .icon-button { width: 36px; height: 36px; border: 1px solid #b3b5b5; border-radius: 50%; background: linear-gradient(#fff,#d7d8d6); color: #4a4c50; box-shadow: inset 0 1px 0 #fff,0 2px 0 #919395; font-size: 1.35rem; cursor: pointer; }
-.loading { opacity: .55; pointer-events: none; }
+body.loading { cursor: progress; }
+body.loading button,
+body.loading input,
+body.loading select,
+body.loading .signature-pad { pointer-events: none; }
+body.loading::after {
+  position: fixed;
+  z-index: 1000;
+  right: 18px;
+  bottom: 18px;
+  padding: 10px 14px 10px 36px;
+  border: 1px solid #55585d;
+  border-radius: 10px;
+  background: linear-gradient(180deg,#3c3e43,#202226);
+  color: #f4f4f2;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.16),0 3px 0 #111216,0 8px 20px rgba(0,0,0,.32);
+  font-size: .65rem;
+  font-weight: 800;
+  letter-spacing: .01em;
+  content: "Memproses data…";
+}
+body.loading::before {
+  position: fixed;
+  z-index: 1001;
+  right: 112px;
+  bottom: 29px;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255,255,255,.25);
+  border-top-color: #ff5964;
+  border-radius: 50%;
+  animation: loadingSpin .7s linear infinite;
+  content: "";
+}
+@keyframes loadingSpin { to { transform: rotate(360deg); } }
 .site-footer { width: min(1180px,calc(100% - 2.5rem)); margin: 0 auto 25px; display: flex; justify-content: space-between; color: #8f9298; font-size: .56rem; letter-spacing: .08em; text-transform: uppercase; }
 .site-footer span { color: #c3c5c9; font-weight: 800; }
 
@@ -332,6 +366,8 @@ dialog::backdrop { background: rgba(12,13,16,.7); backdrop-filter: blur(3px); }
   .form-actions { flex-direction: column-reverse; }
   .form-actions .button { width: 100%; }
   dialog { padding: 20px 16px; }
+  body.loading::after { right: 10px; bottom: 10px; }
+  body.loading::before { right: 104px; bottom: 21px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

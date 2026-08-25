@@ -39,7 +39,7 @@
         <label>Email login<input name="email" type="email" required></label>
         <label>Nama lengkap<input name="name" required></label>
         <label>Password<input name="password" type="password" minlength="8" required></label>
-        <label>Upload gambar tanda tangan <small>(opsional jika menggambar manual)</small><input name="signature" type="file" accept="image/png,image/jpeg"></label>
+        <label>Upload file tanda tangan <small>(PNG/JPG/PDF, opsional jika menggambar manual)</small><input name="signature" type="file" accept="image/png,image/jpeg,application/pdf,.pdf"></label>
         <div class="signature-field">
           <div class="signature-field-head"><span>Tanda tangan manual</span><button class="text-button compact" id="clearSetupSignature" type="button">Hapus / Ulangi</button></div>
           <canvas id="setupSignaturePad" class="signature-pad" aria-label="Area menggambar tanda tangan Admin PPIC"></canvas>
@@ -77,7 +77,7 @@
       <label>Nama lengkap<input name="name" required></label>
       <label>Jabatan<select name="roleKey" id="roleSelect" required></select></label>
       <label>Password <small>(kosongkan jika tidak diubah)</small><input name="password" type="password" minlength="8"></label>
-      <label>Upload gambar tanda tangan <small>(PNG/JPG maks. 1 MB)</small><input name="signature" type="file" accept="image/png,image/jpeg"></label>
+      <label>Upload file tanda tangan <small>(PNG/JPG maks. 1 MB atau PDF maks. 5 MB)</small><input name="signature" type="file" accept="image/png,image/jpeg,application/pdf,.pdf"></label>
       <div class="signature-field">
         <div class="signature-field-head"><span>Tanda tangan manual</span><button class="text-button compact" id="clearUserSignature" type="button">Hapus / Ulangi</button></div>
         <canvas id="userSignaturePad" class="signature-pad" aria-label="Area menggambar tanda tangan pengguna"></canvas>
@@ -89,6 +89,7 @@
   </dialog>
 
   <script src="/assets/js/gas-rpc.js?v=20260825-1"></script>
-  <script src="approval.js?v=20260825-3"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="approval.js?v=20260825-4"></script>
 </body>
 </html>

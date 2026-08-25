@@ -27,7 +27,64 @@
     (remember?localStorage:sessionStorage).setItem(AUTH_KEY,JSON.stringify({token:token,user:user,remember:Boolean(remember)}));
   }
   function clearAuth(){state.token='';state.user=null;localStorage.removeItem(AUTH_KEY);sessionStorage.removeItem(AUTH_KEY);}
-  function fileData(file){return new Promise(function(resolve,reject){if(!file){resolve('');return;}if(file.size>1000000){reject(new Error('Ukuran gambar maksimal 1 MB.'));return;}var reader=new FileReader();reader.onload=function(){resolve(reader.result);};reader.onerror=function(){reject(new Error('Gambar gagal dibaca.'));};reader.readAsDataURL(file);});}
+  function readFileAsDataUrl(file){
+    return new Promise(function(resolve,reject){var reader=new FileReader();reader.onload=function(){resolve(reader.result);};reader.onerror=function(){reject(new Error('File tanda tangan gagal dibaca.'));};reader.readAsDataURL(file);});
+  }
+
+  async function pdfSignatureData(file){
+    if(file.size>5000000)throw new Error('Ukuran PDF tanda tangan maksimal 5 MB.');
+    if(!window.pdfjsLib)throw new Error('Pemroses PDF belum berhasil dimuat. Muat ulang halaman lalu coba kembali.');
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    var documentTask=window.pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer())});
+    var pdf=await documentTask.promise;
+    var page=await pdf.getPage(1);
+    var viewport=page.getViewport({scale:1.5});
+    var source=document.createElement('canvas');
+    source.width=Math.ceil(viewport.width);source.height=Math.ceil(viewport.height);
+    var sourceContext=source.getContext('2d',{willReadFrequently:true});
+    sourceContext.fillStyle='#fff';sourceContext.fillRect(0,0,source.width,source.height);
+    await page.render({canvasContext:sourceContext,viewport:viewport}).promise;
+
+    // Area putih PDF dibuang agar tanda tangan tidak tampil sebagai satu
+    // halaman A4. Batas non-putih dipotong lalu latarnya dibuat transparan.
+    var image=sourceContext.getImageData(0,0,source.width,source.height);
+    var pixels=image.data,minX=source.width,minY=source.height,maxX=-1,maxY=-1;
+    for(var y=0;y<source.height;y+=1){
+      for(var x=0;x<source.width;x+=1){
+        var index=(y*source.width+x)*4;
+        var isInk=pixels[index]<245||pixels[index+1]<245||pixels[index+2]<245;
+        if(isInk){if(x<minX)minX=x;if(x>maxX)maxX=x;if(y<minY)minY=y;if(y>maxY)maxY=y;}
+        else pixels[index+3]=0;
+      }
+    }
+    if(maxX<minX||maxY<minY)throw new Error('Halaman pertama PDF tidak berisi tanda tangan yang dapat dibaca.');
+    sourceContext.putImageData(image,0,0);
+    var padding=16;
+    minX=Math.max(0,minX-padding);minY=Math.max(0,minY-padding);
+    maxX=Math.min(source.width-1,maxX+padding);maxY=Math.min(source.height-1,maxY+padding);
+    var cropWidth=maxX-minX+1,cropHeight=maxY-minY+1;
+    var scale=Math.min(1,900/cropWidth,350/cropHeight);
+    var output=document.createElement('canvas');
+    output.width=Math.max(1,Math.round(cropWidth*scale));output.height=Math.max(1,Math.round(cropHeight*scale));
+    var outputContext=output.getContext('2d');
+    outputContext.imageSmoothingEnabled=true;outputContext.imageSmoothingQuality='high';
+    outputContext.drawImage(source,minX,minY,cropWidth,cropHeight,0,0,output.width,output.height);
+    return output.toDataURL('image/png');
+  }
+
+  async function fileData(file){
+    // FormData mengembalikan objek File kosong ketika pengguna tidak memilih
+    // upload. Objek itu harus dianggap kosong agar hasil kanvas manual dipakai.
+    if(!file||!file.name||file.size===0)return '';
+    var type=String(file.type||'').toLowerCase();
+    var isPdf=type==='application/pdf'||/\.pdf$/i.test(file.name);
+    if(isPdf)return pdfSignatureData(file);
+    if(type!=='image/png'&&type!=='image/jpeg'&&!/\.(png|jpe?g)$/i.test(file.name)){
+      throw new Error('File tanda tangan harus berupa PNG, JPG, atau PDF.');
+    }
+    if(file.size>1000000)throw new Error('Ukuran gambar tanda tangan maksimal 1 MB.');
+    return readFileAsDataUrl(file);
+  }
 
   function createSignaturePad(canvas,clearButton){
     var context=canvas.getContext('2d'),drawing=false,hasInk=false,points=[];

@@ -628,7 +628,7 @@
   // berubah bila datanya bermutasi, jadi perubahan kode di sisi server tidak
   // akan menggugurkan simpanan lama; mengganti kunci inilah yang menggugurkan.
   // Naik ke v2: rekap routing kini memecah Cutting menjadi jenis finishing.
-  var CACHE_KEY = 'pgm:dashboard-spk-v4';
+  var CACHE_KEY = 'pgm:dashboard-spk-v5';
   var CACHE_MAX_CHARS = 4000000;
 
   function readCache() {
@@ -829,6 +829,59 @@
     });
   }
 
+  // Kolom Tracking hanya dua rentang kecil (SPK + Tracking). Saat revisi
+  // berubah, bagian outstanding bisa diperbarui lebih dahulu sambil muatan
+  // lengkap—routing, bahan, order, dan seterusnya—disinkronkan di belakang.
+  function applyTrackingPreview(data) {
+    if (
+      data && data.revision && state.meta && state.meta.revision &&
+      String(data.revision) === String(state.meta.revision)
+    ) return false;
+    var trackingBySpk = data && data.trackingBySpk || {};
+    var changed = false;
+    state.rows.forEach(function (row) {
+      var key = String(row.spk || '').trim().toUpperCase();
+      if (!Object.prototype.hasOwnProperty.call(trackingBySpk, key)) return;
+      var nextTracking = normalizeTracking(trackingBySpk[key]);
+      if (row.tracking === nextTracking) return;
+      row.tracking = nextTracking;
+      changed = true;
+    });
+    if (changed) {
+      state.cache = {};
+      showAll(false);
+    }
+    return changed;
+  }
+
+  function previewTrackingChange() {
+    return requestTrackingData().then(function (data) {
+      if (applyTrackingPreview(data)) {
+        setStatus('<i class="fa-solid fa-arrows-rotate fa-spin"></i> Tracking terbaru tampil · menyinkronkan data lain');
+      }
+    }).catch(function (error) {
+      // Muatan lengkap tetap dilanjutkan. Kegagalan pratinjau kecil tidak
+      // boleh membatalkan sinkronisasi seluruh Database SPK.
+      if (window.console && window.console.warn) {
+        window.console.warn('Pratinjau tracking tertunda:', error);
+      }
+    });
+  }
+
+  function syncChangedDatabase() {
+    startProgress('Database berubah · memperbarui rekapan');
+    setStatus('<i class="fa-solid fa-arrows-rotate fa-spin"></i> Menyinkronkan perubahan Database SPK');
+    // Pratinjau tracking dan muatan lengkap berjalan bersamaan. Tracking dapat
+    // tampil lebih dulu, sementara perubahan kolom lain tidak perlu menunggu
+    // pratinjau selesai sebelum mulai diambil.
+    var previewPromise = previewTrackingChange();
+    // false berarti cache server tetap boleh dipakai setelah revisinya
+    // dibandingkan dengan versi file Spreadsheet. Data lama tidak lolos,
+    // tetapi setiap browser juga tidak memaksa pembacaan penuh sendiri.
+    var fullPromise = fetchAndRender(true, false);
+    return Promise.all([previewPromise, fullPromise]);
+  }
+
   function syncRealtime() {
     if (realtimeInFlight || !hasRuntime()) return;
     realtimeInFlight = true;
@@ -838,9 +891,7 @@
         : '';
       if (!revision || revision === currentRevision) return null;
 
-      startProgress('Database berubah · memperbarui rekapan');
-      setStatus('<i class="fa-solid fa-arrows-rotate fa-spin"></i> Menyinkronkan perubahan Database SPK');
-      return fetchAndRender(true, true);
+      return syncChangedDatabase();
     }).catch(function(error) {
       if (window.console && window.console.warn) window.console.warn('Sinkronisasi realtime tertunda:', error);
     }).then(function() {
@@ -870,15 +921,14 @@
           startRealtime();
           return null;
         }
-        startProgress('Memperbarui rekapan');
-        return fetchAndRender(true, true);
+        return syncChangedDatabase();
       }).catch(showError);
       startRealtime();
       return;
     }
 
     startProgress('Menghubungi Database SPK');
-    fetchAndRender(true, true).then(startRealtime).catch(showError);
+    fetchAndRender(true, false).then(startRealtime).catch(showError);
   }
 
   setPeriodTitle();

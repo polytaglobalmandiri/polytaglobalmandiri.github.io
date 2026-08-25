@@ -10,7 +10,7 @@
   // atau karena pemanggilan yang mengubah data; perubahan kode tidak
   // menyentuhnya sama sekali, jadi nomor versi pada kunci inilah yang wajib
   // dinaikkan setiap bentuk muatannya berubah.
-  var DASHBOARD_CACHE_KEY = "dashboard-data-v3";
+  var DASHBOARD_CACHE_KEY = "dashboard-data-v4";
   var DASHBOARD_CACHE_MAX_AGE = 6 * 60 * 60 * 1000;
   var MUTATING_METHODS = {
     saveSpkYearPreference: true,
@@ -160,20 +160,12 @@
     var forceRefresh = method === "getDashboardData" && args && args[0] === true;
 
     if (method === "getDashboardData" && !forceRefresh) {
-      return readClientCache(DASHBOARD_CACHE_KEY).then(function (cached) {
-        if (!cached || !cached.value || Date.now() - Number(cached.savedAt || 0) > DASHBOARD_CACHE_MAX_AGE) {
-          return requestAndCacheDashboard(method, args);
-        }
-
-        // Data tersimpan ditampilkan segera. Salinan terbaru diambil tanpa
-        // menahan render; pemeriksa revisi Dashboard menangani perubahan aktif.
-        window.setTimeout(function () {
-          requestAndCacheDashboard(method, args).catch(function () {});
-        }, 800);
-        return cached.value;
-      }).catch(function () {
-        return requestAndCacheDashboard(method, args);
-      });
+      // Dashboard sendiri sudah menampilkan localStorage seketika dan
+      // membandingkan token revisi setiap lima detik. Lapisan IndexedDB di
+      // sini sebelumnya dapat mengembalikan snapshot lama justru setelah
+      // perubahan terdeteksi. Hubungi server agar cache tervalidasi terhadap
+      // revisi file Spreadsheet sebelum dipakai.
+      return requestAndCacheDashboard(method, args);
     }
 
     return requestServer(method, args).then(function (result) {

@@ -43,7 +43,7 @@
         <div class="signature-field">
           <div class="signature-field-head"><span>Tanda tangan manual</span><button class="text-button compact" id="clearSetupSignature" type="button">Hapus / Ulangi</button></div>
           <canvas id="setupSignaturePad" class="signature-pad" aria-label="Area menggambar tanda tangan Admin PPIC"></canvas>
-          <small>Gunakan mouse atau jari untuk menggambar di dalam kotak.</small>
+          <small>Gunakan mouse atau jari. Getaran kecil dan sudut garis akan dirapikan otomatis.</small>
         </div>
         <div class="form-actions"><button class="button ghost" id="cancelSetup" type="button">Kembali</button><button class="button primary" type="submit">Aktifkan akun</button></div>
       </form>
@@ -81,7 +81,7 @@
       <div class="signature-field">
         <div class="signature-field-head"><span>Tanda tangan manual</span><button class="text-button compact" id="clearUserSignature" type="button">Hapus / Ulangi</button></div>
         <canvas id="userSignaturePad" class="signature-pad" aria-label="Area menggambar tanda tangan pengguna"></canvas>
-        <small>Biarkan kosong saat mengubah pengguna jika tanda tangan lama tetap dipakai.</small>
+        <small>Garis dirapikan otomatis. Biarkan kosong saat mengubah pengguna jika tanda tangan lama tetap dipakai.</small>
       </div>
       <label class="check"><input name="active" type="checkbox" checked> Akun aktif</label>
       <div class="form-actions"><button class="button ghost" id="cancelUser" type="button">Batal</button><button class="button primary" type="submit">Simpan pengguna</button></div>
@@ -89,6 +89,6 @@
   </dialog>
 
   <script src="/assets/js/gas-rpc.js?v=20260825-1"></script>
-  <script src="approval.js?v=20260825-2"></script>
+  <script src="approval.js?v=20260825-3"></script>
 </body>
 </html>

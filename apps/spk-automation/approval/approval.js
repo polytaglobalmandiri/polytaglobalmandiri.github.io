@@ -30,21 +30,59 @@
   function fileData(file){return new Promise(function(resolve,reject){if(!file){resolve('');return;}if(file.size>1000000){reject(new Error('Ukuran gambar maksimal 1 MB.'));return;}var reader=new FileReader();reader.onload=function(){resolve(reader.result);};reader.onerror=function(){reject(new Error('Gambar gagal dibaca.'));};reader.readAsDataURL(file);});}
 
   function createSignaturePad(canvas,clearButton){
-    var context=canvas.getContext('2d'),drawing=false,hasInk=false;
+    var context=canvas.getContext('2d'),drawing=false,hasInk=false,points=[];
+    function configure(){
+      context.lineWidth=2.15;
+      context.lineCap='round';
+      context.lineJoin='round';
+      context.strokeStyle='#15171b';
+      context.fillStyle='#15171b';
+      context.imageSmoothingEnabled=true;
+      if('imageSmoothingQuality' in context)context.imageSmoothingQuality='high';
+    }
     function resize(){
       var rect=canvas.getBoundingClientRect();
       if(!rect.width)return;
       var ratio=Math.max(window.devicePixelRatio||1,1);
       canvas.width=Math.round(rect.width*ratio);canvas.height=Math.round(rect.height*ratio);
-      context.setTransform(ratio,0,0,ratio,0,0);context.lineWidth=2.2;context.lineCap='round';context.lineJoin='round';context.strokeStyle='#15171b';
-      hasInk=false;
+      context.setTransform(ratio,0,0,ratio,0,0);configure();hasInk=false;points=[];
     }
     function point(event){var rect=canvas.getBoundingClientRect();return{x:event.clientX-rect.left,y:event.clientY-rect.top};}
-    canvas.addEventListener('pointerdown',function(event){event.preventDefault();drawing=true;hasInk=true;canvas.setPointerCapture(event.pointerId);var p=point(event);context.beginPath();context.moveTo(p.x,p.y);});
-    canvas.addEventListener('pointermove',function(event){if(!drawing)return;event.preventDefault();var p=point(event);context.lineTo(p.x,p.y);context.stroke();});
-    function stop(event){if(!drawing)return;drawing=false;if(event&&canvas.hasPointerCapture(event.pointerId))canvas.releasePointerCapture(event.pointerId);}
+    function addPoint(raw){
+      var previous=points.length?points[points.length-1]:null;
+      var next=raw;
+      if(previous){
+        // Titik yang bergerak sedikit mendapat penyaringan lebih kuat untuk
+        // membuang getaran jari, sedangkan gerakan cepat tetap responsif.
+        var distance=Math.hypot(raw.x-previous.x,raw.y-previous.y);
+        var factor=distance>14?.62:(distance>6?.48:.34);
+        next={x:previous.x+(raw.x-previous.x)*factor,y:previous.y+(raw.y-previous.y)*factor};
+      }
+      points.push(next);
+      if(points.length<3)return;
+      var a=points[points.length-3],b=points[points.length-2],c=points[points.length-1];
+      var start={x:(a.x+b.x)/2,y:(a.y+b.y)/2};
+      var end={x:(b.x+c.x)/2,y:(b.y+c.y)/2};
+      context.beginPath();context.moveTo(start.x,start.y);context.quadraticCurveTo(b.x,b.y,end.x,end.y);context.stroke();
+    }
+    canvas.addEventListener('pointerdown',function(event){
+      event.preventDefault();drawing=true;hasInk=true;points=[];canvas.setPointerCapture(event.pointerId);addPoint(point(event));
+    });
+    canvas.addEventListener('pointermove',function(event){
+      if(!drawing)return;event.preventDefault();
+      var samples=typeof event.getCoalescedEvents==='function'?event.getCoalescedEvents():[event];
+      if(!samples.length)samples=[event];
+      samples.forEach(function(sample){addPoint(point(sample));});
+    });
+    function stop(event){
+      if(!drawing)return;drawing=false;
+      if(points.length===1){context.beginPath();context.arc(points[0].x,points[0].y,context.lineWidth/2,0,Math.PI*2);context.fill();}
+      else if(points.length>1){var last=points[points.length-1],before=points[points.length-2];context.beginPath();context.moveTo((before.x+last.x)/2,(before.y+last.y)/2);context.lineTo(last.x,last.y);context.stroke();}
+      points=[];
+      if(event&&canvas.hasPointerCapture(event.pointerId))canvas.releasePointerCapture(event.pointerId);
+    }
     canvas.addEventListener('pointerup',stop);canvas.addEventListener('pointercancel',stop);canvas.addEventListener('pointerleave',stop);
-    function clear(){context.clearRect(0,0,canvas.width,canvas.height);hasInk=false;}
+    function clear(){context.clearRect(0,0,canvas.width,canvas.height);hasInk=false;points=[];}
     clearButton.addEventListener('click',clear);
     resize();
     return{resize:resize,clear:clear,hasInk:function(){return hasInk;},dataUrl:function(){return hasInk?canvas.toDataURL('image/png'):'';}};

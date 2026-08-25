@@ -10951,7 +10951,7 @@
       </div>
       <h2 id="saveSuccessTitle">SPK berhasil disimpan</h2>
       <p id="saveSuccessMessage" class="save-success-message">
-        Apakah Anda ingin mencetak SPK ini sekarang?
+        SPK menunggu persetujuan wajib sebelum dapat diterbitkan.
       </p>
       <div class="save-success-reference">
         <span>Nomor SPK</span>
@@ -10965,12 +10965,12 @@
         <a
           id="printSpkLink"
           class="save-success-action save-success-primary"
-          href="/apps/spk-automation/print-spk/?mode=release"
-          data-base-url="/apps/spk-automation/print-spk/?mode=release"
+          href="/apps/spk-automation/approval/"
+          data-base-url="/apps/spk-automation/approval/"
           target="_top"
         >
-          <i class="fa-solid fa-print" aria-hidden="true"></i>
-          Cetak SPK
+          <i class="fa-solid fa-file-signature" aria-hidden="true"></i>
+          Buka Persetujuan
         </a>
       </div>
     </div>
@@ -18158,9 +18158,9 @@
       const overlay = document.getElementById('saveSuccessOverlay');
       const printLink = document.getElementById('printSpkLink');
       document.getElementById('saveSuccessMessage').textContent =
-        'Apakah Anda ingin mencetak SPK ini sekarang?';
+        'SPK menunggu persetujuan wajib. Cetak dan release akan terbuka otomatis setelah semua tanda tangan lengkap.';
       document.getElementById('saveSuccessSpk').textContent = spk || '—';
-      printLink.href = printLink.dataset.baseUrl + '&spk=' + encodeURIComponent(spk || '');
+      printLink.href = printLink.dataset.baseUrl;
 
       overlay.hidden = false;
       const root = document.getElementById('spkInputRoot');
@@ -18172,7 +18172,62 @@
       }, 0);
     }
 
-    function submitDatabase_() {
+    const SPK_AUTH_STORAGE_KEY_ = 'pgm:spk-auth-v1';
+
+    function approvalRpcPromise_(method) {
+      const args = Array.prototype.slice.call(arguments, 1);
+      return new Promise(function(resolve, reject) {
+        const runner = google.script.run.withSuccessHandler(resolve).withFailureHandler(reject);
+        runner[method].apply(runner, args);
+      });
+    }
+
+    async function ensureCreatorApprovalLogin_() {
+      let saved = null;
+      try { saved = JSON.parse(localStorage.getItem(SPK_AUTH_STORAGE_KEY_) || 'null'); } catch (ignore) {}
+      if (saved && saved.token) {
+        try {
+          const current = await approvalRpcPromise_('getApprovalSession', saved.token);
+          if (current && current.status === 'success' && current.user.roleKey === 'admin_ppic') {
+            saved.user = current.user;
+            localStorage.setItem(SPK_AUTH_STORAGE_KEY_, JSON.stringify(saved));
+            return saved;
+          }
+        } catch (ignore) {}
+        localStorage.removeItem(SPK_AUTH_STORAGE_KEY_);
+      }
+
+      const result = await Swal.fire({
+        icon: 'info',
+        title: 'Login Admin PPIC',
+        html: '<p style="font-size:.9rem;color:#5f6670">SPK baru hanya dapat dibuat oleh Admin PPIC. Paraf pembuat akan terisi otomatis.</p>' +
+          '<input id="approvalLoginEmail" class="swal2-input" type="email" autocomplete="username" placeholder="Email">' +
+          '<input id="approvalLoginPassword" class="swal2-input" type="password" autocomplete="current-password" placeholder="Password">',
+        showCancelButton: true,
+        confirmButtonText: 'Masuk & Lanjutkan',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#202020',
+        showLoaderOnConfirm: true,
+        allowOutsideClick: function() { return !Swal.isLoading(); },
+        preConfirm: async function() {
+          const email = document.getElementById('approvalLoginEmail').value.trim();
+          const password = document.getElementById('approvalLoginPassword').value;
+          if (!email || !password) { Swal.showValidationMessage('Email dan password wajib diisi.'); return false; }
+          try {
+            const response = await approvalRpcPromise_('loginApprovalUser', email, password);
+            if (!response || response.status !== 'success') throw new Error(response && response.message || 'Login gagal.');
+            if (!response.user || response.user.roleKey !== 'admin_ppic') throw new Error('Hanya akun Admin PPIC/pembuat yang dapat membuat SPK.');
+            return response;
+          } catch (error) { Swal.showValidationMessage(error.message || 'Login gagal.'); return false; }
+        }
+      });
+      if (!result.isConfirmed || !result.value) return null;
+      const auth = { token: result.value.token, user: result.value.user };
+      localStorage.setItem(SPK_AUTH_STORAGE_KEY_, JSON.stringify(auth));
+      return auth;
+    }
+
+    async function submitDatabase_() {
       if (!validateAllSteps_()) return;
 
       const activeTargetState = getActiveTargetSpkState_();
@@ -18187,6 +18242,9 @@
         });
         return;
       }
+
+      const creatorAuth = await ensureCreatorApprovalLogin_();
+      if (!creatorAuth) return;
 
       completedSteps.add(WIZARD_STEPS.length);
       updateWizardState_();
@@ -18207,6 +18265,7 @@
       const cuttingStep = stepOf('cutting');
 
       const payload = {
+        authToken: creatorAuth.token,
         spk: getActiveSpkValue_(),
         spkReferensi: getOrderMode_() === 'repeat' ? spkSebelumnyaField.value.trim().toUpperCase() : '',
         tanggal: document.getElementById('tanggal').value,

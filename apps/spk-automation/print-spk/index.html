@@ -3920,6 +3920,8 @@
       background-position: 0 0;
     }
 
+    .approval-signature-image { display:block; width:100%; height:100%; max-height:15mm; object-fit:contain; }
+
     </style>
   <script src="/assets/js/gas-rpc.js?v=20260823-3"></script>
 
@@ -3933,7 +3935,21 @@
       .polyta-portal-home { width: 39px !important; flex: 0 0 39px !important; padding-inline: 0 !important; justify-content: center; }
       .polyta-portal-home span { display: none; }
     }
-    @media print { .polyta-portal-home { display: none !important; } }
+    @media print {
+      .polyta-portal-home { display: none !important; }
+      body.print-blocked #printRoot { display: none !important; }
+      body.print-blocked::after {
+        content: "CETAK DIKUNCI — SPK belum direlease oleh Admin PPIC setelah seluruh tanda tangan lengkap.";
+        display: block;
+        margin: 30mm auto;
+        max-width: 150mm;
+        padding: 15mm;
+        border: 2px solid #b91c1c;
+        color: #7f1d1d;
+        font: 700 16pt/1.5 Arial, sans-serif;
+        text-align: center;
+      }
+    }
   </style>
   <link rel="stylesheet" href="../responsive.css?v=20260817-4">
   <style>
@@ -4141,6 +4157,14 @@
     const toolbarStatusTextEl = document.getElementById('toolbarStatusText');
     let currentPrintData = null;
     let releaseRequestInFlight = false;
+    const PRINT_AUTH_STORAGE_KEY_ = 'pgm:spk-auth-v1';
+
+    function getPrintAuthToken_() {
+      try {
+        const auth = JSON.parse(localStorage.getItem(PRINT_AUTH_STORAGE_KEY_) || 'null');
+        return auth && auth.token ? auth.token : '';
+      } catch (ignore) { return ''; }
+    }
 
     document.addEventListener('DOMContentLoaded', function () {
       loadPrintData_();
@@ -4154,15 +4178,7 @@
       // Aturan @media print mengubah tata letak, jadi hasil pengukuran versi
       // layar tidak bisa dipakai ulang di sini.
       fitAllPages_(true);
-      if (
-        PRINT_MODE === 'release' &&
-        currentPrintData &&
-        currentPrintData.release !== 'YA' &&
-        !releaseRequestInFlight &&
-        hasAppsScriptRuntime_()
-      ) {
-        requestReleaseAndPrint_(false);
-      }
+      document.body.classList.toggle('print-blocked', !currentPrintData || !currentPrintData.canPrint || currentPrintData.release !== 'YA');
     });
     // Pendaftaran beforeprint kedua dihapus: sebelumnya fitAllPages_ berjalan
     // dua kali pada setiap pencetakan karena terdaftar di dua tempat.
@@ -4203,7 +4219,7 @@
           .withFailureHandler(function (error) {
             showLoadError_(error && error.message ? error.message : 'Data SPK gagal dimuat.');
           })
-          .getSpkPrintData(requested, requestedDbRow);
+          .getSpkPrintData(requested, requestedDbRow, getPrintAuthToken_());
         return;
       }
 
@@ -4226,19 +4242,40 @@
       if (currentPrintData.rowNumber) requestedDbRow = currentPrintData.rowNumber;
       renderPrintPack_(currentPrintData);
       printButtonEl.hidden = PRINT_MODE === 'view';
-      printButtonEl.disabled = PRINT_MODE !== 'release';
+      printButtonEl.disabled = PRINT_MODE !== 'release' || !currentPrintData.canPrint ||
+        (currentPrintData.release !== 'YA' && !currentPrintData.canRelease);
       setToolbarStatus_(
         PRINT_MODE === 'view'
           ? 'Mode Lihat Saja. Status terbit tidak diubah.'
           : currentPrintData.release === 'YA'
             ? 'Paket SPK sudah pernah diterbitkan dan siap dicetak ulang.'
-            : 'Paket SPK siap dicetak. Status terbit akan diperbarui menjadi YA setelah tombol cetak ditekan.',
-        'ready'
+            : currentPrintData.approvalStatus === 'SIAP_RELEASE'
+              ? (currentPrintData.canRelease
+                ? 'Semua tanda tangan lengkap. SPK siap direlease oleh Admin PPIC.'
+                : 'Semua tanda tangan lengkap. Login Admin PPIC diperlukan untuk release.')
+              : 'Cetak dikunci. Persetujuan baru ' +
+                (currentPrintData.approvalProgress ? currentPrintData.approvalProgress.approved : 0) + ' dari ' +
+                (currentPrintData.approvalProgress ? currentPrintData.approvalProgress.required : 0) + ' lengkap.',
+        currentPrintData.release === 'YA' || currentPrintData.canRelease ? 'ready' : 'error'
       );
     }
 
     function requestReleaseAndPrint_(openPrintDialog) {
       if (!currentPrintData || releaseRequestInFlight || PRINT_MODE !== 'release') return;
+
+      if (!currentPrintData.canPrint) {
+        setToolbarStatus_('Cetak ditolak: login diperlukan atau tanda tangan belum lengkap.', 'error');
+        return;
+      }
+
+      if (currentPrintData.release === 'YA') {
+        if (openPrintDialog) window.print();
+        return;
+      }
+      if (!currentPrintData.canRelease) {
+        setToolbarStatus_('Release ditolak: tanda tangan belum lengkap atau akun bukan Admin PPIC.', 'error');
+        return;
+      }
 
       if (!hasAppsScriptRuntime_()) {
         applyReleaseToUi_('YA');
@@ -4249,12 +4286,6 @@
       releaseRequestInFlight = true;
       printButtonLabelEl.textContent = 'MENANDAI TERBIT...';
       setToolbarStatus_('Memperbarui kolom BV (Terbit)...', '');
-
-      // Dialog cetak dibuka lebih dulu, penandaan Release berjalan paralel.
-      // Menunggu jawaban server dulu membuat tombol terasa lambat 1-4 detik
-      // tanpa manfaat: penandaannya idempoten, dan jalur Ctrl+P memang sudah
-      // menembakkannya secara paralel lewat beforeprint.
-      if (openPrintDialog) window.print();
 
       google.script.run
         .withSuccessHandler(function (response) {
@@ -4272,6 +4303,7 @@
 
           applyReleaseToUi_('YA');
           setToolbarStatus_(response.message || 'Status terbit berhasil diperbarui.', 'ready');
+          if (openPrintDialog) window.print();
         })
         .withFailureHandler(function (error) {
           releaseRequestInFlight = false;
@@ -4282,7 +4314,7 @@
             'error'
           );
         })
-        .markSpkReleasedForPrint(currentPrintData.spk, requestedDbRow);
+        .markSpkReleasedForPrint(currentPrintData.spk, requestedDbRow, getPrintAuthToken_());
     }
 
     function applyReleaseToUi_(release) {
@@ -4785,8 +4817,10 @@
             <div class="po-signatures" aria-label="Persetujuan PO Produksi">
               ${/* Kepala divisi ditempatkan tepat setelah Admin, sama dengan
                     urutan pada lembar tiap alur produksi. */''}
-              ${poSignature_('Dibuat', 'Admin PPIC')}
-              ${poSignature_('Mengetahui', 'Kepala Blowing')}
+              ${poSignature_('Dibuat', 'Admin PPIC / Pembuat')}
+              ${(data.approvals || []).filter(function(item) {
+                return String(item.roleKey || '').indexOf('head_') === 0;
+              }).map(function(item) { return poSignature_('Mengetahui', item.roleLabel); }).join('')}
               ${poSignature_('Diperiksa', 'Asmen PPIC')}
               ${poSignature_('Diverifikasi', 'Manager PPIC')}
               ${poSignature_('Diverifikasi', 'Manager QC/QA')}
@@ -5384,18 +5418,32 @@
     }
 
     function poSignature_(approval, role) {
+      const record = approvalRecordForRole_(role);
       return `
         <div class="po-signature">
           <span class="signature-label">${escapeHtml_(approval)}</span>
-          <span class="signature-space" aria-hidden="true"></span>
+          <span class="signature-space">${signatureImageHtml_(record)}</span>
           <strong>${escapeHtml_(role)}</strong>
-          <small>Nama jelas / Tanggal</small>
+          <small>${record ? escapeHtml_(record.signerName + ' · ' + record.signedAt) : 'Nama jelas / Tanggal'}</small>
         </div>
       `;
     }
 
+    function approvalRecordForRole_(role) {
+      const normalized = String(role || '').toLowerCase();
+      return (currentPrintData && currentPrintData.approvals || []).find(function(item) {
+        return String(item.roleLabel || '').toLowerCase() === normalized && item.status === 'DISETUJUI';
+      }) || null;
+    }
+
+    function signatureImageHtml_(record) {
+      return record && record.signatureData
+        ? '<img class="approval-signature-image" src="' + escapeHtml_(record.signatureData) + '" alt="Tanda tangan ' + escapeHtml_(record.signerName) + '">'
+        : '';
+    }
+
     function processSignatures_(form) {
-      const division = form.key === 'cutting' ? 'Cutting' : form.label;
+      const division = form.key === 'cutting' ? 'Finishing' : form.label;
       // Tiap lembar alur perlu pengesahan kepala divisi yang mengerjakannya,
       // ditempatkan setelah Admin seperti pada lembar SPK asli yang memuat
       // baris KA.BLOWING, KA.PRODUKSI, dan seterusnya. Nama divisinya
@@ -5403,7 +5451,7 @@
       // Kepala Blowing, lembar Printing memakai Kepala Printing, dan
       // seterusnya. Lembar PO Produksi tetap memakai Kepala Blowing.
       const signatures = [
-        { approval: 'Dibuat', role: 'Admin PPIC' },
+        { approval: 'Dibuat', role: 'Admin PPIC / Pembuat' },
         { approval: 'Mengetahui', role: 'Kepala ' + division },
         { approval: 'Diperiksa', role: 'Asmen PPIC' },
         { approval: 'Diverifikasi', role: 'Manager PPIC' },
@@ -5415,12 +5463,13 @@
       return `
         <section class="process-signatures" aria-label="Pengesahan alur ${escapeHtml_(division)}">
           ${signatures.map(function (signature) {
+            const record = approvalRecordForRole_(signature.role);
             return `
               <div class="process-signature">
                 <span class="process-signature-label">${escapeHtml_(signature.approval)}</span>
-                <span class="process-signature-space" aria-hidden="true"></span>
+                <span class="process-signature-space">${signatureImageHtml_(record)}</span>
                 <strong>${escapeHtml_(signature.role)}</strong>
-                <small>Nama jelas / Tanggal</small>
+                <small>${record ? escapeHtml_(record.signerName + ' · ' + record.signedAt) : 'Nama jelas / Tanggal'}</small>
               </div>
             `;
           }).join('')}

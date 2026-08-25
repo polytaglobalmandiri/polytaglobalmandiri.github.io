@@ -105,6 +105,7 @@ const SITE = {
           items: [
             { label: "Dashboard", url: "/apps/spk-automation/dashboard/", type: "script", icon: "gauge" },
             { label: "PO & SPK", url: "/apps/spk-automation/", type: "script", icon: "clipboard" },
+            { label: "Persetujuan SPK", url: "/apps/spk-automation/approval/", type: "script", icon: "check" },
             { label: "Bahan & Tinta", url: "/apps/spk-automation/material-management/", type: "script", icon: "flask" },
             { label: "Keluar Bahan", url: "/apps/spk-automation/material-issue/", type: "script", icon: "truck" },
             { label: "Penarikan Data", url: "/apps/spk-automation/data-retrieval/", type: "script", icon: "download" },

@@ -3,93 +3,156 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#17191f">
+  <meta name="theme-color" content="#202126">
+  <meta name="description" content="Portal persetujuan dan tanda tangan digital SPK Polyta Global Mandiri.">
   <title>Persetujuan SPK | Polyta Global Mandiri</title>
-  <link rel="stylesheet" href="approval.css?v=20260825-2">
+  <link rel="icon" href="/assets/img/logo-app.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="approval.css?v=20260825-3">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body>
-  <main class="shell">
-    <header class="topbar">
-      <a class="brand" href="../"><span class="brand-mark">PGM</span><span>Persetujuan SPK</span></a>
-      <div class="userbar" id="userbar" hidden>
-        <span><strong id="currentName">—</strong><small id="currentRole">—</small></span>
-        <button class="button ghost" id="logoutButton" type="button">Keluar</button>
-      </div>
-    </header>
+<body data-page="approval-spk">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/" aria-label="Portal utama Polyta Global Mandiri">
+        <span class="brand-mark" aria-hidden="true">
+          <svg class="polyta-logo" viewBox="0 0 120 120" focusable="false">
+            <defs>
+              <linearGradient id="approvalLogoMetal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4b4e54"/><stop offset=".42" stop-color="#111216"/><stop offset="1" stop-color="#020304"/></linearGradient>
+              <linearGradient id="approvalLogoBlue" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6f8fe0"/><stop offset=".48" stop-color="#4563b3"/><stop offset="1" stop-color="#293f87"/></linearGradient>
+              <linearGradient id="approvalLogoRed" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff5660"/><stop offset=".5" stop-color="#ef2631"/><stop offset="1" stop-color="#b90f1d"/></linearGradient>
+              <linearGradient id="approvalLogoGreen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#72d77b"/><stop offset=".48" stop-color="#40b84e"/><stop offset="1" stop-color="#168d2d"/></linearGradient>
+            </defs>
+            <path d="M14 12h50v43h42v53h-8V63H64v45H14V55h42V20H14z" fill="url(#approvalLogoMetal)"/>
+            <rect x="15" y="22" width="41" height="12" rx="6" fill="url(#approvalLogoBlue)"/>
+            <rect x="22" y="63" width="34" height="37" fill="url(#approvalLogoRed)"/>
+            <rect x="84" y="64" width="11" height="44" rx="5.5" fill="url(#approvalLogoGreen)"/>
+            <path d="M17 15h43M24 66h30M86.5 67v35" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="2" opacity=".36"/>
+          </svg>
+        </span>
+        <span><strong class="brand-name">POLYTA GLOBAL MANDIRI</strong><small class="brand-subtitle">Portal Persetujuan SPK</small></span>
+      </a>
 
-    <section class="auth-card" id="loginView">
-      <p class="eyebrow">AKSES TERBATAS</p>
-      <h1>Masuk dengan email</h1>
-      <p class="muted">Gunakan akun sesuai jabatan. Setiap persetujuan akan memakai tanda tangan yang tersimpan pada akun Anda.</p>
-      <form id="loginForm" class="form-stack">
-        <label>Email<input id="loginEmail" type="email" autocomplete="email" required></label>
-        <label>Password<input id="loginPassword" type="password" autocomplete="current-password" required></label>
-        <label class="check"><input id="rememberMe" type="checkbox"> Remember me</label>
-        <button class="button primary" type="submit">Masuk</button>
-      </form>
-      <button class="text-button" id="showSetupButton" type="button" hidden>Aktivasi Admin PPIC pertama</button>
+      <nav class="topnav" aria-label="Navigasi utama">
+        <a class="nav-link-app" href="/" target="_top" title="Portal utama"><i class="fa-solid fa-house" aria-hidden="true"></i><span>Portal Utama</span></a>
+        <a class="nav-link-app" href="/apps/spk-automation/dashboard/" target="_top" title="Dashboard PPIC"><i class="fa-solid fa-chart-line" aria-hidden="true"></i><span>Dashboard</span></a>
+        <div class="userbar" id="userbar" hidden>
+          <span class="user-copy"><strong id="currentName">—</strong><small id="currentRole">—</small></span>
+          <button class="nav-link-app logout-link" id="logoutButton" type="button" title="Keluar"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i><span>Keluar</span></button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <section class="page-heading" aria-labelledby="pageTitle">
+      <div class="heading-group">
+        <span class="heading-icon"><i class="fa-solid fa-file-signature" aria-hidden="true"></i></span>
+        <div><p class="eyebrow">PERSETUJUAN DIGITAL INTERNAL</p><h1 id="pageTitle">Persetujuan SPK</h1><p>Kelola antrean, tanda tangan, dan status kesiapan release dalam satu halaman.</p></div>
+      </div>
+      <span class="status-chip"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Akses Terproteksi</span>
     </section>
 
-    <section class="auth-card" id="setupView" hidden>
-      <p class="eyebrow">AKTIVASI AWAL</p>
-      <h1>Buat Admin PPIC pertama</h1>
-      <form id="setupForm" class="form-grid">
-        <label>Kode aktivasi<input name="setupCode" required></label>
-        <label>Email login<input name="email" type="email" required></label>
-        <label>Nama lengkap<input name="name" required></label>
-        <label>Password<input name="password" type="password" minlength="8" required></label>
-        <label>Upload file tanda tangan <small>(PNG/JPG/PDF, opsional jika menggambar manual)</small><input name="signature" type="file" accept="image/png,image/jpeg,application/pdf,.pdf"></label>
+    <section class="auth-workspace" id="loginView">
+      <aside class="auth-intro">
+        <span class="intro-orb"><i class="fa-solid fa-file-circle-check" aria-hidden="true"></i></span>
+        <p class="eyebrow">ALUR PERSETUJUAN TERKENDALI</p>
+        <h2>SPK siap release setelah seluruh persetujuan lengkap.</h2>
+        <p>Setiap keputusan tercatat sesuai akun, jabatan, waktu, dan tanda tangan yang tersimpan.</p>
+        <div class="flow-list" aria-label="Tahapan persetujuan">
+          <span><b>01</b><i class="fa-solid fa-user-lock" aria-hidden="true"></i> Login akun jabatan</span>
+          <span><b>02</b><i class="fa-solid fa-pen-nib" aria-hidden="true"></i> Periksa dan setujui SPK</span>
+          <span><b>03</b><i class="fa-solid fa-flag-checkered" aria-hidden="true"></i> Siap release oleh Admin PPIC</span>
+        </div>
+      </aside>
+
+      <article class="auth-card">
+        <div class="card-heading">
+          <span><i class="fa-solid fa-key" aria-hidden="true"></i></span>
+          <div><p class="eyebrow">AKSES PENGGUNA</p><h2>Masuk dengan email</h2><p>Gunakan akun sesuai jabatan Anda.</p></div>
+        </div>
+        <form id="loginForm" class="form-stack">
+          <label><span>Email</span><span class="input-shell"><i class="fa-regular fa-envelope" aria-hidden="true"></i><input id="loginEmail" type="email" autocomplete="email" placeholder="nama@perusahaan.com" required></span></label>
+          <label><span>Password</span><span class="input-shell"><i class="fa-solid fa-lock" aria-hidden="true"></i><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Masukkan password" required></span></label>
+          <label class="check"><input id="rememberMe" type="checkbox"><span>Ingat saya di perangkat ini</span></label>
+          <button class="button primary wide" type="submit"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Masuk ke Persetujuan</button>
+        </form>
+        <p class="security-note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Jangan bagikan password atau akses akun Anda kepada orang lain.</p>
+        <button class="text-button" id="showSetupButton" type="button" hidden>Aktivasi Admin PPIC pertama</button>
+      </article>
+    </section>
+
+    <section class="workspace setup-workspace" id="setupView" hidden>
+      <header class="workspace-head">
+        <div class="workspace-title"><span><i class="fa-solid fa-user-gear" aria-hidden="true"></i></span><div><p class="eyebrow">AKTIVASI AWAL</p><h2>Buat Admin PPIC pertama</h2><p>Lengkapi identitas akun dan tanda tangan untuk memulai sistem persetujuan.</p></div></div>
+      </header>
+      <form id="setupForm" class="form-grid workspace-body">
+        <label>Kode aktivasi<input name="setupCode" autocomplete="one-time-code" required></label>
+        <label>Email login<input name="email" type="email" autocomplete="email" required></label>
+        <label>Nama lengkap<input name="name" autocomplete="name" required></label>
+        <label>Password<input name="password" type="password" minlength="8" autocomplete="new-password" required></label>
+        <label class="full-field">Upload file tanda tangan <small>PNG/JPG/PDF, opsional jika menggambar manual</small><input name="signature" type="file" accept="image/png,image/jpeg,application/pdf,.pdf"></label>
         <div class="signature-field">
-          <div class="signature-field-head"><span>Tanda tangan manual</span><button class="text-button compact" id="clearSetupSignature" type="button">Hapus / Ulangi</button></div>
+          <div class="signature-field-head"><span><i class="fa-solid fa-signature" aria-hidden="true"></i> Tanda tangan manual</span><button class="text-button compact" id="clearSetupSignature" type="button"><i class="fa-solid fa-eraser" aria-hidden="true"></i> Hapus / Ulangi</button></div>
           <canvas id="setupSignaturePad" class="signature-pad" aria-label="Area menggambar tanda tangan Admin PPIC"></canvas>
           <small>Gunakan mouse atau jari. Getaran kecil dan sudut garis akan dirapikan otomatis.</small>
         </div>
-        <div class="form-actions"><button class="button ghost" id="cancelSetup" type="button">Kembali</button><button class="button primary" type="submit">Aktifkan akun</button></div>
+        <div class="form-actions"><button class="button ghost" id="cancelSetup" type="button">Kembali</button><button class="button primary" type="submit"><i class="fa-solid fa-user-check" aria-hidden="true"></i> Aktifkan akun</button></div>
       </form>
     </section>
 
     <section id="appView" hidden>
-      <div class="hero">
-        <div><p class="eyebrow">TANDA TANGAN DIGITAL INTERNAL</p><h1>Antrean persetujuan saya</h1><p class="muted">SPK menjadi Siap Release hanya setelah semua persetujuan wajib lengkap.</p></div>
-        <button class="button ghost" id="refreshButton" type="button">Muat ulang</button>
+      <div class="app-hero">
+        <div><p class="eyebrow">RUANG KERJA PERSETUJUAN</p><h2>Antrean persetujuan saya</h2><p>SPK menjadi Siap Release hanya setelah semua persetujuan wajib lengkap.</p></div>
+        <button class="button ghost" id="refreshButton" type="button"><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i> Muat ulang</button>
       </div>
-      <div class="metrics">
-        <article><span>Menunggu saya</span><strong id="pendingCount">0</strong></article>
-        <article><span>Sudah disetujui</span><strong id="approvedCount">0</strong></article>
-        <article><span>Tanda tangan akun</span><strong class="small" id="signatureState">—</strong></article>
-      </div>
-      <div class="notice warning" id="signatureWarning" hidden>Gambar tanda tangan akun belum tersedia. Hubungi Admin PPIC sebelum menyetujui SPK.</div>
-      <div class="queue" id="queueList"></div>
 
-      <section class="admin-panel" id="adminPanel" hidden>
-        <div class="section-title"><div><p class="eyebrow">ADMIN PPIC</p><h2>Database pengguna</h2></div><button class="button primary" id="newUserButton" type="button">Tambah pengguna</button></div>
+      <div class="metrics" aria-label="Ringkasan persetujuan">
+        <article><span class="metric-icon red"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i></span><div><small>Menunggu saya</small><strong id="pendingCount">0</strong><p>Perlu tindakan</p></div></article>
+        <article><span class="metric-icon green"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></span><div><small>Sudah disetujui</small><strong id="approvedCount">0</strong><p>Persetujuan selesai</p></div></article>
+        <article><span class="metric-icon blue"><i class="fa-solid fa-signature" aria-hidden="true"></i></span><div><small>Tanda tangan akun</small><strong class="small" id="signatureState">—</strong><p>Identitas digital</p></div></article>
+      </div>
+
+      <div class="notice warning" id="signatureWarning" hidden><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i><span>Gambar tanda tangan akun belum tersedia. Hubungi Admin PPIC sebelum menyetujui SPK.</span></div>
+
+      <section class="workspace queue-workspace">
+        <header class="workspace-head"><div class="workspace-title"><span><i class="fa-solid fa-list-check" aria-hidden="true"></i></span><div><h2>Daftar SPK</h2><p>Urutan terbaru dari database persetujuan.</p></div></div><span class="live-badge"><i></i> Data aktif</span></header>
+        <div class="queue" id="queueList"></div>
+      </section>
+
+      <section class="workspace admin-panel" id="adminPanel" hidden>
+        <header class="workspace-head section-title"><div class="workspace-title"><span><i class="fa-solid fa-users-gear" aria-hidden="true"></i></span><div><p class="eyebrow">ADMIN PPIC</p><h2>Database pengguna</h2><p>Kelola akses jabatan dan tanda tangan pengguna.</p></div></div><button class="button primary" id="newUserButton" type="button"><i class="fa-solid fa-user-plus" aria-hidden="true"></i> Tambah pengguna</button></header>
         <div class="user-list" id="userList"></div>
       </section>
     </section>
   </main>
 
+  <footer class="site-footer"><span>POLYTA GLOBAL MANDIRI</span><small>Sistem Persetujuan SPK Internal</small></footer>
+
   <dialog id="userDialog">
     <form id="userForm" class="form-grid" method="dialog">
-      <div class="dialog-head"><h2 id="userDialogTitle">Tambah pengguna</h2><button class="icon-button" id="closeUserDialog" type="button" aria-label="Tutup">×</button></div>
+      <div class="dialog-head"><div><p class="eyebrow">DATABASE PENGGUNA</p><h2 id="userDialogTitle">Tambah pengguna</h2></div><button class="icon-button" id="closeUserDialog" type="button" aria-label="Tutup">×</button></div>
       <input name="userId" type="hidden">
-      <label>Email login<input name="email" type="email" required></label>
-      <label>Nama lengkap<input name="name" required></label>
+      <label>Email login<input name="email" type="email" autocomplete="email" required></label>
+      <label>Nama lengkap<input name="name" autocomplete="name" required></label>
       <label>Jabatan<select name="roleKey" id="roleSelect" required></select></label>
-      <label>Password <small>(kosongkan jika tidak diubah)</small><input name="password" type="password" minlength="8"></label>
-      <label>Upload file tanda tangan <small>(PNG/JPG maks. 1 MB atau PDF maks. 5 MB)</small><input name="signature" type="file" accept="image/png,image/jpeg,application/pdf,.pdf"></label>
+      <label>Password <small>Kosongkan jika tidak diubah</small><input name="password" type="password" minlength="8" autocomplete="new-password"></label>
+      <label class="full-field">Upload file tanda tangan <small>PNG/JPG maks. 1 MB atau PDF maks. 5 MB</small><input name="signature" type="file" accept="image/png,image/jpeg,application/pdf,.pdf"></label>
       <div class="signature-field">
-        <div class="signature-field-head"><span>Tanda tangan manual</span><button class="text-button compact" id="clearUserSignature" type="button">Hapus / Ulangi</button></div>
+        <div class="signature-field-head"><span><i class="fa-solid fa-signature" aria-hidden="true"></i> Tanda tangan manual</span><button class="text-button compact" id="clearUserSignature" type="button"><i class="fa-solid fa-eraser" aria-hidden="true"></i> Hapus / Ulangi</button></div>
         <canvas id="userSignaturePad" class="signature-pad" aria-label="Area menggambar tanda tangan pengguna"></canvas>
         <small>Garis dirapikan otomatis. Biarkan kosong saat mengubah pengguna jika tanda tangan lama tetap dipakai.</small>
       </div>
-      <label class="check"><input name="active" type="checkbox" checked> Akun aktif</label>
-      <div class="form-actions"><button class="button ghost" id="cancelUser" type="button">Batal</button><button class="button primary" type="submit">Simpan pengguna</button></div>
+      <label class="check full-field"><input name="active" type="checkbox" checked><span>Akun aktif</span></label>
+      <div class="form-actions"><button class="button ghost" id="cancelUser" type="button">Batal</button><button class="button primary" type="submit"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Simpan pengguna</button></div>
     </form>
   </dialog>
 
   <script src="/assets/js/gas-rpc.js?v=20260825-1"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  <script src="approval.js?v=20260825-4"></script>
+  <script src="approval.js?v=20260825-5"></script>
 </body>
 </html>

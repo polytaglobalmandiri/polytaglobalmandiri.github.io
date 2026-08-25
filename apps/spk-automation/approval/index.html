@@ -23,7 +23,7 @@
       <h1>Masuk dengan email</h1>
       <p class="muted">Gunakan akun sesuai jabatan. Setiap persetujuan akan memakai tanda tangan yang tersimpan pada akun Anda.</p>
       <form id="loginForm" class="form-stack">
-        <label>Email<input id="loginEmail" type="email" autocomplete="username" required></label>
+        <label>Email<input id="loginEmail" type="email" autocomplete="email" required></label>
         <label>Password<input id="loginPassword" type="password" autocomplete="current-password" required></label>
         <button class="button primary" type="submit">Masuk</button>
       </form>
@@ -36,7 +36,6 @@
       <form id="setupForm" class="form-grid">
         <label>Kode aktivasi<input name="setupCode" required></label>
         <label>Email login<input name="email" type="email" required></label>
-        <label>Username<input name="username" required></label>
         <label>Nama lengkap<input name="name" required></label>
         <label>Password<input name="password" type="password" minlength="8" required></label>
         <label>Gambar tanda tangan<input name="signature" type="file" accept="image/png,image/jpeg" required></label>
@@ -69,7 +68,6 @@
       <div class="dialog-head"><h2 id="userDialogTitle">Tambah pengguna</h2><button class="icon-button" id="closeUserDialog" type="button" aria-label="Tutup">×</button></div>
       <input name="userId" type="hidden">
       <label>Email login<input name="email" type="email" required></label>
-      <label>Username<input name="username" required></label>
       <label>Nama lengkap<input name="name" required></label>
       <label>Jabatan<select name="roleKey" id="roleSelect" required></select></label>
       <label>Password <small>(kosongkan jika tidak diubah)</small><input name="password" type="password" minlength="8"></label>

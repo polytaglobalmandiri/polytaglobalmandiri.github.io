@@ -245,7 +245,12 @@
       var previewButton=event.target.closest('[data-preview]');
       if(previewButton){openPreview(previewButton.dataset.preview);return;}
       var card=event.target.closest('.queue-card');
-      if(card&&card.dataset.spk)openPreview(card.dataset.spk);
+      if(!card||!card.dataset.spk)return;
+      // Menyorot teks pada kartu berakhir dengan peristiwa klik juga. Tanpa
+      // pemeriksaan ini, menyalin nama customer selalu membuka pratinjau.
+      var selection=window.getSelection&&window.getSelection();
+      if(selection&&!selection.isCollapsed)return;
+      openPreview(card.dataset.spk);
     });
     $('closePreviewDialog').addEventListener('click',closePreview);
     $('previewDialog').addEventListener('close',releasePreviewFrame);
@@ -290,10 +295,13 @@
   // native terbuka, keduanya berada di bawah top layer sehingga tak terlihat
   // dan tak dapat diklik. Maka pratinjau ditutup lebih dulu, baru alur
   // persetujuan yang sudah ada dijalankan seperti dari kartu antrean.
-  function approveFromPreview(){
+  async function approveFromPreview(){
     var spk=previewSpk;
     closePreview();
-    if(spk)approve(spk);
+    if(!spk)return;
+    // Dibatalkan berarti pengguna belum selesai memeriksa, jadi lembarnya
+    // dikembalikan alih-alih meninggalkannya di antrean.
+    if(!await approve(spk))openPreview(spk);
   }
   // Sumber dikosongkan setelah ditutup supaya iframe berhenti bekerja dan
   // pratinjau berikutnya tidak sempat menampilkan SPK sebelumnya.
@@ -308,7 +316,8 @@
       return '<article class="queue-card" data-spk="'+escapeHtml(item.spk)+'"><div><h3><i class="fa-regular fa-file-lines" aria-hidden="true"></i> '+escapeHtml(item.spk)+'</h3><p>'+escapeHtml(item.customer||'Tanpa customer')+' · '+escapeHtml(item.article||'Tanpa artikel')+'</p><div>'+routes+'</div></div><div><span class="tag '+(item.approvalStatus==='SIAP_RELEASE'?'ok':'wait')+'">'+escapeHtml(item.approvalStatus.replace(/_/g,' '))+'</span><div class="progress"><i style="width:'+width+'%"></i></div><p>'+progress.approved+' dari '+progress.required+' persetujuan lengkap</p></div><div>'+'<button class="button ghost" data-preview="'+escapeHtml(item.spk)+'" type="button"><i class="fa-solid fa-file-lines" aria-hidden="true"></i> Lihat lembar</button>'+(pending?'<button class="button primary" data-approve="'+escapeHtml(item.spk)+'" '+(signatureReady?'':'disabled')+'><i class="fa-solid fa-pen-nib" aria-hidden="true"></i> Setujui &amp; Paraf</button>':'<span class="state"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Disetujui<br><small>'+escapeHtml(item.signedAt)+'</small></span>')+'</div></article>';
     }).join('');
   }
-  async function approve(spk){var confirmation=await showAlert({icon:'question',title:'Setujui SPK '+spk+'?',text:'Tanda tangan akun Anda akan dibubuhkan dan tindakan ini dicatat beserta waktu persetujuan.',showCancelButton:true,confirmButtonText:'Ya, setujui',cancelButtonText:'Batal',confirmButtonColor:'#b41420'});if(!confirmation.isConfirmed)return;setBusy(true,'Menyimpan persetujuan','Tanda tangan dan waktu persetujuan sedang dicatat…');try{var response=await rpc('approveSpk',state.token,spk);if(!response||response.status!=='success')throw new Error(response&&response.message);await showAlert({icon:'success',title:'Persetujuan tersimpan',text:response.message,confirmButtonColor:'#b41420'});await loadQueue();}catch(error){alertError(error.message);}finally{setBusy(false);}}
+  // Mengembalikan true hanya bila persetujuan benar-benar tersimpan.
+  async function approve(spk){var confirmation=await showAlert({icon:'question',title:'Setujui SPK '+spk+'?',text:'Tanda tangan akun Anda akan dibubuhkan dan tindakan ini dicatat beserta waktu persetujuan.',showCancelButton:true,confirmButtonText:'Ya, setujui',cancelButtonText:'Batal',confirmButtonColor:'#b41420'});if(!confirmation.isConfirmed)return false;setBusy(true,'Menyimpan persetujuan','Tanda tangan dan waktu persetujuan sedang dicatat…');try{var response=await rpc('approveSpk',state.token,spk);if(!response||response.status!=='success')throw new Error(response&&response.message);await showAlert({icon:'success',title:'Persetujuan tersimpan',text:response.message,confirmButtonColor:'#b41420'});await loadQueue();return true;}catch(error){alertError(error.message);return false;}finally{setBusy(false);}}
   async function loadUsers(){var response=await rpc('listApprovalUsers',state.token);if(!response||response.status!=='success')throw new Error(response&&response.message);state.users=response.users||[];state.roles=response.roles||state.roles;renderUsers();fillRoles();}
   function renderUsers(){$('userList').innerHTML=state.users.map(function(user){return '<article class="user-card"><div><h3><i class="fa-solid fa-user-shield" aria-hidden="true"></i> '+escapeHtml(user.name)+'</h3><p>'+escapeHtml(user.email)+'</p><p>'+escapeHtml(user.roleLabel)+' · TTD '+(user.signatureReady?'tersedia':'belum ada')+'</p><span class="state '+(user.active?'':'off')+'">'+(user.active?'AKTIF':'NONAKTIF')+'</span></div><button class="button ghost" data-user="'+escapeHtml(user.userId)+'"><i class="fa-solid fa-pen" aria-hidden="true"></i> Ubah</button></article>';}).join('')||'<div class="empty">Belum ada pengguna.</div>';}
   function fillRoles(){$('roleSelect').innerHTML=state.roles.map(function(role){return '<option value="'+escapeHtml(role.key)+'">'+escapeHtml(role.label)+'</option>';}).join('');}

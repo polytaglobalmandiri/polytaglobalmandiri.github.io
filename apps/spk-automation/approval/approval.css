@@ -317,7 +317,7 @@ dialog::backdrop { background: rgba(12,13,16,.7); backdrop-filter: blur(3px); }
 .preview-frame { display: block; width: 100%; height: 100%; border: 0; background: #d9dcd8; }
 /* Menutupi iframe selama datanya diambil. Tanpa ini pratinjau hanya diam
    memutih sampai Apps Script menjawab, dan terbaca seperti macet. */
-.preview-loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 13px; background: rgba(228,229,226,.94); }
+.preview-loading { position: absolute; inset: 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 13px; padding: 20px; background: #e4e5e2; text-align: center; }
 .preview-loading > span:last-child { display: grid; gap: 3px; }
 .preview-loading strong { font-size: .74rem; }
 .preview-loading small { color: var(--muted); font-size: .61rem; }

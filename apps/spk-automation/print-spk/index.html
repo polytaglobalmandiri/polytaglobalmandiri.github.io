@@ -4089,6 +4089,7 @@
       text-shadow: 0 -1px 0 #620a0a;
     }
     .embed-tab:focus-visible { outline: 3px solid rgba(230,59,82,.4); outline-offset: 2px; }
+    body.is-embedded .loading-card { display: none; }
     body.is-embedded .print-page { display: none; }
     body.is-embedded .print-page.is-active { display: block; }
     @media print {
@@ -4276,14 +4277,6 @@
           return;
         }
 
-        // Prefetch: induknya menduga SPK ini akan dibuka. Datanya diambil ke
-        // cache tanpa mengubah apa pun yang sedang tampil.
-        if (data.action === 'prefetch') {
-          const spk = String(data.spk).trim();
-          if (spk && spk !== activeSpk && !packCache.has(spk)) loadPrintData_(spk);
-          return;
-        }
-
         // Nomor yang sama tetapi datanya belum ada berarti percobaan
         // sebelumnya gagal, jadi permintaannya diulang.
         if (data.spk === activeSpk && currentPrintData) { notifyEmbedHost_('ready'); return; }
@@ -4291,10 +4284,7 @@
         activeSpk = String(data.spk).trim();
         requestedDbRow = 0;
         currentPrintData = null;
-        if (!packCache.has(activeSpk)) {
-          printRootEl.innerHTML = '<div class="loading-card"><div class="spinner" aria-hidden="true"></div>' +
-            '<strong>Menyiapkan paket SPK</strong><p>PO Produksi dan formulir setiap alur sedang disusun.</p></div>';
-        }
+        printRootEl.innerHTML = '';
         loadPrintData_();
       });
     }
@@ -4340,6 +4330,11 @@
 
     let activeSpk = REQUESTED_SPK.trim();
 
+    // Apps Script menjalankan skrip milik satu pengguna secara berurutan, jadi
+    // permintaan kedua untuk SPK yang sama tidak mempercepat apa pun: ia justru
+    // mengantre di belakang yang pertama dan menggandakan waktu tunggunya.
+    let inFlightSpk = '';
+
     function loadPrintData_(spkOverride) {
       const requested = spkOverride || activeSpk;
       const cached = packCache.get(requested);
@@ -4347,6 +4342,7 @@
         if (requested === activeSpk) applyPrintData_(cached);
         return;
       }
+      if (inFlightSpk === requested) return;
 
       if (hasAppsScriptRuntime_()) {
         if (!requested) {
@@ -4355,12 +4351,17 @@
         }
 
         google.script.run
-          .withSuccessHandler(function (response) { handlePrintDataResponse_(response, requested); })
+          .withSuccessHandler(function (response) {
+            if (inFlightSpk === requested) inFlightSpk = '';
+            handlePrintDataResponse_(response, requested);
+          })
           .withFailureHandler(function (error) {
+            if (inFlightSpk === requested) inFlightSpk = '';
             if (requested !== activeSpk) return;
             showLoadError_(error && error.message ? error.message : 'Data SPK gagal dimuat.');
           })
           .getSpkPrintData(requested, requested === activeSpk ? requestedDbRow : 0, getPrintAuthToken_());
+        inFlightSpk = requested;
         return;
       }
 

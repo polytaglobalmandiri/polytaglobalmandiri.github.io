@@ -9,7 +9,7 @@
   <link rel="icon" href="/assets/img/logo-app.png" type="image/png">
   <link rel="stylesheet" href="/assets/vendor/inter/inter.css?v=20260827">
   <link rel="stylesheet" href="/assets/vendor/fontawesome/css/all.min.css?v=20260827">
-  <link rel="stylesheet" href="approval.css?v=20260827-2">
+  <link rel="stylesheet" href="approval.css?v=20260827-3">
 </head>
 <body data-page="approval-spk">
   <header class="topbar">
@@ -157,8 +157,9 @@
     <div class="preview-stage">
       <iframe id="previewFrame" class="preview-frame" title="Lembar cetak SPK" src="about:blank"></iframe>
       <div class="preview-loading" id="previewLoading" role="status" aria-live="polite" hidden>
-        <span class="busy-spinner" aria-hidden="true"></span>
-        <span><strong>Menyiapkan lembar</strong><small id="previewLoadingNote">Paket SPK sedang diambil…</small></span>
+        <span class="busy-spinner" id="previewSpinner" aria-hidden="true"></span>
+        <span><strong id="previewLoadingTitle">Menyiapkan lembar</strong><small id="previewLoadingNote">Paket SPK sedang diambil…</small></span>
+        <button class="button ghost" id="previewRetry" type="button" hidden><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i> Coba lagi</button>
       </div>
     </div>
     <footer class="preview-foot" id="previewFoot" hidden>
@@ -175,6 +176,6 @@
   </div>
 
   <script src="/assets/js/gas-rpc.js?v=20260825-1" defer></script>
-  <script src="approval.js?v=20260827-2" defer></script>
+  <script src="approval.js?v=20260827-3" defer></script>
 </body>
 </html>

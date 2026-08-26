@@ -12,8 +12,7 @@
   var previewSpk='';
   var previewFrameSpk='';
   var previewFrameLoaded=false;
-  var prefetched={};
-  var prefetchTimer=0;
+  var previewWaitTimer=0;
   var loginBusy=false;
 
   function rpc(method){
@@ -259,15 +258,8 @@
     $('closePreviewDialog').addEventListener('click',closePreview);
     $('previewDialog').addEventListener('close',releasePreviewFrame);
     $('previewApprove').addEventListener('click',approveFromPreview);
+    $('previewRetry').addEventListener('click',retryPreview);
     window.addEventListener('message',handlePreviewMessage);
-    $('queueList').addEventListener('mouseover',function(event){
-      var card=event.target.closest('.queue-card');
-      if(card&&card.dataset.spk)prefetchPreview(card.dataset.spk);
-    });
-    $('queueList').addEventListener('focusin',function(event){
-      var card=event.target.closest('.queue-card');
-      if(card&&card.dataset.spk)prefetchPreview(card.dataset.spk);
-    });
     $('userList').addEventListener('click',function(event){var button=event.target.closest('[data-user]');if(button)openUser(state.users.find(function(u){return u.userId===button.dataset.user;}));});
   }
   function showLogin(){$('loginView').hidden=false;$('setupView').hidden=true;$('appView').hidden=true;$('userbar').hidden=true;}
@@ -298,32 +290,47 @@
       $('previewFrame').src='/apps/spk-automation/print-spk/?spk='+encodeURIComponent(spk)+'&mode=view&embed=1';
     }
   }
-  // Mengambil data SPK berarti satu perjalanan penuh ke Apps Script. Saat
-  // kursor singgah di sebuah baris, permintaannya sudah dikirim lebih dulu ke
-  // dokumen cetak yang menganggur, sehingga saat baris itu benar-benar diklik
-  // datanya kerap sudah siap. Ditunda sesaat supaya menyapu daftar dengan
-  // kursor tidak memicu belasan permintaan sekaligus.
-  function prefetchPreview(spk){
-    if(!spk||!previewFrameLoaded||prefetched[spk]||previewSpk)return;
-    window.clearTimeout(prefetchTimer);
-    prefetchTimer=window.setTimeout(function(){
-      if(prefetched[spk])return;
-      prefetched[spk]=true;
-      $('previewFrame').contentWindow.postMessage(
-        {source:'pgm-spk-preview-host',action:'prefetch',spk:spk},window.location.origin);
-    },180);
-  }
-  // Data yang tersimpan di dokumen cetak ikut basi begitu persetujuan berubah.
+  // Menyetujui SPK mengubah tanda tangan dan statusnya, sehingga paket yang
+  // tersimpan di dokumen cetak menjadi basi dan harus digugurkan.
   function invalidatePreviewCache(){
-    prefetched={};
     if(!previewFrameLoaded)return;
     previewFrameSpk='';
     $('previewFrame').contentWindow.postMessage(
       {source:'pgm-spk-preview-host',action:'invalidate',spk:'*'},window.location.origin);
   }
+  // gas-rpc menunggu enam menit sebelum menyerah, jadi permintaan yang tersendat
+  // hanya menampilkan spinner tanpa akhir. Setelah ambang ini pengguna diberi
+  // tahu dan diberi jalan keluar, sementara permintaan aslinya dibiarkan.
+  var PREVIEW_WAIT_LIMIT=45000;
   function setPreviewLoading(value,note){
+    window.clearTimeout(previewWaitTimer);
     $('previewLoading').hidden=!value;
-    if(value)$('previewLoadingNote').textContent=note||'Paket SPK sedang diambil…';
+    if(!value)return;
+    $('previewSpinner').hidden=false;
+    $('previewRetry').hidden=true;
+    $('previewLoadingTitle').textContent='Menyiapkan lembar';
+    $('previewLoadingNote').textContent=note||'Paket SPK sedang diambil…';
+    previewWaitTimer=window.setTimeout(function(){
+      showPreviewProblem('Server belum menjawab. Sambungan ke Apps Script sedang lambat.');
+    },PREVIEW_WAIT_LIMIT);
+  }
+  function showPreviewProblem(message){
+    window.clearTimeout(previewWaitTimer);
+    $('previewLoading').hidden=false;
+    $('previewSpinner').hidden=true;
+    $('previewRetry').hidden=false;
+    $('previewLoadingTitle').textContent='Lembar belum dapat ditampilkan';
+    $('previewLoadingNote').textContent=message||'Lembar gagal dimuat.';
+  }
+  function retryPreview(){
+    if(!previewSpk)return;
+    setPreviewLoading(true,'Mencoba mengambil ulang…');
+    if(previewFrameLoaded){
+      $('previewFrame').contentWindow.postMessage(
+        {source:'pgm-spk-preview-host',spk:previewSpk},window.location.origin);
+    }else{
+      $('previewFrame').src='/apps/spk-automation/print-spk/?spk='+encodeURIComponent(previewSpk)+'&mode=view&embed=1';
+    }
   }
   // Halaman cetak mengabari saat paketnya selesai dirender atau gagal.
   function handlePreviewMessage(event){
@@ -334,7 +341,7 @@
     // Gagal berarti tidak ada lembar yang tersaji, jadi SPK-nya tidak dicatat
     // sebagai tersaji. Tanpa itu, membuka SPK yang sama lagi akan dianggap
     // sudah siap dan hanya memperlihatkan kartu error yang basi.
-    if(data.state==='error'){previewFrameSpk='';setPreviewLoading(true,data.message||'Lembar gagal dimuat.');return;}
+    if(data.state==='error'){previewFrameSpk='';showPreviewProblem(data.message);return;}
     previewFrameSpk=data.spk||'';
     setPreviewLoading(false);
   }

@@ -9,6 +9,7 @@
   var sweetAlertPromise=null;
   var busyDepth=0;
   var busyPaused=false;
+  var previewSpk='';
   var loginBusy=false;
 
   function rpc(method){
@@ -238,7 +239,17 @@
     $('closeUserDialog').addEventListener('click',function(){$('userDialog').close();});
     $('cancelUser').addEventListener('click',function(){$('userDialog').close();});
     $('userForm').addEventListener('submit',saveUser);
-    $('queueList').addEventListener('click',function(event){var button=event.target.closest('[data-approve]');if(button)approve(button.dataset.approve);});
+    $('queueList').addEventListener('click',function(event){
+      var approveButton=event.target.closest('[data-approve]');
+      if(approveButton){approve(approveButton.dataset.approve);return;}
+      var previewButton=event.target.closest('[data-preview]');
+      if(previewButton){openPreview(previewButton.dataset.preview);return;}
+      var card=event.target.closest('.queue-card');
+      if(card&&card.dataset.spk)openPreview(card.dataset.spk);
+    });
+    $('closePreviewDialog').addEventListener('click',closePreview);
+    $('previewDialog').addEventListener('close',releasePreviewFrame);
+    $('previewApprove').addEventListener('click',approveFromPreview);
     $('userList').addEventListener('click',function(event){var button=event.target.closest('[data-user]');if(button)openUser(state.users.find(function(u){return u.userId===button.dataset.user;}));});
   }
   function showLogin(){$('loginView').hidden=false;$('setupView').hidden=true;$('appView').hidden=true;$('userbar').hidden=true;}
@@ -247,6 +258,46 @@
   async function setup(event){event.preventDefault();setBusy(true,'Mengaktifkan akun','Tanda tangan dan data pengguna sedang disimpan…');try{var form=new FormData(event.currentTarget);var signature=await selectedSignatureData(form.get('signature'),setupSignaturePad,true);var response=await rpc('bootstrapApprovalAdmin',form.get('setupCode'),{email:form.get('email'),name:form.get('name'),password:form.get('password'),signatureData:signature,signatureName:form.get('name')});if(!response||response.status!=='success')throw new Error(response&&response.message);await showAlert({icon:'success',title:'Akun dibuat',text:'Silakan masuk memakai email dan password Admin PPIC.',confirmButtonColor:'#b41420'});event.currentTarget.reset();setupSignaturePad.clear();$('showSetupButton').hidden=true;showLogin();}catch(error){alertError(error.message);}finally{setBusy(false);}}
   async function showApp(){$('loginView').hidden=true;$('setupView').hidden=true;$('appView').hidden=false;$('userbar').hidden=false;$('currentName').textContent=state.user.name||state.user.email;$('currentRole').textContent=state.user.roleLabel||'';var isAdmin=state.user.roleKey==='admin_ppic';$('adminPanel').hidden=!isAdmin;var tasks=[loadQueue()];if(isAdmin)tasks.push(loadUsers().catch(function(error){alertError(error.message);}));await Promise.all(tasks);}
   async function loadQueue(){setBusy(true,'Memuat antrean','Daftar SPK yang menunggu persetujuan sedang diambil…');try{var response=await rpc('getApprovalQueue',state.token);if(!response||response.status!=='success')throw new Error(response&&response.message);state.queue=response;$('pendingCount').textContent=response.counts.pending;$('approvedCount').textContent=response.counts.approved;$('signatureState').textContent=response.signatureReady?'TERSEDIA':'BELUM ADA';$('signatureWarning').hidden=response.signatureReady;renderQueue(response.items||[],response.signatureReady);}catch(error){if(/sesi|login|akun/i.test(error.message||'')){clearAuth();showLogin();}alertError(error.message);}finally{setBusy(false);}}
+  // Lembar cetak ditampilkan lewat halaman cetak yang sudah ada, disematkan
+  // dengan embed=1 supaya kerangkanya berganti menjadi bilah tab per alur.
+  // Halaman itu membaca tokennya sendiri dari penyimpanan yang sama, jadi
+  // tidak ada yang perlu dioper lewat URL.
+  function openPreview(spk){
+    if(!spk)return;
+    previewSpk=spk;
+    $('previewTitle').textContent=spk;
+    $('previewFrame').src='/apps/spk-automation/print-spk/?spk='+encodeURIComponent(spk)+'&mode=view&embed=1';
+    renderPreviewFoot(spk);
+    $('previewDialog').showModal();
+  }
+  // Tindakan persetujuan hanya ditawarkan bila SPK ini memang menunggu giliran
+  // pengguna dan tanda tangannya sudah tersedia; keadaannya diambil dari
+  // antrean yang sudah dimuat, bukan ditanyakan ulang ke server.
+  function renderPreviewFoot(spk){
+    var queue=state.queue||{};
+    var item=(queue.items||[]).find(function(entry){return entry.spk===spk;});
+    var pending=Boolean(item&&item.status==='MENUNGGU');
+    var ready=Boolean(queue.signatureReady);
+    $('previewFoot').hidden=!pending;
+    if(!pending)return;
+    $('previewApprove').disabled=!ready;
+    $('previewNote').textContent=ready
+      ?'Periksa seluruh tab sebelum menyetujui. Tanda tangan dan waktu persetujuan akan dicatat.'
+      :'Tanda tangan akun Anda belum tersedia, jadi persetujuan belum dapat dilakukan.';
+  }
+  function closePreview(){$('previewDialog').close();}
+  // Dialog konfirmasi dan overlay loader keduanya anak <body>. Selama <dialog>
+  // native terbuka, keduanya berada di bawah top layer sehingga tak terlihat
+  // dan tak dapat diklik. Maka pratinjau ditutup lebih dulu, baru alur
+  // persetujuan yang sudah ada dijalankan seperti dari kartu antrean.
+  function approveFromPreview(){
+    var spk=previewSpk;
+    closePreview();
+    if(spk)approve(spk);
+  }
+  // Sumber dikosongkan setelah ditutup supaya iframe berhenti bekerja dan
+  // pratinjau berikutnya tidak sempat menampilkan SPK sebelumnya.
+  function releasePreviewFrame(){$('previewFrame').src='about:blank';previewSpk='';}
   function renderQueue(items,signatureReady){
     if(!items.length){$('queueList').innerHTML='<div class="empty">Belum ada SPK pada antrean jabatan ini.</div>';return;}
     $('queueList').innerHTML=items.map(function(item){
@@ -254,7 +305,7 @@
       var width=progress.required?Math.round(progress.approved/progress.required*100):0;
       var pending=item.status==='MENUNGGU';
       var routes=(item.routing||[]).map(function(route){return '<span class="tag">'+escapeHtml(route)+'</span>';}).join('');
-      return '<article class="queue-card"><div><h3><i class="fa-regular fa-file-lines" aria-hidden="true"></i> '+escapeHtml(item.spk)+'</h3><p>'+escapeHtml(item.customer||'Tanpa customer')+' · '+escapeHtml(item.article||'Tanpa artikel')+'</p><div>'+routes+'</div></div><div><span class="tag '+(item.approvalStatus==='SIAP_RELEASE'?'ok':'wait')+'">'+escapeHtml(item.approvalStatus.replace(/_/g,' '))+'</span><div class="progress"><i style="width:'+width+'%"></i></div><p>'+progress.approved+' dari '+progress.required+' persetujuan lengkap</p></div><div>'+(pending?'<button class="button primary" data-approve="'+escapeHtml(item.spk)+'" '+(signatureReady?'':'disabled')+'><i class="fa-solid fa-pen-nib" aria-hidden="true"></i> Setujui &amp; Paraf</button>':'<span class="state"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Disetujui<br><small>'+escapeHtml(item.signedAt)+'</small></span>')+'</div></article>';
+      return '<article class="queue-card" data-spk="'+escapeHtml(item.spk)+'"><div><h3><i class="fa-regular fa-file-lines" aria-hidden="true"></i> '+escapeHtml(item.spk)+'</h3><p>'+escapeHtml(item.customer||'Tanpa customer')+' · '+escapeHtml(item.article||'Tanpa artikel')+'</p><div>'+routes+'</div></div><div><span class="tag '+(item.approvalStatus==='SIAP_RELEASE'?'ok':'wait')+'">'+escapeHtml(item.approvalStatus.replace(/_/g,' '))+'</span><div class="progress"><i style="width:'+width+'%"></i></div><p>'+progress.approved+' dari '+progress.required+' persetujuan lengkap</p></div><div>'+'<button class="button ghost" data-preview="'+escapeHtml(item.spk)+'" type="button"><i class="fa-solid fa-file-lines" aria-hidden="true"></i> Lihat lembar</button>'+(pending?'<button class="button primary" data-approve="'+escapeHtml(item.spk)+'" '+(signatureReady?'':'disabled')+'><i class="fa-solid fa-pen-nib" aria-hidden="true"></i> Setujui &amp; Paraf</button>':'<span class="state"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Disetujui<br><small>'+escapeHtml(item.signedAt)+'</small></span>')+'</div></article>';
     }).join('');
   }
   async function approve(spk){var confirmation=await showAlert({icon:'question',title:'Setujui SPK '+spk+'?',text:'Tanda tangan akun Anda akan dibubuhkan dan tindakan ini dicatat beserta waktu persetujuan.',showCancelButton:true,confirmButtonText:'Ya, setujui',cancelButtonText:'Batal',confirmButtonColor:'#b41420'});if(!confirmation.isConfirmed)return;setBusy(true,'Menyimpan persetujuan','Tanda tangan dan waktu persetujuan sedang dicatat…');try{var response=await rpc('approveSpk',state.token,spk);if(!response||response.status!=='success')throw new Error(response&&response.message);await showAlert({icon:'success',title:'Persetujuan tersimpan',text:response.message,confirmButtonColor:'#b41420'});await loadQueue();}catch(error){alertError(error.message);}finally{setBusy(false);}}

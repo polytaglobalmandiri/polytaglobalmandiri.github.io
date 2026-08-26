@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <link rel="stylesheet" href="approval.css?v=20260826-3">
+  <link rel="stylesheet" href="approval.css?v=20260827-1">
 </head>
 <body data-page="approval-spk">
   <header class="topbar">
@@ -148,6 +148,21 @@
     </form>
   </dialog>
 
+  <dialog id="previewDialog" class="preview-dialog" aria-labelledby="previewTitle">
+    <div class="dialog-head">
+      <div>
+        <p class="eyebrow">PRATINJAU LEMBAR CETAK</p>
+        <h2 id="previewTitle">SPK</h2>
+      </div>
+      <button class="icon-button" id="closePreviewDialog" type="button" aria-label="Tutup pratinjau">&times;</button>
+    </div>
+    <iframe id="previewFrame" class="preview-frame" title="Lembar cetak SPK" src="about:blank"></iframe>
+    <footer class="preview-foot" id="previewFoot" hidden>
+      <p id="previewNote"></p>
+      <button class="button primary" id="previewApprove" type="button"><i class="fa-solid fa-pen-nib" aria-hidden="true"></i> Setujui &amp; Paraf</button>
+    </footer>
+  </dialog>
+
   <div class="busy-overlay" id="busyOverlay" role="status" aria-live="polite" hidden>
     <div class="busy-card">
       <span class="busy-spinner" aria-hidden="true"></span>
@@ -156,6 +171,6 @@
   </div>
 
   <script src="/assets/js/gas-rpc.js?v=20260825-1" defer></script>
-  <script src="approval.js?v=20260826-3" defer></script>
+  <script src="approval.js?v=20260827-1" defer></script>
 </body>
 </html>

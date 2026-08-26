@@ -275,6 +275,9 @@ input:focus, select:focus { border-color: #b44a51; box-shadow: 0 0 0 3px rgba(19
 .queue { min-height: 118px; padding: 14px; display: grid; gap: 11px; }
 .empty { padding: 36px 18px; border: 1px dashed #aaaead; border-radius: 11px; background: rgba(255,255,255,.42); color: var(--muted); font-size: .7rem; text-align: center; }
 .queue-card { padding: 15px; display: grid; grid-template-columns: 1.3fr 1fr auto; align-items: center; gap: 18px; border: 1px solid #b4b6b5; border-radius: 11px; background: linear-gradient(145deg,#fff,#e4e5e2); box-shadow: inset 0 1px 0 #fff,0 3px 0 #8e9091,0 5px 9px rgba(0,0,0,.14); transition: transform .16s ease,box-shadow .16s ease; }
+.queue-card { cursor: pointer; }
+/* Kolom aksi kini memuat dua tombol; disusun menurun agar lebarnya tetap. */
+.queue-card > div:last-child { display: grid; gap: 7px; justify-items: stretch; }
 .queue-card:hover { transform: translateY(-1px); box-shadow: inset 0 1px 0 #fff,0 4px 0 #7b7d7f,0 8px 13px rgba(0,0,0,.18); }
 .queue-card h3 { margin: 0 0 5px; font-size: .84rem; }
 .queue-card p { margin: 0; color: var(--muted); font-size: .62rem; line-height: 1.45; }
@@ -300,6 +303,14 @@ input:focus, select:focus { border-color: #b44a51; box-shadow: 0 0 0 3px rgba(19
 dialog { width: min(720px,calc(100% - 28px)); max-height: calc(100vh - 30px); overflow: auto; padding: 26px; border: 1px solid #85888b; border-radius: 16px; background: repeating-linear-gradient(90deg,rgba(255,255,255,.11) 0 1px,rgba(0,0,0,.018) 2px,transparent 4px),linear-gradient(145deg,#eeeeeb,#d7d8d5); box-shadow: inset 0 1px 1px #fff,0 4px 0 #111216,0 28px 90px rgba(0,0,0,.5); }
 dialog::backdrop { background: rgba(12,13,16,.7); backdrop-filter: blur(3px); }
 .dialog-head { display: flex; align-items: center; justify-content: space-between; }
+/* Pratinjau lembar cetak. Halaman cetak disematkan apa adanya lewat iframe
+   supaya tidak ada versi kedua dari tata letaknya yang harus dijaga selaras. */
+.preview-dialog { width: min(1180px,calc(100% - 22px)); height: min(94dvh,calc(100dvh - 26px)); max-height: none; padding: 0; display: flex; flex-direction: column; overflow: hidden; }
+.preview-dialog .dialog-head { flex: 0 0 auto; padding: 16px 20px; border-bottom: 1px solid #b0b3b3; }
+.preview-dialog .dialog-head h2 { margin: 2px 0 0; }
+.preview-frame { flex: 1 1 auto; width: 100%; border: 0; background: #d9dcd8; }
+.preview-foot { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 13px 20px; border-top: 1px solid #b0b3b3; background: linear-gradient(180deg,#eeefec,#dcdedb); }
+.preview-foot p { margin: 0; color: var(--muted); font-size: .62rem; line-height: 1.45; }
 .dialog-head h2 { font-size: 1.15rem; }
 .icon-button { width: 36px; height: 36px; border: 1px solid #b3b5b5; border-radius: 50%; background: linear-gradient(#fff,#d7d8d6); color: #4a4c50; box-shadow: inset 0 1px 0 #fff,0 2px 0 #919395; font-size: 1.35rem; cursor: pointer; }
 body.loading { cursor: progress; }

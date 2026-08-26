@@ -4018,6 +4018,65 @@
         background: #000 !important;
       }
     }
+
+    /* ==========================================================
+       MODE SEMATAN (?embed=1)
+       Halaman ini dipakai apa adanya di dalam modal Portal Persetujuan.
+       Kerangka miliknya sendiri disembunyikan karena modal sudah membawa
+       judul dan tombol tutup, lalu satu bilah tab menggantikan gulungan
+       panjang: hanya satu formulir yang tampak, sisanya tetap ada di DOM
+       supaya perintah cetak tetap memuat seluruh paket.
+       ========================================================== */
+    body.is-embedded { background: #d9dcd8; }
+    body.is-embedded .print-toolbar,
+    body.is-embedded .print-content-actions { display: none !important; }
+    body.is-embedded .workspace { padding-top: 0; }
+
+    .embed-tabs {
+      position: sticky;
+      z-index: 5;
+      top: 0;
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 11px 13px;
+      border-bottom: 1px solid #a9aca8;
+      background: linear-gradient(180deg, #f2f3f0, #dcdfdb);
+      box-shadow: 0 2px 7px rgba(0,0,0,.12);
+      scrollbar-width: thin;
+    }
+    .embed-tab {
+      flex: 0 0 auto;
+      min-height: 32px;
+      padding: 0 13px;
+      border: 1px solid #9c9fa2;
+      border-bottom-color: #777a7d;
+      border-radius: 8px;
+      background: linear-gradient(180deg, #fff 0, #f6f6f4 46%, #e1e2df 52%, #c9cac8 100%);
+      box-shadow: inset 0 1px 0 #fff, 0 2px 0 #8f9193;
+      color: #303238;
+      cursor: pointer;
+      font: 800 .68rem/1 inherit;
+      letter-spacing: .02em;
+      text-shadow: 0 1px 0 #fff;
+      white-space: nowrap;
+    }
+    .embed-tab:active { transform: translateY(2px); box-shadow: inset 0 2px 4px rgba(0,0,0,.26); }
+    .embed-tab[aria-selected="true"] {
+      border-color: #821111;
+      border-bottom-color: #5d0808;
+      background: linear-gradient(180deg, #ed5252 0, #d83232 46%, #b61d1d 52%, #8b1111 100%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.42), 0 2px 0 #650b0b;
+      color: #fff;
+      text-shadow: 0 -1px 0 #620a0a;
+    }
+    .embed-tab:focus-visible { outline: 3px solid rgba(230,59,82,.4); outline-offset: 2px; }
+    body.is-embedded .print-page { display: none; }
+    body.is-embedded .print-page.is-active { display: block; }
+    @media print {
+      body.is-embedded .embed-tabs { display: none !important; }
+      body.is-embedded .print-page { display: block !important; }
+    }
   </style>
 </head>
 <body
@@ -4116,6 +4175,11 @@
       new URLSearchParams(window.location.search).get('mode') === 'view'
         ? 'view'
         : 'release';
+
+    // Halaman ini disematkan di dalam modal Portal Persetujuan. Kerangkanya
+    // sendiri disembunyikan dan formulirnya dipilah lewat tab.
+    const EMBED_MODE = new URLSearchParams(window.location.search).get('embed') === '1';
+    if (EMBED_MODE) document.body.classList.add('is-embedded');
 
     const PROCESS_DEFINITIONS = [
       { key: 'mixer', label: 'Mixer' },
@@ -4582,16 +4646,50 @@
 
       const totalPages = forms.length;
       const generatedText = formatDateTime_(new Date());
-      printRootEl.innerHTML = forms.map(function (form, index) {
+      const pagesHtml = forms.map(function (form, index) {
         let page = '';
         if (form.key === 'po') {
           page = buildPoPage_(data, index + 1, totalPages, generatedText);
         } else {
           page = buildProcessPage_(data, form, index + 1, totalPages, generatedText);
         }
-        return '<div class="print-page">' + page + '</div>';
+        const active = EMBED_MODE && index === 0 ? ' is-active' : '';
+        return '<div class="print-page' + active + '" data-form-index="' + index + '">' + page + '</div>';
       }).join('');
 
+      printRootEl.innerHTML = EMBED_MODE ? buildEmbedTabs_(forms) + pagesHtml : pagesHtml;
+      if (EMBED_MODE) bindEmbedTabs_();
+
+      window.requestAnimationFrame(function () { fitAllPages_(true); });
+    }
+
+    // Satu tab per formulir, memakai daftar yang sama dengan urutan cetaknya,
+    // sehingga tab dan lembar tidak bisa berbeda isi.
+    function buildEmbedTabs_(forms) {
+      return '<div class="embed-tabs" role="tablist" aria-label="Formulir dalam paket SPK">' +
+        forms.map(function (form, index) {
+          return '<button class="embed-tab" type="button" role="tab" data-form-index="' + index + '"' +
+            ' aria-selected="' + (index === 0 ? 'true' : 'false') + '">' +
+            escapeHtml_(form.label) + '</button>';
+        }).join('') + '</div>';
+    }
+
+    function bindEmbedTabs_() {
+      const tabs = printRootEl.querySelectorAll('.embed-tab');
+      tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () { activateEmbedTab_(tab.dataset.formIndex); });
+      });
+    }
+
+    function activateEmbedTab_(index) {
+      printRootEl.querySelectorAll('.embed-tab').forEach(function (tab) {
+        tab.setAttribute('aria-selected', String(tab.dataset.formIndex === index));
+      });
+      printRootEl.querySelectorAll('.print-page').forEach(function (page) {
+        page.classList.toggle('is-active', page.dataset.formIndex === index);
+      });
+      // Lembar yang tadinya tersembunyi tidak punya ukuran, jadi penyesuaian
+      // skalanya baru bisa dihitung setelah ia terlihat.
       window.requestAnimationFrame(function () { fitAllPages_(true); });
     }
 
@@ -4616,6 +4714,10 @@
 
       const sheets = [];
       document.querySelectorAll('.print-sheet').forEach(function (sheet) {
+        // Pada mode sematan hanya tab aktif yang terpasang di tata letak.
+        // Lembar tersembunyi mengukur nol dan akan menghasilkan skala ngawur,
+        // jadi dilewati sampai tabnya dibuka.
+        if (sheet.offsetParent === null) return;
         const content = sheet.querySelector('.page-content');
         const footer = sheet.querySelector('.page-footer');
         if (content && footer) sheets.push({ sheet, content, footer, scale: 1 });

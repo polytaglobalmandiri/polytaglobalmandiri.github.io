@@ -11,8 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <link rel="stylesheet" href="approval.css?v=20260825-6">
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="stylesheet" href="approval.css?v=20260826-1">
 </head>
 <body data-page="approval-spk">
   <header class="topbar">
@@ -78,7 +77,8 @@
           <label><span>Email</span><span class="input-shell"><i class="fa-regular fa-envelope" aria-hidden="true"></i><input id="loginEmail" type="email" autocomplete="email" placeholder="nama@perusahaan.com" required></span></label>
           <label><span>Password</span><span class="input-shell"><i class="fa-solid fa-lock" aria-hidden="true"></i><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Masukkan password" required></span></label>
           <label class="check"><input id="rememberMe" type="checkbox"><span>Ingat saya di perangkat ini</span></label>
-          <button class="button primary wide" type="submit"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Masuk ke Persetujuan</button>
+          <button class="button primary wide login-button" id="loginButton" type="submit"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i><span>Masuk ke Persetujuan</span></button>
+          <div class="login-progress" id="loginProgress" role="status" aria-live="polite" hidden><span class="mini-spinner" aria-hidden="true"></span><span id="loginProgressText">Memeriksa akun…</span></div>
         </form>
         <p class="security-note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Jangan bagikan password atau akses akun Anda kepada orang lain.</p>
         <button class="text-button" id="showSetupButton" type="button" hidden>Aktivasi Admin PPIC pertama</button>
@@ -149,8 +149,14 @@
     </form>
   </dialog>
 
-  <script src="/assets/js/gas-rpc.js?v=20260825-1"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  <script src="approval.js?v=20260825-5"></script>
+  <div class="busy-overlay" id="busyOverlay" role="status" aria-live="polite" hidden>
+    <div class="busy-card">
+      <span class="busy-spinner" aria-hidden="true"></span>
+      <span><strong id="busyTitle">Memproses permintaan</strong><small id="busyDetail">Mohon tunggu sebentar…</small></span>
+    </div>
+  </div>
+
+  <script src="/assets/js/gas-rpc.js?v=20260825-1" defer></script>
+  <script src="approval.js?v=20260826-1" defer></script>
 </body>
 </html>

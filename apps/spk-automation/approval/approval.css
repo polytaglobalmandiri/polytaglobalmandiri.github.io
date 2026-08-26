@@ -305,7 +305,12 @@ dialog::backdrop { background: rgba(12,13,16,.7); backdrop-filter: blur(3px); }
 .dialog-head { display: flex; align-items: center; justify-content: space-between; }
 /* Pratinjau lembar cetak. Halaman cetak disematkan apa adanya lewat iframe
    supaya tidak ada versi kedua dari tata letaknya yang harus dijaga selaras. */
-.preview-dialog { width: min(1180px,calc(100% - 22px)); height: min(94dvh,calc(100dvh - 26px)); max-height: none; padding: 0; display: flex; flex-direction: column; overflow: hidden; }
+/* display hanya saat terbuka. Aturan penulis mengalahkan aturan user-agent
+   tanpa memandang spesifisitas, jadi display tanpa syarat di sini akan
+   menimpa dialog:not([open]){display:none} bawaan browser dan membuat
+   dialognya ikut tergambar di aliran dokumen sebelum dibuka. */
+.preview-dialog { width: min(1180px,calc(100% - 22px)); height: min(94dvh,calc(100dvh - 26px)); max-height: none; padding: 0; overflow: hidden; }
+.preview-dialog[open] { display: flex; flex-direction: column; }
 .preview-dialog .dialog-head { flex: 0 0 auto; padding: 16px 20px; border-bottom: 1px solid #b0b3b3; }
 .preview-dialog .dialog-head h2 { margin: 2px 0 0; }
 .preview-stage { position: relative; flex: 1 1 auto; min-height: 0; }

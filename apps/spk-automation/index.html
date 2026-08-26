@@ -4945,6 +4945,78 @@
     0 4px 0 #313236,
     0 20px 50px rgba(0,0,0,.45);
   }
+  /* Dialog login Admin PPIC. Kolomnya mengikuti kontrol wizard: cekung,
+     berlatar terang, dengan fokus merah yang sama. Sengaja tidak di-scope ke
+     #spkInputRoot karena popup SweetAlert berada di luar wizard. */
+  .spk-login-popup .swal2-html-container {
+    margin: 15px 6px 2px;
+    overflow: visible;
+    text-align: left;
+  }
+  .spk-login-dialog {
+    display: grid;
+    gap: 13px;
+  }
+  .spk-login-note {
+    margin: 0;
+    color: #5f6670;
+    font-size: .78rem;
+    line-height: 1.5;
+    text-shadow: 0 1px 0 rgba(255,255,255,.72);
+  }
+  .spk-login-field {
+    display: grid;
+    gap: 5px;
+  }
+  .spk-login-field > span {
+    color: #5f6670;
+    font-size: .75rem;
+    font-weight: 800;
+    letter-spacing: .02em;
+    text-shadow: 0 1px 0 rgba(255,255,255,.72);
+  }
+  .spk-login-field > input {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 42px;
+    padding: 10px 14px;
+    border: 1px solid #9b9da0;
+    border-top-color: #74777a;
+    border-left-color: #74777a;
+    border-radius: 11px;
+    background: #fdfdfb;
+    box-shadow:
+    inset 1px 2px 4px rgba(0,0,0,.2),
+    0 1px 0 rgba(255,255,255,.78);
+    color: #292b2f;
+    font-family: inherit;
+    font-size: .875rem;
+    outline: none;
+    transition: border-color .2s ease, box-shadow .2s ease;
+  }
+  .spk-login-field > input:focus {
+    border-color: #7b1b1b;
+    box-shadow:
+    inset 1px 2px 4px rgba(0,0,0,.17),
+    0 0 0 3px rgba(185,35,35,.15),
+    0 1px 0 #fff;
+  }
+  .spk-login-remember {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #5f6670;
+    cursor: pointer;
+    font-size: .78rem;
+    font-weight: 700;
+    text-shadow: 0 1px 0 rgba(255,255,255,.72);
+  }
+  .spk-login-remember input {
+    width: 15px;
+    height: 15px;
+    accent-color: #7b1b1b;
+    cursor: pointer;
+  }
   #spkInputRoot.dialog-open {
     overflow: hidden;
   }
@@ -18182,6 +18254,17 @@
       });
     }
 
+    // SweetAlert memasang popup-nya sebagai anak <body>. Ketika wizard dibuka
+    // sebagai modal Bootstrap, focus trap milik modal menarik fokus kembali ke
+    // dalam dirinya setiap kali fokus berpindah keluar, sehingga kolom input
+    // pada popup tidak dapat diklik maupun diketik. Menempatkan popup di dalam
+    // modal yang sedang terbuka membuat fokusnya tetap terhitung di dalam modal.
+    // Pada halaman Input SPK versi penuh tidak ada modal, jadi kembali ke <body>.
+    // Nilainya ditulis eksplisit karena SweetAlert menolak target undefined.
+    function approvalSwalTarget_() {
+      return document.querySelector('.modal.show') || 'body';
+    }
+
     async function ensureCreatorApprovalLogin_() {
       let saved = null;
       let savedPermanently = false;
@@ -18206,14 +18289,27 @@
       const result = await Swal.fire({
         icon: 'info',
         title: 'Login Admin PPIC',
-        html: '<p style="font-size:.9rem;color:#5f6670">SPK baru hanya dapat dibuat oleh Admin PPIC. Paraf pembuat akan terisi otomatis.</p>' +
-          '<input id="approvalLoginEmail" class="swal2-input" type="email" autocomplete="username" placeholder="Email">' +
-          '<input id="approvalLoginPassword" class="swal2-input" type="password" autocomplete="current-password" placeholder="Password">' +
-          '<label style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;font-size:.9rem"><input id="approvalLoginRemember" type="checkbox"> Remember me</label>',
+        html: '<div class="spk-login-dialog">' +
+          '<p class="spk-login-note">SPK baru hanya dapat dibuat oleh Admin PPIC. Paraf pembuat akan terisi otomatis.</p>' +
+          '<label class="spk-login-field"><span>Email</span>' +
+          '<input id="approvalLoginEmail" type="email" autocomplete="username" placeholder="nama@perusahaan.com"></label>' +
+          '<label class="spk-login-field"><span>Password</span>' +
+          '<input id="approvalLoginPassword" type="password" autocomplete="current-password" placeholder="Masukkan password"></label>' +
+          '<label class="spk-login-remember"><input id="approvalLoginRemember" type="checkbox"><span>Ingat saya di perangkat ini</span></label>' +
+          '</div>',
+        target: approvalSwalTarget_(),
         showCancelButton: true,
         confirmButtonText: 'Masuk & Lanjutkan',
         cancelButtonText: 'Batal',
         confirmButtonColor: '#202020',
+        cancelButtonColor: '#6b7280',
+        background: '#e0e5ec',
+        customClass: { popup: 'swal2-popup-neumorphic spk-login-popup' },
+        focusConfirm: false,
+        didOpen: function() {
+          const email = document.getElementById('approvalLoginEmail');
+          if (email) email.focus();
+        },
         showLoaderOnConfirm: true,
         allowOutsideClick: function() { return !Swal.isLoading(); },
         preConfirm: async function() {

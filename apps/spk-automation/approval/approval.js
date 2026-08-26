@@ -7,6 +7,9 @@
   var userSignaturePad=null;
   var pdfJsPromise=null;
   var sweetAlertPromise=null;
+  var busyDepth=0;
+  var busyPaused=false;
+  var loginBusy=false;
 
   function rpc(method){
     var args=Array.prototype.slice.call(arguments,1);
@@ -24,22 +27,37 @@
     });
     return sweetAlertPromise;
   }
-  async function showAlert(options){var alert=await loadSweetAlert();return alert.fire(options);}
-  function alertError(message){return showAlert({icon:'error',title:'Tidak berhasil',text:message||'Terjadi kesalahan.',confirmButtonColor:'#b41420'}).catch(function(){window.alert(message||'Terjadi kesalahan.');});}
-  function setBusy(value,title,detail){
-    var busy=Boolean(value),overlay=$('busyOverlay');
-    document.body.classList.toggle('loading',busy);
-    overlay.hidden=!busy;
-    if(title)$('busyTitle').textContent=title;
-    if(detail)$('busyDetail').textContent=detail;
+  async function showAlert(options){
+    var alert=await loadSweetAlert();
+    var wasPaused=busyPaused;
+    busyPaused=true;applyBusy();
+    try{return await alert.fire(options);}
+    finally{busyPaused=wasPaused;applyBusy();}
   }
-  function setLoginBusy(value,message){
-    var busy=Boolean(value),button=$('loginButton');
-    button.disabled=busy;button.setAttribute('aria-busy',String(busy));
-    button.querySelector('i').className=busy?'fa-solid fa-spinner':'fa-solid fa-right-to-bracket';
-    button.querySelector('span').textContent=busy?'Mohon tunggu…':'Masuk ke Persetujuan';
-    $('loginProgressText').textContent=message||'Memeriksa akun…';
-    $('loginProgress').hidden=!busy;
+  function alertError(message){return showAlert({icon:'error',title:'Tidak berhasil',text:message||'Terjadi kesalahan.',confirmButtonColor:'#b41420'}).catch(function(){window.alert(message||'Terjadi kesalahan.');});}
+  // Satu penanda proses per layar. Di ruang kerja dipakai overlay; di halaman login
+  // cukup tombolnya, sehingga overlay ditahan selama proses login berjalan.
+  // Kedalaman dihitung supaya alur bersarang (login -> showApp -> loadQueue)
+  // tidak mematikan penanda lebih awal.
+  function applyBusy(){
+    var busy=busyDepth>0&&!busyPaused&&!loginBusy;
+    document.body.classList.toggle('loading',busy);
+    $('busyOverlay').hidden=!busy;
+  }
+  function setLoginBusy(value){
+    loginBusy=Boolean(value);
+    var button=$('loginButton');
+    button.disabled=loginBusy;
+    button.setAttribute('aria-busy',String(loginBusy));
+    button.querySelector('i').className=loginBusy?'fa-solid fa-spinner':'fa-solid fa-right-to-bracket';
+    button.querySelector('span').textContent=loginBusy?'Mohon tunggu…':'Masuk ke Persetujuan';
+    applyBusy();
+  }
+  function setBusy(value,title,detail){
+    busyDepth=Math.max(0,busyDepth+(value?1:-1));
+    if(value&&title)$('busyTitle').textContent=title;
+    if(value&&detail)$('busyDetail').textContent=detail;
+    applyBusy();
   }
   function escapeHtml(value){return String(value==null?'':value).replace(/[&<>'"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c];});}
   function savedAuth(){
@@ -199,7 +217,7 @@
     bind();showLogin();loadBootstrapStatus();
     var auth=savedAuth();
     if(!auth.token)return;
-    setLoginBusy(true,'Memulihkan sesi tersimpan…');
+    setLoginBusy(true);
     try{
       var session=await rpc('getApprovalSession',auth.token);
       if(session&&session.status==='success'){saveAuth(auth.token,session.user,auth.remember);await showApp();return;}
@@ -224,12 +242,11 @@
     $('userList').addEventListener('click',function(event){var button=event.target.closest('[data-user]');if(button)openUser(state.users.find(function(u){return u.userId===button.dataset.user;}));});
   }
   function showLogin(){$('loginView').hidden=false;$('setupView').hidden=true;$('appView').hidden=true;$('userbar').hidden=true;}
-  async function login(event){event.preventDefault();setLoginBusy(true,'Menghubungkan akun dengan sistem persetujuan…');try{var remember=$('rememberMe').checked;var response=await rpc('loginApprovalUser',$('loginEmail').value,$('loginPassword').value,remember);if(!response||response.status!=='success')throw new Error(response&&response.message);saveAuth(response.token,response.user,remember);$('loginPassword').value='';await showApp();}catch(error){alertError(error.message);}finally{setLoginBusy(false);}}
+  async function login(event){event.preventDefault();setLoginBusy(true);try{var remember=$('rememberMe').checked;var response=await rpc('loginApprovalUser',$('loginEmail').value,$('loginPassword').value,remember);if(!response||response.status!=='success')throw new Error(response&&response.message);saveAuth(response.token,response.user,remember);$('loginPassword').value='';await showApp();}catch(error){alertError(error.message);}finally{setLoginBusy(false);}}
   function logout(){var token=state.token;clearAuth();showLogin();if(token)rpc('logoutApprovalUser',token).catch(function(){});}
   async function setup(event){event.preventDefault();setBusy(true,'Mengaktifkan akun','Tanda tangan dan data pengguna sedang disimpan…');try{var form=new FormData(event.currentTarget);var signature=await selectedSignatureData(form.get('signature'),setupSignaturePad,true);var response=await rpc('bootstrapApprovalAdmin',form.get('setupCode'),{email:form.get('email'),name:form.get('name'),password:form.get('password'),signatureData:signature,signatureName:form.get('name')});if(!response||response.status!=='success')throw new Error(response&&response.message);await showAlert({icon:'success',title:'Akun dibuat',text:'Silakan masuk memakai email dan password Admin PPIC.',confirmButtonColor:'#b41420'});event.currentTarget.reset();setupSignaturePad.clear();$('showSetupButton').hidden=true;showLogin();}catch(error){alertError(error.message);}finally{setBusy(false);}}
-  async function showApp(){$('loginView').hidden=true;$('setupView').hidden=true;$('appView').hidden=false;$('userbar').hidden=false;$('currentName').textContent=state.user.name||state.user.email;$('currentRole').textContent=state.user.roleLabel||'';var isAdmin=state.user.roleKey==='admin_ppic';$('adminPanel').hidden=!isAdmin;$('queueList').innerHTML=queueSkeleton();var tasks=[loadQueue()];if(isAdmin)tasks.push(loadUsers().catch(function(error){alertError(error.message);}));await Promise.all(tasks);}
-  function queueSkeleton(){return '<div class="queue-skeleton" aria-label="Memuat antrean SPK"><i></i><span></span><span></span></div><div class="queue-skeleton" aria-hidden="true"><i></i><span></span><span></span></div>';}
-  async function loadQueue(){var refresh=$('refreshButton');refresh.disabled=true;refresh.classList.add('is-spinning');if(!state.queue)$('queueList').innerHTML=queueSkeleton();try{var response=await rpc('getApprovalQueue',state.token);if(!response||response.status!=='success')throw new Error(response&&response.message);state.queue=response;$('pendingCount').textContent=response.counts.pending;$('approvedCount').textContent=response.counts.approved;$('signatureState').textContent=response.signatureReady?'TERSEDIA':'BELUM ADA';$('signatureWarning').hidden=response.signatureReady;renderQueue(response.items||[],response.signatureReady);}catch(error){if(/sesi|login|akun/i.test(error.message||'')){clearAuth();showLogin();}alertError(error.message);}finally{refresh.disabled=false;refresh.classList.remove('is-spinning');}}
+  async function showApp(){$('loginView').hidden=true;$('setupView').hidden=true;$('appView').hidden=false;$('userbar').hidden=false;$('currentName').textContent=state.user.name||state.user.email;$('currentRole').textContent=state.user.roleLabel||'';var isAdmin=state.user.roleKey==='admin_ppic';$('adminPanel').hidden=!isAdmin;var tasks=[loadQueue()];if(isAdmin)tasks.push(loadUsers().catch(function(error){alertError(error.message);}));await Promise.all(tasks);}
+  async function loadQueue(){setBusy(true,'Memuat antrean','Daftar SPK yang menunggu persetujuan sedang diambil…');try{var response=await rpc('getApprovalQueue',state.token);if(!response||response.status!=='success')throw new Error(response&&response.message);state.queue=response;$('pendingCount').textContent=response.counts.pending;$('approvedCount').textContent=response.counts.approved;$('signatureState').textContent=response.signatureReady?'TERSEDIA':'BELUM ADA';$('signatureWarning').hidden=response.signatureReady;renderQueue(response.items||[],response.signatureReady);}catch(error){if(/sesi|login|akun/i.test(error.message||'')){clearAuth();showLogin();}alertError(error.message);}finally{setBusy(false);}}
   function renderQueue(items,signatureReady){
     if(!items.length){$('queueList').innerHTML='<div class="empty">Belum ada SPK pada antrean jabatan ini.</div>';return;}
     $('queueList').innerHTML=items.map(function(item){

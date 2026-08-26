@@ -7,11 +7,9 @@
   <meta name="description" content="Portal persetujuan dan tanda tangan digital SPK Polyta Global Mandiri.">
   <title>Persetujuan SPK | Polyta Global Mandiri</title>
   <link rel="icon" href="/assets/img/logo-app.png" type="image/png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <link rel="stylesheet" href="approval.css?v=20260827-1">
+  <link rel="stylesheet" href="/assets/vendor/inter/inter.css?v=20260827">
+  <link rel="stylesheet" href="/assets/vendor/fontawesome/css/all.min.css?v=20260827">
+  <link rel="stylesheet" href="approval.css?v=20260827-2">
 </head>
 <body data-page="approval-spk">
   <header class="topbar">
@@ -156,7 +154,13 @@
       </div>
       <button class="icon-button" id="closePreviewDialog" type="button" aria-label="Tutup pratinjau">&times;</button>
     </div>
-    <iframe id="previewFrame" class="preview-frame" title="Lembar cetak SPK" src="about:blank"></iframe>
+    <div class="preview-stage">
+      <iframe id="previewFrame" class="preview-frame" title="Lembar cetak SPK" src="about:blank"></iframe>
+      <div class="preview-loading" id="previewLoading" role="status" aria-live="polite" hidden>
+        <span class="busy-spinner" aria-hidden="true"></span>
+        <span><strong>Menyiapkan lembar</strong><small id="previewLoadingNote">Paket SPK sedang diambil…</small></span>
+      </div>
+    </div>
     <footer class="preview-foot" id="previewFoot" hidden>
       <p id="previewNote"></p>
       <button class="button primary" id="previewApprove" type="button"><i class="fa-solid fa-pen-nib" aria-hidden="true"></i> Setujui &amp; Paraf</button>
@@ -171,6 +175,6 @@
   </div>
 
   <script src="/assets/js/gas-rpc.js?v=20260825-1" defer></script>
-  <script src="approval.js?v=20260827-1" defer></script>
+  <script src="approval.js?v=20260827-2" defer></script>
 </body>
 </html>

@@ -10,6 +10,8 @@
   var busyDepth=0;
   var busyPaused=false;
   var previewSpk='';
+  var previewFrameSpk='';
+  var previewFrameLoaded=false;
   var loginBusy=false;
 
   function rpc(method){
@@ -23,7 +25,7 @@
     if(window.Swal)return Promise.resolve(window.Swal);
     if(sweetAlertPromise)return sweetAlertPromise;
     sweetAlertPromise=new Promise(function(resolve,reject){
-      var script=document.createElement('script');script.src='https://cdn.jsdelivr.net/npm/sweetalert2@11';
+      var script=document.createElement('script');script.src='/assets/vendor/sweetalert2/sweetalert2-11.26.25.all.min.js';
       script.onload=function(){resolve(window.Swal);};script.onerror=function(){sweetAlertPromise=null;reject(new Error('Komponen notifikasi gagal dimuat.'));};document.head.appendChild(script);
     });
     return sweetAlertPromise;
@@ -81,7 +83,7 @@
     if(pdfJsPromise)return pdfJsPromise;
     pdfJsPromise=new Promise(function(resolve,reject){
       var script=document.createElement('script');
-      script.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+      script.src='/assets/vendor/pdfjs/pdf-3.11.174.min.js';
       script.onload=function(){resolve(window.pdfjsLib);};
       script.onerror=function(){pdfJsPromise=null;reject(new Error('Pemroses PDF gagal dimuat. Periksa koneksi lalu coba kembali.'));};
       document.head.appendChild(script);
@@ -92,7 +94,7 @@
   async function pdfSignatureData(file){
     if(file.size>5000000)throw new Error('Ukuran PDF tanda tangan maksimal 5 MB.');
     await loadPdfJs();
-    window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc='/assets/vendor/pdfjs/pdf.worker-3.11.174.min.js';
     var documentTask=window.pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer())});
     var pdf=await documentTask.promise;
     var page=await pdf.getPage(1);
@@ -255,6 +257,7 @@
     $('closePreviewDialog').addEventListener('click',closePreview);
     $('previewDialog').addEventListener('close',releasePreviewFrame);
     $('previewApprove').addEventListener('click',approveFromPreview);
+    window.addEventListener('message',handlePreviewMessage);
     $('userList').addEventListener('click',function(event){var button=event.target.closest('[data-user]');if(button)openUser(state.users.find(function(u){return u.userId===button.dataset.user;}));});
   }
   function showLogin(){$('loginView').hidden=false;$('setupView').hidden=true;$('appView').hidden=true;$('userbar').hidden=true;}
@@ -271,9 +274,36 @@
     if(!spk)return;
     previewSpk=spk;
     $('previewTitle').textContent=spk;
-    $('previewFrame').src='/apps/spk-automation/print-spk/?spk='+encodeURIComponent(spk)+'&mode=view&embed=1';
     renderPreviewFoot(spk);
     $('previewDialog').showModal();
+
+    if(previewFrameLoaded&&previewFrameSpk===spk){setPreviewLoading(false);return;}
+    setPreviewLoading(true);
+    if(previewFrameLoaded){
+      // Dokumen cetaknya sudah hidup; menukar nomor SPK lewat pesan jauh lebih
+      // murah daripada memuat ulang halaman 180 KB beserta seluruh gayanya.
+      $('previewFrame').contentWindow.postMessage(
+        {source:'pgm-spk-preview-host',spk:spk},window.location.origin);
+    }else{
+      $('previewFrame').src='/apps/spk-automation/print-spk/?spk='+encodeURIComponent(spk)+'&mode=view&embed=1';
+    }
+  }
+  function setPreviewLoading(value,note){
+    $('previewLoading').hidden=!value;
+    if(value)$('previewLoadingNote').textContent=note||'Paket SPK sedang diambil…';
+  }
+  // Halaman cetak mengabari saat paketnya selesai dirender atau gagal.
+  function handlePreviewMessage(event){
+    if(event.origin!==window.location.origin)return;
+    var data=event.data;
+    if(!data||data.source!=='pgm-spk-preview')return;
+    previewFrameLoaded=true;
+    // Gagal berarti tidak ada lembar yang tersaji, jadi SPK-nya tidak dicatat
+    // sebagai tersaji. Tanpa itu, membuka SPK yang sama lagi akan dianggap
+    // sudah siap dan hanya memperlihatkan kartu error yang basi.
+    if(data.state==='error'){previewFrameSpk='';setPreviewLoading(true,data.message||'Lembar gagal dimuat.');return;}
+    previewFrameSpk=data.spk||'';
+    setPreviewLoading(false);
   }
   // Tindakan persetujuan hanya ditawarkan bila SPK ini memang menunggu giliran
   // pengguna dan tanda tangannya sudah tersedia; keadaannya diambil dari
@@ -303,9 +333,10 @@
     // dikembalikan alih-alih meninggalkannya di antrean.
     if(!await approve(spk))openPreview(spk);
   }
-  // Sumber dikosongkan setelah ditutup supaya iframe berhenti bekerja dan
-  // pratinjau berikutnya tidak sempat menampilkan SPK sebelumnya.
-  function releasePreviewFrame(){$('previewFrame').src='about:blank';previewSpk='';}
+  // Dokumen cetaknya sengaja dibiarkan hidup setelah ditutup. Membuangnya
+  // berarti mengurai ulang seluruh halaman pada pratinjau berikutnya, sedangkan
+  // menampilkan SPK lama sudah dicegah oleh penanda memuat di atas iframe.
+  function releasePreviewFrame(){previewSpk='';}
   function renderQueue(items,signatureReady){
     if(!items.length){$('queueList').innerHTML='<div class="empty">Belum ada SPK pada antrean jabatan ini.</div>';return;}
     $('queueList').innerHTML=items.map(function(item){

@@ -10,8 +10,26 @@
   <meta name="theme-color" content="#20242a">
   <base target="_top">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='22' fill='%23f4f4f1'/%3E%3Cpath fill='%23111216' d='M14 12h50v43h42v53h-8V63H64v45H14V55h42V20H14z'/%3E%3Crect x='15' y='22' width='41' height='12' rx='6' fill='%234563b3'/%3E%3Crect x='22' y='63' width='34' height='37' fill='%23ef2631'/%3E%3Crect x='84' y='64' width='11' height='44' rx='5.5' fill='%2340b84e'/%3E%3C/svg%3E">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.15.12/dist/cdn.min.js"></script>
+  <script>
+    // Di dalam pratinjau Portal Persetujuan (?embed=1) seluruh kerangka halaman
+    // ini disembunyikan. FontAwesome hanya dipakai oleh toolbar itu dan Alpine
+    // hanya menggerakkannya, sedangkan lembar cetaknya tidak memakai keduanya.
+    // Melewatkannya menghapus satu unduhan CSS lintas domain dan satu pustaka
+    // yang harus diurai serta dijalankan pada tiap pembukaan pratinjau.
+    // status.js sudah menangani Alpine yang absen lewat recoverFromMissingAlpine().
+    window.PGM_EMBED = new URLSearchParams(window.location.search).get('embed') === '1';
+    if (!window.PGM_EMBED) {
+      var pgmIcons = document.createElement('link');
+      pgmIcons.rel = 'stylesheet';
+      pgmIcons.href = '/assets/vendor/fontawesome/css/all.min.css?v=20260827';
+      document.head.appendChild(pgmIcons);
+
+      var pgmAlpine = document.createElement('script');
+      pgmAlpine.defer = true;
+      pgmAlpine.src = '/assets/vendor/alpine/alpine-3.15.12.min.js';
+      document.head.appendChild(pgmAlpine);
+    }
+  </script>
   <script>
   // Controller Alpine global. Komponen ini sengaja kecil: ia menyediakan
   // state bersama tanpa mengambil alih fungsi bisnis halaman yang sudah stabil.
@@ -4178,7 +4196,7 @@
 
     // Halaman ini disematkan di dalam modal Portal Persetujuan. Kerangkanya
     // sendiri disembunyikan dan formulirnya dipilah lewat tab.
-    const EMBED_MODE = new URLSearchParams(window.location.search).get('embed') === '1';
+    const EMBED_MODE = Boolean(window.PGM_EMBED);
     if (EMBED_MODE) document.body.classList.add('is-embedded');
 
     const PROCESS_DEFINITIONS = [
@@ -4230,6 +4248,38 @@
       } catch (ignore) { return ''; }
     }
 
+    // Memuat ulang halaman ini untuk tiap SPK berarti mengurai kembali sekitar
+    // 100 KB CSS dan 75 KB JS, lalu menunggu satu perjalanan penuh ke Apps
+    // Script. Saat disematkan, induknya cukup mengirim nomor SPK berikutnya:
+    // dokumennya tetap hidup dan hanya datanya yang diambil ulang.
+    function notifyEmbedHost_(state, message) {
+      if (!EMBED_MODE || window.parent === window) return;
+      window.parent.postMessage({
+        source: 'pgm-spk-preview',
+        state: state,
+        spk: activeSpk,
+        message: message || ''
+      }, window.location.origin);
+    }
+
+    if (EMBED_MODE) {
+      window.addEventListener('message', function (event) {
+        if (event.origin !== window.location.origin) return;
+        const data = event.data;
+        if (!data || data.source !== 'pgm-spk-preview-host' || !data.spk) return;
+        // Nomor yang sama tetapi datanya belum ada berarti percobaan
+        // sebelumnya gagal, jadi permintaannya diulang.
+        if (data.spk === activeSpk && currentPrintData) { notifyEmbedHost_('ready'); return; }
+
+        activeSpk = String(data.spk).trim();
+        requestedDbRow = 0;
+        currentPrintData = null;
+        printRootEl.innerHTML = '<div class="loading-card"><div class="spinner" aria-hidden="true"></div>' +
+          '<strong>Menyiapkan paket SPK</strong><p>PO Produksi dan formulir setiap alur sedang disusun.</p></div>';
+        loadPrintData_();
+      });
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
       loadPrintData_();
     });
@@ -4269,8 +4319,10 @@
       return typeof google !== 'undefined' && google.script && google.script.run;
     }
 
+    let activeSpk = REQUESTED_SPK.trim();
+
     function loadPrintData_() {
-      const requested = REQUESTED_SPK.trim();
+      const requested = activeSpk;
 
       if (hasAppsScriptRuntime_()) {
         if (!requested) {
@@ -4305,6 +4357,7 @@
       // sehingga tombol cetak tidak perlu mencari baris dari awal.
       if (currentPrintData.rowNumber) requestedDbRow = currentPrintData.rowNumber;
       renderPrintPack_(currentPrintData);
+      notifyEmbedHost_('ready');
       printButtonEl.hidden = PRINT_MODE === 'view';
       printButtonEl.disabled = PRINT_MODE !== 'release' || !currentPrintData.canPrint ||
         (currentPrintData.release !== 'YA' && !currentPrintData.canRelease);
@@ -4400,6 +4453,7 @@
 
     function showLoadError_(message) {
       printButtonEl.disabled = true;
+      notifyEmbedHost_('error', message);
       setToolbarStatus_(message, 'error');
       printRootEl.innerHTML = `
         <div class="error-card">

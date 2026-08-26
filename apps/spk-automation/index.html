@@ -4955,12 +4955,12 @@
   }
   .spk-login-dialog {
     display: grid;
-    gap: 13px;
+    gap: 11px;
   }
   .spk-login-note {
     margin: 0;
     color: #5f6670;
-    font-size: .78rem;
+    font-size: var(--polyta-description-font-size, .75rem);
     line-height: 1.5;
     text-shadow: 0 1px 0 rgba(255,255,255,.72);
   }
@@ -4970,7 +4970,7 @@
   }
   .spk-login-field > span {
     color: #5f6670;
-    font-size: .75rem;
+    font-size: var(--polyta-label-font-size, .69rem);
     font-weight: 800;
     letter-spacing: .02em;
     text-shadow: 0 1px 0 rgba(255,255,255,.72);
@@ -4978,19 +4978,19 @@
   .spk-login-field > input {
     box-sizing: border-box;
     width: 100%;
-    min-height: 42px;
-    padding: 10px 14px;
+    min-height: var(--polyta-input-height, 34px);
+    padding: 0 var(--polyta-input-padding-x, 10px);
     border: 1px solid #9b9da0;
     border-top-color: #74777a;
     border-left-color: #74777a;
-    border-radius: 11px;
+    border-radius: var(--polyta-control-radius, 8px);
     background: #fdfdfb;
     box-shadow:
     inset 1px 2px 4px rgba(0,0,0,.2),
     0 1px 0 rgba(255,255,255,.78);
     color: #292b2f;
     font-family: inherit;
-    font-size: .875rem;
+    font-size: var(--polyta-control-font-size, .68rem);
     outline: none;
     transition: border-color .2s ease, box-shadow .2s ease;
   }
@@ -5007,20 +5007,20 @@
     gap: 8px;
     color: #5f6670;
     cursor: pointer;
-    font-size: .78rem;
+    font-size: var(--polyta-label-font-size, .69rem);
     font-weight: 700;
     text-shadow: 0 1px 0 rgba(255,255,255,.72);
   }
   .spk-login-remember input {
-    width: 15px;
-    height: 15px;
+    width: 14px;
+    height: 14px;
     accent-color: #7b1b1b;
     cursor: pointer;
   }
   .spk-login-popup .swal2-title {
     padding-top: 0;
     color: #25272b;
-    font-size: 1.3rem;
+    font-size: 1.12rem;
     font-weight: 900;
     letter-spacing: -.01em;
     text-shadow: 0 1px 0 rgba(255,255,255,.72);
@@ -5035,15 +5035,15 @@
   /* Tombol wizard bertepi bawah keras. Isian tombol utama tetap #202020 seperti
      alert lain di halaman ini; yang ditambahkan hanya reliefnya. */
   .spk-login-popup .swal2-actions {
-    gap: 9px;
-    margin-top: 21px;
+    gap: var(--polyta-control-gap, 6px);
+    margin-top: 19px;
   }
   .spk-login-popup .swal2-styled {
-    min-height: 42px;
+    min-height: var(--polyta-button-height, 32px);
     margin: 0;
-    padding: 0 19px;
-    border-radius: 11px;
-    font-size: .82rem;
+    padding: 0 var(--polyta-button-padding-x, 13px);
+    border-radius: var(--polyta-control-radius, 8px);
+    font-size: var(--polyta-control-font-size, .68rem);
     font-weight: 800;
     transition: transform .12s ease, box-shadow .12s ease, background .2s ease;
   }

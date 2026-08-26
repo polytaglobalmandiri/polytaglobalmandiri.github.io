@@ -4267,6 +4267,23 @@
         if (event.origin !== window.location.origin) return;
         const data = event.data;
         if (!data || data.source !== 'pgm-spk-preview-host' || !data.spk) return;
+
+        // Menyetujui SPK mengubah tanda tangan dan statusnya, sehingga paket
+        // yang tersimpan menjadi basi. Induknya menggugurkannya setelah setiap
+        // perubahan agar pratinjau berikutnya mengambil data segar.
+        if (data.action === 'invalidate') {
+          packCache.clear();
+          return;
+        }
+
+        // Prefetch: induknya menduga SPK ini akan dibuka. Datanya diambil ke
+        // cache tanpa mengubah apa pun yang sedang tampil.
+        if (data.action === 'prefetch') {
+          const spk = String(data.spk).trim();
+          if (spk && spk !== activeSpk && !packCache.has(spk)) loadPrintData_(spk);
+          return;
+        }
+
         // Nomor yang sama tetapi datanya belum ada berarti percobaan
         // sebelumnya gagal, jadi permintaannya diulang.
         if (data.spk === activeSpk && currentPrintData) { notifyEmbedHost_('ready'); return; }
@@ -4274,8 +4291,10 @@
         activeSpk = String(data.spk).trim();
         requestedDbRow = 0;
         currentPrintData = null;
-        printRootEl.innerHTML = '<div class="loading-card"><div class="spinner" aria-hidden="true"></div>' +
-          '<strong>Menyiapkan paket SPK</strong><p>PO Produksi dan formulir setiap alur sedang disusun.</p></div>';
+        if (!packCache.has(activeSpk)) {
+          printRootEl.innerHTML = '<div class="loading-card"><div class="spinner" aria-hidden="true"></div>' +
+            '<strong>Menyiapkan paket SPK</strong><p>PO Produksi dan formulir setiap alur sedang disusun.</p></div>';
+        }
         loadPrintData_();
       });
     }
@@ -4321,8 +4340,13 @@
 
     let activeSpk = REQUESTED_SPK.trim();
 
-    function loadPrintData_() {
-      const requested = activeSpk;
+    function loadPrintData_(spkOverride) {
+      const requested = spkOverride || activeSpk;
+      const cached = packCache.get(requested);
+      if (cached) {
+        if (requested === activeSpk) applyPrintData_(cached);
+        return;
+      }
 
       if (hasAppsScriptRuntime_()) {
         if (!requested) {
@@ -4331,11 +4355,12 @@
         }
 
         google.script.run
-          .withSuccessHandler(handlePrintDataResponse_)
+          .withSuccessHandler(function (response) { handlePrintDataResponse_(response, requested); })
           .withFailureHandler(function (error) {
+            if (requested !== activeSpk) return;
             showLoadError_(error && error.message ? error.message : 'Data SPK gagal dimuat.');
           })
-          .getSpkPrintData(requested, requestedDbRow, getPrintAuthToken_());
+          .getSpkPrintData(requested, requested === activeSpk ? requestedDbRow : 0, getPrintAuthToken_());
         return;
       }
 
@@ -4346,13 +4371,29 @@
       });
     }
 
-    function handlePrintDataResponse_(response) {
+    // Paket yang sudah pernah diambil disimpan per nomor SPK. Satu panggilan
+    // getSpkPrintData berarti satu navigasi penuh ke Apps Script, jadi membuka
+    // ulang SPK yang sama tidak boleh membayarnya lagi.
+    const packCache = new Map();
+
+    function handlePrintDataResponse_(response, forSpk) {
+      const spk = forSpk || activeSpk;
       if (!response || response.status !== 'success' || !response.found || !response.data) {
+        // Hasil gagal tidak disimpan, supaya percobaan berikutnya benar-benar
+        // menghubungi server lagi.
+        if (spk !== activeSpk) return;
         showLoadError_(response && response.message ? response.message : 'Data SPK tidak ditemukan.');
         return;
       }
 
-      currentPrintData = response.data;
+      packCache.set(spk, response.data);
+      // Hasil prefetch untuk SPK yang bukan sedang tampil cukup disimpan.
+      if (spk !== activeSpk) return;
+      applyPrintData_(response.data);
+    }
+
+    function applyPrintData_(data) {
+      currentPrintData = data;
       // Baris hasil verifikasi server dipakai ulang saat menandai Release,
       // sehingga tombol cetak tidak perlu mencari baris dari awal.
       if (currentPrintData.rowNumber) requestedDbRow = currentPrintData.rowNumber;

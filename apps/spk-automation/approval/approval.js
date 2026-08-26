@@ -12,6 +12,8 @@
   var previewSpk='';
   var previewFrameSpk='';
   var previewFrameLoaded=false;
+  var prefetched={};
+  var prefetchTimer=0;
   var loginBusy=false;
 
   function rpc(method){
@@ -258,6 +260,14 @@
     $('previewDialog').addEventListener('close',releasePreviewFrame);
     $('previewApprove').addEventListener('click',approveFromPreview);
     window.addEventListener('message',handlePreviewMessage);
+    $('queueList').addEventListener('mouseover',function(event){
+      var card=event.target.closest('.queue-card');
+      if(card&&card.dataset.spk)prefetchPreview(card.dataset.spk);
+    });
+    $('queueList').addEventListener('focusin',function(event){
+      var card=event.target.closest('.queue-card');
+      if(card&&card.dataset.spk)prefetchPreview(card.dataset.spk);
+    });
     $('userList').addEventListener('click',function(event){var button=event.target.closest('[data-user]');if(button)openUser(state.users.find(function(u){return u.userId===button.dataset.user;}));});
   }
   function showLogin(){$('loginView').hidden=false;$('setupView').hidden=true;$('appView').hidden=true;$('userbar').hidden=true;}
@@ -287,6 +297,29 @@
     }else{
       $('previewFrame').src='/apps/spk-automation/print-spk/?spk='+encodeURIComponent(spk)+'&mode=view&embed=1';
     }
+  }
+  // Mengambil data SPK berarti satu perjalanan penuh ke Apps Script. Saat
+  // kursor singgah di sebuah baris, permintaannya sudah dikirim lebih dulu ke
+  // dokumen cetak yang menganggur, sehingga saat baris itu benar-benar diklik
+  // datanya kerap sudah siap. Ditunda sesaat supaya menyapu daftar dengan
+  // kursor tidak memicu belasan permintaan sekaligus.
+  function prefetchPreview(spk){
+    if(!spk||!previewFrameLoaded||prefetched[spk]||previewSpk)return;
+    window.clearTimeout(prefetchTimer);
+    prefetchTimer=window.setTimeout(function(){
+      if(prefetched[spk])return;
+      prefetched[spk]=true;
+      $('previewFrame').contentWindow.postMessage(
+        {source:'pgm-spk-preview-host',action:'prefetch',spk:spk},window.location.origin);
+    },180);
+  }
+  // Data yang tersimpan di dokumen cetak ikut basi begitu persetujuan berubah.
+  function invalidatePreviewCache(){
+    prefetched={};
+    if(!previewFrameLoaded)return;
+    previewFrameSpk='';
+    $('previewFrame').contentWindow.postMessage(
+      {source:'pgm-spk-preview-host',action:'invalidate',spk:'*'},window.location.origin);
   }
   function setPreviewLoading(value,note){
     $('previewLoading').hidden=!value;
@@ -348,7 +381,7 @@
     }).join('');
   }
   // Mengembalikan true hanya bila persetujuan benar-benar tersimpan.
-  async function approve(spk){var confirmation=await showAlert({icon:'question',title:'Setujui SPK '+spk+'?',text:'Tanda tangan akun Anda akan dibubuhkan dan tindakan ini dicatat beserta waktu persetujuan.',showCancelButton:true,confirmButtonText:'Ya, setujui',cancelButtonText:'Batal',confirmButtonColor:'#b41420'});if(!confirmation.isConfirmed)return false;setBusy(true,'Menyimpan persetujuan','Tanda tangan dan waktu persetujuan sedang dicatat…');try{var response=await rpc('approveSpk',state.token,spk);if(!response||response.status!=='success')throw new Error(response&&response.message);await showAlert({icon:'success',title:'Persetujuan tersimpan',text:response.message,confirmButtonColor:'#b41420'});await loadQueue();return true;}catch(error){alertError(error.message);return false;}finally{setBusy(false);}}
+  async function approve(spk){var confirmation=await showAlert({icon:'question',title:'Setujui SPK '+spk+'?',text:'Tanda tangan akun Anda akan dibubuhkan dan tindakan ini dicatat beserta waktu persetujuan.',showCancelButton:true,confirmButtonText:'Ya, setujui',cancelButtonText:'Batal',confirmButtonColor:'#b41420'});if(!confirmation.isConfirmed)return false;setBusy(true,'Menyimpan persetujuan','Tanda tangan dan waktu persetujuan sedang dicatat…');try{var response=await rpc('approveSpk',state.token,spk);if(!response||response.status!=='success')throw new Error(response&&response.message);await showAlert({icon:'success',title:'Persetujuan tersimpan',text:response.message,confirmButtonColor:'#b41420'});invalidatePreviewCache();await loadQueue();return true;}catch(error){alertError(error.message);return false;}finally{setBusy(false);}}
   async function loadUsers(){var response=await rpc('listApprovalUsers',state.token);if(!response||response.status!=='success')throw new Error(response&&response.message);state.users=response.users||[];state.roles=response.roles||state.roles;renderUsers();fillRoles();}
   function renderUsers(){$('userList').innerHTML=state.users.map(function(user){return '<article class="user-card"><div><h3><i class="fa-solid fa-user-shield" aria-hidden="true"></i> '+escapeHtml(user.name)+'</h3><p>'+escapeHtml(user.email)+'</p><p>'+escapeHtml(user.roleLabel)+' · TTD '+(user.signatureReady?'tersedia':'belum ada')+'</p><span class="state '+(user.active?'':'off')+'">'+(user.active?'AKTIF':'NONAKTIF')+'</span></div><button class="button ghost" data-user="'+escapeHtml(user.userId)+'"><i class="fa-solid fa-pen" aria-hidden="true"></i> Ubah</button></article>';}).join('')||'<div class="empty">Belum ada pengguna.</div>';}
   function fillRoles(){$('roleSelect').innerHTML=state.roles.map(function(role){return '<option value="'+escapeHtml(role.key)+'">'+escapeHtml(role.label)+'</option>';}).join('');}

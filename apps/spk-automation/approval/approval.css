@@ -334,9 +334,9 @@ dialog::backdrop { background: rgba(12,13,16,.7); backdrop-filter: blur(3px); }
    tanpa memandang spesifisitas, jadi display tanpa syarat di sini akan
    menimpa dialog:not([open]){display:none} bawaan browser dan membuat
    dialognya ikut tergambar di aliran dokumen sebelum dibuka. */
-.preview-dialog { width: min(1180px,calc(100% - 22px)); height: min(94dvh,calc(100dvh - 26px)); max-height: none; padding: 0; overflow: hidden; }
+.preview-dialog { width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; border: 0; border-radius: 0; padding: 0; overflow: hidden; }
 .preview-dialog[open] { display: flex; flex-direction: column; }
-.preview-dialog .dialog-head { flex: 0 0 auto; padding: 16px 20px; border-bottom: 1px solid #b0b3b3; }
+.preview-dialog .dialog-head { flex: 0 0 auto; padding: 8px 12px; border-bottom: 1px solid #b0b3b3; }
 .preview-dialog .dialog-head h2 { margin: 2px 0 0; }
 .preview-stage { position: relative; flex: 1 1 auto; min-height: 0; }
 .preview-frame { display: block; width: 100%; height: 100%; border: 0; background: #d9dcd8; }
@@ -347,11 +347,11 @@ dialog::backdrop { background: rgba(12,13,16,.7); backdrop-filter: blur(3px); }
 .preview-loading strong { font-size: .74rem; }
 .preview-loading small { color: var(--muted); font-size: .61rem; }
 .preview-loading .busy-spinner { border-color: rgba(0,0,0,.14); border-top-color: var(--red); }
-.preview-foot { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 13px 20px; border-top: 1px solid #b0b3b3; background: linear-gradient(180deg,#eeefec,#dcdedb); }
+.preview-foot { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 8px 12px; border-top: 1px solid #b0b3b3; background: linear-gradient(180deg,#eeefec,#dcdedb); }
 .preview-foot p { margin: 0; color: var(--muted); font-size: .62rem; line-height: 1.45; }
 .preview-foot .button { flex: 0 0 auto; }
-.dialog-head h2 { font-size: 1.15rem; }
-.icon-button { width: 36px; height: 36px; border: 1px solid #b3b5b5; border-radius: 50%; background: linear-gradient(#fff,#d7d8d6); color: #4a4c50; box-shadow: inset 0 1px 0 #fff,0 2px 0 #919395; font-size: 1.35rem; cursor: pointer; }
+.dialog-head h2 { font-size: 1rem; }
+.icon-button { width: 30px; height: 30px; border: 1px solid #b3b5b5; border-radius: 50%; background: linear-gradient(#fff,#d7d8d6); color: #4a4c50; box-shadow: inset 0 1px 0 #fff,0 2px 0 #919395; font-size: 1.15rem; cursor: pointer; display: grid; place-items: center; }
 body.loading { cursor: progress; }
 body.loading button,
 body.loading input,

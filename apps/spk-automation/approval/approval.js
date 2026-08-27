@@ -487,15 +487,21 @@
     if(data.state==='error'){previewFrameSpk='';previewPackageReady=false;showPreviewProblem(data.message);return;}
     previewFrameSpk=data.spk||'';
     if(data.state==='content'){
-      previewPackageReady=false;
+      // Isi dokumen sudah cukup untuk mengambil keputusan. Gambar tanda
+      // tangan lain tetap dimuat di belakang layar, tetapi tidak boleh
+      // mengunci tombol persetujuan pengguna yang sedang aktif.
+      previewPackageReady=true;
       previewPackageMessage='Lembar sudah dapat diperiksa. Tanda tangan sedang dimuat di belakang layar…';
       setPreviewLoading(false);
       renderPreviewFoot(previewSpk);
       return;
     }
     if(data.state==='signature-error'){
-      previewPackageReady=false;
-      previewPackageMessage=data.message||'Tanda tangan belum berhasil dimuat. Tutup lalu buka kembali lembar untuk mencoba lagi.';
+      // Kegagalan gambar tanda tangan pada pratinjau bukan kegagalan proses
+      // persetujuan. Endpoint approve tetap memvalidasi dan membubuhkan tanda
+      // tangan akun secara terpisah.
+      previewPackageReady=true;
+      previewPackageMessage=data.message||'Sebagian tanda tangan belum dapat ditampilkan. Lembar tetap dapat disetujui.';
       setPreviewLoading(false);
       renderPreviewFoot(previewSpk);
       return;
@@ -516,7 +522,9 @@
     $('previewFoot').hidden=!pending&&!previewPackageMessage;
     $('previewApprove').hidden=!pending;
     if(previewPackageMessage){
-      $('previewApprove').disabled=true;
+      // Informasi pemuatan tanda tangan bersifat pemberitahuan. Tombol hanya
+      // dikunci bila tanda tangan akun pengguna sendiri memang belum tersedia.
+      $('previewApprove').disabled=!ready;
       $('previewNote').textContent=previewPackageMessage;
       return;
     }

@@ -9,7 +9,7 @@
   <link rel="icon" href="/assets/img/logo-app.png" type="image/png">
   <link rel="stylesheet" href="/assets/vendor/inter/inter.css?v=20260827">
   <link rel="stylesheet" href="/assets/vendor/fontawesome/css/all.min.css?v=20260827">
-  <link rel="stylesheet" href="approval.css?v=20260827-7">
+  <link rel="stylesheet" href="approval.css?v=20260828-1">
 </head>
 <body data-page="approval-spk">
   <header class="topbar">
@@ -147,13 +147,17 @@
   </dialog>
 
   <dialog id="previewDialog" class="preview-dialog" aria-labelledby="previewTitle">
-    <div class="dialog-head">
-      <div>
-        <p class="eyebrow">PRATINJAU LEMBAR CETAK</p>
-        <h2 id="previewTitle">SPK</h2>
+    <div class="dialog-head preview-head">
+      <div class="preview-identity">
+        <span class="preview-document-icon" aria-hidden="true"><i class="fa-regular fa-file-lines"></i></span>
+        <div>
+          <p class="eyebrow">PRATINJAU LEMBAR CETAK</p>
+          <h2 id="previewTitle">SPK</h2>
+          <span class="preview-mode"><i class="fa-solid fa-eye" aria-hidden="true"></i> Mode pemeriksaan</span>
+        </div>
       </div>
       <div id="previewTabsContainer"></div>
-      <button class="icon-button" id="closePreviewDialog" type="button" aria-label="Tutup pratinjau">&times;</button>
+      <button class="icon-button preview-close" id="closePreviewDialog" type="button" aria-label="Tutup pratinjau" title="Tutup pratinjau"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
     </div>
     <div class="preview-stage">
       <iframe id="previewFrame" class="preview-frame" title="Lembar cetak SPK" src="about:blank"></iframe>
@@ -164,7 +168,7 @@
       </div>
     </div>
     <footer class="preview-foot" id="previewFoot" hidden>
-      <p id="previewNote"></p>
+      <div class="preview-note"><span aria-hidden="true"><i class="fa-solid fa-circle-info"></i></span><p id="previewNote"></p></div>
       <button class="button primary" id="previewApprove" type="button"><i class="fa-solid fa-pen-nib" aria-hidden="true"></i> Setujui &amp; Paraf</button>
     </footer>
   </dialog>

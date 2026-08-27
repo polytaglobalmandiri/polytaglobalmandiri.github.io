@@ -274,8 +274,7 @@
     button.setAttribute('aria-pressed',String(visible));
     button.setAttribute('aria-label',label);
     button.title=label;
-    button.querySelector('i').className=visible?'fa-regular fa-eye-slash':'fa-regular fa-eye';
-    button.querySelector('.password-toggle-label').textContent=visible?'Tutup':'Lihat';
+    button.querySelector('i').className='fa-solid fa-eye';
   }
   function toggleLoginPassword(){
     var input=$('loginPassword');

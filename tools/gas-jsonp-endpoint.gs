@@ -65,6 +65,11 @@
 /**
  * Hanya metode di daftar ini yang boleh dipanggil lewat JSONP.
  *
+ * bootstrapApprovalAdmin sengaja tidak ada di sini: ia membawa data tanda
+ * tangan sebagai data URL, dan JSONP mengirim argumennya lewat query string
+ * yang jauh lebih pendek daripada muatan itu. Pendaftaran admin dijalankan
+ * sekali saja, dan tetap bisa lewat transport iframe seperti biasa.
+ *
  * Daftar putih, bukan daftar hitam: doGet dapat dipanggil siapa saja tanpa
  * kredensial, jadi permukaan yang terbuka harus disebut satu per satu. Setiap
  * metode di sini tetap memeriksa tokennya sendiri seperti biasa - yang berubah
@@ -75,7 +80,6 @@ var RPC_JSONP_ALLOWED = {
   getApprovalSession: true,
   loginApprovalUser: true,
   logoutApprovalUser: true,
-  bootstrapApprovalAdmin: true,
   getApprovalQueue: true,
   approveSpk: true,
   getSpkApprovalStatus: true,

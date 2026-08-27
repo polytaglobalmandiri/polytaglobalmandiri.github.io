@@ -109,7 +109,29 @@
   // dengan kecepatan server, jadi menunggu lebih lama tidak menolong sama
   // sekali — pesan "server belum merespons" justru menyesatkan.
   var REPLY_GRACE = 15000;
-  var frameTransportBroken = false;
+  var TRANSPORT_MEMO_KEY = "polyta-gas-frame-broken";
+  var TRANSPORT_MEMO_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
+
+  // Mesin yang frame balasannya ditahan akan ditahan lagi pada muat halaman
+  // berikutnya. Tanpa ingatan ini setiap kunjungan membayar ulang lima belas
+  // detik hanya untuk sampai pada kesimpulan yang sama. Ingatan itu diberi
+  // umur, dan dibuang begitu sebuah balasan benar-benar sampai, supaya
+  // pemblokiran yang sudah dicabut tidak terus dianggap berlaku.
+  function readTransportMemo() {
+    try {
+      var raw = window.localStorage.getItem(TRANSPORT_MEMO_KEY);
+      return Boolean(raw) && Date.now() - Number(raw) < TRANSPORT_MEMO_MAX_AGE;
+    } catch (error) { return false; }
+  }
+
+  function writeTransportMemo(broken) {
+    try {
+      if (broken) window.localStorage.setItem(TRANSPORT_MEMO_KEY, String(Date.now()));
+      else window.localStorage.removeItem(TRANSPORT_MEMO_KEY);
+    } catch (error) {}
+  }
+
+  var frameTransportBroken = readTransportMemo();
   var scriptTransport = "belum-diuji"; // belum-diuji | ada | tidak-ada
 
   function transportError(code, message) {
@@ -159,6 +181,7 @@
         if (settled) return;
         settled = true;
         frameTransportBroken = true;
+        writeTransportMemo(true);
         cleanup();
         reject(transportError(code, message));
       }
@@ -170,6 +193,7 @@
 
         settled = true;
         cleanup();
+        if (frameTransportBroken) { frameTransportBroken = false; writeTransportMemo(false); }
         var payload = data.payload;
         if (!payload || payload.ok !== true) {
           reject(new Error(payload && payload.error && payload.error.message

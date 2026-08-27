@@ -16,6 +16,7 @@
   var previewPackageMessage='';
   var previewWaitTimer=0;
   var loginBusy=false;
+  var manualLoginStarted=false;
   var queueLoadPromise=null;
 
   function rpc(method){
@@ -224,13 +225,16 @@
     bind();showLogin();loadBootstrapStatus();
     var auth=savedAuth();
     if(!auth.token)return;
-    setLoginBusy(true);
+    // Pemulihan sesi berjalan di latar dan TIDAK mengunci formulir. Sebelumnya
+    // tombol Masuk dinonaktifkan selama pengecekan ini, sehingga token yang
+    // sudah basi membuat form terkunci sampai 20 detik setiap halaman dibuka —
+    // pengguna tidak bisa masuk manual justru saat sesinya tidak lagi berlaku.
     try{
       var session=await rpc('getApprovalSession',auth.token);
+      if(manualLoginStarted)return;
       if(session&&session.status==='success'){saveAuth(auth.token,session.user,auth.remember);await showApp();return;}
       clearAuth();
-    }catch(error){clearAuth();}
-    finally{setLoginBusy(false);}
+    }catch(error){if(!manualLoginStarted)clearAuth();}
   }
   function bind(){
     setupSignaturePad=createSignaturePad($('setupSignaturePad'),$('clearSetupSignature'));
@@ -285,6 +289,9 @@
   function showLogin(){$('loginView').hidden=false;$('setupView').hidden=true;$('appView').hidden=true;$('userbar').hidden=true;setLoginPasswordVisibility(false);}
   async function login(event){
     event.preventDefault();
+    // Menandai bahwa pengguna mengambil alih, supaya pemulihan sesi yang masih
+    // berjalan di latar tidak menimpa hasil login manual ini.
+    manualLoginStarted=true;
     setLoginBusy(true);
     try{
       var remember=$('rememberMe').checked;

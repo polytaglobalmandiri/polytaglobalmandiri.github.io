@@ -9,7 +9,7 @@
   <link rel="icon" href="/assets/img/logo-app.png" type="image/png">
   <link rel="stylesheet" href="/assets/vendor/inter/inter.css?v=20260827">
   <link rel="stylesheet" href="/assets/vendor/fontawesome/css/all.min.css?v=20260827">
-  <link rel="stylesheet" href="approval.css?v=20260828-2">
+  <link rel="stylesheet" href="approval.css?v=20260828-3">
 </head>
 <body data-page="approval-spk">
   <header class="topbar">
@@ -141,30 +141,49 @@
   </dialog>
 
   <dialog id="previewDialog" class="preview-dialog" aria-labelledby="previewTitle">
-    <div class="dialog-head preview-head">
-      <div class="preview-identity">
-        <span class="preview-document-icon" aria-hidden="true"><i class="fa-regular fa-file-lines"></i></span>
-        <div>
-          <p class="eyebrow">PRATINJAU LEMBAR CETAK</p>
+    <aside class="preview-sidebar">
+      <header class="preview-sidebar-head">
+        <span class="preview-document-icon" aria-hidden="true"><i class="fa-solid fa-file-circle-check"></i></span>
+        <div class="preview-identity">
+          <p class="eyebrow">DETAIL DOKUMEN</p>
           <h2 id="previewTitle">SPK</h2>
-          <span class="preview-mode"><i class="fa-solid fa-eye" aria-hidden="true"></i> Mode pemeriksaan</span>
+          <span class="preview-mode"><i class="fa-solid fa-circle" aria-hidden="true"></i> Siap diperiksa</span>
+        </div>
+        <button class="preview-close" id="closePreviewDialog" type="button" aria-label="Tutup detail SPK" title="Tutup"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+      </header>
+
+      <section class="preview-navigation" aria-labelledby="previewNavigationTitle">
+        <div class="preview-section-label"><span id="previewNavigationTitle">Isi Paket SPK</span><small>Pilih lembar</small></div>
+        <div id="previewTabsContainer"></div>
+      </section>
+
+      <div class="preview-guide" aria-label="Panduan pemeriksaan">
+        <p class="preview-section-label"><span>Sebelum Menyetujui</span></p>
+        <span><i class="fa-solid fa-check" aria-hidden="true"></i> Periksa data pesanan</span>
+        <span><i class="fa-solid fa-check" aria-hidden="true"></i> Periksa routing produksi</span>
+        <span><i class="fa-solid fa-check" aria-hidden="true"></i> Pastikan seluruh lembar sesuai</span>
+      </div>
+
+      <footer class="preview-foot" id="previewFoot" hidden>
+        <div class="preview-note"><span aria-hidden="true"><i class="fa-solid fa-circle-info"></i></span><p id="previewNote"></p></div>
+        <button class="button primary" id="previewApprove" type="button"><i class="fa-solid fa-pen-nib" aria-hidden="true"></i> Setujui &amp; Paraf</button>
+      </footer>
+    </aside>
+
+    <section class="preview-workspace" aria-label="Lembar cetak SPK">
+      <header class="preview-workspace-head">
+        <div><span class="preview-workspace-icon" aria-hidden="true"><i class="fa-regular fa-file-lines"></i></span><span><strong>Lembar Dokumen</strong><small>Pratinjau sesuai format cetak</small></span></div>
+        <span class="preview-secure"><i class="fa-solid fa-lock" aria-hidden="true"></i> Dokumen internal</span>
+      </header>
+      <div class="preview-stage">
+        <iframe id="previewFrame" class="preview-frame" title="Lembar cetak SPK" src="about:blank"></iframe>
+        <div class="preview-loading" id="previewLoading" role="status" aria-live="polite" hidden>
+          <span class="busy-spinner" id="previewSpinner" aria-hidden="true"></span>
+          <span><strong id="previewLoadingTitle">Menyiapkan lembar</strong><small id="previewLoadingNote">Paket SPK sedang diambil…</small></span>
+          <button class="button ghost" id="previewRetry" type="button" hidden><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i> Coba lagi</button>
         </div>
       </div>
-      <div id="previewTabsContainer"></div>
-      <button class="icon-button preview-close" id="closePreviewDialog" type="button" aria-label="Tutup pratinjau" title="Tutup pratinjau"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
-    </div>
-    <div class="preview-stage">
-      <iframe id="previewFrame" class="preview-frame" title="Lembar cetak SPK" src="about:blank"></iframe>
-      <div class="preview-loading" id="previewLoading" role="status" aria-live="polite" hidden>
-        <span class="busy-spinner" id="previewSpinner" aria-hidden="true"></span>
-        <span><strong id="previewLoadingTitle">Menyiapkan lembar</strong><small id="previewLoadingNote">Paket SPK sedang diambil…</small></span>
-        <button class="button ghost" id="previewRetry" type="button" hidden><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i> Coba lagi</button>
-      </div>
-    </div>
-    <footer class="preview-foot" id="previewFoot" hidden>
-      <div class="preview-note"><span aria-hidden="true"><i class="fa-solid fa-circle-info"></i></span><p id="previewNote"></p></div>
-      <button class="button primary" id="previewApprove" type="button"><i class="fa-solid fa-pen-nib" aria-hidden="true"></i> Setujui &amp; Paraf</button>
-    </footer>
+    </section>
   </dialog>
 
   <div class="busy-overlay" id="busyOverlay" role="status" aria-live="polite" hidden>

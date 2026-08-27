@@ -222,7 +222,16 @@
     catch(error){console.warn('Status aktivasi belum dapat dimuat:',error);}
   }
   async function init(){
-    bind();showLogin();loadBootstrapStatus();
+    bind();showLogin();
+    // Apps Script menjalankan skrip milik satu pengguna secara berurutan, dan
+    // jam timeout permintaan sudah berjalan selama ia mengantre. Menembakkan
+    // pengecekan status aktivasi saat halaman dibuka membuat loginApprovalUser
+    // antre di belakangnya dan bisa habis waktunya sebelum sempat dilayani.
+    // Statusnya hanya menentukan tombol aktivasi pertama kali, jadi ia menunggu
+    // sampai jelas pengguna tidak sedang berusaha masuk.
+    window.setTimeout(function(){
+      if(!manualLoginStarted&&!state.token)loadBootstrapStatus();
+    },5000);
     var auth=savedAuth();
     if(!auth.token)return;
     // Pemulihan sesi berjalan di latar dan TIDAK mengunci formulir. Sebelumnya
@@ -296,7 +305,11 @@
     try{
       var remember=$('rememberMe').checked;
       var response=await rpc('loginApprovalUser',$('loginEmail').value,$('loginPassword').value,remember);
-      if(!response||response.status!=='success')throw new Error(response&&response.message);
+      if(!response||response.status!=='success'){
+        var rejected=new Error(response&&response.message);
+        rejected.credentialsRejected=true;
+        throw rejected;
+      }
       saveAuth(response.token,response.user,remember);
       $('loginPassword').value='';
       setLoginPasswordVisibility(false);
@@ -305,12 +318,20 @@
       setLoginBusy(false);
       await showApp();
     }catch(error){
-      $('loginPassword').value='';
-      setLoginPasswordVisibility(false);
+      // Password hanya dibuang saat memang ditolak. Bila yang gagal adalah
+      // sambungannya, mengetik ulang password tidak memperbaiki apa pun dan
+      // hanya menyulitkan percobaan berikutnya.
+      if(error&&error.credentialsRejected){
+        $('loginPassword').value='';
+        setLoginPasswordVisibility(false);
+      }
       // Pulihkan tombol sebelum dialog dimuat/ditutup agar form tidak terkunci.
       setLoginBusy(false);
       await alertError(error.message);
-      $('loginEmail').focus();
+      // Kredensial ditolak berarti isian perlu diperiksa ulang dari awal.
+      // Kegagalan sambungan tidak: isiannya masih utuh dan tinggal dicoba lagi.
+      if(error&&error.credentialsRejected)$('loginEmail').focus();
+      else $('loginButton').focus();
     }finally{
       setLoginBusy(false);
     }

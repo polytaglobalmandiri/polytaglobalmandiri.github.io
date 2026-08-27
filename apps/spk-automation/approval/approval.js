@@ -12,6 +12,8 @@
   var previewSpk='';
   var previewFrameSpk='';
   var previewFrameLoaded=false;
+  var previewPackageReady=false;
+  var previewPackageMessage='';
   var previewWaitTimer=0;
   var loginBusy=false;
   var queueLoadPromise=null;
@@ -300,12 +302,15 @@
   // tidak ada yang perlu dioper lewat URL.
   function openPreview(spk){
     if(!spk)return;
+    var samePackage=previewFrameLoaded&&previewFrameSpk===spk;
+    if(!samePackage)previewPackageReady=false;
     previewSpk=spk;
+    previewPackageMessage='';
     $('previewTitle').textContent=spk;
     renderPreviewFoot(spk);
     $('previewDialog').showModal();
 
-    if(previewFrameLoaded&&previewFrameSpk===spk){setPreviewLoading(false);return;}
+    if(samePackage){setPreviewLoading(false);renderPreviewFoot(spk);return;}
     setPreviewLoading(true);
     if(previewFrameLoaded){
       // Dokumen cetaknya sudah hidup; menukar nomor SPK lewat pesan jauh lebih
@@ -313,7 +318,7 @@
       $('previewFrame').contentWindow.postMessage(
         {source:'pgm-spk-preview-host',spk:spk},window.location.origin);
     }else{
-      $('previewFrame').src='/apps/spk-automation/print-spk/?spk='+encodeURIComponent(spk)+'&mode=view&embed=1';
+      $('previewFrame').src='/apps/spk-automation/print-spk/?spk='+encodeURIComponent(spk)+'&mode=view&embed=1&preview=20260827-2';
     }
   }
   // Menyetujui SPK mengubah tanda tangan dan statusnya, sehingga paket yang
@@ -361,7 +366,7 @@
       $('previewFrame').contentWindow.postMessage(
         {source:'pgm-spk-preview-host',spk:previewSpk},window.location.origin);
     }else{
-      $('previewFrame').src='/apps/spk-automation/print-spk/?spk='+encodeURIComponent(previewSpk)+'&mode=view&embed=1';
+      $('previewFrame').src='/apps/spk-automation/print-spk/?spk='+encodeURIComponent(previewSpk)+'&mode=view&embed=1&preview=20260827-2';
     }
   }
   // Halaman cetak mengabari saat paketnya selesai dirender atau gagal.
@@ -377,9 +382,26 @@
     // Gagal berarti tidak ada lembar yang tersaji, jadi SPK-nya tidak dicatat
     // sebagai tersaji. Tanpa itu, membuka SPK yang sama lagi akan dianggap
     // sudah siap dan hanya memperlihatkan kartu error yang basi.
-    if(data.state==='error'){previewFrameSpk='';showPreviewProblem(data.message);return;}
+    if(data.state==='error'){previewFrameSpk='';previewPackageReady=false;showPreviewProblem(data.message);return;}
     previewFrameSpk=data.spk||'';
+    if(data.state==='content'){
+      previewPackageReady=false;
+      previewPackageMessage='Lembar sudah dapat diperiksa. Tanda tangan sedang dimuat di belakang layar…';
+      setPreviewLoading(false);
+      renderPreviewFoot(previewSpk);
+      return;
+    }
+    if(data.state==='signature-error'){
+      previewPackageReady=false;
+      previewPackageMessage=data.message||'Tanda tangan belum berhasil dimuat. Tutup lalu buka kembali lembar untuk mencoba lagi.';
+      setPreviewLoading(false);
+      renderPreviewFoot(previewSpk);
+      return;
+    }
+    previewPackageReady=true;
+    previewPackageMessage='';
     setPreviewLoading(false);
+    renderPreviewFoot(previewSpk);
   }
   // Tindakan persetujuan hanya ditawarkan bila SPK ini memang menunggu giliran
   // pengguna dan tanda tangannya sudah tersedia; keadaannya diambil dari
@@ -389,10 +411,18 @@
     var item=(queue.items||[]).find(function(entry){return entry.spk===spk;});
     var pending=Boolean(item&&item.status==='MENUNGGU');
     var ready=Boolean(queue.signatureReady);
-    $('previewFoot').hidden=!pending;
+    $('previewFoot').hidden=!pending&&!previewPackageMessage;
+    $('previewApprove').hidden=!pending;
+    if(previewPackageMessage){
+      $('previewApprove').disabled=true;
+      $('previewNote').textContent=previewPackageMessage;
+      return;
+    }
     if(!pending)return;
-    $('previewApprove').disabled=!ready;
-    $('previewNote').textContent=ready
+    $('previewApprove').disabled=!ready||!previewPackageReady;
+    $('previewNote').textContent=!previewPackageReady
+      ?'Lembar sudah tampil. Tunggu sebentar sampai seluruh tanda tangan selesai dimuat.'
+      :ready
       ?'Periksa seluruh tab sebelum menyetujui. Tanda tangan dan waktu persetujuan akan dicatat.'
       :'Tanda tangan akun Anda belum tersedia, jadi persetujuan belum dapat dilakukan.';
   }

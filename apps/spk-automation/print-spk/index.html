@@ -4241,6 +4241,8 @@
     const toolbarStatusTextEl = document.getElementById('toolbarStatusText');
     let currentPrintData = null;
     let releaseRequestInFlight = false;
+    let signatureInFlightSpk = '';
+    const signatureApprovalCache = new Map();
     const PRINT_AUTH_STORAGE_KEY_ = 'pgm:spk-auth-v1';
 
     function getPrintAuthToken_() {
@@ -4275,10 +4277,12 @@
         // perubahan agar pratinjau berikutnya mengambil data segar.
         if (data.action === 'invalidate') {
           packCache.clear();
+          signatureApprovalCache.clear();
           // Cache saja tidak cukup: jalur SPK yang sama di bawah akan
           // menganggap currentPrintData masih siap dan mengirim status ready
           // tanpa mengambil data baru. Gugurkan juga paket yang sedang aktif.
           currentPrintData = null;
+          signatureInFlightSpk = '';
           return;
         }
 
@@ -4286,7 +4290,11 @@
 
         // Nomor yang sama tetapi datanya belum ada berarti percobaan
         // sebelumnya gagal, jadi permintaannya diulang.
-        if (data.spk === activeSpk && currentPrintData) { notifyEmbedHost_('ready'); return; }
+        if (data.spk === activeSpk && currentPrintData) {
+          notifyEmbedHost_(currentPrintData.signaturesLoaded ? 'ready' : 'content');
+          if (!currentPrintData.signaturesLoaded) loadApprovalSignatures_(activeSpk);
+          return;
+        }
 
         activeSpk = String(data.spk).trim();
         requestedDbRow = 0;
@@ -4367,7 +4375,12 @@
             if (requested !== activeSpk) return;
             showLoadError_(error && error.message ? error.message : 'Data SPK gagal dimuat.');
           })
-          .getSpkPrintData(requested, requested === activeSpk ? requestedDbRow : 0, getPrintAuthToken_());
+          .getSpkPrintData(
+            requested,
+            requested === activeSpk ? requestedDbRow : 0,
+            getPrintAuthToken_(),
+            !EMBED_MODE
+          );
         inFlightSpk = requested;
         return;
       }
@@ -4406,7 +4419,12 @@
       // sehingga tombol cetak tidak perlu mencari baris dari awal.
       if (currentPrintData.rowNumber) requestedDbRow = currentPrintData.rowNumber;
       renderPrintPack_(currentPrintData);
-      notifyEmbedHost_('ready');
+      if (EMBED_MODE && !currentPrintData.signaturesLoaded) {
+        notifyEmbedHost_('content');
+        loadApprovalSignatures_(currentPrintData.spk);
+      } else {
+        notifyEmbedHost_('ready');
+      }
       printButtonEl.hidden = PRINT_MODE === 'view';
       printButtonEl.disabled = PRINT_MODE !== 'release' || !currentPrintData.canPrint ||
         (currentPrintData.release !== 'YA' && !currentPrintData.canRelease);
@@ -4424,6 +4442,51 @@
                 (currentPrintData.approvalProgress ? currentPrintData.approvalProgress.required : 0) + ' lengkap.',
         currentPrintData.release === 'YA' || currentPrintData.canRelease ? 'ready' : 'error'
       );
+    }
+
+    function loadApprovalSignatures_(spk) {
+      const requested = String(spk || '').trim();
+      if (!requested || signatureInFlightSpk === requested) return;
+      const cached = signatureApprovalCache.get(requested);
+      if (cached) {
+        applyApprovalSignatures_(requested, cached);
+        return;
+      }
+      if (!hasAppsScriptRuntime_()) {
+        notifyEmbedHost_('ready');
+        return;
+      }
+
+      signatureInFlightSpk = requested;
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (signatureInFlightSpk === requested) signatureInFlightSpk = '';
+          if (!response || response.status !== 'success') {
+            if (requested === activeSpk) notifyEmbedHost_('signature-error', response && response.message);
+            return;
+          }
+          signatureApprovalCache.set(requested, response.approvals || []);
+          applyApprovalSignatures_(requested, response.approvals || []);
+        })
+        .withFailureHandler(function(error) {
+          if (signatureInFlightSpk === requested) signatureInFlightSpk = '';
+          if (requested === activeSpk) {
+            notifyEmbedHost_('signature-error', error && error.message ? error.message : 'Tanda tangan gagal dimuat.');
+          }
+        })
+        .getSpkApprovalSignatures(getPrintAuthToken_(), requested);
+    }
+
+    function applyApprovalSignatures_(spk, approvals) {
+      if (spk !== activeSpk || !currentPrintData) return;
+      const activeTab = printRootEl.querySelector('.embed-tab[aria-selected="true"]');
+      const activeIndex = activeTab ? activeTab.dataset.formIndex : '0';
+      currentPrintData.approvals = approvals;
+      currentPrintData.signaturesLoaded = true;
+      packCache.set(spk, currentPrintData);
+      renderPrintPack_(currentPrintData);
+      activateEmbedTab_(activeIndex);
+      notifyEmbedHost_('ready');
     }
 
     function requestReleaseAndPrint_(openPrintDialog) {

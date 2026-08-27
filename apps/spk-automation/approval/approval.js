@@ -14,6 +14,7 @@
   var previewFrameLoaded=false;
   var previewWaitTimer=0;
   var loginBusy=false;
+  var queueLoadPromise=null;
 
   function rpc(method){
     var args=Array.prototype.slice.call(arguments,1);
@@ -263,11 +264,36 @@
     $('userList').addEventListener('click',function(event){var button=event.target.closest('[data-user]');if(button)openUser(state.users.find(function(u){return u.userId===button.dataset.user;}));});
   }
   function showLogin(){$('loginView').hidden=false;$('setupView').hidden=true;$('appView').hidden=true;$('userbar').hidden=true;}
-  async function login(event){event.preventDefault();setLoginBusy(true);try{var remember=$('rememberMe').checked;var response=await rpc('loginApprovalUser',$('loginEmail').value,$('loginPassword').value,remember);if(!response||response.status!=='success')throw new Error(response&&response.message);saveAuth(response.token,response.user,remember);$('loginPassword').value='';await showApp();}catch(error){alertError(error.message);}finally{setLoginBusy(false);}}
+  async function login(event){event.preventDefault();setLoginBusy(true);try{var remember=$('rememberMe').checked;var response=await rpc('loginApprovalUser',$('loginEmail').value,$('loginPassword').value,remember);if(!response||response.status!=='success')throw new Error(response&&response.message);saveAuth(response.token,response.user,remember);$('loginPassword').value='';await showApp();}catch(error){$('loginPassword').value='';await alertError(error.message);$('loginEmail').focus();}finally{setLoginBusy(false);}}
   function logout(){var token=state.token;clearAuth();showLogin();if(token)rpc('logoutApprovalUser',token).catch(function(){});}
   async function setup(event){event.preventDefault();setBusy(true,'Mengaktifkan akun','Tanda tangan dan data pengguna sedang disimpan…');try{var form=new FormData(event.currentTarget);var signature=await selectedSignatureData(form.get('signature'),setupSignaturePad,true);var response=await rpc('bootstrapApprovalAdmin',form.get('setupCode'),{email:form.get('email'),name:form.get('name'),password:form.get('password'),signatureData:signature,signatureName:form.get('name')});if(!response||response.status!=='success')throw new Error(response&&response.message);await showAlert({icon:'success',title:'Akun dibuat',text:'Silakan masuk memakai email dan password Admin PPIC.',confirmButtonColor:'#b41420'});event.currentTarget.reset();setupSignaturePad.clear();$('showSetupButton').hidden=true;showLogin();}catch(error){alertError(error.message);}finally{setBusy(false);}}
   async function showApp(){$('loginView').hidden=true;$('setupView').hidden=true;$('appView').hidden=false;$('userbar').hidden=false;$('currentName').textContent=state.user.name||state.user.email;$('currentRole').textContent=state.user.roleLabel||'';var isAdmin=state.user.roleKey==='admin_ppic';$('adminPanel').hidden=!isAdmin;var tasks=[loadQueue()];if(isAdmin)tasks.push(loadUsers().catch(function(error){alertError(error.message);}));await Promise.all(tasks);}
-  async function loadQueue(){setBusy(true,'Memuat antrean','Daftar SPK yang menunggu persetujuan sedang diambil…');try{var response=await rpc('getApprovalQueue',state.token);if(!response||response.status!=='success')throw new Error(response&&response.message);state.queue=response;$('pendingCount').textContent=response.counts.pending;$('approvedCount').textContent=response.counts.approved;$('signatureState').textContent=response.signatureReady?'TERSEDIA':'BELUM ADA';$('signatureWarning').hidden=response.signatureReady;renderQueue(response.items||[],response.signatureReady);}catch(error){if(/sesi|login|akun/i.test(error.message||'')){clearAuth();showLogin();}alertError(error.message);}finally{setBusy(false);}}
+  function loadQueue(){
+    // Satu permintaan antrean pada satu waktu. Klik Muat ulang berulang
+    // sebelumnya dapat membuat respons yang lebih lama datang belakangan dan
+    // menimpa status terbaru yang baru saja ditampilkan.
+    if(queueLoadPromise)return queueLoadPromise;
+    queueLoadPromise=(async function(){
+      setBusy(true,'Memuat antrean','Daftar SPK yang menunggu persetujuan sedang diambil…');
+      try{
+        var response=await rpc('getApprovalQueue',state.token);
+        if(!response||response.status!=='success')throw new Error(response&&response.message);
+        state.queue=response;
+        $('pendingCount').textContent=response.counts.pending;
+        $('approvedCount').textContent=response.counts.approved;
+        $('signatureState').textContent=response.signatureReady?'TERSEDIA':'BELUM ADA';
+        $('signatureWarning').hidden=response.signatureReady;
+        renderQueue(response.items||[],response.signatureReady);
+      }catch(error){
+        if(/sesi|login|akun/i.test(error.message||'')){clearAuth();showLogin();}
+        await alertError(error.message);
+      }finally{
+        setBusy(false);
+        queueLoadPromise=null;
+      }
+    })();
+    return queueLoadPromise;
+  }
   // Lembar cetak ditampilkan lewat halaman cetak yang sudah ada, disematkan
   // dengan embed=1 supaya kerangkanya berganti menjadi bilah tab per alur.
   // Halaman itu membaca tokennya sendiri dari penyimpanan yang sama, jadi
@@ -298,10 +324,11 @@
     $('previewFrame').contentWindow.postMessage(
       {source:'pgm-spk-preview-host',action:'invalidate',spk:'*'},window.location.origin);
   }
-  // gas-rpc menunggu enam menit sebelum menyerah, jadi permintaan yang tersendat
-  // hanya menampilkan spinner tanpa akhir. Setelah ambang ini pengguna diberi
-  // tahu dan diberi jalan keluar, sementara permintaan aslinya dibiarkan.
-  var PREVIEW_WAIT_LIMIT=45000;
+  // Apps Script dapat tetap bekerja lebih dari 45 detik saat paket memuat
+  // banyak tanda tangan. Timer di sini hanya memperbarui keterangan; kegagalan
+  // harus datang dari permintaan sebenarnya, bukan dari perkiraan frontend.
+  var PREVIEW_SLOW_NOTICE=20000;
+  var PREVIEW_LONG_NOTICE=90000;
   function setPreviewLoading(value,note){
     window.clearTimeout(previewWaitTimer);
     $('previewLoading').hidden=!value;
@@ -311,8 +338,13 @@
     $('previewLoadingTitle').textContent='Menyiapkan lembar';
     $('previewLoadingNote').textContent=note||'Paket SPK sedang diambil…';
     previewWaitTimer=window.setTimeout(function(){
-      showPreviewProblem('Server belum menjawab. Sambungan ke Apps Script sedang lambat.');
-    },PREVIEW_WAIT_LIMIT);
+      $('previewLoadingTitle').textContent='Server sedang menyiapkan data';
+      $('previewLoadingNote').textContent='Tanda tangan dan lembar SPK sedang dirangkai. Dialog ini boleh tetap terbuka.';
+      previewWaitTimer=window.setTimeout(function(){
+        $('previewLoadingTitle').textContent='Masih diproses';
+        $('previewLoadingNote').textContent='Permintaan tetap berjalan dan lembar akan muncul otomatis setelah siap.';
+      },PREVIEW_LONG_NOTICE-PREVIEW_SLOW_NOTICE);
+    },PREVIEW_SLOW_NOTICE);
   }
   function showPreviewProblem(message){
     window.clearTimeout(previewWaitTimer);
@@ -335,9 +367,13 @@
   // Halaman cetak mengabari saat paketnya selesai dirender atau gagal.
   function handlePreviewMessage(event){
     if(event.origin!==window.location.origin)return;
+    if(event.source!==$('previewFrame').contentWindow)return;
     var data=event.data;
     if(!data||data.source!=='pgm-spk-preview')return;
     previewFrameLoaded=true;
+    // Respons lama dapat tiba setelah pengguna menutup dialog atau berpindah
+    // ke SPK lain. Jangan biarkan respons itu mematikan loader dokumen aktif.
+    if(!previewSpk||String(data.spk||'')!==previewSpk)return;
     // Gagal berarti tidak ada lembar yang tersaji, jadi SPK-nya tidak dicatat
     // sebagai tersaji. Tanpa itu, membuka SPK yang sama lagi akan dianggap
     // sudah siap dan hanya memperlihatkan kartu error yang basi.
@@ -376,7 +412,7 @@
   // Dokumen cetaknya sengaja dibiarkan hidup setelah ditutup. Membuangnya
   // berarti mengurai ulang seluruh halaman pada pratinjau berikutnya, sedangkan
   // menampilkan SPK lama sudah dicegah oleh penanda memuat di atas iframe.
-  function releasePreviewFrame(){previewSpk='';}
+  function releasePreviewFrame(){previewSpk='';window.clearTimeout(previewWaitTimer);}
   function renderQueue(items,signatureReady){
     if(!items.length){$('queueList').innerHTML='<div class="empty">Belum ada SPK pada antrean jabatan ini.</div>';return;}
     $('queueList').innerHTML=items.map(function(item){

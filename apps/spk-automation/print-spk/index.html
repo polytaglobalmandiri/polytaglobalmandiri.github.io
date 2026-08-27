@@ -4045,10 +4045,11 @@
        panjang: hanya satu formulir yang tampak, sisanya tetap ada di DOM
        supaya perintah cetak tetap memuat seluruh paket.
        ========================================================== */
-    body.is-embedded { background: #d9dcd8; }
+    body.is-embedded { min-width: 0; overflow-x: hidden; background: #d9dcd8; }
     body.is-embedded .print-toolbar,
     body.is-embedded .print-content-actions { display: none !important; }
-    body.is-embedded .workspace { padding-top: 0; }
+    body.is-embedded .workspace { width: 100%; min-width: 0; padding-top: 0; overflow: hidden; }
+    body.is-embedded .print-page { width: 100%; overflow-x: auto; overscroll-behavior-x: contain; }
 
     .embed-tabs {
       position: sticky;
@@ -4267,15 +4268,21 @@
       window.addEventListener('message', function (event) {
         if (event.origin !== window.location.origin) return;
         const data = event.data;
-        if (!data || data.source !== 'pgm-spk-preview-host' || !data.spk) return;
+        if (!data || data.source !== 'pgm-spk-preview-host') return;
 
         // Menyetujui SPK mengubah tanda tangan dan statusnya, sehingga paket
         // yang tersimpan menjadi basi. Induknya menggugurkannya setelah setiap
         // perubahan agar pratinjau berikutnya mengambil data segar.
         if (data.action === 'invalidate') {
           packCache.clear();
+          // Cache saja tidak cukup: jalur SPK yang sama di bawah akan
+          // menganggap currentPrintData masih siap dan mengirim status ready
+          // tanpa mengambil data baru. Gugurkan juga paket yang sedang aktif.
+          currentPrintData = null;
           return;
         }
+
+        if (!data.spk) return;
 
         // Nomor yang sama tetapi datanya belum ada berarti percobaan
         // sebelumnya gagal, jadi permintaannya diulang.

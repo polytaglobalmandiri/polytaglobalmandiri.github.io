@@ -27,7 +27,8 @@
     saveHandoverByRouting: true,
     beginExtractionJob: true,
     extractData: true,
-    cancelExtractionJob: true
+    cancelExtractionJob: true,
+    approveSpk: true
   };
 
   function openClientCache() {

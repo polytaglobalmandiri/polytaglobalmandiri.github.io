@@ -236,6 +236,7 @@
     setupSignaturePad=createSignaturePad($('setupSignaturePad'),$('clearSetupSignature'));
     userSignaturePad=createSignaturePad($('userSignaturePad'),$('clearUserSignature'));
     $('loginForm').addEventListener('submit',login);
+    $('toggleLoginPassword').addEventListener('click',toggleLoginPassword);
     $('logoutButton').addEventListener('click',logout);
     $('showSetupButton').addEventListener('click',function(){$('loginView').hidden=true;$('setupView').hidden=false;window.setTimeout(function(){setupSignaturePad.resize();},0);});
     $('cancelSetup').addEventListener('click',showLogin);
@@ -265,8 +266,23 @@
     window.addEventListener('message',handlePreviewMessage);
     $('userList').addEventListener('click',function(event){var button=event.target.closest('[data-user]');if(button)openUser(state.users.find(function(u){return u.userId===button.dataset.user;}));});
   }
-  function showLogin(){$('loginView').hidden=false;$('setupView').hidden=true;$('appView').hidden=true;$('userbar').hidden=true;}
-  async function login(event){event.preventDefault();setLoginBusy(true);try{var remember=$('rememberMe').checked;var response=await rpc('loginApprovalUser',$('loginEmail').value,$('loginPassword').value,remember);if(!response||response.status!=='success')throw new Error(response&&response.message);saveAuth(response.token,response.user,remember);$('loginPassword').value='';await showApp();}catch(error){$('loginPassword').value='';await alertError(error.message);$('loginEmail').focus();}finally{setLoginBusy(false);}}
+  function setLoginPasswordVisibility(visible){
+    var input=$('loginPassword');
+    var button=$('toggleLoginPassword');
+    var label=visible?'Sembunyikan password':'Tampilkan password';
+    input.type=visible?'text':'password';
+    button.setAttribute('aria-pressed',String(visible));
+    button.setAttribute('aria-label',label);
+    button.title=label;
+    button.querySelector('i').className=visible?'fa-regular fa-eye-slash':'fa-regular fa-eye';
+  }
+  function toggleLoginPassword(){
+    var input=$('loginPassword');
+    setLoginPasswordVisibility(input.type==='password');
+    input.focus();
+  }
+  function showLogin(){$('loginView').hidden=false;$('setupView').hidden=true;$('appView').hidden=true;$('userbar').hidden=true;setLoginPasswordVisibility(false);}
+  async function login(event){event.preventDefault();setLoginBusy(true);try{var remember=$('rememberMe').checked;var response=await rpc('loginApprovalUser',$('loginEmail').value,$('loginPassword').value,remember);if(!response||response.status!=='success')throw new Error(response&&response.message);saveAuth(response.token,response.user,remember);$('loginPassword').value='';setLoginPasswordVisibility(false);await showApp();}catch(error){$('loginPassword').value='';setLoginPasswordVisibility(false);await alertError(error.message);$('loginEmail').focus();}finally{setLoginBusy(false);}}
   function logout(){var token=state.token;clearAuth();showLogin();if(token)rpc('logoutApprovalUser',token).catch(function(){});}
   async function setup(event){event.preventDefault();setBusy(true,'Mengaktifkan akun','Tanda tangan dan data pengguna sedang disimpan…');try{var form=new FormData(event.currentTarget);var signature=await selectedSignatureData(form.get('signature'),setupSignaturePad,true);var response=await rpc('bootstrapApprovalAdmin',form.get('setupCode'),{email:form.get('email'),name:form.get('name'),password:form.get('password'),signatureData:signature,signatureName:form.get('name')});if(!response||response.status!=='success')throw new Error(response&&response.message);await showAlert({icon:'success',title:'Akun dibuat',text:'Silakan masuk memakai email dan password Admin PPIC.',confirmButtonColor:'#b41420'});event.currentTarget.reset();setupSignaturePad.clear();$('showSetupButton').hidden=true;showLogin();}catch(error){alertError(error.message);}finally{setBusy(false);}}
   async function showApp(){$('loginView').hidden=true;$('setupView').hidden=true;$('appView').hidden=false;$('userbar').hidden=false;$('currentName').textContent=state.user.name||state.user.email;$('currentRole').textContent=state.user.roleLabel||'';var isAdmin=state.user.roleKey==='admin_ppic';$('adminPanel').hidden=!isAdmin;var tasks=[loadQueue()];if(isAdmin)tasks.push(loadUsers().catch(function(error){alertError(error.message);}));await Promise.all(tasks);}

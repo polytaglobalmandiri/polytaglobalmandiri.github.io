@@ -221,6 +221,26 @@ input:focus, select:focus { border-color: #b44a51; box-shadow: 0 0 0 3px rgba(19
 .input-shell { position: relative; display: block; }
 .input-shell > i { position: absolute; z-index: 1; top: 50%; left: 13px; color: #8d9196; transform: translateY(-50%); }
 .input-shell input { padding-left: 38px; }
+.password-shell input { padding-right: 48px; }
+.password-toggle {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  right: 4px;
+  width: 36px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #70747a;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+.password-toggle:hover { background: #eceeeb; color: var(--red-dark); }
+.password-toggle[aria-pressed="true"] { color: var(--red-dark); }
+.password-toggle i { pointer-events: none; }
 .check { display: flex; align-items: center; justify-content: flex-start; gap: 9px; font-weight: 650; cursor: pointer; }
 .check input { width: 17px; min-height: 17px; height: 17px; accent-color: var(--red); }
 .button {
@@ -445,6 +465,7 @@ body.loading .signature-pad { pointer-events: none; }
 @media (pointer: coarse) {
   input:not([type="checkbox"]):not([type="radio"]), select { min-height: 44px; font-size: 16px; }
   .button { min-height: 44px; }
+  .password-toggle { right: 2px; width: 40px; height: 40px; }
 }
 
 @media (prefers-color-scheme: dark) {

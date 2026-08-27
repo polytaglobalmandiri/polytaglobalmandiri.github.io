@@ -410,6 +410,8 @@
     previewSpk=spk;
     previewPackageMessage='';
     $('previewTitle').textContent=spk;
+    var tabsContainer = $('previewTabsContainer');
+    if(tabsContainer && !samePackage) tabsContainer.innerHTML = '';
     renderPreviewFoot(spk);
     $('previewDialog').showModal();
 

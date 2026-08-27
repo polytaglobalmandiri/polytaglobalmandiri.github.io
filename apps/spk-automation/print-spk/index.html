@@ -4051,44 +4051,36 @@
     body.is-embedded .workspace { width: 100%; min-width: 0; padding-top: 0; overflow: hidden; }
     body.is-embedded .print-page { width: 100%; overflow-x: auto; overscroll-behavior-x: contain; }
 
-    .embed-tabs {
-      position: sticky;
-      z-index: 5;
-      top: 0;
-      display: flex;
-      gap: 6px;
-      justify-content: center;
-      overflow-x: auto;
-      padding: 6px 10px;
-      border-bottom: 1px solid #a9aca8;
-      background: linear-gradient(180deg, #f2f3f0, #dcdfdb);
-      box-shadow: 0 2px 7px rgba(0,0,0,.12);
-      scrollbar-width: thin;
+    .embed-tabs { 
+      display: inline-flex; 
+      align-items: center;
+      background: rgba(0, 0, 0, 0.06);
+      padding: 3px;
+      border-radius: 9px;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,.08);
     }
     .embed-tab {
       flex: 0 0 auto;
-      min-height: 26px;
-      padding: 0 10px;
-      border: 1px solid #9c9fa2;
-      border-bottom-color: #777a7d;
-      border-radius: 8px;
-      background: linear-gradient(180deg, #fff 0, #f6f6f4 46%, #e1e2df 52%, #c9cac8 100%);
-      box-shadow: inset 0 1px 0 #fff, 0 2px 0 #8f9193;
-      color: #303238;
+      min-height: 28px;
+      padding: 0 16px;
+      border: none;
+      background: transparent;
+      box-shadow: none;
+      border-radius: 6px;
+      color: #63666b;
       cursor: pointer;
-      font: 800 .62rem/1 inherit;
+      font: 750 .65rem/1 Inter, "Segoe UI", Arial, sans-serif;
       letter-spacing: .02em;
-      text-shadow: 0 1px 0 #fff;
+      text-shadow: none;
       white-space: nowrap;
+      transition: all .2s ease;
     }
-    .embed-tab:active { transform: translateY(2px); box-shadow: inset 0 2px 4px rgba(0,0,0,.26); }
+    .embed-tab:hover:not([aria-selected="true"]) { color: #15161a; }
+    .embed-tab:active { transform: scale(0.96); }
     .embed-tab[aria-selected="true"] {
-      border-color: #821111;
-      border-bottom-color: #5d0808;
-      background: linear-gradient(180deg, #ed5252 0, #d83232 46%, #b61d1d 52%, #8b1111 100%);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.42), 0 2px 0 #650b0b;
-      color: #fff;
-      text-shadow: 0 -1px 0 #620a0a;
+      background: #fff;
+      color: #1a1d21;
+      box-shadow: 0 1px 3px rgba(0,0,0,.12), 0 1px 1px rgba(0,0,0,.04);
     }
     .embed-tab:focus-visible { outline: 3px solid rgba(230,59,82,.4); outline-offset: 2px; }
     body.is-embedded .loading-card { display: none; }

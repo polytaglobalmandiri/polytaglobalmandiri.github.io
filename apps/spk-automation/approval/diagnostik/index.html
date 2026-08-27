@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Diagnostik Sambungan Persetujuan</title>
+  <link rel="stylesheet" href="/assets/vendor/inter/inter.css?v=20260827">
+  <style>
+    :root { --ink: #25272c; --muted: #73777e; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 24px 16px; background: #e4e5e2; color: var(--ink);
+      font: 400 15px/1.5 Inter, "Segoe UI", Arial, sans-serif;
+    }
+    main { width: min(760px, 100%); margin: 0 auto; }
+    h1 { margin: 0 0 4px; font-size: 1.28rem; font-weight: 900; }
+    p.lead { margin: 0 0 20px; color: var(--muted); font-size: .82rem; }
+    fieldset {
+      margin: 0 0 15px; padding: 14px 16px; border: 1px solid #b0b3b3; border-radius: 12px;
+      background: linear-gradient(145deg, #f4f4f1, #e2e3e0);
+    }
+    legend { padding: 0 7px; font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    label { display: block; margin-bottom: 9px; font-size: .72rem; font-weight: 800; }
+    input {
+      width: 100%; min-height: 36px; margin-top: 4px; padding: 0 11px;
+      border: 1px solid #9b9da0; border-top-color: #74777a; border-radius: 8px;
+      background: #fdfdfb; font: inherit; font-size: .8rem;
+    }
+    button {
+      min-height: 36px; padding: 0 16px; border: 1px solid #821111; border-radius: 8px;
+      background: linear-gradient(180deg, #ed5252, #8b1111); color: #fff;
+      font: 800 .74rem/1 inherit; cursor: pointer;
+    }
+    button.ghost { border-color: #9c9fa2; background: linear-gradient(180deg, #fff, #c9cac8); color: #303238; }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .hint { margin: 0 0 10px; color: var(--muted); font-size: .72rem; }
+    pre {
+      margin: 16px 0 0; padding: 14px; max-height: 52vh; overflow: auto;
+      border: 1px solid #9fa2a2; border-radius: 10px; background: #1d1f23; color: #e8e8e6;
+      font: 400 12px/1.6 ui-monospace, Consolas, monospace; white-space: pre-wrap; word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Diagnostik Sambungan Persetujuan</h1>
+  <p class="lead">Mengukur setiap tahap panggilan ke Apps Script supaya jelas di mana waktunya habis. Tidak ada data yang dikirim ke mana pun selain server SPK yang biasa dipakai.</p>
+
+  <fieldset>
+    <legend>Tanpa kredensial</legend>
+    <p class="hint">Menguji jalur sambungan memakai panggilan paling ringan. Jalankan ini lebih dulu.</p>
+    <div class="row">
+      <button id="runLight" type="button">Uji sambungan</button>
+      <button class="ghost" id="runTwice" type="button">Uji dua kali berturut-turut</button>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Dengan kredensial</legend>
+    <p class="hint">Hanya dipakai untuk satu panggilan loginApprovalUser. Password tidak dicatat ke hasil.</p>
+    <label>Email <input id="email" type="email" autocomplete="off" placeholder="nama@perusahaan.com"></label>
+    <label>Password <input id="password" type="password" autocomplete="off"></label>
+    <div class="row"><button id="runLogin" type="button">Uji login</button></div>
+  </fieldset>
+
+  <div class="row">
+    <button class="ghost" id="copy" type="button">Salin hasil</button>
+    <button class="ghost" id="clear" type="button">Bersihkan</button>
+  </div>
+
+  <pre id="out">Siap. Mulai dari "Uji sambungan".</pre>
+</main>
+
+<script src="/assets/js/gas-rpc.js?v=20260825-1"></script>
+<script>
+(function () {
+  'use strict';
+
+  var out = document.getElementById('out');
+  var lines = [];
+
+  function log(text) {
+    lines.push(text);
+    out.textContent = lines.join('\n');
+    out.scrollTop = out.scrollHeight;
+  }
+
+  function stamp() {
+    return new Date().toLocaleTimeString('id-ID', { hour12: false });
+  }
+
+  function environment() {
+    log('=== LINGKUNGAN ===');
+    log('waktu        : ' + new Date().toString());
+    log('halaman      : ' + location.origin);
+    log('daring       : ' + navigator.onLine);
+    log('cookie aktif : ' + navigator.cookieEnabled);
+    log('peramban     : ' + navigator.userAgent);
+
+    // Penyimpanan pihak ketiga yang dibatasi adalah penyebab paling sering
+    // jawaban Apps Script tidak pernah sampai kembali ke halaman ini: kodenya
+    // berjalan di iframe pada domain googleusercontent.com.
+    if (document.hasStorageAccess) {
+      document.hasStorageAccess().then(function (granted) {
+        log('akses storage: ' + (granted ? 'diberikan' : 'DIBATASI (cookie pihak ketiga kemungkinan diblokir)'));
+      }).catch(function () {
+        log('akses storage: tidak dapat diperiksa');
+      });
+    }
+    log('');
+  }
+
+  function call(method) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    var started = Date.now();
+    log('[' + stamp() + '] -> ' + method + ' dikirim');
+
+    return new Promise(function (resolve) {
+      var runner = google.script.run
+        .withSuccessHandler(function (result) {
+          var ms = Date.now() - started;
+          log('[' + stamp() + '] <- ' + method + ' BERHASIL dalam ' + (ms / 1000).toFixed(1) + ' detik');
+          try {
+            var peek = JSON.stringify(result);
+            log('    jawaban: ' + (peek.length > 200 ? peek.slice(0, 200) + '…' : peek));
+          } catch (ignore) {
+            log('    jawaban: (tidak dapat dibaca)');
+          }
+          resolve({ ok: true, ms: ms });
+        })
+        .withFailureHandler(function (error) {
+          var ms = Date.now() - started;
+          log('[' + stamp() + '] <- ' + method + ' GAGAL setelah ' + (ms / 1000).toFixed(1) + ' detik');
+          log('    pesan  : ' + (error && error.message ? error.message : String(error)));
+          resolve({ ok: false, ms: ms });
+        });
+
+      runner[method].apply(runner, args);
+    });
+  }
+
+  function busy(state) {
+    ['runLight', 'runTwice', 'runLogin'].forEach(function (id) {
+      document.getElementById(id).disabled = state;
+    });
+  }
+
+  document.getElementById('runLight').addEventListener('click', async function () {
+    busy(true);
+    environment();
+    log('=== UJI SAMBUNGAN ===');
+    await call('getApprovalBootstrapStatus');
+    log('');
+    busy(false);
+  });
+
+  document.getElementById('runTwice').addEventListener('click', async function () {
+    busy(true);
+    environment();
+    // Panggilan pertama menanggung cold start, yang kedua tidak. Selisihnya
+    // membedakan server yang sekadar dingin dari server yang memang lambat.
+    log('=== DUA PANGGILAN BERTURUT-TURUT ===');
+    var first = await call('getApprovalBootstrapStatus');
+    var second = await call('getApprovalBootstrapStatus');
+    if (first.ok && second.ok) {
+      log('');
+      log('ringkasan: pertama ' + (first.ms / 1000).toFixed(1) + ' detik, kedua ' + (second.ms / 1000).toFixed(1) + ' detik.');
+      log(first.ms > second.ms * 2
+        ? 'pola cold start: panggilan pertama jauh lebih lambat.'
+        : 'tidak ada pola cold start: keduanya setara.');
+    }
+    log('');
+    busy(false);
+  });
+
+  document.getElementById('runLogin').addEventListener('click', async function () {
+    var email = document.getElementById('email').value.trim();
+    var password = document.getElementById('password').value;
+    if (!email || !password) {
+      log('Isi email dan password lebih dulu.');
+      return;
+    }
+    busy(true);
+    environment();
+    log('=== UJI LOGIN ===');
+    log('email: ' + email + '  (password tidak dicatat)');
+    await call('loginApprovalUser', email, password, false);
+    log('');
+    busy(false);
+  });
+
+  document.getElementById('copy').addEventListener('click', function () {
+    navigator.clipboard.writeText(lines.join('\n')).then(
+      function () { log('(hasil disalin ke papan klip)'); },
+      function () { log('(gagal menyalin — pilih teksnya secara manual)'); }
+    );
+  });
+
+  document.getElementById('clear').addEventListener('click', function () {
+    lines = [];
+    out.textContent = 'Bersih.';
+  });
+})();
+</script>
+</body>
+</html>

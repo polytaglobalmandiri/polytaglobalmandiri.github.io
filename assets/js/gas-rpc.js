@@ -9,7 +9,12 @@
   var REQUEST_TIMEOUTS = {
     getApprovalBootstrapStatus: 20000,
     getApprovalSession: 20000,
-    loginApprovalUser: 75000
+    // Apps Script sendiri menunggu 390 detik sebelum memutus callback, jadi
+    // masih ada ruang. Login menanggung cold start plus dua perjalanan penuh:
+    // POST ke /exec mengembalikan halaman shell, dan halaman itu baru
+    // memanggil fungsinya lewat google.script.run. Batas 75 detik terbukti
+    // masih terlalu rapat untuk itu.
+    loginApprovalUser: 180000
   };
   var CACHE_DATABASE = "polyta-spk-client-cache";
   var CACHE_STORE = "responses";

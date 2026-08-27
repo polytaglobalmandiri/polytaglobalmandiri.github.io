@@ -17,6 +17,7 @@
   var previewWaitTimer=0;
   var loginBusy=false;
   var manualLoginStarted=false;
+  var loginWaitTimers=[];
   var queueLoadPromise=null;
 
   function rpc(method){
@@ -60,6 +61,21 @@
     button.querySelector('i').className=loginBusy?'fa-solid fa-spinner':'fa-solid fa-right-to-bracket';
     button.querySelector('span').textContent=loginBusy?'Mohon tunggu…':'Masuk ke Persetujuan';
     applyBusy();
+    // Apps Script yang dingin dapat memakan puluhan detik. Tanpa kabar apa pun
+    // tombol yang berputar lama terbaca sebagai macet, dan pengguna memuat
+    // ulang halaman justru saat permintaannya hampir dilayani.
+    loginWaitTimers.forEach(window.clearTimeout);
+    loginWaitTimers=[];
+    if(!loginBusy)return;
+    loginWaitTimers=[
+      window.setTimeout(function(){setLoginWaitText('Menunggu server…');},15000),
+      window.setTimeout(function(){setLoginWaitText('Server sedang lambat, tetap ditunggu…');},45000),
+      window.setTimeout(function(){setLoginWaitText('Masih menunggu, jangan tutup halaman…');},90000)
+    ];
+  }
+  function setLoginWaitText(text){
+    if(!loginBusy)return;
+    $('loginButton').querySelector('span').textContent=text;
   }
   function setBusy(value,title,detail){
     busyDepth=Math.max(0,busyDepth+(value?1:-1));

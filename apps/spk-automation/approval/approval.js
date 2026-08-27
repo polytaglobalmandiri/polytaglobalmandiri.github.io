@@ -384,9 +384,6 @@
         var response=await rpc('getApprovalQueue',state.token);
         if(!response||response.status!=='success')throw new Error(response&&response.message);
         state.queue=response;
-        $('pendingCount').textContent=response.counts.pending;
-        $('approvedCount').textContent=response.counts.approved;
-        $('signatureState').textContent=response.signatureReady?'TERSEDIA':'BELUM ADA';
         $('signatureWarning').hidden=response.signatureReady;
         renderQueue(response.items||[],response.signatureReady);
       }catch(error){

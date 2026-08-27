@@ -9,7 +9,7 @@
   <link rel="icon" href="/assets/img/logo-app.png" type="image/png">
   <link rel="stylesheet" href="/assets/vendor/inter/inter.css?v=20260827">
   <link rel="stylesheet" href="/assets/vendor/fontawesome/css/all.min.css?v=20260827">
-  <link rel="stylesheet" href="approval.css?v=20260828-1">
+  <link rel="stylesheet" href="approval.css?v=20260828-2">
 </head>
 <body data-page="approval-spk">
   <header class="topbar">
@@ -107,12 +107,6 @@
         <button class="button ghost" id="refreshButton" type="button"><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i> Muat ulang</button>
       </div>
 
-      <div class="metrics" aria-label="Ringkasan persetujuan">
-        <article><span class="metric-icon red"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i></span><div><small>Menunggu saya</small><strong id="pendingCount">0</strong><p>Perlu tindakan</p></div></article>
-        <article><span class="metric-icon green"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></span><div><small>Sudah disetujui</small><strong id="approvedCount">0</strong><p>Persetujuan selesai</p></div></article>
-        <article><span class="metric-icon blue"><i class="fa-solid fa-signature" aria-hidden="true"></i></span><div><small>Tanda tangan akun</small><strong class="small" id="signatureState">—</strong><p>Identitas digital</p></div></article>
-      </div>
-
       <div class="notice warning" id="signatureWarning" hidden><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i><span>Gambar tanda tangan akun belum tersedia. Hubungi Admin PPIC sebelum menyetujui SPK.</span></div>
 
       <section class="workspace queue-workspace">
@@ -181,6 +175,6 @@
   </div>
 
   <script src="/assets/js/gas-rpc.js?v=20260827-5" defer></script>
-  <script src="approval.js?v=20260827-12" defer></script>
+  <script src="approval.js?v=20260828-1" defer></script>
 </body>
 </html>

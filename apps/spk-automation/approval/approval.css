@@ -438,7 +438,7 @@ dialog::backdrop { background: rgba(12,13,16,.7); backdrop-filter: blur(3px); }
   text-align: left;
   transition: background .18s ease,color .18s ease,box-shadow .18s ease,transform .18s ease;
 }
-.embed-tab::after { position: absolute; top: 50%; right: 13px; width: 6px; height: 6px; border-top: 1px solid currentColor; border-right: 1px solid currentColor; content: ""; transform: translateY(-50%) rotate(45deg); }
+.embed-tab::after { position: absolute; top: 50%; right: 13px; width: 6px; height: 6px; border-top: 1px solid currentColor; border-left: 1px solid currentColor; content: ""; transform: translateY(-50%) rotate(-45deg); }
 .embed-tab:hover:not([aria-selected="true"]) { background: rgba(255,255,255,.055); color: #fff; }
 .embed-tab:active { transform: translateX(2px); }
 .embed-tab[aria-selected="true"] {

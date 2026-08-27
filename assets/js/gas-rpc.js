@@ -3,6 +3,14 @@
 
   var API_URL = "https://script.google.com/macros/s/AKfycbzEml-brh_-SmKAsvd-1iFy6nelvc9YENtn-bkjD1T6UUgX7QNBE0ycjU02QEfY-91aXQ/exec";
   var requestSequence = 0;
+  // Operasi autentikasi harus cepat pulih ketika koneksi Apps Script macet.
+  // Operasi pengolahan data lain tetap memakai batas lama karena beberapa di
+  // antaranya memang dapat berjalan beberapa menit.
+  var REQUEST_TIMEOUTS = {
+    getApprovalBootstrapStatus: 20000,
+    getApprovalSession: 20000,
+    loginApprovalUser: 30000
+  };
   var CACHE_DATABASE = "polyta-spk-client-cache";
   var CACHE_STORE = "responses";
   // Naik ke v2: bentuk routing pada muatan dashboard berubah, Cutting kini
@@ -140,8 +148,8 @@
         if (settled) return;
         settled = true;
         cleanup();
-        reject(new Error("Server GAS belum merespons. Silakan coba kembali."));
-      }, 360000);
+        reject(new Error("Server belum merespons. Periksa sambungan lalu coba masuk kembali."));
+      }, REQUEST_TIMEOUTS[method] || 360000);
 
       window.addEventListener("message", receiveMessage);
       host.appendChild(iframe);

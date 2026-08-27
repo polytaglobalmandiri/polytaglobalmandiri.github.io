@@ -44,6 +44,19 @@
     finally{busyPaused=wasPaused;applyBusy();}
   }
   function alertError(message){return showAlert({icon:'error',title:'Tidak berhasil',text:message||'Terjadi kesalahan.',confirmButtonColor:'#b41420'}).catch(function(){window.alert(message||'Terjadi kesalahan.');});}
+  // Kegagalan transport punya sebab yang bisa ditunjuk dan langkah yang bisa
+  // dikerjakan pengguna; pesan galat biasa tidak. Keduanya dibedakan supaya
+  // yang muncul bukan lagi ajakan mencoba lagi yang tidak menolong siapa pun.
+  function transportHelp(code){
+    if(code==='balasan-diblokir')return '<p style="margin:0 0 .7em">Server sudah menjawab, tetapi peramban menahan frame balasan Apps Script.</p><ol style="text-align:left;margin:0;padding-left:1.2em;line-height:1.65"><li>Klik ikon di kiri bilah alamat, lalu izinkan <b>cookie pihak ketiga</b> untuk situs ini.</li><li>Matikan sementara ekstensi pemblokir iklan.</li><li>Bila jaringan kantor memakai penyaring, minta IT membuka <b>googleusercontent.com</b>.</li></ol>';
+    if(code==='tanpa-jawaban')return '<p style="margin:0 0 .7em">Permintaan tidak pernah sampai ke server.</p><ol style="text-align:left;margin:0;padding-left:1.2em;line-height:1.65"><li>Periksa sambungan internet.</li><li>Pastikan <b>script.google.com</b> tidak ditahan proxy atau antivirus.</li></ol>';
+    return '';
+  }
+  function alertLoginError(error){
+    var help=transportHelp(error&&error.transportCode);
+    if(!help)return alertError(error&&error.message);
+    return showAlert({icon:'error',title:'Tidak bisa masuk',html:help,confirmButtonColor:'#b41420'}).catch(function(){window.alert(error&&error.message);});
+  }
   // Satu penanda proses per layar. Di ruang kerja dipakai overlay; di halaman login
   // cukup tombolnya, sehingga overlay ditahan selama proses login berjalan.
   // Kedalaman dihitung supaya alur bersarang (login -> showApp -> loadQueue)
@@ -318,6 +331,11 @@
     // berjalan di latar tidak menimpa hasil login manual ini.
     manualLoginStarted=true;
     setLoginBusy(true);
+    // Chrome baru memblokir cookie pihak ketiga, dan frame googleusercontent
+    // yang membawa balasan Apps Script ikut mati karenanya. Izin itu hanya
+    // boleh diminta selagi klik pengguna masih berlaku, jadi tempatnya di
+    // sini - bukan saat halaman dimuat.
+    try{await window.POLYTA_PRIME_GAS_ACCESS();}catch(ignored){}
     try{
       var remember=$('rememberMe').checked;
       var response=await rpc('loginApprovalUser',$('loginEmail').value,$('loginPassword').value,remember);
@@ -343,7 +361,7 @@
       }
       // Pulihkan tombol sebelum dialog dimuat/ditutup agar form tidak terkunci.
       setLoginBusy(false);
-      await alertError(error.message);
+      await alertLoginError(error);
       // Kredensial ditolak berarti isian perlu diperiksa ulang dari awal.
       // Kegagalan sambungan tidak: isiannya masih utuh dan tinggal dicoba lagi.
       if(error&&error.credentialsRejected)$('loginEmail').focus();

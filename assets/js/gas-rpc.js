@@ -99,7 +99,26 @@
     }).catch(function () {});
   }
 
-  function requestServer(method, args) {
+  // Bentuk jawaban Apps Script menentukan apa saja yang bisa gagal di sini.
+  // POST ke /exec dibalas halaman shell di script.google.com, dan shell itu
+  // menyisipkan iframe kedua dari *.googleusercontent.com. Iframe kedualah yang
+  // menjalankan window.parent.parent.postMessage berisi hasilnya. Jadi ada dua
+  // kegagalan yang sama sekali berbeda dan selama ini tertukar: POST yang tidak
+  // pernah selesai, dan balasan yang tidak pernah dikirim balik karena frame
+  // googleusercontent tidak boleh jalan. Yang kedua tidak ada hubungannya
+  // dengan kecepatan server, jadi menunggu lebih lama tidak menolong sama
+  // sekali — pesan "server belum merespons" justru menyesatkan.
+  var REPLY_GRACE = 15000;
+  var frameTransportBroken = false;
+  var scriptTransport = "belum-diuji"; // belum-diuji | ada | tidak-ada
+
+  function transportError(code, message) {
+    var error = new Error(message);
+    error.transportCode = code;
+    return error;
+  }
+
+  function requestViaFrame(method, args) {
     return new Promise(function (resolve, reject) {
       requestSequence += 1;
       var requestId = "spk-" + Date.now().toString(36) + "-" + requestSequence.toString(36);
@@ -109,6 +128,9 @@
       var input = document.createElement("input");
       var host = document.body || document.documentElement;
       var settled = false;
+      var replyTimer = 0;
+      var loadCount = 0;
+      var submittedAt = 0;
 
       iframe.name = frameName;
       iframe.title = "";
@@ -128,8 +150,17 @@
       function cleanup() {
         window.removeEventListener("message", receiveMessage);
         window.clearTimeout(timeoutId);
+        window.clearTimeout(replyTimer);
         if (form.parentNode) form.parentNode.removeChild(form);
         if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+      }
+
+      function fail(code, message) {
+        if (settled) return;
+        settled = true;
+        frameTransportBroken = true;
+        cleanup();
+        reject(transportError(code, message));
       }
 
       function receiveMessage(event) {
@@ -149,18 +180,122 @@
         resolve(payload.result);
       }
 
-      var timeoutId = window.setTimeout(function () {
+      // Iframe menyala berarti POST-nya sampai dan Apps Script sudah menjawab;
+      // sisa penantian tinggal frame googleusercontent mengirim balik, dan itu
+      // hitungan detik. Chrome membangkitkan satu load untuk about:blank saat
+      // iframe disisipkan, jadi load pertama yang datang seketika diabaikan.
+      // Setiap load menyetel ulang tenggat, sehingga urutan yang tidak terduga
+      // pun tetap aman.
+      iframe.addEventListener("load", function () {
+        loadCount += 1;
         if (settled) return;
-        settled = true;
-        cleanup();
-        reject(new Error("Server belum merespons. Periksa sambungan lalu coba masuk kembali."));
+        if (loadCount < 2 && Date.now() - submittedAt < 1500) return;
+        window.clearTimeout(replyTimer);
+        replyTimer = window.setTimeout(function () {
+          fail("balasan-diblokir",
+            "Server sudah menjawab, tetapi balasannya tidak sampai ke halaman ini. " +
+            "Peramban menahan frame googleusercontent.com milik Apps Script.");
+        }, REPLY_GRACE);
+      });
+
+      var timeoutId = window.setTimeout(function () {
+        fail("tanpa-jawaban",
+          "Permintaan tidak pernah selesai dikirim ke server. Sambungan, proxy, " +
+          "atau antivirus menahan script.google.com.");
       }, REQUEST_TIMEOUTS[method] || 360000);
 
       window.addEventListener("message", receiveMessage);
       host.appendChild(iframe);
       host.appendChild(form);
+      submittedAt = Date.now();
       form.submit();
     });
+  }
+
+  // Jalur cadangan: <script> JSONP. Muatan <script> tidak menyentuh cookie
+  // pihak ketiga dan tidak butuh frame sama sekali, jadi tetap hidup di mesin
+  // yang menutup googleusercontent.com. Backend harus punya cabang doGet yang
+  // membalas JSONP; selama belum ada, percobaan pertama gagal cepat lalu jalur
+  // ini tidak dicoba lagi sepanjang sesi.
+  function requestViaScript(method, args) {
+    return new Promise(function (resolve, reject) {
+      requestSequence += 1;
+      var callbackName = "cb" + Date.now().toString(36) + requestSequence.toString(36);
+      var registry = window.__polytaGasJsonp || (window.__polytaGasJsonp = {});
+      var script = document.createElement("script");
+      var settled = false;
+
+      function cleanup() {
+        window.clearTimeout(timeoutId);
+        delete registry[callbackName];
+        if (script.parentNode) script.parentNode.removeChild(script);
+      }
+
+      function abandon(message) {
+        if (settled) return;
+        settled = true;
+        scriptTransport = "tidak-ada";
+        cleanup();
+        reject(transportError("cadangan-belum-ada", message));
+      }
+
+      registry[callbackName] = function (payload) {
+        if (settled) return;
+        settled = true;
+        scriptTransport = "ada";
+        cleanup();
+        if (!payload || payload.ok !== true) {
+          reject(new Error(payload && payload.error && payload.error.message
+            ? payload.error.message
+            : "Permintaan ke GAS gagal."));
+          return;
+        }
+        resolve(payload.result);
+      };
+
+      script.async = true;
+      script.src = API_URL +
+        "?callback=" + encodeURIComponent("__polytaGasJsonp." + callbackName) +
+        "&payload=" + encodeURIComponent(JSON.stringify({ method: method, args: args }));
+      script.addEventListener("error", function () {
+        abandon("Jalur cadangan belum tersedia di server.");
+      });
+
+      var timeoutId = window.setTimeout(function () {
+        abandon("Jalur cadangan tidak menjawab.");
+      }, REQUEST_TIMEOUTS[method] || 60000);
+
+      (document.head || document.documentElement).appendChild(script);
+    });
+  }
+
+  function requestServer(method, args) {
+    // Selama transport iframe masih sehat, tidak ada gunanya menambah
+    // permintaan kedua. Jalur cadangan baru dipakai setelah iframe terbukti
+    // gagal di perangkat ini, dan berhenti dicoba begitu server menolaknya.
+    if (frameTransportBroken && scriptTransport !== "tidak-ada") {
+      return requestViaScript(method, args).catch(function (error) {
+        if (error && error.transportCode === "cadangan-belum-ada") {
+          return requestViaFrame(method, args);
+        }
+        throw error;
+      });
+    }
+    return requestViaFrame(method, args);
+  }
+
+  // Chrome memblokir cookie pihak ketiga secara bawaan dan frame
+  // googleusercontent milik Apps Script ikut terkena. requestStorageAccessFor
+  // adalah satu-satunya tuas yang dimiliki halaman induk untuk memintanya
+  // kembali, dan hanya sah dipanggil sewaktu ada interaksi pengguna — jadi
+  // pemanggilnya adalah penangan klik tombol, bukan kode pemuatan halaman.
+  function primeThirdPartyAccess() {
+    if (typeof document.requestStorageAccessFor !== "function") {
+      return Promise.resolve(false);
+    }
+    return document.requestStorageAccessFor("https://script.google.com")
+      .then(function () { return true; })
+      .catch(function () { return false; });
   }
 
   function requestAndCacheDashboard(method, args) {
@@ -234,4 +369,8 @@
     get: createRunner
   });
   window.POLYTA_SPK_API_URL = API_URL;
+  window.POLYTA_PRIME_GAS_ACCESS = primeThirdPartyAccess;
+  window.POLYTA_GAS_TRANSPORT = function () {
+    return { frame: frameTransportBroken ? "gagal" : "sehat", cadangan: scriptTransport };
+  };
 })();

@@ -243,19 +243,9 @@ input:focus, select:focus { border-color: #b44a51; box-shadow: 0 0 0 3px rgba(19
 }
 .password-toggle:hover { background: #eceeeb; color: var(--red-dark); }
 .password-toggle[aria-pressed="true"] { background: #f8e8e9; color: var(--red-dark); }
-.password-toggle::after {
-  content: "";
-  position: absolute;
-  width: 20px;
-  height: 2px;
-  border-radius: 999px;
-  background: currentColor;
-  box-shadow: 0 0 0 1px #fdfdfb;
-  opacity: 0;
-  transform: rotate(-42deg);
-}
-.password-toggle[aria-pressed="true"]::after { opacity: 1; }
 .password-toggle i { pointer-events: none; }
+.password-icon-hide { width: 19px; height: 16px; display: block; pointer-events: none; }
+.password-icon-hide[hidden], .password-icon-show[hidden] { display: none; }
 .check { display: flex; align-items: center; justify-content: flex-start; gap: 9px; font-weight: 650; cursor: pointer; }
 .check input { width: 17px; min-height: 17px; height: 17px; accent-color: var(--red); }
 .button {

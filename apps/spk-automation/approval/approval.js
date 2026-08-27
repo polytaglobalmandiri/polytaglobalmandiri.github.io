@@ -274,7 +274,8 @@
     button.setAttribute('aria-pressed',String(visible));
     button.setAttribute('aria-label',label);
     button.title=label;
-    button.querySelector('i').className='fa-solid fa-eye';
+    button.querySelector('.password-icon-show').hidden=visible;
+    button.querySelector('.password-icon-hide').hidden=!visible;
   }
   function toggleLoginPassword(){
     var input=$('loginPassword');

@@ -9,7 +9,7 @@
   var REQUEST_TIMEOUTS = {
     getApprovalBootstrapStatus: 20000,
     getApprovalSession: 20000,
-    loginApprovalUser: 30000
+    loginApprovalUser: 75000
   };
   var CACHE_DATABASE = "polyta-spk-client-cache";
   var CACHE_STORE = "responses";

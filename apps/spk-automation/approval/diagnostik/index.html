@@ -15,7 +15,7 @@
     }
     main { width: min(760px, 100%); margin: 0 auto; }
     h1 { margin: 0 0 4px; font-size: 1.28rem; font-weight: 900; }
-    p.lead { margin: 0 0 20px; color: var(--muted); font-size: .82rem; }
+    p.lead { margin: 0 0 18px; color: var(--muted); font-size: .82rem; }
     fieldset {
       margin: 0 0 15px; padding: 14px 16px; border: 1px solid #b0b3b3; border-radius: 12px;
       background: linear-gradient(145deg, #f4f4f1, #e2e3e0);
@@ -36,6 +36,10 @@
     button:disabled { opacity: .5; cursor: not-allowed; }
     .row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
     .hint { margin: 0 0 10px; color: var(--muted); font-size: .72rem; }
+    .warn {
+      margin: 0 0 15px; padding: 11px 13px; border: 1px solid #c08c8c; border-radius: 9px;
+      background: #f6e5e5; color: #7b1b1b; font-size: .74rem; font-weight: 700;
+    }
     pre {
       margin: 16px 0 0; padding: 14px; max-height: 52vh; overflow: auto;
       border: 1px solid #9fa2a2; border-radius: 10px; background: #1d1f23; color: #e8e8e6;
@@ -48,9 +52,19 @@
   <h1>Diagnostik Sambungan Persetujuan</h1>
   <p class="lead">Mengukur setiap tahap panggilan ke Apps Script supaya jelas di mana waktunya habis. Tidak ada data yang dikirim ke mana pun selain server SPK yang biasa dipakai.</p>
 
+  <p class="warn">Tunggu sampai muncul baris BERHASIL atau GAGAL sebelum menyalin. Uji transport berhenti sendiri paling lama 60 detik; uji login bisa sampai 3 menit.</p>
+
   <fieldset>
-    <legend>Tanpa kredensial</legend>
-    <p class="hint">Menguji jalur sambungan memakai panggilan paling ringan. Jalankan ini lebih dulu.</p>
+    <legend>1 — Transport</legend>
+    <p class="hint">Menguji jalurnya lapis demi lapis, tanpa kredensial. Jalankan ini lebih dulu: hasilnya menentukan apakah masalahnya di jaringan, di POST, atau di jawaban yang tidak pernah sampai.</p>
+    <div class="row">
+      <button id="runTransport" type="button">Uji transport</button>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>2 — Panggilan biasa</legend>
+    <p class="hint">Memakai jembatan yang sama dengan aplikasi. Dua kali berturut-turut: bila yang pertama jauh lebih lambat, itu cold start.</p>
     <div class="row">
       <button id="runLight" type="button">Uji sambungan</button>
       <button class="ghost" id="runTwice" type="button">Uji dua kali berturut-turut</button>
@@ -58,7 +72,7 @@
   </fieldset>
 
   <fieldset>
-    <legend>Dengan kredensial</legend>
+    <legend>3 — Login</legend>
     <p class="hint">Hanya dipakai untuk satu panggilan loginApprovalUser. Password tidak dicatat ke hasil.</p>
     <label>Email <input id="email" type="email" autocomplete="off" placeholder="nama@perusahaan.com"></label>
     <label>Password <input id="password" type="password" autocomplete="off"></label>
@@ -70,7 +84,7 @@
     <button class="ghost" id="clear" type="button">Bersihkan</button>
   </div>
 
-  <pre id="out">Siap. Mulai dari "Uji sambungan".</pre>
+  <pre id="out">Siap. Mulai dari "Uji transport".</pre>
 </main>
 
 <script src="/assets/js/gas-rpc.js?v=20260825-1"></script>
@@ -80,6 +94,7 @@
 
   var out = document.getElementById('out');
   var lines = [];
+  var API = window.POLYTA_SPK_API_URL || '';
 
   function log(text) {
     lines.push(text);
@@ -91,6 +106,10 @@
     return new Date().toLocaleTimeString('id-ID', { hour12: false });
   }
 
+  function secs(ms) {
+    return (ms / 1000).toFixed(1) + ' detik';
+  }
+
   function environment() {
     log('=== LINGKUNGAN ===');
     log('waktu        : ' + new Date().toString());
@@ -98,30 +117,137 @@
     log('daring       : ' + navigator.onLine);
     log('cookie aktif : ' + navigator.cookieEnabled);
     log('peramban     : ' + navigator.userAgent);
-
-    // Penyimpanan pihak ketiga yang dibatasi adalah penyebab paling sering
-    // jawaban Apps Script tidak pernah sampai kembali ke halaman ini: kodenya
-    // berjalan di iframe pada domain googleusercontent.com.
+    log('endpoint     : ' + (API ? API.slice(0, 64) + '…' : '(TIDAK DITEMUKAN — gas-rpc.js gagal dimuat)'));
     if (document.hasStorageAccess) {
       document.hasStorageAccess().then(function (granted) {
-        log('akses storage: ' + (granted ? 'diberikan' : 'DIBATASI (cookie pihak ketiga kemungkinan diblokir)'));
-      }).catch(function () {
-        log('akses storage: tidak dapat diperiksa');
-      });
+        log('akses storage: ' + (granted ? 'diberikan' : 'DIBATASI'));
+      }).catch(function () {});
     }
     log('');
   }
 
+  function busy(state) {
+    ['runTransport', 'runLight', 'runTwice', 'runLogin'].forEach(function (id) {
+      document.getElementById(id).disabled = state;
+    });
+  }
+
+  // ---------------------------------------------------------------- lapis 1
+  // Apakah host-nya tercapai sama sekali dari mesin ini. Memakai no-cors:
+  // isinya tidak dapat dibaca, tetapi keberhasilan dan waktunya cukup untuk
+  // memastikan jaringan, DNS, dan proxy bukan penyebabnya.
+  function probeNetwork() {
+    var started = Date.now();
+    log('[' + stamp() + '] lapis 1 — menjangkau host (fetch no-cors)');
+    return fetch(API, { mode: 'no-cors', cache: 'no-store' }).then(function () {
+      log('    tercapai dalam ' + secs(Date.now() - started));
+      return true;
+    }).catch(function (error) {
+      log('    GAGAL setelah ' + secs(Date.now() - started) + ' — ' + error.message);
+      log('    berarti host tidak tercapai: jaringan, DNS, proxy, atau pemblokir.');
+      return false;
+    });
+  }
+
+  // ---------------------------------------------------------------- lapis 2
+  // Meniru persis cara gas-rpc mengirim: form POST ke iframe tersembunyi.
+  // Dua hal dicatat terpisah — apakah iframe pernah selesai memuat (POST-nya
+  // sampai), dan apakah ada pesan yang kembali sama sekali. Itulah yang
+  // membedakan "permintaan tidak terkirim" dari "jawaban tidak pernah datang".
+  function probeTransport() {
+    return new Promise(function (resolve) {
+      var started = Date.now();
+      var frameLoaded = false;
+      var messages = [];
+      var settled = false;
+
+      var name = 'diagFrame-' + Date.now().toString(36);
+      var iframe = document.createElement('iframe');
+      var form = document.createElement('form');
+      var input = document.createElement('input');
+
+      iframe.name = name;
+      iframe.style.display = 'none';
+      form.method = 'POST';
+      form.action = API;
+      form.target = name;
+      form.style.display = 'none';
+      input.type = 'hidden';
+      input.name = 'payload';
+      input.value = JSON.stringify({
+        requestId: 'diag-' + Date.now().toString(36),
+        method: 'getApprovalBootstrapStatus',
+        args: []
+      });
+      form.appendChild(input);
+
+      function onMessage(event) {
+        var d = event.data;
+        var shape = d && typeof d === 'object' ? (d.source || '(tanpa source)') : typeof d;
+        messages.push({ ms: Date.now() - started, origin: event.origin, shape: shape });
+      }
+
+      iframe.addEventListener('load', function () {
+        frameLoaded = true;
+        log('    iframe selesai memuat pada ' + secs(Date.now() - started) + ' — POST sampai ke server.');
+      });
+
+      window.addEventListener('message', onMessage);
+      document.body.appendChild(iframe);
+      document.body.appendChild(form);
+
+      log('[' + stamp() + '] lapis 2 — form POST ke iframe tersembunyi');
+      form.submit();
+
+      window.setTimeout(function () {
+        if (settled) return;
+        settled = true;
+        window.removeEventListener('message', onMessage);
+
+        log('');
+        log('    HASIL LAPIS 2 setelah 60 detik');
+        log('    iframe memuat      : ' + (frameLoaded ? 'ya' : 'TIDAK'));
+        log('    pesan diterima     : ' + messages.length);
+        messages.slice(0, 6).forEach(function (m) {
+          log('      +' + secs(m.ms) + ' dari ' + m.origin + ' source=' + m.shape);
+        });
+
+        log('');
+        if (!frameLoaded && messages.length === 0) {
+          log('    KESIMPULAN: POST tidak pernah selesai. Permintaannya tidak sampai,');
+          log('    atau jawabannya ditahan sebelum tiba. Curigai proxy, firewall,');
+          log('    antivirus penyaring web, atau ekstensi peramban.');
+        } else if (frameLoaded && messages.length === 0) {
+          log('    KESIMPULAN: server menjawab, tetapi tidak ada satu pun postMessage');
+          log('    yang kembali. Masalahnya di sisi Apps Script atau pada iframe');
+          log('    bersarang googleusercontent.com yang diblokir peramban.');
+        } else if (!messages.some(function (m) { return m.shape === 'polyta-spk-gas-rpc'; })) {
+          log('    KESIMPULAN: ada pesan yang kembali, tetapi tidak satu pun berasal');
+          log('    dari jembatan kita. Kode server kemungkinan tidak mengirim balasan');
+          log('    dengan bentuk yang diharapkan.');
+        } else {
+          log('    KESIMPULAN: transport sehat. Kalau login tetap gagal, penyebabnya');
+          log('    ada pada fungsi loginApprovalUser itu sendiri.');
+        }
+
+        if (form.parentNode) form.parentNode.removeChild(form);
+        if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+        resolve();
+      }, 60000);
+    });
+  }
+
+  // ---------------------------------------------------------------- lapis 3
   function call(method) {
     var args = Array.prototype.slice.call(arguments, 1);
     var started = Date.now();
-    log('[' + stamp() + '] -> ' + method + ' dikirim');
+    log('[' + stamp() + '] -> ' + method + ' dikirim (tunggu sampai ada jawaban)');
 
     return new Promise(function (resolve) {
       var runner = google.script.run
         .withSuccessHandler(function (result) {
           var ms = Date.now() - started;
-          log('[' + stamp() + '] <- ' + method + ' BERHASIL dalam ' + (ms / 1000).toFixed(1) + ' detik');
+          log('[' + stamp() + '] <- ' + method + ' BERHASIL dalam ' + secs(ms));
           try {
             var peek = JSON.stringify(result);
             log('    jawaban: ' + (peek.length > 200 ? peek.slice(0, 200) + '…' : peek));
@@ -132,7 +258,7 @@
         })
         .withFailureHandler(function (error) {
           var ms = Date.now() - started;
-          log('[' + stamp() + '] <- ' + method + ' GAGAL setelah ' + (ms / 1000).toFixed(1) + ' detik');
+          log('[' + stamp() + '] <- ' + method + ' GAGAL setelah ' + secs(ms));
           log('    pesan  : ' + (error && error.message ? error.message : String(error)));
           resolve({ ok: false, ms: ms });
         });
@@ -141,11 +267,21 @@
     });
   }
 
-  function busy(state) {
-    ['runLight', 'runTwice', 'runLogin'].forEach(function (id) {
-      document.getElementById(id).disabled = state;
-    });
-  }
+  document.getElementById('runTransport').addEventListener('click', async function () {
+    busy(true);
+    environment();
+    log('=== UJI TRANSPORT ===');
+    if (!API) {
+      log('Endpoint tidak diketahui, gas-rpc.js tidak termuat. Hentikan di sini.');
+      busy(false);
+      return;
+    }
+    await probeNetwork();
+    log('');
+    await probeTransport();
+    log('');
+    busy(false);
+  });
 
   document.getElementById('runLight').addEventListener('click', async function () {
     busy(true);
@@ -159,14 +295,12 @@
   document.getElementById('runTwice').addEventListener('click', async function () {
     busy(true);
     environment();
-    // Panggilan pertama menanggung cold start, yang kedua tidak. Selisihnya
-    // membedakan server yang sekadar dingin dari server yang memang lambat.
     log('=== DUA PANGGILAN BERTURUT-TURUT ===');
     var first = await call('getApprovalBootstrapStatus');
     var second = await call('getApprovalBootstrapStatus');
     if (first.ok && second.ok) {
       log('');
-      log('ringkasan: pertama ' + (first.ms / 1000).toFixed(1) + ' detik, kedua ' + (second.ms / 1000).toFixed(1) + ' detik.');
+      log('ringkasan: pertama ' + secs(first.ms) + ', kedua ' + secs(second.ms) + '.');
       log(first.ms > second.ms * 2
         ? 'pola cold start: panggilan pertama jauh lebih lambat.'
         : 'tidak ada pola cold start: keduanya setara.');

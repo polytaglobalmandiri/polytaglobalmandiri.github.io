@@ -1,8 +1,8 @@
 # Struktur Database SPK
 
 Dokumen ini mencatat perubahan struktur visual pada sheet `Database SPK` di
-spreadsheet `DATABASE SPK TERPADU` (sebelumnya `DATABASE PO & SPK`). Perubahan
-pada 30 Agustus 2026 tidak mengubah
+spreadsheet `MASTER DATA PPIC` (sebelumnya `DATABASE SPK TERPADU` dan
+`DATABASE PO & SPK`). Perubahan pada 30 Agustus 2026 tidak mengubah
 nilai, formula, urutan, ataupun alamat kolom yang dipakai aplikasi.
 
 Nama file diselaraskan setelah struktur versi 2 dibuat. ID spreadsheet tetap

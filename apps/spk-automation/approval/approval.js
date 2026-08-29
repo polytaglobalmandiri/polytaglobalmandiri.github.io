@@ -19,6 +19,12 @@
   var manualLoginStarted=false;
   var loginWaitTimers=[];
   var queueLoadPromise=null;
+  var PRINT_PREVIEW_VERSION='20260829-1';
+
+  function printPreviewUrl(spk){
+    return '/apps/spk-automation/print-spk/?spk='+encodeURIComponent(spk)+
+      '&mode=view&embed=1&preview='+PRINT_PREVIEW_VERSION;
+  }
 
   function rpc(method){
     var args=Array.prototype.slice.call(arguments,1);
@@ -420,7 +426,7 @@
       $('previewFrame').contentWindow.postMessage(
         {source:'pgm-spk-preview-host',spk:spk},window.location.origin);
     }else{
-      $('previewFrame').src='/apps/spk-automation/print-spk/?spk='+encodeURIComponent(spk)+'&mode=view&embed=1&preview=20260827-2';
+      $('previewFrame').src=printPreviewUrl(spk);
     }
   }
   // Menyetujui SPK mengubah tanda tangan dan statusnya, sehingga paket yang
@@ -468,7 +474,7 @@
       $('previewFrame').contentWindow.postMessage(
         {source:'pgm-spk-preview-host',spk:previewSpk},window.location.origin);
     }else{
-      $('previewFrame').src='/apps/spk-automation/print-spk/?spk='+encodeURIComponent(previewSpk)+'&mode=view&embed=1&preview=20260827-2';
+      $('previewFrame').src=printPreviewUrl(previewSpk);
     }
   }
   // Halaman cetak mengabari saat paketnya selesai dirender atau gagal.

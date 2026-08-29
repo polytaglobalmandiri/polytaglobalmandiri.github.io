@@ -1,8 +1,13 @@
 # Struktur Database SPK
 
 Dokumen ini mencatat perubahan struktur visual pada sheet `Database SPK` di
-spreadsheet `DATABASE PO & SPK`. Perubahan pada 30 Agustus 2026 tidak mengubah
+spreadsheet `DATABASE SPK TERPADU` (sebelumnya `DATABASE PO & SPK`). Perubahan
+pada 30 Agustus 2026 tidak mengubah
 nilai, formula, urutan, ataupun alamat kolom yang dipakai aplikasi.
+
+Nama file diselaraskan setelah struktur versi 2 dibuat. ID spreadsheet tetap
+`1GldWp316hXRGKOa-ANJ4Eugdz0HFZSxvFQGy-dcex48`, sehingga tautan, izin akses,
+dan integrasi aplikasi berbasis ID tetap berlaku.
 
 ## Backup
 

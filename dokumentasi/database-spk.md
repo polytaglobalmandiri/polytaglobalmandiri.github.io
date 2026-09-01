@@ -94,6 +94,9 @@ atau perubahan hasil Penarikan Data, Input SPK, Approval, dan Cetak SPK.
 
 - Jangan menghapus atau memindahkan kolom `Database SPK` sebelum seluruh
   pembacaan `DB_COL` dipindahkan ke lapisan data versi 2.
+- Gunakan kontrak skema dan pemetaan pada
+  [`database-spk-v2-mapping.md`](database-spk-v2-mapping.md). Jalankan validator
+  baca-saja sebelum mengembangkan migrator atau dual-write.
 - Gunakan `SPK` sebagai kunci relasi; gunakan ID detail unik untuk setiap
   routing, bahan, warna, pengiriman, ETA, aksesoris, dan tracking.
 - Terapkan dual-write dan uji perbandingan data sebelum satu per satu fitur

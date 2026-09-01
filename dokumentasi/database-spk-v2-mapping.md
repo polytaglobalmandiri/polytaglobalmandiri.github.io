@@ -145,22 +145,25 @@ Script Properties, dan hasil commit/rollback dicatat di sheet `Migrasi SPK V2`.
 Rollback hanya berlaku untuk batch terakhir dan hanya menghapus baris dengan
 tag sumber batch tersebut.
 
-## Hasil pilot migrasi 1 September 2026
+## Hasil migrasi awal 1 September 2026
 
-Dua batch pertama telah melalui pratinjau, commit, pembacaan ulang, dan
-pemeriksaan visual. Sebanyak 50 SPK sumber (baris 4-53) menghasilkan 397 baris
-detail tanpa konflik:
+Lima batch pertama telah melalui pratinjau dan commit. Batch awal serta sampel
+batch terbaru juga melalui pembacaan ulang dan pemeriksaan visual. Sebanyak 125
+SPK sumber (baris 4-128) menghasilkan 1.017 baris detail tanpa konflik:
 
 | Batch | Baris sumber | SPK | Routing | Bahan | Warna | Pengiriman | ETA | Aksesoris | Tracking | Total |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | `V2-000004-000028` | 4-28 | 25 | 74 | 68 | 22 | 17 | 0 | 0 | 25 | 206 |
 | `V2-000029-000053` | 29-53 | 25 | 66 | 67 | 17 | 16 | 0 | 0 | 25 | 191 |
+| `V2-000054-000078` | 54-78 | 25 | 71 | 54 | 58 | 22 | 0 | 0 | 25 | 230 |
+| `V2-000079-000103` | 79-103 | 25 | 75 | 83 | 21 | 16 | 0 | 0 | 25 | 220 |
+| `V2-000104-000128` | 104-128 | 25 | 56 | 48 | 20 | 21 | 0 | 0 | 25 | 170 |
 
 Batch pertama menemukan bahwa nilai persen sumber perlu dikonversi menjadi
 pecahan sebelum ditulis ke sel berformat persen. Sebanyak 117 nilai pada batch
 pertama dikoreksi dan dicatat sebagai `CORRECTED` pada sheet audit. Migrator
 kemudian diperbaiki; batch kedua menulis nilai persen dengan benar sejak awal.
 
-Checkpoint berikutnya berada pada baris sumber 54. Masih ada 9.040 SPK yang
+Checkpoint berikutnya berada pada baris sumber 129. Masih ada 8.965 SPK yang
 belum diproses. Lanjutkan migrasi hanya melalui urutan pratinjau, commit, dan
 verifikasi di atas agar setiap batch tetap dapat diaudit dan dibatalkan.

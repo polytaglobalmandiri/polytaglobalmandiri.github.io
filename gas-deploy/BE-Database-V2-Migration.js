@@ -8,6 +8,8 @@ const DB_V2_PREVIEW_DEFAULT_ROWS = 500;
 const DB_V2_PREVIEW_MAX_ROWS = 5000;
 const DB_V2_PREVIEW_SAMPLE_LIMIT = 10;
 const DB_V2_MIGRATION_SOURCE = 'MIGRASI DATABASE SPK';
+const DB_V2_COVERAGE_CHUNK_ROWS = 500;
+const DB_V2_COVERAGE_WARNING_SAMPLE_LIMIT = 50;
 
 function previewDatabaseV2Migration(options) {
   const settings = options && typeof options === 'object' ? options : {};
@@ -105,6 +107,132 @@ function logDatabaseV2MigrationPreview() {
   const report = previewDatabaseV2Migration();
   console.log(JSON.stringify(report, null, 2));
   return report;
+}
+
+// Memindai seluruh sumber dalam potongan kecil tanpa menyimpan seluruh calon
+// baris di memori. Fungsi ini baca-saja dan dipakai sebagai gerbang sebelum
+// migrasi skala besar dijalankan.
+function analyzeDatabaseV2MigrationCoverage() {
+  const sourceSheet = getDbSheetReadOnly_();
+  const firstRow = DB_DATA_START_ROW;
+  const lastRow = sourceSheet.getLastRow();
+  const width = Math.min(sourceSheet.getMaxColumns(), Math.max(DB_COL.UOM_AKSESORIS, 150));
+  const totals = createDatabaseV2CoverageTotals_();
+  const samples = { eta: [], accessory: [] };
+  const sourceSignals = {
+    routingJsonRows: 0,
+    accessorySummaryRows: 0,
+    accessorySummarySamples: []
+  };
+  const warningSamples = [];
+  let warningCount = 0;
+  let blockingWarningCount = 0;
+  let spkRows = 0;
+
+  for (let chunkStart = firstRow; chunkStart <= lastRow; chunkStart += DB_V2_COVERAGE_CHUNK_ROWS) {
+    const chunkEnd = Math.min(lastRow, chunkStart + DB_V2_COVERAGE_CHUNK_ROWS - 1);
+    const rows = sourceSheet.getRange(chunkStart, 1, chunkEnd - chunkStart + 1, width).getValues();
+    rows.forEach(function(row, index) {
+      while (row.length < 150) row.push('');
+      const rowNumber = chunkStart + index;
+      const spk = normalizeDatabaseV2Key_(row[DB_COL.SPK - 1]);
+      if (!spk) {
+        if (row.some(function(value) { return String(value || '').trim() !== ''; })) {
+          warningCount++;
+          blockingWarningCount++;
+          if (warningSamples.length < DB_V2_COVERAGE_WARNING_SAMPLE_LIMIT) {
+            warningSamples.push('Baris ' + rowNumber + ' memiliki data tetapi SPK kosong.');
+          }
+        }
+        return;
+      }
+
+      spkRows++;
+      const rowCandidates = createDatabaseV2CandidateBuckets_();
+      const rowWarnings = [];
+      buildDatabaseV2CandidatesForRow_(row, rowNumber, spk, rowCandidates, rowWarnings);
+      if (valueOrEmpty_(row[DB_COL.ROUTING_STEPS - 1]) !== '') sourceSignals.routingJsonRows++;
+      const accessorySummary = [
+        valueOrEmpty_(row[DB_COL.AKSESORIS_ROUTING - 1]),
+        valueOrEmpty_(row[DB_COL.KEBUTUHAN_AKSESORIS - 1]),
+        valueOrEmpty_(row[DB_COL.UOM_AKSESORIS - 1])
+      ];
+      if (accessorySummary.some(function(value) { return value !== ''; })) {
+        sourceSignals.accessorySummaryRows++;
+        if (sourceSignals.accessorySummarySamples.length < DB_V2_PREVIEW_SAMPLE_LIMIT) {
+          sourceSignals.accessorySummarySamples.push({
+            sourceRow: rowNumber,
+            spk: spk,
+            routing: accessorySummary[0],
+            requirement: accessorySummary[1],
+            uom: accessorySummary[2]
+          });
+        }
+      }
+      Object.keys(totals).forEach(function(schemaKey) {
+        totals[schemaKey] += rowCandidates[schemaKey].length;
+      });
+      collectDatabaseV2CoverageSamples_(samples.eta, rowCandidates.eta, rowNumber, spk);
+      collectDatabaseV2CoverageSamples_(samples.accessory, rowCandidates.accessory, rowNumber, spk);
+      warningCount += rowWarnings.length;
+      rowWarnings.forEach(function(message) {
+        if (isDatabaseV2BlockingSourceWarning_(message)) blockingWarningCount++;
+        if (warningSamples.length < DB_V2_COVERAGE_WARNING_SAMPLE_LIMIT) warningSamples.push(message);
+      });
+    });
+  }
+
+  return {
+    schemaVersion: DB_V2_SCHEMA_VERSION,
+    mode: 'FULL_COVERAGE_READ_ONLY',
+    checkedAt: new Date().toISOString(),
+    sourceSheet: sourceSheet.getName(),
+    firstSourceRow: firstRow,
+    lastSourceRow: lastRow,
+    physicalRowsChecked: Math.max(0, lastRow - firstRow + 1),
+    spkRows: spkRows,
+    candidates: totals,
+    sourceSignals: sourceSignals,
+    samples: samples,
+    warnings: {
+      count: warningCount,
+      blockingCount: blockingWarningCount,
+      advisoryCount: warningCount - blockingWarningCount,
+      samples: warningSamples
+    },
+    writesPerformed: 0,
+    readyForLargeBatch: blockingWarningCount === 0
+  };
+}
+
+function logDatabaseV2FullCoverage() {
+  const report = analyzeDatabaseV2MigrationCoverage();
+  console.log(JSON.stringify(report, null, 2));
+  return report;
+}
+
+function createDatabaseV2CoverageTotals_() {
+  return {
+    master: 0,
+    routing: 0,
+    material: 0,
+    color: 0,
+    delivery: 0,
+    eta: 0,
+    accessory: 0,
+    tracking: 0
+  };
+}
+
+function collectDatabaseV2CoverageSamples_(target, records, rowNumber, spk) {
+  if (target.length >= DB_V2_PREVIEW_SAMPLE_LIMIT || !records.length) return;
+  records.slice(0, DB_V2_PREVIEW_SAMPLE_LIMIT - target.length).forEach(function(record) {
+    target.push({ sourceRow: rowNumber, spk: spk, record: record });
+  });
+}
+
+function isDatabaseV2BlockingSourceWarning_(message) {
+  return /^Baris \d+ .*SPK kosong/i.test(String(message || ''));
 }
 
 function createDatabaseV2CandidateBuckets_() {

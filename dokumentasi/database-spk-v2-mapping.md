@@ -60,6 +60,8 @@ Jalankan fungsi `logDatabaseV2Validation` dari editor Apps Script. Fungsi ini:
 Hasil lengkap dicetak sebagai JSON pada execution log. Secara default maksimal
 20.000 baris per sheet diperiksa untuk menjaga kuota Apps Script. Batas dapat
 diubah secara terprogram melalui `validateDatabaseV2({ maxRows: 50000 })`.
+Setelah migrasi penuh, jalankan `logDatabaseV2FullValidation` untuk memeriksa
+hingga 100.000 baris per sheet.
 
 ## Gerbang menuju dual-write
 
@@ -145,11 +147,14 @@ Script Properties, dan hasil commit/rollback dicatat di sheet `Migrasi SPK V2`.
 Rollback hanya berlaku untuk batch terakhir dan hanya menghapus baris dengan
 tag sumber batch tersebut.
 
-## Hasil migrasi awal 1 September 2026
+## Hasil migrasi penuh 2 September 2026
 
-Lima batch pertama telah melalui pratinjau dan commit. Batch awal serta sampel
-batch terbaru juga melalui pembacaan ulang dan pemeriksaan visual. Sebanyak 125
-SPK sumber (baris 4-128) menghasilkan 1.017 baris detail tanpa konflik:
+Migrasi penuh selesai dalam 45 batch append-only. Checkpoint akhir berada pada
+baris 9.983, melewati baris sumber terakhir 9.982, dengan `remainingRows: 0`
+dan `complete: true`. Seluruh batch melalui pratinjau sebelum commit dan tidak
+menemukan konflik.
+
+Lima batch awal adalah:
 
 | Batch | Baris sumber | SPK | Routing | Bahan | Warna | Pengiriman | ETA | Aksesoris | Tracking | Total |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -164,6 +169,35 @@ pecahan sebelum ditulis ke sel berformat persen. Sebanyak 117 nilai pada batch
 pertama dikoreksi dan dicatat sebagai `CORRECTED` pada sheet audit. Migrator
 kemudian diperbaiki; batch kedua menulis nilai persen dengan benar sejak awal.
 
-Checkpoint berikutnya berada pada baris sumber 129. Masih ada 8.965 SPK yang
-belum diproses. Lanjutkan migrasi hanya melalui urutan pratinjau, commit, dan
-verifikasi di atas agar setiap batch tetap dapat diaudit dan dibatalkan.
+Audit cakupan penuh dan `logDatabaseV2FullValidation` menghasilkan jumlah akhir
+yang sama persis:
+
+| Target | Baris data |
+| --- | ---: |
+| `SPK Master` | 9.090 |
+| `SPK Routing` | 25.132 |
+| `SPK Bahan` | 25.795 |
+| `SPK Warna` | 8.148 |
+| `SPK Pengiriman` | 6.338 |
+| `SPK ETA` | 2 |
+| `SPK Aksesoris` | 0 |
+| `SPK Tracking` | 9.086 |
+
+Validasi penuh memeriksa seluruh baris tanpa truncation dan menghasilkan:
+
+- delapan dari delapan sheet tersedia;
+- 0 SPK duplikat pada sumber;
+- 0 ID/kunci duplikat pada target;
+- 0 ID atau SPK kosong;
+- 0 SPK detail tanpa induk;
+- 0 error dan `readyForDualWrite: true`.
+
+Satu peringatan informasional menyatakan `SPK Aksesoris` belum mempunyai baris
+data. Ini sesuai sumber: kolom `EQ:ES` (`Aksesoris Routing`, `Kebutuhan
+Aksesoris`, dan `UOM Aksesoris`) kosong pada seluruh sumber. Dua baris ETA juga
+telah dibaca ulang dan cocok dengan sumber (`A26.002` dan `A26.005`).
+
+Pembacaan ulang pada baris terakhir setiap target membuktikan jumlah fisik dan
+tag batch `MIGRASI DATABASE SPK|<batch-id>` tersimpan. Pemeriksaan visual pada
+delapan sheet V2 dan sheet audit menunjukkan header, filter, freeze column,
+format tanggal, angka, dan persen tetap terbaca dengan baik.

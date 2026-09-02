@@ -6,7 +6,10 @@
 // bertanda sumber milik batch terakhir.
 
 const DB_V2_BATCH_SIZE = 25;
-const DB_V2_BATCH_MAX_SIZE = 100;
+const DB_V2_LARGE_BATCH_SIZE = 250;
+const DB_V2_BATCH_MAX_SIZE = 500;
+const DB_V2_RUN_WINDOW_MAX_BATCHES = 3;
+const DB_V2_RUN_WINDOW_MAX_MS = 240000;
 const DB_V2_BATCH_CONFIRM = 'MIGRATE_DATABASE_V2';
 const DB_V2_ROLLBACK_CONFIRM = 'ROLLBACK_DATABASE_V2_LAST_BATCH';
 const DB_V2_CHECKPOINT_PROPERTY = 'database-spk-v2-migration-checkpoint';
@@ -17,6 +20,12 @@ const DB_V2_DETAIL_SCHEMA_KEYS = [
 
 function previewDatabaseV2NextBatch() {
   const report = runDatabaseV2Batch_({ dryRun: true, batchSize: DB_V2_BATCH_SIZE });
+  console.log(JSON.stringify(report, null, 2));
+  return report;
+}
+
+function previewDatabaseV2NextLargeBatch() {
+  const report = runDatabaseV2Batch_({ dryRun: true, batchSize: DB_V2_LARGE_BATCH_SIZE });
   console.log(JSON.stringify(report, null, 2));
   return report;
 }
@@ -39,6 +48,66 @@ function adminMigrateDatabaseV2NextBatch() {
   });
   console.log(JSON.stringify(report, null, 2));
   return report;
+}
+
+function adminMigrateDatabaseV2NextLargeBatch() {
+  const report = migrateDatabaseV2Batch({
+    confirm: DB_V2_BATCH_CONFIRM,
+    batchSize: DB_V2_LARGE_BATCH_SIZE
+  });
+  console.log(JSON.stringify(report, null, 2));
+  return report;
+}
+
+// Menjalankan maksimal tiga batch besar dalam satu jendela eksekusi. Setiap
+// batch selalu dipratinjau ulang dan jendela berhenti sebelum commit bila ada
+// konflik atau peringatan sumber.
+function adminMigrateDatabaseV2RunWindow() {
+  const startedAt = Date.now();
+  const reports = [];
+  let stopReason = '';
+
+  while (reports.length < DB_V2_RUN_WINDOW_MAX_BATCHES &&
+      Date.now() - startedAt < DB_V2_RUN_WINDOW_MAX_MS) {
+    const preview = runDatabaseV2Batch_({ dryRun: true, batchSize: DB_V2_LARGE_BATCH_SIZE });
+    if (preview.complete) {
+      stopReason = 'COMPLETE';
+      break;
+    }
+    const blockingWarnings = preview.warnings.filter(isDatabaseV2BlockingSourceWarning_);
+    if (!preview.readyToCommit || preview.conflicts.length || blockingWarnings.length) {
+      stopReason = preview.conflicts.length ? 'CONFLICT' : 'BLOCKING_WARNING';
+      reports.push({ preview: preview, commit: null });
+      break;
+    }
+    const commit = migrateDatabaseV2Batch({
+      confirm: DB_V2_BATCH_CONFIRM,
+      batchSize: DB_V2_LARGE_BATCH_SIZE
+    });
+    reports.push({ preview: preview, commit: commit });
+    if (commit.complete) {
+      stopReason = 'COMPLETE';
+      break;
+    }
+  }
+
+  if (!stopReason) {
+    stopReason = reports.length >= DB_V2_RUN_WINDOW_MAX_BATCHES ? 'BATCH_LIMIT' : 'TIME_LIMIT';
+  }
+  const status = getDatabaseV2MigrationStatus();
+  const result = {
+    mode: 'MIGRATION_RUN_WINDOW',
+    batchesCommitted: reports.filter(function(item) { return Boolean(item.commit); }).length,
+    rowsWritten: reports.reduce(function(total, item) {
+      return total + (item.commit ? Number(item.commit.writesPerformed) || 0 : 0);
+    }, 0),
+    stopReason: stopReason,
+    elapsedMs: Date.now() - startedAt,
+    status: status,
+    reports: reports
+  };
+  console.log(JSON.stringify(result, null, 2));
+  return result;
 }
 
 function getDatabaseV2MigrationStatus() {
@@ -214,25 +283,28 @@ function planDatabaseV2Append_(spreadsheet, schema, records, sourceTag) {
   const keyField = schema.key;
   const keyColumn = findDatabaseV2HeaderIndex_(header.index, [keyField]);
   const physicalRows = Math.max(0, sheet.getLastRow() - header.row);
-  const existingValues = physicalRows
-    ? sheet.getRange(header.row + 1, 1, physicalRows, sheet.getLastColumn()).getValues()
-    : [];
-  const existing = {};
-  existingValues.forEach(function(row) {
-    const key = normalizeDatabaseV2Key_(row[keyColumn - 1]);
-    if (!key || existing[key]) return;
-    const record = {};
-    schema.fields.forEach(function(field) {
-      const column = findDatabaseV2HeaderIndex_(header.index, field);
-      record[field[0]] = row[column - 1];
-    });
-    existing[key] = record;
-  });
-
   const seen = {};
+  const candidateKeys = {};
   const inserts = [];
   const conflicts = [];
   let unchanged = 0;
+  records.forEach(function(sourceRecord) {
+    const key = normalizeDatabaseV2Key_(sourceRecord[keyField]);
+    if (key) candidateKeys[key] = true;
+  });
+  const existingResult = readDatabaseV2BatchExistingMatches_(
+    sheet,
+    header,
+    schema,
+    keyColumn,
+    physicalRows,
+    candidateKeys
+  );
+  const existing = existingResult.index;
+  existingResult.duplicateKeys.forEach(function(key) {
+    conflicts.push('kunci target duplikat ' + key);
+  });
+
   records.forEach(function(sourceRecord) {
     const record = Object.assign({}, sourceRecord);
     if (Object.prototype.hasOwnProperty.call(record, 'Sumber')) record.Sumber = sourceTag;
@@ -266,6 +338,52 @@ function planDatabaseV2Append_(spreadsheet, schema, records, sourceTag) {
     unchanged: unchanged,
     conflicts: uniqueDatabaseV2Values_(conflicts)
   };
+}
+
+// Membaca seluruh kolom kunci saja. Baris lengkap hanya dibaca untuk kunci
+// kandidat yang benar-benar sudah ada, sehingga biaya tidak bertambah seiring
+// lebar dan jumlah tabel detail.
+function readDatabaseV2BatchExistingMatches_(sheet, header, schema, keyColumn, physicalRows, candidateKeys) {
+  const keyRows = {};
+  const duplicateKeys = [];
+  if (physicalRows) {
+    const values = sheet.getRange(header.row + 1, keyColumn, physicalRows, 1).getValues();
+    values.forEach(function(row, index) {
+      const key = normalizeDatabaseV2Key_(row[0]);
+      if (!key) return;
+      if (keyRows[key]) duplicateKeys.push(key);
+      else keyRows[key] = header.row + 1 + index;
+    });
+  }
+
+  const rowsToRead = Object.keys(candidateKeys).map(function(key) {
+    return keyRows[key] || 0;
+  }).filter(Boolean).sort(function(a, b) { return a - b; });
+  const index = {};
+  groupDatabaseV2RowsForRead_(rowsToRead).forEach(function(run) {
+    const rows = sheet.getRange(run.startRow, 1, run.count, sheet.getLastColumn()).getValues();
+    rows.forEach(function(row) {
+      const key = normalizeDatabaseV2Key_(row[keyColumn - 1]);
+      if (!key || index[key]) return;
+      const record = {};
+      schema.fields.forEach(function(field) {
+        const column = findDatabaseV2HeaderIndex_(header.index, field);
+        record[field[0]] = row[column - 1];
+      });
+      index[key] = record;
+    });
+  });
+  return { index: index, duplicateKeys: uniqueDatabaseV2Values_(duplicateKeys) };
+}
+
+function groupDatabaseV2RowsForRead_(rows) {
+  const runs = [];
+  rows.forEach(function(rowNumber) {
+    const current = runs[runs.length - 1];
+    if (current && current.startRow + current.count === rowNumber) current.count++;
+    else runs.push({ startRow: rowNumber, count: 1 });
+  });
+  return runs;
 }
 
 function appendDatabaseV2Plan_(plan) {

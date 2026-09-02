@@ -276,6 +276,12 @@ function logDatabaseV2Validation() {
   return report;
 }
 
+function logDatabaseV2FullValidation() {
+  const report = validateDatabaseV2({ maxRows: 100000 });
+  console.log(JSON.stringify(report, null, 2));
+  return report;
+}
+
 function validateDatabaseV2Sheet_(spreadsheet, schemaKey, schema, legacyKeys, maxRows) {
   const sheet = spreadsheet.getSheetByName(schema.sheet);
   const result = {

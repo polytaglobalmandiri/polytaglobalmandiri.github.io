@@ -384,7 +384,7 @@ function buildDatabaseV2MasterCandidate_(row, spk) {
     'UOM Order': valueOrEmpty_(row[DB_COL.UOM_ORDER - 1]),
     'Keluar Bahan': numberOrEmptyForClient_(row[DB_COL.KELUAR_BAHAN - 1]),
     'UOM KB': valueOrEmpty_(row[DB_COL.UOM_KB - 1]),
-    'Toleransi Order': percentToInput_(row[DB_COL.TOLERANSI - 1]),
+    'Toleransi Order': databaseV2PercentFraction_(percentToInput_(row[DB_COL.TOLERANSI - 1])),
     'ETD': dateToInput_(row[DB_COL.ETD - 1]),
     'SPK Referensi': valueOrEmpty_(row[DB_COL.SPK_REFERENSI - 1]),
     'Release': valueOrEmpty_(row[DB_COL.RELEASE - 1]),
@@ -395,12 +395,26 @@ function buildDatabaseV2MasterCandidate_(row, spk) {
     'Meter/Roll': numberOrEmptyForClient_(row[DB_COL.METER_ROLL - 1]),
     'Mode PCS/KG': valueOrEmpty_(row[DB_COL.PCS_KG_MODE - 1]),
     'Jenis Potongan': valueOrEmpty_(row[DB_COL.JENIS_POTONGAN - 1]),
-    'Tanggal PO Masuk': dateToInput_(row[DB_COL.PO_MASUK - 1]),
+    'Tanggal PO Masuk': databaseV2DateInput_(row[DB_COL.PO_MASUK - 1]),
     'Stok': numberOrEmptyForClient_(row[DB_COL.STOK - 1]),
     'OTS': numberOrEmptyForClient_(row[DB_COL.OTS - 1]),
     'WIP': numberOrEmptyForClient_(row[DB_COL.WIP - 1]),
-    'Toleransi Produksi': percentToInput_(row[DB_COL.TOLERANSI_PRODUKSI - 1])
+    'Toleransi Produksi': databaseV2PercentFraction_(
+      percentToInput_(row[DB_COL.TOLERANSI_PRODUKSI - 1])
+    )
   };
+}
+
+function databaseV2DateInput_(value) {
+  if (typeof value === 'number' && isFinite(value) && value > 20000 && value < 80000) {
+    const utc = new Date(Date.UTC(1899, 11, 30) + Math.round(value * 86400000));
+    return [
+      utc.getUTCFullYear(),
+      String(utc.getUTCMonth() + 1).padStart(2, '0'),
+      String(utc.getUTCDate()).padStart(2, '0')
+    ].join('-');
+  }
+  return dateToInput_(value);
 }
 
 function getDatabaseV2RoutingSteps_(row) {

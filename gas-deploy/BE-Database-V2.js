@@ -1,9 +1,9 @@
 // ==========================================
 // DATABASE SPK V2 - KONTRAK SKEMA & VALIDATOR
 // ==========================================
-// Modul ini sengaja hanya membaca Spreadsheet. Belum ada dual-write atau
-// migrasi otomatis. Tujuannya adalah memberi satu kontrak nama kolom dan
-// memeriksa kesiapan tabel V2 sebelum sumber data aplikasi dialihkan.
+// Modul ini mendefinisikan kontrak nama kolom dan validator integritas.
+// Migrasi serta dual-write berada pada modul terpisah dan memakai kontrak ini
+// sebelum sumber baca aplikasi dialihkan ke struktur V2.
 
 const DB_V2_SCHEMA_VERSION = '2.0.0';
 const DB_V2_DEFAULT_MAX_ROWS = 20000;

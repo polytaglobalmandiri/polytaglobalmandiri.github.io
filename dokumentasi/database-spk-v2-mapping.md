@@ -4,15 +4,15 @@ Dokumen ini adalah kontrak migrasi dari `Database SPK` yang masih berbentuk
 satu tabel lebar ke struktur relasional SPK versi 2. Kontrak yang dapat dibaca
 aplikasi berada di `gas-deploy/BE-Database-V2.js`.
 
-## Tujuan tahap ini
+## Tujuan struktur
 
 - Menetapkan nama sheet dan header kanonis.
 - Mendokumentasikan asal data pada struktur lama.
-- Memeriksa integritas kunci tanpa menulis atau mengubah data.
-- Menjadi pagar pengaman sebelum dual-write dan migrasi isi diaktifkan.
+- Memeriksa integritas kunci sebelum dan sesudah setiap perubahan besar.
+- Menjaga data lama dan V2 tetap sinkron selama masa transisi.
 
-Tahap ini **belum** memindahkan data, mengubah formula, atau mengganti sumber
-baca aplikasi.
+Sumber baca aplikasi masih `Database SPK`. Migrasi penuh telah selesai dan
+dual-write terkontrol sudah aktif untuk menjaga delapan tabel V2 tetap sinkron.
 
 ## Relasi
 
@@ -201,3 +201,31 @@ Pembacaan ulang pada baris terakhir setiap target membuktikan jumlah fisik dan
 tag batch `MIGRASI DATABASE SPK|<batch-id>` tersimpan. Pemeriksaan visual pada
 delapan sheet V2 dan sheet audit menunjukkan header, filter, freeze column,
 format tanggal, angka, dan persen tetap terbaca dengan baik.
+
+## Dual-write aktif 2 September 2026
+
+Implementasi berada di `gas-deploy/BE-Database-V2-DualWrite.js`. Setelah
+transaksi lama berhasil, SPK terkait direkonsiliasi ke seluruh target memakai
+ID deterministik yang sama dengan migrator. Proses dapat menambah, memperbarui,
+atau menghapus baris lama yang dikelola migrator/dual-write, tetapi tidak
+menghapus baris dengan sumber eksternal.
+
+Jalur penulisan yang sudah terhubung meliputi submit SPK baru, release cetak,
+perubahan ETA, keluar bahan, edit dashboard, impor ekstraksi, dan backfill
+ekstraksi. Jika sinkronisasi V2 gagal, simpan lama tetap dianggap berhasil dan
+SPK masuk antrean perbaikan sehingga pengguna tidak perlu mengirim ulang.
+
+Fungsi administrasi yang tersedia:
+
+- `getDatabaseV2DualWriteStatus` untuk membaca status dan antrean;
+- `adminPreviewDatabaseV2DualWriteLastSpk` untuk canary tanpa menulis;
+- `adminSyncDatabaseV2DualWriteLastSpk` untuk canary commit;
+- `adminRepairDatabaseV2DualWriteQueue` untuk memproses antrean;
+- `adminEnableDatabaseV2DualWrite` dan `adminDisableDatabaseV2DualWrite` untuk
+  aktivasi serta rollback operasional.
+
+Canary pada SPK `H26.1003` memperbarui delapan tag sumber tanpa mengubah nilai
+bisnis. Validasi penuh sesudah canary tetap menghasilkan 0 error dan jumlah
+baris yang sama persis. Aktivasi hanya dapat dilakukan bila migrasi selesai,
+validator menghasilkan `readyForDualWrite: true`, dan antrean perbaikan kosong.
+Setiap commit dicatat di sheet `Dual Write SPK V2`.

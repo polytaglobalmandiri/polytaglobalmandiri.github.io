@@ -21,7 +21,7 @@ context.adminAuditDatabaseV2Cutover = () => ({
   checkedAt: '2026-09-05T00:00:00.000Z',
   blockers: [],
   databaseV2: { errors: 0 },
-  nativeWrite: { queuedRepairs: 0 },
+  nativeWrite: { queuedRepairs: 0, helpersAvailable: true },
   spreadsheetDependencies: { formulas: [], namedRanges: [], charts: [] },
   compatibilitySheetsRemaining: []
 });
@@ -33,7 +33,7 @@ assert.deepEqual(Array.from(audit.compatibilitySheetsRemaining), []);
 context.adminSmokeTestDatabaseV2ApplicationFlows = () => ({
   passed: true,
   sampleSpk: 'A26.001',
-  checks: { dashboard: true, nativeWriterQueueClear: true },
+  checks: { dashboard: true, nativeWriterHelpers: true, nativeWriterQueueClear: true },
   failures: [],
   dashboardRows: 9090,
   validation: { errors: 0 },

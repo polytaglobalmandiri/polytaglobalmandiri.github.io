@@ -33,6 +33,7 @@ function adminAuditDatabaseV2Cutover() {
 
   const blockers = [];
   if (!validation.summary.readyForNativeCutover) blockers.push('Validator native Database V2 belum lulus.');
+  if (!nativeWrite.helpersAvailable) blockers.push('Helper writer native Database V2 tidak lengkap.');
   if (nativeWrite.queuedRepairs) blockers.push('Masih ada antrean perbaikan writer native.');
   if (formulaDependencies.length) blockers.push('Masih ada formula yang merujuk Database SPK lama.');
   if (namedRangeDependencies.length) blockers.push('Masih ada named range pada Database SPK lama.');
@@ -112,6 +113,7 @@ function adminSmokeTestDatabaseV2ApplicationFlows() {
     dashboard: dashboard && !dashboard.error && dashboard.totalSPK > 0,
     approval: Boolean(approval && approval[firstSpk]),
     validator: validation.summary.errors === 0,
+    nativeWriterHelpers: nativeWrite.helpersAvailable === true,
     nativeWriterQueueClear: nativeWrite.queuedRepairs === 0
   };
   const failures = Object.keys(checks).filter(function(key) { return !checks[key]; });

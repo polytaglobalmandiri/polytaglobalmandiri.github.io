@@ -15,11 +15,24 @@ function getDatabaseV2NativeWriteStatus() {
   return {
     schemaVersion: DB_V2_SCHEMA_VERSION,
     mode: 'NATIVE_V2',
+    helpersAvailable: typeof groupDatabaseV2RowsForRead_ === 'function' &&
+      typeof appendDatabaseV2Plan_ === 'function' &&
+      typeof databaseV2BatchStorageValue_ === 'function',
     enabled: false,
     queuedRepairs: 0,
     queue: [],
     checkedAt: new Date().toISOString()
   };
+}
+
+function groupDatabaseV2RowsForRead_(rows) {
+  const runs = [];
+  rows.forEach(function(rowNumber) {
+    const current = runs[runs.length - 1];
+    if (current && current.startRow + current.count === rowNumber) current.count++;
+    else runs.push({ startRow: rowNumber, count: 1 });
+  });
+  return runs;
 }
 
 function planDatabaseV2NativeWriteTarget_(spreadsheet, schemaKey, schema, candidates, managedSpks) {
@@ -178,6 +191,35 @@ function databaseV2NativeWriteRow_(fields, record) {
   return fields.map(function(fieldName) {
     return databaseV2BatchStorageValue_(fieldName, record[fieldName]);
   });
+}
+
+function appendDatabaseV2Plan_(plan) {
+  if (!plan.inserts.length) return;
+  const startRow = Math.max(plan.headerRow + 1, plan.sheetObject.getLastRow() + 1);
+  const requiredLastRow = startRow + plan.inserts.length - 1;
+  if (requiredLastRow > plan.sheetObject.getMaxRows()) {
+    plan.sheetObject.insertRowsAfter(
+      plan.sheetObject.getMaxRows(),
+      requiredLastRow - plan.sheetObject.getMaxRows()
+    );
+  }
+  const range = plan.sheetObject.getRange(startRow, 1, plan.inserts.length, plan.fields.length);
+  range.setValues(plan.inserts);
+  plan.fields.forEach(function(fieldName, index) {
+    if (/TANGGAL|MULAI|SELESAI|WAKTU|DIBUAT|DIPERBARUI/i.test(fieldName)) {
+      plan.sheetObject.getRange(startRow, index + 1, plan.inserts.length, 1)
+        .setNumberFormat('dd/MM/yyyy');
+    }
+  });
+}
+
+function databaseV2BatchStorageValue_(fieldName, value) {
+  const text = String(value === null || value === undefined ? '' : value).trim();
+  if (/TANGGAL|MULAI|SELESAI|WAKTU/i.test(fieldName) && /^\d{4}-\d{2}-\d{2}$/.test(text)) {
+    const parts = text.split('-').map(Number);
+    return new Date(parts[0], parts[1] - 1, parts[2], 12, 0, 0);
+  }
+  return value === null || value === undefined ? '' : value;
 }
 
 function applyDatabaseV2NativeWritePlan_(plan) {

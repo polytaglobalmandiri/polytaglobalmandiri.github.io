@@ -32,6 +32,50 @@ const extractionRecord = {
   keteranganWarna: 'MERAH KHUSUS'
 };
 const built = context.buildDatabaseV2CandidatesFromExtraction_(extractionRecord);
+assert.equal(typeof context.groupDatabaseV2RowsForRead_, 'function');
+assert.equal(typeof context.appendDatabaseV2Plan_, 'function');
+assert.equal(typeof context.databaseV2BatchStorageValue_, 'function');
+assert.deepEqual(
+  JSON.parse(JSON.stringify(context.groupDatabaseV2RowsForRead_([2, 3, 5, 8, 9]))),
+  [
+    { startRow: 2, count: 2 },
+    { startRow: 5, count: 1 },
+    { startRow: 8, count: 2 }
+  ]
+);
+const storedDate = context.databaseV2BatchStorageValue_('Tanggal', '2026-09-06');
+assert.equal(Object.prototype.toString.call(storedDate), '[object Date]');
+assert.equal(storedDate.getFullYear(), 2026);
+assert.equal(storedDate.getMonth(), 8);
+assert.equal(storedDate.getDate(), 6);
+assert.equal(context.databaseV2BatchStorageValue_('Catatan', null), '');
+const appendedRanges = [];
+let insertedRows = null;
+const appendSheet = {
+  getLastRow: () => 1,
+  getMaxRows: () => 2,
+  insertRowsAfter: (after, count) => { insertedRows = { after, count }; },
+  getRange: (row, column, rowCount, columnCount) => ({
+    setValues: values => { appendedRanges.push({ row, column, rowCount, columnCount, values }); },
+    setNumberFormat: format => { appendedRanges.push({ row, column, rowCount, columnCount, format }); }
+  })
+};
+context.appendDatabaseV2Plan_({
+  headerRow: 1,
+  sheetObject: appendSheet,
+  fields: ['SPK', 'Tanggal'],
+  inserts: [['A26.9001', storedDate], ['A26.9002', storedDate]]
+});
+assert.deepEqual(insertedRows, { after: 2, count: 1 });
+assert.deepEqual(appendedRanges[0], {
+  row: 2,
+  column: 1,
+  rowCount: 2,
+  columnCount: 2,
+  values: [['A26.9001', storedDate], ['A26.9002', storedDate]]
+});
+assert.equal(appendedRanges[1].column, 2);
+assert.equal(appendedRanges[1].format, 'dd/MM/yyyy');
 assert.equal(built.candidates.master.length, 1);
 assert.equal(built.candidates.master[0]['Total Komposisi KG'], 25);
 assert.equal(built.candidates.master[0]['Total Komposisi %'], 1);

@@ -2,12 +2,6 @@
 // KONFIGURASI
 // ==========================================
 const DB_SPREADSHEET_ID = '1GldWp316hXRGKOa-ANJ4Eugdz0HFZSxvFQGy-dcex48';
-// Nama sheet tempat data SPK disimpan. Nama pertama adalah nama yang berlaku
-// sekarang; sisanya nama lama yang tetap diterima. Dengan begitu penggantian
-// nama tab di Spreadsheet boleh dilakukan kapan saja — sebelum maupun sesudah
-// kode ini dipasang — tanpa ada jeda waktu yang membuat aplikasi gagal.
-const DB_SHEET_NAMES = ['Database SPK', 'Database'];
-const DB_SHEET_NAME = DB_SHEET_NAMES[0];
 // Baris 1 header, baris 2 tipe data, baris 3 sengaja dikosongkan sebagai
 // pemisah. Seluruh pembacaan, penulisan, pengurutan, dan pengindeksan
 // bertumpu pada konstanta ini, sehingga baris 3 tidak pernah tersentuh.
@@ -64,15 +58,7 @@ const DB_COL = {
   KETERANGAN_WARNA: 131, // EA, catatan warna pada Data Utama
   KETERANGAN_BAHAN: 132, // EB, catatan bahan pada Data Utama
   METER_ROLL: 133, // EC, panjang meter untuk setiap roll
-  // ---------------------------------------------------------------------
-  // Sembilan kolom terakhir. Nomornya di bawah ini adalah tata letak BARU,
-  // yaitu setelah enam kolom Ukuran Sebelum/Sesudah (dulu ED:EI) dihapus.
-  // Bila sheet masih memakai tata letak lama, nomor-nomor ini diselaraskan
-  // otomatis oleh syncDatabaseTailColumns_ setiap kali sheet dibuka, jadi
-  // aplikasi tetap benar sebelum maupun sesudah migrasi dijalankan. Karena
-  // itu jangan membaca nilainya sebelum sheet-nya diambil lewat getDbSheet_
-  // atau getDbSheetReadOnly_.
-  // ---------------------------------------------------------------------
+  // Kolom 134-149 mengikuti struktur native V2 yang sudah ditetapkan.
   // Urutan alur produksi sebagai JSON. Satu langkah = satu entri, sehingga
   // proses yang sama boleh muncul lebih dari sekali dengan detail dan target
   // BS-nya masing-masing. Kolom proses T:Y, %BS AB:AM, dan kolom detail
@@ -104,35 +90,7 @@ const DB_COL = {
   UOM_AKSESORIS: 149 // ES
 };
 
-// Kolom-kolom di atas selalu berurutan; hanya titik awalnya yang berbeda
-// antara tata letak lama dan baru.
-const DB_TAIL_KEYS = [
-  'ROUTING_STEPS', 'PCS_KG_MODE', 'JENIS_POTONGAN', 'PO_MASUK',
-  'STOK', 'OTS', 'WIP', 'TOLERANSI_PRODUKSI', 'PENGIRIMAN_PARSIAL',
-  'BAHAN_LEBAR', 'BAHAN_PANJANG', 'BAHAN_TEBAL', 'BAHAN_DENSITY',
-  'AKSESORIS_ROUTING', 'KEBUTUHAN_AKSESORIS', 'UOM_AKSESORIS'
-];
-const DB_TAIL_START_BARU = 134; // ED, setelah kolom lama dihapus
-const DB_TAIL_START_LAMA = 140; // EJ, saat ED:EI masih ada
-
-// Enam kolom yang dihapus, beserta judul aslinya. Judul inilah yang dipakai
-// untuk mengenali sheet yang belum dimigrasikan.
-const LEGACY_UKURAN_COLUMN_START = 134;
-const LEGACY_UKURAN_HEADERS = [
-  'Ukuran Folding Sebelum', 'Ukuran Folding Sesudah',
-  'Ukuran Slitting Sebelum', 'Ukuran Slitting Sesudah',
-  'Ukuran Gusset Sebelum', 'Ukuran Gusset Sesudah'
-];
-
-// Kolom terakhir yang dipakai aplikasi. Dulu berupa konstanta 148; kini
-// mengikuti tata letak sheet yang sedang dibuka.
-function databaseTotalColumns_() {
-  return DB_COL.UOM_AKSESORIS;
-}
-
-// Ditulis dan dibaca terpisah dari ROUTING_DETAIL_COLUMNS karena isinya JSON
-// panjang, sedangkan kolom detail biasa dipangkas 200 karakter.
-const ROUTING_STEPS_HEADER = 'Urutan Routing';
+// Payload routing JSON dibatasi agar aman disimpan dan diteruskan ke tabel V2.
 const ROUTING_STEPS_MAX_LENGTH = 45000;
 
 const PCS_KG_MODE_OPTIONS = ['', 'LEMBARAN', 'KANTONG'];
@@ -355,26 +313,6 @@ function adminSetupDatabaseMesin() {
 // bila selnya masih kosong, mengikuti pola ensure* yang sudah dipakai.
 // Dibentuk sebagai fungsi, bukan konstanta, karena nomor kolomnya ikut
 // menyesuaikan tata letak sheet yang sedang dibuka.
-function extraInputColumns_() {
-  return [
-    { key: 'pcsKgMode', column: DB_COL.PCS_KG_MODE, header: 'Mode PCS/KG', type: 'str' },
-    { key: 'jenisPotongan', column: DB_COL.JENIS_POTONGAN, header: 'Jenis Potongan', type: 'str' },
-    { key: 'poMasuk', column: DB_COL.PO_MASUK, header: 'Tanggal PO Masuk', type: 'date' },
-    { key: 'stok', column: DB_COL.STOK, header: 'Stok', type: 'num' },
-    { key: 'ots', column: DB_COL.OTS, header: 'OTS', type: 'num' },
-    { key: 'wip', column: DB_COL.WIP, header: 'WIP', type: 'num' },
-    { key: 'toleransiProduksi', column: DB_COL.TOLERANSI_PRODUKSI, header: 'Toleransi Produksi', type: 'num' },
-    { key: 'pengirimanParsial', column: DB_COL.PENGIRIMAN_PARSIAL, header: 'Pengiriman Parsial', type: 'str' },
-    { key: 'bahanLebar', column: DB_COL.BAHAN_LEBAR, header: 'Lebar Bahan Manual (cm)', type: 'num' },
-    { key: 'bahanPanjang', column: DB_COL.BAHAN_PANJANG, header: 'Panjang Bahan Manual (cm)', type: 'num' },
-    { key: 'bahanTebal', column: DB_COL.BAHAN_TEBAL, header: 'Tebal Bahan Manual (mm)', type: 'num' },
-    { key: 'bahanDensity', column: DB_COL.BAHAN_DENSITY, header: 'Density Manual', type: 'num' },
-    { key: 'aksesorisRouting', column: DB_COL.AKSESORIS_ROUTING, header: 'Aksesoris Routing', type: 'str' },
-    { key: 'kebutuhanAksesoris', column: DB_COL.KEBUTUHAN_AKSESORIS, header: 'Kebutuhan Aksesoris', type: 'str' },
-    { key: 'uomAksesoris', column: DB_COL.UOM_AKSESORIS, header: 'UOM Aksesoris', type: 'str' }
-  ];
-}
-
 const ROUTING_DETAIL_COLUMNS = [
   { key: 'blowingThreat', column: DB_COL.BLOWING_THREAT, header: 'Blowing Threat' },
   { key: 'blowingModeCetak', column: DB_COL.BLOWING_MODE_CETAK, header: 'Blowing Mode Cetak' },
@@ -394,8 +332,6 @@ const ETA_BELI_COLUMNS = [
   { eta: DB_COL.ETA_BELI_START + 12, qty: DB_COL.ETA_BELI_START + 13, uom: DB_COL.ETA_BELI_END }
 ];
 
-const METER_ROLL_NOTE_PREFIX = 'APP_METER_ROLL=';
-
 const PROSES_KEYS = ['mixer', 'blowing', 'printing', 'slitting', 'folding', 'gusset'];
 const PROSES_LABELS = {
   mixer: 'MIXER', blowing: 'BLOWING', printing: 'PRINTING',
@@ -406,15 +342,6 @@ const PROCESS_NOTE_KEYS = [
   'mixer', 'blowing', 'printing', 'slitting', 'folding',
   'gusset', 'bottomSeal', 'sideSeal', 'tshirt'
 ];
-const PROCESS_NOTE_HEADERS = [
-  'Ket Mix', 'Ket Blow', 'ket Print', 'Ket Slit', 'Ket Fld',
-  'Ket Gst', 'Ket Bts', 'Ket SS', 'Ket BTS'
-];
-const LEGACY_PROCESS_NOTE_HEADERS = [
-  'Ket Blow', 'ket Print', 'Ket Slit', 'Ket Fld',
-  'Ket Gst', 'Ket Bts', 'Ket SS', 'Ket BTS'
-];
-
 const BS_KEYS = [
   'blowing', 'printing', 'slitting', 'folding', 'gusset', 'sheet',
   'pon', 'tshirt', 'bottomSeal', 'sideSeal', 'handle', 'sheetSlitting'
@@ -442,310 +369,7 @@ const HANDLE_PON_OPTIONS = ['-', 'HANDLE', 'PON'];
 // ==========================================
 // doGet function has been moved to BE-Dashboard.js to handle routing centrally
 
-// Jalankan manual dari editor Apps Script untuk memverifikasi posisi header
-// kunci sesuai peta DB_COL di kode. TIDAK menyisipkan atau menambah kolom
-// apa pun (fungsi migrasi otomatis sudah dihapus dari alur normal aplikasi).
-function adminVerifyDatabaseHeaders() {
-  const sheet = getDbSheetReadOnly_();
-  return {
-    maxColumns: sheet.getMaxColumns(),
-    totalColumnsExpected: databaseTotalColumns_(),
-    headerWarna1: sheet.getRange(1, DB_COL.WARNA_START).getDisplayValue(),
-    headerPemakaian1: sheet.getRange(1, DB_COL.WARNA_START + 1).getDisplayValue(),
-    headerWarna10: sheet.getRange(1, DB_COL.WARNA_END - 1).getDisplayValue(),
-    headerPemakaian10: sheet.getRange(1, DB_COL.WARNA_END).getDisplayValue(),
-    headerSpkReferensi: sheet.getRange(1, DB_COL.SPK_REFERENSI).getDisplayValue(),
-    headerRelease: sheet.getRange(1, DB_COL.RELEASE).getDisplayValue(),
-    headerKeteranganArtikel: sheet.getRange(1, DB_COL.KETERANGAN_ARTIKEL).getDisplayValue(),
-    headerKetMix: sheet.getRange(1, DB_COL.KET_PROSES_START).getDisplayValue(),
-    headerEtaBeliKeterangan: sheet.getRange(1, DB_COL.ETA_BELI_KETERANGAN).getDisplayValue(),
-    headerKodeItem: sheet.getMaxColumns() >= DB_COL.KODE_ITEM
-      ? sheet.getRange(1, DB_COL.KODE_ITEM).getDisplayValue()
-      : '(kolom DR belum dibuat di Spreadsheet)',
-    headerRoutingTerakhir: sheet.getMaxColumns() >= DB_COL.PACKING
-      ? sheet.getRange(1, DB_COL.PACKING).getDisplayValue()
-      : '(kolom routing DS:DZ belum dibuat di Spreadsheet)',
-    headerKeteranganWarna: sheet.getMaxColumns() >= DB_COL.KETERANGAN_WARNA
-      ? sheet.getRange(1, DB_COL.KETERANGAN_WARNA).getDisplayValue()
-      : '(kolom EA belum dibuat di Spreadsheet)',
-    headerKeteranganBahan: sheet.getMaxColumns() >= DB_COL.KETERANGAN_BAHAN
-      ? sheet.getRange(1, DB_COL.KETERANGAN_BAHAN).getDisplayValue()
-      : '(kolom EB belum dibuat di Spreadsheet)',
-    headerMeterRoll: sheet.getMaxColumns() >= DB_COL.METER_ROLL
-      ? sheet.getRange(1, DB_COL.METER_ROLL).getDisplayValue()
-      : '(kolom EC belum dibuat di Spreadsheet)',
-    // Tata letak sembilan kolom terakhir, hasil pembacaan baris judul.
-    tataLetakEkor: DB_COL.ROUTING_STEPS === DB_TAIL_START_BARU
-      ? 'baru (kolom Ukuran Sebelum/Sesudah sudah dihapus)'
-      : 'lama (kolom Ukuran Sebelum/Sesudah masih ada, jalankan adminHapusKolomUkuranSebelumSesudah)',
-    rentangEkor: columnNumberToLetter_(DB_COL.ROUTING_STEPS) + ':' +
-      columnNumberToLetter_(DB_COL.PENGIRIMAN_PARSIAL),
-    headerUrutanRouting: sheet.getMaxColumns() >= DB_COL.ROUTING_STEPS
-      ? sheet.getRange(1, DB_COL.ROUTING_STEPS).getDisplayValue()
-      : '(kolom Urutan Routing belum dibuat di Spreadsheet)'
-  };
-}
-
-// Menambahkan kolom EA tanpa menggeser struktur lama A:DZ. Fungsi publik ini
-// aman dijalankan berulang kali untuk migrasi schema satu kali.
-function adminEnsureKeteranganWarnaColumn() {
-  const sheet = getDbSheetReadOnly_();
-  ensureKeteranganWarnaColumn_(sheet);
-  SpreadsheetApp.flush();
-  return {
-    status: 'success',
-    column: columnNumberToLetter_(DB_COL.KETERANGAN_WARNA),
-    header: sheet.getRange(1, DB_COL.KETERANGAN_WARNA).getDisplayValue(),
-    type: sheet.getRange(2, DB_COL.KETERANGAN_WARNA).getDisplayValue(),
-    maxColumns: sheet.getMaxColumns()
-  };
-}
-
-function adminEnsureKeteranganBahanColumn() {
-  const sheet = getDbSheetReadOnly_();
-  ensureKeteranganBahanColumn_(sheet);
-  SpreadsheetApp.flush();
-  return {
-    status: 'success',
-    column: columnNumberToLetter_(DB_COL.KETERANGAN_BAHAN),
-    header: sheet.getRange(1, DB_COL.KETERANGAN_BAHAN).getDisplayValue(),
-    type: sheet.getRange(2, DB_COL.KETERANGAN_BAHAN).getDisplayValue(),
-    maxColumns: sheet.getMaxColumns()
-  };
-}
-
-// Membuat kolom EC untuk Meter/Roll dan memindahkan nilai lama yang masih
-// tersimpan sebagai catatan internal pada sel UOM Order.
-function adminEnsureMeterRollColumn() {
-  const sheet = getDbSheetReadOnly_();
-  ensureMeterRollColumn_(sheet);
-  const migratedRows = migrateLegacyMeterRollNotes_(sheet);
-  SpreadsheetApp.flush();
-  clearDashboardCache_();
-  clearKeluarBahanCache_();
-  return {
-    status: 'success',
-    column: columnNumberToLetter_(DB_COL.METER_ROLL),
-    header: sheet.getRange(1, DB_COL.METER_ROLL).getDisplayValue(),
-    type: sheet.getRange(2, DB_COL.METER_ROLL).getDisplayValue(),
-    migratedRows: migratedRows,
-    maxColumns: sheet.getMaxColumns()
-  };
-}
-
-// Jalankan manual sekali dari editor Apps Script untuk menata ulang seluruh
-// baris Database ke urutan kronologis (tahun, bulan, nomor urut) sehingga SPK
-// terbaru berada di paling bawah. Hanya urutan baris yang berubah; isi tiap
-// baris tetap utuh dan bergerak sebagai satu kesatuan.
-function adminSortDatabaseBySpk() {
-  const sheet = getDbSheetReadOnly_();
-  const lastRow = getDatabaseDataLastRow_(sheet);
-
-  if (lastRow < DB_DATA_START_ROW) {
-    return { status: 'success', rowsSorted: 0, message: 'Database masih kosong.' };
-  }
-
-  const readSpk = function(rowNumber) {
-    return sheet.getRange(rowNumber, DB_COL.SPK).getDisplayValue();
-  };
-  const before = { first: readSpk(DB_DATA_START_ROW), last: readSpk(lastRow) };
-
-  sortDatabaseBySpk_(sheet);
-  SpreadsheetApp.flush();
-  clearDashboardCache_();
-  clearKeluarBahanCache_();
-
-  return {
-    status: 'success',
-    rowsSorted: lastRow - DB_DATA_START_ROW + 1,
-    sebelum: before,
-    sesudah: { first: readSpk(DB_DATA_START_ROW), last: readSpk(lastRow) },
-    message: 'Baris teratas kini SPK terlama dan baris terbawah SPK terbaru.'
-  };
-}
-
-// Jalankan sekali setelah DB_DATA_START_ROW dinaikkan dari 3 ke 4. Data lama
-// masih menempati baris 3, dan baris itu kini berada di luar jangkauan seluruh
-// pembacaan aplikasi. Fungsi ini menyisipkan baris kosong pada posisi 3
-// sehingga isi lama bergeser turun ke baris 4 dan kembali terbaca.
-//
-// Aman dijalankan berulang: bila baris 3 sudah kosong, tidak ada yang diubah.
-function adminReserveBlankFirstRow() {
-  const sheet = getDbSheet_();
-  const spkOnRowThree = normalizeSpk_(
-    sheet.getRange(3, DB_COL.SPK).getDisplayValue()
-  );
-
-  if (spkOnRowThree === '') {
-    return {
-      status: 'success',
-      changed: false,
-      message: 'Baris 3 sudah kosong. Tidak ada yang perlu digeser.'
-    };
-  }
-
-  sheet.insertRowBefore(3);
-  SpreadsheetApp.flush();
-
-  // Cache dashboard dan indeks keberadaan SPK menyimpan nomor baris, jadi
-  // keduanya dibuang setelah pergeseran. Cache baris per SPK tidak perlu
-  // dibersihkan karena findSpkRowFast_ selalu memverifikasi ulang isinya.
-  clearDashboardCache_();
-  clearKeluarBahanCache_();
-  clearSpkExistenceCache_();
-
-  return {
-    status: 'success',
-    changed: true,
-    spkDipindah: spkOnRowThree,
-    message: 'Baris 3 dikosongkan. SPK ' + spkOnRowThree +
-      ' beserta seluruh data di bawahnya bergeser turun satu baris.'
-  };
-}
-
-// Jalankan sekali dari editor Apps Script untuk menghapus enam kolom
-// Ukuran Sebelum/Sesudah (Folding, Slitting, Gusset) dari sheet Database.
-// Kolom isiannya sudah tidak ada di form, jadi isinya tidak lagi terpakai.
-//
-// Aman dijalankan kapan saja, sebelum maupun sesudah kode baru dipasang:
-// aplikasi mengenali sendiri tata letak sheet lewat syncDatabaseTailColumns_.
-// Aman pula dijalankan berulang; panggilan kedua tidak mengubah apa pun.
-//
-// Fungsi ini menolak bekerja bila susunan judulnya tidak persis seperti yang
-// diharapkan, supaya kolom orang lain tidak ikut terhapus.
-function adminHapusKolomUkuranSebelumSesudah() {
-  const lock = LockService.getScriptLock();
-  if (!lock.tryLock(45000)) {
-    return {
-      status: 'error',
-      message: 'Database sedang dipakai proses lain. Tunggu sampai penyimpanan ' +
-        'SPK atau penarikan data selesai, lalu jalankan lagi.'
-    };
-  }
-
-  try {
-    const sheet = getDbSheetReadOnly_();
-    const maxColumns = sheet.getMaxColumns();
-    const jumlah = LEGACY_UKURAN_HEADERS.length;
-
-    if (maxColumns < LEGACY_UKURAN_COLUMN_START + jumlah - 1) {
-      return {
-        status: 'success',
-        changed: false,
-        message: 'Sheet hanya punya ' + maxColumns + ' kolom, jadi kolom ' +
-          'Ukuran Sebelum/Sesudah memang belum pernah ada.'
-      };
-    }
-
-    const header = sheet.getRange(1, 1, 1, maxColumns).getDisplayValues()[0];
-    const judul = function(column) {
-      const value = column <= header.length ? header[column - 1] : '';
-      return String(value === null || value === undefined ? '' : value).trim();
-    };
-
-    if (judul(DB_TAIL_START_BARU) === ROUTING_STEPS_HEADER) {
-      return {
-        status: 'success',
-        changed: false,
-        message: 'Kolom Ukuran Sebelum/Sesudah sudah tidak ada. Tidak ada yang diubah.'
-      };
-    }
-
-    // Setiap dari enam kolom itu harus bernama persis seperti aslinya atau
-    // kosong sama sekali. Satu saja yang berisi nama lain berarti susunannya
-    // sudah bukan yang kita kenal, dan lebih baik dihentikan.
-    const terbaca = [];
-    for (let index = 0; index < jumlah; index++) {
-      const column = LEGACY_UKURAN_COLUMN_START + index;
-      const nama = judul(column);
-      const cocok = nama === '' ||
-        nama.toUpperCase() === LEGACY_UKURAN_HEADERS[index].toUpperCase();
-      if (!cocok) {
-        return {
-          status: 'error',
-          changed: false,
-          message: 'Dihentikan demi keamanan. Kolom ' + columnNumberToLetter_(column) +
-            " diharapkan bernama '" + LEGACY_UKURAN_HEADERS[index] + "' atau kosong, " +
-            "tetapi isinya '" + nama + "'. Periksa dulu susunan Database."
-        };
-      }
-      terbaca.push(columnNumberToLetter_(column) + ' = ' + (nama === '' ? '(kosong)' : nama));
-    }
-
-    // Kolom tepat setelahnya harus Urutan Routing. Ini penjaga terakhir bahwa
-    // yang terhapus benar-benar enam kolom itu, bukan kolom lain yang bergeser.
-    const kolomSesudah = LEGACY_UKURAN_COLUMN_START + jumlah;
-    const judulSesudah = judul(kolomSesudah);
-    if (judulSesudah !== '' && judulSesudah !== ROUTING_STEPS_HEADER) {
-      return {
-        status: 'error',
-        changed: false,
-        message: 'Dihentikan demi keamanan. Kolom ' + columnNumberToLetter_(kolomSesudah) +
-          " seharusnya '" + ROUTING_STEPS_HEADER + "', tetapi isinya '" + judulSesudah + "'."
-      };
-    }
-
-    // Sekalian dilaporkan berapa sel yang benar-benar berisi, supaya jelas apa
-    // yang hilang. Kolom ini sudah lama tidak diisi, jadi umumnya nol.
-    const lastRow = sheet.getLastRow();
-    let selBerisi = 0;
-    if (lastRow >= DB_DATA_START_ROW) {
-      sheet
-        .getRange(DB_DATA_START_ROW, LEGACY_UKURAN_COLUMN_START, lastRow - DB_DATA_START_ROW + 1, jumlah)
-        .getDisplayValues()
-        .forEach(function(row) {
-          row.forEach(function(cell) {
-            if (String(cell === null || cell === undefined ? '' : cell).trim() !== '') selBerisi++;
-          });
-        });
-    }
-
-    sheet.deleteColumns(LEGACY_UKURAN_COLUMN_START, jumlah);
-    SpreadsheetApp.flush();
-
-    // Peta kolom di memori ikut disegarkan agar eksekusi ini tidak melanjutkan
-    // dengan nomor kolom yang sudah usang.
-    syncDatabaseTailColumns_(sheet);
-
-    clearDashboardCache_();
-    clearKeluarBahanCache_();
-
-    return {
-      status: 'success',
-      changed: true,
-      kolomDihapus: terbaca,
-      selBerisiTerhapus: selBerisi,
-      kolomTerakhirSekarang: columnNumberToLetter_(databaseTotalColumns_()),
-      message: 'Enam kolom Ukuran Sebelum/Sesudah dihapus. Kolom Urutan Routing ' +
-        'sampai Pengiriman Parsial bergeser ke ' +
-        columnNumberToLetter_(DB_COL.ROUTING_STEPS) + ':' +
-        columnNumberToLetter_(DB_COL.PENGIRIMAN_PARSIAL) + '.'
-    };
-  } finally {
-    if (lock.hasLock()) lock.releaseLock();
-  }
-}
-
-// Jalankan manual dari editor Apps Script untuk melihat isi baris header (1)
-// dan baris tipe (2) apa adanya, TANPA memicu migrasi apa pun. Hasilnya bisa
-// disalin untuk dicocokkan dengan peta kolom di kode.
-function adminDumpAllHeaders() {
-  const sheet = getDbSheetReadOnly_();
-  const maxColumns = sheet.getMaxColumns();
-  const headers = sheet.getRange(1, 1, 1, maxColumns).getDisplayValues()[0];
-  const types = sheet.getRange(2, 1, 1, maxColumns).getDisplayValues()[0];
-  const lines = [];
-  for (let index = 0; index < maxColumns; index++) {
-    const header = String(headers[index] || '').trim();
-    const type = String(types[index] || '').trim();
-    if (header === '' && type === '') continue;
-    lines.push(columnNumberToLetter_(index + 1) + ' (' + (index + 1) + '): ' + header + ' | type=' + type);
-  }
-  return lines.join('\n');
-}
-
-// Perbedaan huruf besar-kecil dan spasi ganda diabaikan, karena nama tab
-// diketik manusia dan selisih semacam itu bukan maksud pengguna.
+// Digunakan oleh pencarian sheet master yang menerima variasi spasi/huruf.
 function normalizeSheetName_(value) {
   return String(value === null || value === undefined ? '' : value)
     .replace(/\s+/g, ' ')
@@ -753,132 +377,13 @@ function normalizeSheetName_(value) {
     .toUpperCase();
 }
 
-function findDatabaseSheet_(ss) {
-  for (let index = 0; index < DB_SHEET_NAMES.length; index++) {
-    const sheet = ss.getSheetByName(DB_SHEET_NAMES[index]);
-    if (sheet) return sheet;
-  }
-
-  // Jalur cadangan, hanya ditempuh bila pencarian nama persis gagal.
-  const dicari = DB_SHEET_NAMES.map(normalizeSheetName_);
-  const sheets = ss.getSheets();
-  for (let index = 0; index < sheets.length; index++) {
-    if (dicari.indexOf(normalizeSheetName_(sheets[index].getName())) > -1) {
-      return sheets[index];
-    }
-  }
-  return null;
-}
-
-function databaseSheetNotFoundMessage_() {
-  return 'Sheet data SPK tidak ditemukan. Nama tab yang diterima: ' +
-    DB_SHEET_NAMES.map(function(nama) { return "'" + nama + "'"; }).join(' atau ') + '.';
-}
-
-function columnNumberToLetter_(column) {
-  let letter = '';
-  let n = column;
-  while (n > 0) {
-    const remainder = (n - 1) % 26;
-    letter = String.fromCharCode(65 + remainder) + letter;
-    n = Math.floor((n - 1) / 26);
-  }
-  return letter;
-}
-
-// ==========================================
-// TATA LETAK SEMBILAN KOLOM TERAKHIR
-//
-// Kolom Ukuran Sebelum/Sesudah Folding, Slitting, dan Gusset (dulu ED:EI)
-// dihapus dari Database. Penghapusannya menggeser sembilan kolom di kanannya
-// enam langkah ke kiri, sehingga kode dan sheet harus sepakat soal posisinya.
-//
-// Daripada memaksa keduanya berubah pada detik yang sama, posisi kolom dibaca
-// dari baris judul setiap kali sheet dibuka. Aplikasi karena itu berjalan
-// benar pada kedua tata letak: sebelum migrasi dijalankan maupun sesudahnya.
-// Kalau migrasi tidak pernah dijalankan sekalipun, tidak ada yang rusak.
-// ==========================================
-function detectDatabaseTailStart_(sheet) {
-  const maxColumns = sheet.getMaxColumns();
-  if (maxColumns < DB_TAIL_START_BARU) return DB_TAIL_START_BARU;
-
-  const header = sheet.getRange(1, 1, 1, maxColumns).getDisplayValues()[0];
-  const judul = function(column) {
-    const value = column <= header.length ? header[column - 1] : '';
-    return String(value === null || value === undefined ? '' : value).trim();
-  };
-
-  // Petunjuk paling tegas: di mana judul 'Urutan Routing' berada.
-  if (judul(DB_TAIL_START_BARU) === ROUTING_STEPS_HEADER) return DB_TAIL_START_BARU;
-  if (judul(DB_TAIL_START_LAMA) === ROUTING_STEPS_HEADER) return DB_TAIL_START_LAMA;
-
-  // Judul itu bisa saja belum sempat terisi. Kalau enam judul kolom lama masih
-  // ada, sheet-nya pasti belum dimigrasikan.
-  const masihAdaKolomLama = LEGACY_UKURAN_HEADERS.some(function(nama, index) {
-    return judul(LEGACY_UKURAN_COLUMN_START + index).toUpperCase() === nama.toUpperCase();
-  });
-  return masihAdaKolomLama ? DB_TAIL_START_LAMA : DB_TAIL_START_BARU;
-}
-
-function syncDatabaseTailColumns_(sheet) {
-  const start = detectDatabaseTailStart_(sheet);
-  if (DB_COL[DB_TAIL_KEYS[0]] === start) return start;
-
-  DB_TAIL_KEYS.forEach(function(key, index) {
-    DB_COL[key] = start + index;
-  });
-  return start;
-}
-
-function getDbSheet_() {
-  const ss = SpreadsheetApp.openById(DB_SPREADSHEET_ID);
-  const sheet = findDatabaseSheet_(ss);
-  if (!sheet) throw new Error(databaseSheetNotFoundMessage_());
-  assertMeterPerKgSchema_(sheet);
-  syncDatabaseTailColumns_(sheet);
-  ensureDbColumnCapacity_(sheet);
-  return sheet;
-}
-
-function getDbSheetReadOnly_() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet() ||
-    SpreadsheetApp.openById(DB_SPREADSHEET_ID);
-  const sheet = findDatabaseSheet_(ss);
-  if (!sheet) throw new Error(databaseSheetNotFoundMessage_());
-  // Jalur ini tidak mengubah struktur sheet, tetapi tetap perlu tahu di kolom
-  // mana sembilan kolom terakhir berada agar yang terbaca bukan kolom sebelah.
-  syncDatabaseTailColumns_(sheet);
-  return sheet;
-}
-
-function assertMeterPerKgSchema_(sheet) {
-  const header = normalizeHeader_(sheet.getRange(1, DB_COL.METER_PER_KG).getDisplayValue());
-  const processSubheader = normalizeHeader_(
-    sheet.getRange(2, DB_COL.PROSES_MIXER).getDisplayValue()
-  );
-  if (header !== 'METER/KG' || processSubheader !== 'P1') {
-    throw new Error(
-      "Struktur Database tidak sesuai: kolom S harus bernama 'METER/KG' " +
-      "dan kolom T harus diawali subheader 'P1'. Perbaiki judul kolomnya " +
-      'langsung di Spreadsheet.'
-    );
-  }
-}
-
-
-
 // ==========================================
 // CEK DUPLIKAT SPK
 // ==========================================
-// Indeks ini menghindari pembukaan Spreadsheet dan pembacaan kolom A untuk
-// setiap ketikan. Cache berumur pendek supaya perubahan manual di Spreadsheet
-// tetap cepat ikut terbaca, sedangkan proses simpan/import memperbarui atau
-// membersihkannya secara eksplisit.
-const SPK_EXISTENCE_CACHE_KEY = 'spk-existence-v1';
-const SPK_EXISTENCE_CACHE_SECONDS = 300;
-const SPK_EXISTENCE_CACHE_MAX_CHARS = 90000;
+// Pilihan form disimpan singkat; keberadaan SPK selalu diperiksa langsung
+// terhadap direktori SPK Master V2 agar tidak bergantung pada nomor baris.
 const INPUT_OPTIONS_CACHE_SECONDS = 1800;
-const MARKETING_OPTIONS_CACHE_KEY = 'spk-marketing-options-v1';
+const MARKETING_OPTIONS_CACHE_KEY = 'spk-marketing-options-v3-native-v2-normalized';
 const CUSTOMER_OPTIONS_CACHE_KEY = 'spk-customer-options-v1';
 
 function readCachedMarketingOptions_() {
@@ -943,170 +448,8 @@ function clearCustomerOptionsCache_() {
   }
 }
 
-function readCachedSpkExistenceIndex_() {
-  try {
-    const serialized = CacheService
-      .getScriptCache()
-      .get(SPK_EXISTENCE_CACHE_KEY);
-    if (!serialized) return null;
-
-    const index = JSON.parse(serialized);
-    if (!index || typeof index !== 'object' || Array.isArray(index)) return null;
-    return index;
-  } catch (error) {
-    return null;
-  }
-}
-
-function writeCachedSpkExistenceIndex_(index) {
-  try {
-    const serialized = JSON.stringify(index || {});
-    if (serialized.length > SPK_EXISTENCE_CACHE_MAX_CHARS) {
-      clearSpkExistenceCache_();
-      return;
-    }
-
-    CacheService
-      .getScriptCache()
-      .put(
-        SPK_EXISTENCE_CACHE_KEY,
-        serialized,
-        SPK_EXISTENCE_CACHE_SECONDS
-      );
-  } catch (error) {
-    // Cache hanya akselerator; pengecekan tetap dapat membaca Spreadsheet.
-  }
-}
-
-function clearSpkExistenceCache_() {
-  try {
-    CacheService.getScriptCache().remove(SPK_EXISTENCE_CACHE_KEY);
-    CacheService.getScriptCache().remove(MARKETING_OPTIONS_CACHE_KEY);
-  } catch (error) {
-    // Cache hanya akselerator; kegagalan menghapus tidak membatalkan mutasi.
-  }
-}
-
-function buildSpkExistenceIndex_(sheet) {
-  const index = Object.create(null);
-  const lastDataRow = getDatabaseLastSpkRowFast_(sheet);
-
-  if (lastDataRow >= DB_DATA_START_ROW) {
-    const values = sheet
-      .getRange(
-        DB_DATA_START_ROW,
-        DB_COL.SPK,
-        lastDataRow - DB_DATA_START_ROW + 1,
-        1
-      )
-      .getDisplayValues();
-
-    values.forEach(function(row, offset) {
-      const key = normalizeSpk_(row[0]);
-      if (key !== '' && !index[key]) index[key] = DB_DATA_START_ROW + offset;
-    });
-  }
-
-  writeCachedSpkExistenceIndex_(index);
-  return index;
-}
-
-function getSpkExistenceIndex_(sheet) {
-  const cached = readCachedSpkExistenceIndex_();
-  if (cached) return { index: cached, source: 'cache' };
-
-  const sourceSheet = sheet || getDbSheetReadOnly_();
-  return { index: buildSpkExistenceIndex_(sourceSheet), source: 'sheet' };
-}
-
-function getMarketingOptionsFromDatabase_(sheet, spkIndex) {
-  const cached = readCachedMarketingOptions_();
-  if (cached) return cached;
-
-  const validRows = Object.create(null);
-  let lastDataRow = DB_DATA_START_ROW - 1;
-
-  Object.keys(spkIndex || {}).forEach(function(spk) {
-    const rowNumber = Number(spkIndex[spk]) || 0;
-    if (rowNumber < DB_DATA_START_ROW) return;
-    validRows[rowNumber] = true;
-    if (rowNumber > lastDataRow) lastDataRow = rowNumber;
-  });
-
-  // Indeks SPK disimpan selama lima menit. Bila baris Spreadsheet dihapus
-  // atau dipadatkan secara manual dalam rentang itu, nomor baris cache dapat
-  // lebih besar daripada ukuran sheet dan membuat getRange menolak argumen.
-  lastDataRow = Math.min(lastDataRow, sheet.getLastRow(), sheet.getMaxRows());
-  if (lastDataRow < DB_DATA_START_ROW) return [];
-
-  const values = sheet
-    .getRange(
-      DB_DATA_START_ROW,
-      DB_COL.MARKETING,
-      lastDataRow - DB_DATA_START_ROW + 1,
-      1
-    )
-    .getDisplayValues();
-  const seen = Object.create(null);
-  const options = [];
-
-  values.forEach(function(row, offset) {
-    const rowNumber = DB_DATA_START_ROW + offset;
-    if (!validRows[rowNumber]) return;
-
-    const value = String(row[0] || '').trim().replace(/\s+/g, ' ');
-    const key = value.toUpperCase();
-    if (value === '' || value === '-' || seen[key]) return;
-    seen[key] = true;
-    options.push(value);
-  });
-
-  options.sort(function(left, right) {
-    return left.toUpperCase().localeCompare(right.toUpperCase());
-  });
-  writeCachedMarketingOptions_(options);
-  return options;
-}
-
 // Jalur ringan untuk Input SPK. Hanya kolom Marketing yang dibaca, tanpa
 // membangun indeks ribuan nomor SPK terlebih dahulu.
-function getMarketingOptionsFast_(sheet) {
-  const cached = readCachedMarketingOptions_();
-  if (cached) return cached;
-
-  const sourceSheet = sheet || getDbSheetReadOnly_();
-  const lastDataRow = getDatabaseLastSpkRowFast_(sourceSheet);
-  if (lastDataRow < DB_DATA_START_ROW) {
-    writeCachedMarketingOptions_([]);
-    return [];
-  }
-
-  const values = sourceSheet
-    .getRange(
-      DB_DATA_START_ROW,
-      DB_COL.MARKETING,
-      lastDataRow - DB_DATA_START_ROW + 1,
-      1
-    )
-    .getDisplayValues();
-  const seen = Object.create(null);
-  const options = [];
-
-  values.forEach(function(row) {
-    const value = String(row[0] || '').trim().replace(/\s+/g, ' ');
-    const key = value.toUpperCase();
-    if (value === '' || value === '-' || seen[key]) return;
-    seen[key] = true;
-    options.push(value);
-  });
-
-  options.sort(function(left, right) {
-    return left.toUpperCase().localeCompare(right.toUpperCase());
-  });
-  writeCachedMarketingOptions_(options);
-  return options;
-}
-
 function getCustomerOptionsFromMaster_(spreadsheet) {
   const cached = readCachedCustomerOptions_();
   if (cached) return cached;
@@ -1147,42 +490,23 @@ function getCustomerOptionsFromMaster_(spreadsheet) {
   return options;
 }
 
-function addMarketingToOptionsCache_(value) {
-  const normalized = String(value || '').trim().replace(/\s+/g, ' ');
-  if (normalized === '' || normalized === '-') return;
-
-  const options = readCachedMarketingOptions_();
-  if (!options) return;
-  const key = normalized.toUpperCase();
-  const exists = options.some(function(option) {
-    return String(option || '').trim().toUpperCase() === key;
-  });
-  if (exists) return;
-
-  options.push(normalized);
-  options.sort(function(left, right) {
-    return left.toUpperCase().localeCompare(right.toUpperCase());
-  });
-  writeCachedMarketingOptions_(options);
-}
-
 function getInputSpkOptionsFast() {
   const startedAt = Date.now();
   try {
     const cachedMarketing = readCachedMarketingOptions_();
     const cachedCustomers = readCachedCustomerOptions_();
     const cachedMachines = readCachedMachineOptions_();
-    let databaseSheet = null;
     let spreadsheet = null;
 
-    if (!cachedMarketing) {
-      databaseSheet = getDbSheetReadOnly_();
-      spreadsheet = databaseSheet.getParent();
-    } else if (!cachedCustomers || !cachedMachines) {
+    if (!cachedCustomers || !cachedMachines) {
       spreadsheet = SpreadsheetApp.openById(DB_SPREADSHEET_ID);
     }
 
-    const marketingOptions = cachedMarketing || getMarketingOptionsFast_(databaseSheet);
+    let marketingOptions = cachedMarketing;
+    if (!marketingOptions) {
+      marketingOptions = getDatabaseV2SpkDirectory_().marketingOptions;
+      writeCachedMarketingOptions_(marketingOptions);
+    }
     const customerOptions = cachedCustomers || getCustomerOptionsFromMaster_(spreadsheet);
     const machineOptions = cachedMachines || getMachineOptionsFromMaster_(spreadsheet);
     return {
@@ -1191,7 +515,7 @@ function getInputSpkOptionsFast() {
       customerOptions: customerOptions,
       machineOptions: machineOptions,
       performance: {
-        source: cachedMarketing && cachedCustomers && cachedMachines ? 'cache' : 'sheet',
+        source: cachedMarketing && cachedCustomers && cachedMachines ? 'cache' : 'database-v2',
         durationMs: Date.now() - startedAt
       }
     };
@@ -1200,28 +524,18 @@ function getInputSpkOptionsFast() {
   }
 }
 
-function addSpkToExistenceCache_(spk, rowNumber) {
-  const key = normalizeSpk_(spk);
-  if (key === '') return;
-
-  const index = readCachedSpkExistenceIndex_();
-  if (!index) return;
-  index[key] = Math.max(DB_DATA_START_ROW, Math.floor(Number(rowNumber) || 0));
-  writeCachedSpkExistenceIndex_(index);
-}
-
 function checkSpkExists(spk) {
   const startedAt = Date.now();
   try {
     const key = normalizeSpk_(spk);
     if (key === '') return { status: 'success', exists: false };
 
-    const lookup = getSpkExistenceIndex_();
+    const directory = getDatabaseV2SpkDirectory_();
     return {
       status: 'success',
-      exists: Object.prototype.hasOwnProperty.call(lookup.index, key),
+      exists: directory.spks.indexOf(key) !== -1,
       performance: {
-        source: lookup.source,
+        source: directory.source,
         durationMs: Date.now() - startedAt
       }
     };
@@ -1235,25 +549,19 @@ function checkSpkExists(spk) {
 function getSpkExistenceSnapshot() {
   const startedAt = Date.now();
   try {
-    const cachedIndex = readCachedSpkExistenceIndex_();
-    const cachedMarketing = readCachedMarketingOptions_();
     const cachedCustomers = readCachedCustomerOptions_();
-    const sheet = cachedIndex && cachedMarketing ? null : getDbSheetReadOnly_();
-    const lookup = cachedIndex
-      ? { index: cachedIndex, source: 'cache' }
-      : { index: buildSpkExistenceIndex_(sheet), source: 'sheet' };
-    const marketingOptions = cachedMarketing ||
-      getMarketingOptionsFromDatabase_(sheet, lookup.index);
+    const directory = getDatabaseV2SpkDirectory_();
+    const marketingOptions = directory.marketingOptions;
     const customerOptions = cachedCustomers || getCustomerOptionsFromMaster_();
     const machineOptions = readCachedMachineOptions_() || getMachineOptionsFromMaster_();
     return {
       status: 'success',
-      spks: Object.keys(lookup.index),
+      spks: directory.spks,
       marketingOptions: marketingOptions,
       customerOptions: customerOptions,
       machineOptions: machineOptions,
       performance: {
-        source: lookup.source,
+        source: directory.source,
         durationMs: Date.now() - startedAt
       }
     };
@@ -1266,113 +574,10 @@ function normalizeSpk_(value) {
   return String(value === null || value === undefined ? '' : value).trim().toUpperCase();
 }
 
-function getDatabaseSpkLayout_(sheet) {
-  const physicalLastRow = sheet.getLastRow();
-  if (physicalLastRow < DB_DATA_START_ROW) {
-    return {
-      dataCount: 0,
-      lastDataRow: DB_DATA_START_ROW - 1,
-      nextDataRow: DB_DATA_START_ROW,
-      hasGaps: false
-    };
-  }
-
-  const spkValues = sheet
-    .getRange(
-      DB_DATA_START_ROW,
-      DB_COL.SPK,
-      physicalLastRow - DB_DATA_START_ROW + 1,
-      1
-    )
-    .getDisplayValues();
-
-  let dataCount = 0;
-  let lastDataRow = DB_DATA_START_ROW - 1;
-  let hasGaps = false;
-
-  spkValues.forEach(function(row, index) {
-    if (normalizeSpk_(row[0]) === '') return;
-
-    const actualRow = DB_DATA_START_ROW + index;
-    const expectedRow = DB_DATA_START_ROW + dataCount;
-    if (actualRow !== expectedRow) hasGaps = true;
-
-    dataCount++;
-    lastDataRow = actualRow;
-  });
-
-  return {
-    dataCount: dataCount,
-    lastDataRow: lastDataRow,
-    nextDataRow: DB_DATA_START_ROW + dataCount,
-    hasGaps: hasGaps
-  };
-}
-
-function getDatabaseDataLastRow_(sheet) {
-  return getDatabaseSpkLayout_(sheet).lastDataRow;
-}
-
-function getNextDatabaseDataRow_(sheet) {
-  let layout = getDatabaseSpkLayout_(sheet);
-  if (layout.hasGaps) {
-    layout = compactDatabaseSpkRowsIfNeeded_(sheet);
-  }
-
-  return Math.max(DB_DATA_START_ROW, layout.lastDataRow + 1);
-}
-
 // Peta nomor SPK ke nomor barisnya, dibaca segar dari sheet. Dipakai penarikan
 // data untuk memeriksa ulang keberadaan SPK tepat sebelum menulis, karena peta
 // yang dibangun di awal proses bisa tertinggal bila ada SPK baru disimpan
 // lewat Input SPK sementara penarikan berjalan.
-function getDatabaseSpkRowMap_(sheet) {
-  return getDatabaseSaveContext_(sheet).rowBySpk;
-}
-
-function getDatabaseSaveContext_(sheet) {
-  const lastDataRow = getDatabaseLastSpkRowFast_(sheet);
-  if (lastDataRow < DB_DATA_START_ROW) {
-    return {
-      rowBySpk: {},
-      targetRow: DB_DATA_START_ROW,
-      formatSourceRow: 0
-    };
-  }
-
-  const spkValues = sheet
-    .getRange(
-      DB_DATA_START_ROW,
-      DB_COL.SPK,
-      lastDataRow - DB_DATA_START_ROW + 1,
-      1
-    )
-    .getDisplayValues();
-  const rowBySpk = {};
-
-  spkValues.forEach(function(row, index) {
-    const actualRow = DB_DATA_START_ROW + index;
-    const spk = normalizeSpk_(row[0]);
-    if (spk === '') return;
-    if (!rowBySpk[spk]) rowBySpk[spk] = actualRow;
-  });
-
-  return {
-    rowBySpk: rowBySpk,
-    targetRow: lastDataRow + 1,
-    formatSourceRow: lastDataRow
-  };
-}
-
-function compactDatabaseSpkRowsIfNeeded_(sheet) {
-  const layout = getDatabaseSpkLayout_(sheet);
-  if (!layout.hasGaps) return layout;
-
-  sortDatabaseBySpk_(sheet);
-  SpreadsheetApp.flush();
-  return getDatabaseSpkLayout_(sheet);
-}
-
 function normalizeSourceSpk_(value) {
   const normalized = normalizeSpk_(value);
   const matches = normalized.match(/[A-Z]\d{2}\.\d{3}/g) || [];
@@ -1426,37 +631,6 @@ function buildSpkSortKey_(value, originalIndex) {
   return '8|' + naturalSpkSuffixKey_(normalized) + '|' + normalized + '|' + stableIndex;
 }
 
-function sortDatabaseBySpk_(sheet) {
-  const lastRow = getDatabaseDataLastRow_(sheet);
-  if (lastRow < DB_DATA_START_ROW) return;
-
-  const rowCount = lastRow - DB_DATA_START_ROW + 1;
-  const originalMaxColumns = sheet.getMaxColumns();
-  const helperColumn = originalMaxColumns + 1;
-
-  sheet.insertColumnAfter(originalMaxColumns);
-
-  try {
-    const spkValues = sheet
-      .getRange(DB_DATA_START_ROW, DB_COL.SPK, rowCount, 1)
-      .getValues();
-    const sortKeys = spkValues.map(function(row, index) {
-      return [buildSpkSortKey_(row[0], index)];
-    });
-
-    sheet
-      .getRange(DB_DATA_START_ROW, helperColumn, rowCount, 1)
-      .setValues(sortKeys);
-
-    sheet
-      .getRange(DB_DATA_START_ROW, 1, rowCount, helperColumn)
-      .sort({ column: helperColumn, ascending: true });
-  } finally {
-    sheet.deleteColumn(helperColumn);
-  }
-}
-
-
 // Kode item ditulis apa adanya (huruf besar/kecil dipertahankan), hanya
 // dirapikan dari spasi berlebih dan dibatasi panjangnya.
 function normalizeKodeItem_(value) {
@@ -1468,134 +642,12 @@ function normalizeKodeItem_(value) {
 
 // Penulisan kolom DR dilewati bila kolomnya belum dibuat di Spreadsheet,
 // sehingga simpan/edit tetap berhasil dan data lain tidak ikut gagal.
-function setKodeItemValue_(sheet, rowNumber, kodeItem) {
-  if (sheet.getMaxColumns() < DB_COL.KODE_ITEM) return;
-  sheet.getRange(rowNumber, DB_COL.KODE_ITEM).setValue(kodeItem);
-}
-
-function ensureKeteranganWarnaColumn_(sheet) {
-  const missingColumns = DB_COL.KETERANGAN_WARNA - sheet.getMaxColumns();
-  if (missingColumns > 0) {
-    sheet.insertColumnsAfter(sheet.getMaxColumns(), missingColumns);
-  }
-
-  const headerCell = sheet.getRange(1, DB_COL.KETERANGAN_WARNA);
-  const typeCell = sheet.getRange(2, DB_COL.KETERANGAN_WARNA);
-  if (String(headerCell.getValue()).trim() === '') {
-    headerCell.setValue('Keterangan Warna');
-  }
-  if (String(typeCell.getValue()).trim() === '') typeCell.setValue('str');
-}
-
-function setKeteranganWarnaValue_(sheet, rowNumber, value) {
-  ensureKeteranganWarnaColumn_(sheet);
-  sheet
-    .getRange(rowNumber, DB_COL.KETERANGAN_WARNA)
-    .setValue(normalizeKeteranganWarna_(value));
-}
-
-function ensureKeteranganBahanColumn_(sheet) {
-  const missingColumns = DB_COL.KETERANGAN_BAHAN - sheet.getMaxColumns();
-  if (missingColumns > 0) {
-    sheet.insertColumnsAfter(sheet.getMaxColumns(), missingColumns);
-  }
-
-  const headerCell = sheet.getRange(1, DB_COL.KETERANGAN_BAHAN);
-  const typeCell = sheet.getRange(2, DB_COL.KETERANGAN_BAHAN);
-  if (String(headerCell.getValue()).trim() === '') {
-    headerCell.setValue('Keterangan Bahan');
-  }
-  if (String(typeCell.getValue()).trim() === '') typeCell.setValue('str');
-}
-
-function setKeteranganBahanValue_(sheet, rowNumber, value) {
-  ensureKeteranganBahanColumn_(sheet);
-  sheet
-    .getRange(rowNumber, DB_COL.KETERANGAN_BAHAN)
-    .setValue(normalizeKeteranganBahan_(value));
-}
-
-function ensureMeterRollColumn_(sheet) {
-  const missingColumns = DB_COL.METER_ROLL - sheet.getMaxColumns();
-  if (missingColumns > 0) {
-    sheet.insertColumnsAfter(sheet.getMaxColumns(), missingColumns);
-  }
-
-  const headerCell = sheet.getRange(1, DB_COL.METER_ROLL);
-  const typeCell = sheet.getRange(2, DB_COL.METER_ROLL);
-  if (String(headerCell.getValue()).trim() === '') {
-    headerCell.setValue('Meter/Roll');
-  }
-  if (String(typeCell.getValue()).trim() === '') typeCell.setValue('num');
-}
-
 // Membaca satu baris penuh A:EC. Bila kolom tambahan belum dibuat di
 // Spreadsheet, lebar bacanya dipersempit lalu hasilnya dipad agar seluruh
 // indeks DB_COL tetap aman dipakai tanpa memicu error range.
-function readDatabaseRowValues_(sheet, rowNumber) {
-  const total = databaseTotalColumns_();
-  const width = Math.min(total, sheet.getMaxColumns());
-  const values = sheet.getRange(rowNumber, 1, 1, width).getValues()[0];
-  while (values.length < total) values.push('');
-  return values;
-}
-
-function ensureDbColumnCapacity_(sheet) {
-  ensureReleaseColumn_(sheet);
-  ensureKeteranganArtikelColumn_(sheet);
-  ensureWarnaColumns_(sheet);
-  ensureProcessNoteColumns_(sheet);
-  ensureCalculationInputColumns_(sheet);
-  ensureEtaBeliBahanColumns_(sheet);
-  ensureKodeItemColumn_(sheet);
-  ensureRoutingDetailColumns_(sheet);
-  ensureKeteranganWarnaColumn_(sheet);
-  ensureKeteranganBahanColumn_(sheet);
-  ensureMeterRollColumn_(sheet);
-  ensureExtraInputColumns_(sheet);
-}
-
-function ensureExtraInputColumns_(sheet) {
-  const columns = extraInputColumns_();
-  const lastColumn = columns.reduce(function(maximum, item) {
-    return Math.max(maximum, item.column);
-  }, 0);
-  const missingColumns = lastColumn - sheet.getMaxColumns();
-  if (missingColumns > 0) {
-    sheet.insertColumnsAfter(sheet.getMaxColumns(), missingColumns);
-  }
-
-  columns.forEach(function(item) {
-    const headerCell = sheet.getRange(1, item.column);
-    const typeCell = sheet.getRange(2, item.column);
-    if (String(headerCell.getValue()).trim() === '') headerCell.setValue(item.header);
-    if (String(typeCell.getValue()).trim() === '') typeCell.setValue(item.type);
-  });
-}
-
 // Dapat dijalankan sekali dari editor Apps Script setelah pembaruan. Proses
 // simpan SPK juga memanggil pemeriksaan yang sama, jadi fungsi ini aman bila
 // dijalankan lebih dari sekali dan tidak mengubah data yang sudah ada.
-function adminPastikanKolomAksesorisRouting() {
-  const sheet = getDbSheet_();
-  ensureExtraInputColumns_(sheet);
-  SpreadsheetApp.flush();
-  return {
-    status: 'success',
-    sheet: sheet.getName(),
-    columns: [
-      columnNumberToLetter_(DB_COL.AKSESORIS_ROUTING),
-      columnNumberToLetter_(DB_COL.KEBUTUHAN_AKSESORIS),
-      columnNumberToLetter_(DB_COL.UOM_AKSESORIS)
-    ],
-    headers: [
-      sheet.getRange(1, DB_COL.AKSESORIS_ROUTING).getDisplayValue(),
-      sheet.getRange(1, DB_COL.KEBUTUHAN_AKSESORIS).getDisplayValue(),
-      sheet.getRange(1, DB_COL.UOM_AKSESORIS).getDisplayValue()
-    ]
-  };
-}
-
 function normalizeEnumValue_(value, options, fallback) {
   const text = String(value === null || value === undefined ? '' : value).trim().toUpperCase();
   const match = options.find(function(option) {
@@ -1644,32 +696,7 @@ function serializePengirimanParsial_(entries) {
   return clean.length ? JSON.stringify(clean) : '';
 }
 
-function getExtraInputsFromRow_(row) {
-  return {
-    pcsKgMode: normalizeEnumValue_(row[DB_COL.PCS_KG_MODE - 1], PCS_KG_MODE_OPTIONS, ''),
-    jenisPotongan: normalizeEnumValue_(row[DB_COL.JENIS_POTONGAN - 1], JENIS_POTONGAN_OPTIONS, ''),
-    poMasuk: dateToInput_(row[DB_COL.PO_MASUK - 1]),
-    stok: numberOrEmptyForClient_(row[DB_COL.STOK - 1]),
-    ots: numberOrEmptyForClient_(row[DB_COL.OTS - 1]),
-    wip: numberOrEmptyForClient_(row[DB_COL.WIP - 1]),
-    toleransiProduksi: percentToInput_(row[DB_COL.TOLERANSI_PRODUKSI - 1]),
-    pengirimanParsial: parsePengirimanParsialCell_(row[DB_COL.PENGIRIMAN_PARSIAL - 1]),
-    bahanLebar: numberOrEmptyForClient_(row[DB_COL.BAHAN_LEBAR - 1]),
-    bahanPanjang: numberOrEmptyForClient_(row[DB_COL.BAHAN_PANJANG - 1]),
-    bahanTebal: numberOrEmptyForClient_(row[DB_COL.BAHAN_TEBAL - 1]),
-    bahanDensity: numberOrEmptyForClient_(row[DB_COL.BAHAN_DENSITY - 1]),
-    aksesorisRouting: valueOrEmpty_(row[DB_COL.AKSESORIS_ROUTING - 1]),
-    kebutuhanAksesoris: valueOrEmpty_(row[DB_COL.KEBUTUHAN_AKSESORIS - 1]),
-    uomAksesoris: valueOrEmpty_(row[DB_COL.UOM_AKSESORIS - 1])
-  };
-}
-
 const ROUTING_ACCESSORY_UOMS = ['PCS', 'KG', 'ROLL', 'METER', 'LITER', 'SET', 'UNIT', 'PACK'];
-const ROUTING_ACCESSORY_LABELS = {
-  blowing: 'Blowing', printing: 'Printing', folding: 'Folding',
-  slitting: 'Slitting', gusset: 'Gusset', cutting: 'Cutting'
-};
-
 function parseRoutingAccessoryEntries_(raw) {
   let parsed = [];
   try {
@@ -1722,86 +749,10 @@ function validateRoutingAccessoryPayload_(routingSteps) {
   return null;
 }
 
-function buildRoutingAccessoryColumns_(routingSteps) {
-  const names = [];
-  const needs = [];
-  const uoms = [];
-  (Array.isArray(routingSteps) ? routingSteps : []).forEach(function(step, index) {
-    if (!step || step.key === 'mixer') return;
-    const values = step.values && typeof step.values === 'object' ? step.values : {};
-    const entries = parseRoutingAccessoryEntries_(values['aksesorisData-' + step.key]);
-    const route = (index + 1) + '. ' + (ROUTING_ACCESSORY_LABELS[step.key] || step.key);
-    entries.forEach(function(entry) {
-      names.push(route + ': ' + entry.nama);
-      needs.push(route + ': ' + entry.kebutuhan);
-      uoms.push(route + ': ' + entry.uom);
-    });
-  });
-  return {
-    names: names.join('\n').slice(0, 45000),
-    needs: needs.join('\n').slice(0, 45000),
-    uoms: uoms.join('\n').slice(0, 45000)
-  };
-}
-
 // Ditulis sebagai satu rentang berurutan, lima belas kolom mulai dari Mode
 // PCS/KG. Posisi awalnya mengikuti tata letak sheet yang sedang dibuka.
-function setExtraInputsForRow_(sheet, rowNumber, payload) {
-  ensureExtraInputColumns_(sheet);
-  const input = payload || {};
-  const angka = function(nilai) {
-    const hasil = parseCalculationNumber_(nilai);
-    return hasil === null ? '' : hasil;
-  };
-
-  const accessories = buildRoutingAccessoryColumns_(input.routingSteps);
-  sheet.getRange(rowNumber, DB_COL.PCS_KG_MODE, 1, 15).setValues([[
-    normalizeEnumValue_(input.pcsKgMode, PCS_KG_MODE_OPTIONS, ''),
-    normalizeEnumValue_(input.jenisPotongan, JENIS_POTONGAN_OPTIONS, ''),
-    parseTanggal_(input.poMasuk),
-    angka(input.stok),
-    angka(input.ots),
-    angka(input.wip),
-    toDecimalPercent_(input.toleransiProduksi),
-    serializePengirimanParsial_(input.pengirimanParsial),
-    angka(input.bahanLebar),
-    angka(input.bahanPanjang),
-    angka(input.bahanTebal),
-    angka(input.bahanDensity),
-    accessories.names,
-    accessories.needs,
-    accessories.uoms
-  ]]);
-}
-
 // Judul dan tipe diisi per kolom, bukan sebagai satu rentang, dan hanya bila
 // selnya masih kosong, supaya judul yang sudah diubah manual tidak tertimpa.
-function ensureRoutingDetailColumns_(sheet) {
-  const lastColumn = ROUTING_DETAIL_COLUMNS.reduce(function(maximum, item) {
-    return Math.max(maximum, item.column);
-  }, DB_COL.ROUTING_STEPS);
-  const missingColumns = lastColumn - sheet.getMaxColumns();
-  if (missingColumns > 0) {
-    sheet.insertColumnsAfter(sheet.getMaxColumns(), missingColumns);
-  }
-
-  ROUTING_DETAIL_COLUMNS.forEach(function(item) {
-    const headerCell = sheet.getRange(1, item.column);
-    const typeCell = sheet.getRange(2, item.column);
-    if (String(headerCell.getValue()).trim() === '') {
-      headerCell.setValue(item.header);
-    }
-    if (String(typeCell.getValue()).trim() === '') typeCell.setValue('str');
-  });
-
-  const stepsHeader = sheet.getRange(1, DB_COL.ROUTING_STEPS);
-  const stepsType = sheet.getRange(2, DB_COL.ROUTING_STEPS);
-  if (String(stepsHeader.getValue()).trim() === '') {
-    stepsHeader.setValue(ROUTING_STEPS_HEADER);
-  }
-  if (String(stepsType.getValue()).trim() === '') stepsType.setValue('str');
-}
-
 // Bentuk yang disimpan: [{ key, values: { idInput: nilai } }]. Baris lama yang
 // selnya masih kosong menghasilkan daftar kosong, dan pemanggilnya jatuh balik
 // ke kolom proses T:Y seperti perilaku sebelumnya.
@@ -1850,266 +801,8 @@ function serializeRoutingSteps_(steps) {
   }));
 }
 
-function getRoutingDetailsFromRow_(row) {
-  const details = {};
-  ROUTING_DETAIL_COLUMNS.forEach(function(item) {
-    details[item.key] = valueOrEmpty_(row[item.column - 1]);
-  });
-  details.routingSteps = parseRoutingStepsCell_(row[DB_COL.ROUTING_STEPS - 1]);
-  details.blowingThreat = enumForClient_(
-    details.blowingThreat,
-    ['NON THREAT', 'THREAT 1 SISI', 'THREAT 2 SISI', 'THREAT POTONG'],
-    'NON THREAT'
-  );
-  details.blowingModeCetak = enumForClient_(
-    details.blowingModeCetak,
-    ['NON PRINT', 'INLINE'],
-    'NON PRINT'
-  );
-  return details;
-}
-
-function setRoutingDetailsForRow_(sheet, rowNumber, payload) {
-  ensureRoutingDetailColumns_(sheet);
-  const input = payload || {};
-
-  // Penulisan dikelompokkan per rentang kolom yang berurutan. Saat ini seluruh
-  // kolom detail berada di DS:DZ sehingga hanya menghasilkan satu rentang,
-  // namun pengelompokannya dipertahankan agar penambahan kolom di ujung sheet
-  // nanti tidak menimpa kolom lain di antaranya.
-  const entries = ROUTING_DETAIL_COLUMNS
-    .map(function(item) {
-      return {
-        column: item.column,
-        value: String(input[item.key] === null || input[item.key] === undefined
-          ? ''
-          : input[item.key]).replace(/\s+/g, ' ').trim().slice(0, 200)
-      };
-    })
-    .sort(function(a, b) { return a.column - b.column; });
-
-  let runStart = 0;
-  for (let index = 1; index <= entries.length; index++) {
-    const isBreak = index === entries.length ||
-      entries[index].column !== entries[index - 1].column + 1;
-    if (!isBreak) continue;
-
-    const run = entries.slice(runStart, index);
-    sheet
-      .getRange(rowNumber, run[0].column, 1, run.length)
-      .setValues([run.map(function(entry) { return entry.value; })]);
-    runStart = index;
-  }
-
-  // Urutan langkah ditulis apa adanya, di luar pengelompokan di atas, karena
-  // isinya JSON yang tidak boleh dipangkas maupun dirapatkan spasinya.
-  sheet
-    .getRange(rowNumber, DB_COL.ROUTING_STEPS)
-    .setValue(serializeRoutingSteps_(input.routingSteps));
-}
-
-function ensureWarnaColumns_(sheet) {
-  const totalColumns = (DB_COL.WARNA_END - DB_COL.WARNA_START + 1);
-  const headerRange = sheet.getRange(1, DB_COL.WARNA_START, 1, totalColumns);
-  const typeRange = sheet.getRange(2, DB_COL.WARNA_START, 1, totalColumns);
-  const headers = headerRange.getValues()[0];
-  const types = typeRange.getValues()[0];
-  const expectedHeaders = [];
-  const expectedTypes = [];
-  for (let index = 1; index <= DB_MAX_WARNA; index++) {
-    expectedHeaders.push('Warna ' + index, 'Pemakaian ' + index);
-    expectedTypes.push('str', 'num');
-  }
-
-  const normalizedHeaders = expectedHeaders.map(function(header, index) {
-    return String(headers[index] || '').trim() === '' ? header : headers[index];
-  });
-  const normalizedTypes = expectedTypes.map(function(type, index) {
-    return String(types[index] || '').trim() === '' ? type : types[index];
-  });
-
-  if (normalizedHeaders.some(function(header, index) { return header !== headers[index]; })) {
-    headerRange.setValues([normalizedHeaders]);
-  }
-  if (normalizedTypes.some(function(type, index) { return type !== types[index]; })) {
-    typeRange.setValues([normalizedTypes]);
-  }
-}
-
-function ensureKeteranganArtikelColumn_(sheet) {
-  const headerCell = sheet.getRange(1, DB_COL.KETERANGAN_ARTIKEL);
-  const typeCell = sheet.getRange(2, DB_COL.KETERANGAN_ARTIKEL);
-  if (String(headerCell.getValue()).trim() === '') headerCell.setValue('Keterangan Artikel');
-  if (String(typeCell.getValue()).trim() === '') typeCell.setValue('str');
-}
-
 // Hanya mengisi teks header/tipe bila selnya masih kosong. Kolom DR tidak
 // pernah disisipkan dari kode; kolomnya dibuat manual di Spreadsheet.
-function ensureKodeItemColumn_(sheet) {
-  if (sheet.getMaxColumns() < DB_COL.KODE_ITEM) return;
-
-  const headerCell = sheet.getRange(1, DB_COL.KODE_ITEM);
-  const typeCell = sheet.getRange(2, DB_COL.KODE_ITEM);
-  if (String(headerCell.getValue()).trim() === '') headerCell.setValue('Kode Item');
-  if (String(typeCell.getValue()).trim() === '') typeCell.setValue('str');
-}
-
-function ensureEtaBeliBahanColumns_(sheet) {
-  const headerRange = sheet.getRange(1, DB_COL.ETA_BELI_START, 1, 16);
-  const typeRange = sheet.getRange(2, DB_COL.ETA_BELI_START, 1, 16);
-  const headers = headerRange.getValues()[0];
-  const types = typeRange.getValues()[0];
-  const expectedHeaders = [
-    'ETA 1', 'QTY', 'UOM',
-    'ETA 2', 'QTY', 'UOM',
-    'ETA 3', 'QTY', 'UOM',
-    'ETA 4', 'QTY', 'UOM',
-    'ETA 5', 'QTY', 'UOM',
-    'Keterangan'
-  ];
-  const expectedTypes = [
-    'date', 'num', 'str',
-    'date', 'num', 'str',
-    'date', 'num', 'str',
-    'date', 'num', 'str',
-    'date', 'num', 'str',
-    'str'
-  ];
-  const normalizedHeaders = expectedHeaders.map(function(header, index) {
-    return String(headers[index] || '').trim() === ''
-      ? header
-      : headers[index];
-  });
-  const normalizedTypes = expectedTypes.map(function(type, index) {
-    return String(types[index] || '').trim() === ''
-      ? type
-      : types[index];
-  });
-
-  if (normalizedHeaders.some(function(header, index) {
-    return header !== headers[index];
-  })) {
-    headerRange.setValues([normalizedHeaders]);
-  }
-  if (normalizedTypes.some(function(type, index) {
-    return type !== types[index];
-  })) {
-    typeRange.setValues([normalizedTypes]);
-  }
-}
-
-function ensureCalculationInputColumns_(sheet) {
-  const meterPerKgHeader = sheet.getRange(1, DB_COL.METER_PER_KG);
-  const meterPerKgType = sheet.getRange(2, DB_COL.METER_PER_KG);
-  if (normalizeHeader_(meterPerKgHeader.getValue()) !== 'METER/KG') {
-    meterPerKgHeader.setValue('METER/KG');
-  }
-  if (String(meterPerKgType.getValue()).trim() === '') meterPerKgType.setValue('num');
-}
-
-function ensureProcessNoteColumns_(sheet) {
-  migrateLegacyProcessNoteColumns_(sheet);
-
-  const headerRange = sheet.getRange(
-    1,
-    DB_COL.KET_PROSES_START,
-    1,
-    PROCESS_NOTE_HEADERS.length
-  );
-  const typeRange = sheet.getRange(
-    2,
-    DB_COL.KET_PROSES_START,
-    1,
-    PROCESS_NOTE_HEADERS.length
-  );
-  const headers = headerRange.getValues()[0];
-  const types = typeRange.getValues()[0];
-  const normalizedHeaders = PROCESS_NOTE_HEADERS.map(function(header, index) {
-    return String(headers[index] || '').trim() === header
-      ? headers[index]
-      : header;
-  });
-  const normalizedTypes = types.map(function(type) {
-    return String(type || '').trim() === '' ? 'str' : type;
-  });
-
-  const headersChanged = normalizedHeaders.some(function(header, index) {
-    return header !== headers[index];
-  });
-  const typesChanged = normalizedTypes.some(function(type, index) {
-    return type !== types[index];
-  });
-
-  if (headersChanged) headerRange.setValues([normalizedHeaders]);
-  if (typesChanged) typeRange.setValues([normalizedTypes]);
-}
-
-function migrateLegacyProcessNoteColumns_(sheet) {
-  const legacyHeaderRange = sheet.getRange(
-    1,
-    DB_COL.KET_PROSES_START,
-    1,
-    PROCESS_NOTE_HEADERS.length
-  );
-  const headers = legacyHeaderRange.getValues()[0];
-  const hasLegacyLayout = LEGACY_PROCESS_NOTE_HEADERS.every(function(header, index) {
-    return normalizeHeader_(headers[index]) === normalizeHeader_(header);
-  }) && String(headers[PROCESS_NOTE_HEADERS.length - 1] || '').trim() === '';
-
-  if (!hasLegacyLayout) return;
-
-  const lastRow = Math.max(sheet.getLastRow(), 2);
-  const legacyValues = sheet
-    .getRange(1, DB_COL.KET_PROSES_START, lastRow, LEGACY_PROCESS_NOTE_HEADERS.length)
-    .getValues();
-
-  sheet
-    .getRange(1, DB_COL.KET_PROSES_START + 1, lastRow, LEGACY_PROCESS_NOTE_HEADERS.length)
-    .setValues(legacyValues);
-  sheet.getRange(1, DB_COL.KET_PROSES_START, lastRow, 1).clearContent();
-}
-
-function normalizeHeader_(value) {
-  return String(value === null || value === undefined ? '' : value)
-    .trim()
-    .toUpperCase();
-}
-
-function ensureReleaseColumn_(sheet) {
-  const headerCell = sheet.getRange(1, DB_COL.RELEASE);
-  const typeCell = sheet.getRange(2, DB_COL.RELEASE);
-  const headerWasBlank = String(headerCell.getValue()).trim() === '';
-
-  if (headerWasBlank) headerCell.setValue('Release');
-  if (String(typeCell.getValue()).trim() === '') typeCell.setValue('str');
-
-  // Migrasi satu kali untuk data lama saat kolom Release pertama kali dibuat.
-  if (!headerWasBlank) return;
-
-  const lastRow = getDatabaseDataLastRow_(sheet);
-  if (lastRow < DB_DATA_START_ROW) return;
-
-  const rowCount = lastRow - DB_DATA_START_ROW + 1;
-  const spkValues = sheet
-    .getRange(DB_DATA_START_ROW, DB_COL.SPK, rowCount, 1)
-    .getValues();
-  const releaseRange = sheet.getRange(DB_DATA_START_ROW, DB_COL.RELEASE, rowCount, 1);
-  const releaseValues = releaseRange.getValues();
-  let changed = false;
-
-  for (let index = 0; index < rowCount; index++) {
-    if (
-      normalizeSpk_(spkValues[index][0]) !== '' &&
-      String(releaseValues[index][0] || '').trim() === ''
-    ) {
-      releaseValues[index][0] = 'Tidak';
-      changed = true;
-    }
-  }
-
-  if (changed) releaseRange.setValues(releaseValues);
-}
-
 function getProcessNotesFromRow_(row) {
   const result = {};
   PROCESS_NOTE_KEYS.forEach(function(keyName, index) {
@@ -2153,195 +846,20 @@ function normalizeKeteranganBahan_(value) {
   return '';
 }
 
-function getStoredMeterRoll_(sheet, rowNumber, row) {
-  const storedValue = parseCalculationNumber_(
-    Array.isArray(row) ? row[DB_COL.METER_ROLL - 1] : null
-  );
-  if (storedValue > 0) return storedValue;
-
-  // Fallback untuk data lama sebelum kolom EC dibuat.
-  const note = String(
-    sheet.getRange(rowNumber, DB_COL.UOM_ORDER).getNote() || ''
-  );
-  const match = note.match(
-    new RegExp('(?:^|\\n)' + METER_ROLL_NOTE_PREFIX + '([^\\n]+)')
-  );
-  const noteValue = match ? parseCalculationNumber_(match[1]) : null;
-  if (noteValue > 0) return noteValue;
-
-  // Meter/Roll sepenuhnya ditentukan operator lewat kolom Meter / Roll pada
-  // wizard. Nilainya tidak lagi diturunkan dari ukuran dan keluar bahan,
-  // karena penguraian Ukuran Jadi order roll (lebar x tebal x panjang roll)
-  // berbeda dari order kantong (lebar x panjang x tebal) sehingga angka
-  // tebalnya tertukar dengan panjang roll dan hasilnya tidak dapat dipercaya.
-  return '';
-}
-
-function setStoredMeterRoll_(sheet, rowNumber, value) {
-  ensureMeterRollColumn_(sheet);
-  const meterRoll = parseCalculationNumber_(value);
-  sheet
-    .getRange(rowNumber, DB_COL.METER_ROLL)
-    .setValue(meterRoll > 0 ? meterRoll : '')
-    .setNumberFormat('0.############');
-
-  // Bersihkan format penyimpanan lama tanpa menghapus catatan lain.
-  const uomCell = sheet.getRange(rowNumber, DB_COL.UOM_ORDER);
-  const currentNote = String(uomCell.getNote() || '');
-  const retainedLines = currentNote
-    .split(/\r?\n/)
-    .filter(function(line) {
-      return line.indexOf(METER_ROLL_NOTE_PREFIX) !== 0;
-    })
-    .filter(function(line) {
-      return line.trim() !== '';
-    });
-  uomCell.setNote(retainedLines.join('\n'));
-}
-
-function setStoredMeterRollForNewRow_(sheet, rowNumber, value) {
-  setStoredMeterRoll_(sheet, rowNumber, value);
-}
-
-function migrateLegacyMeterRollNotes_(sheet) {
-  ensureMeterRollColumn_(sheet);
-  const lastRow = getDatabaseDataLastRow_(sheet);
-  if (lastRow < DB_DATA_START_ROW) return 0;
-
-  const rowCount = lastRow - DB_DATA_START_ROW + 1;
-  const meterRange = sheet.getRange(
-    DB_DATA_START_ROW,
-    DB_COL.METER_ROLL,
-    rowCount,
-    1
-  );
-  const meterValues = meterRange.getValues();
-  const uomRange = sheet.getRange(
-    DB_DATA_START_ROW,
-    DB_COL.UOM_ORDER,
-    rowCount,
-    1
-  );
-  const notes = uomRange.getNotes();
-  let migratedRows = 0;
-
-  meterValues.forEach(function(rowValue, index) {
-    if (parseCalculationNumber_(rowValue[0]) > 0) return;
-    const match = String(notes[index][0] || '').match(
-      new RegExp('(?:^|\\n)' + METER_ROLL_NOTE_PREFIX + '([^\\n]+)')
-    );
-    const legacyValue = match ? parseCalculationNumber_(match[1]) : null;
-    if (!(legacyValue > 0)) return;
-    rowValue[0] = legacyValue;
-    migratedRows += 1;
-  });
-
-  if (migratedRows > 0) {
-    meterRange.setValues(meterValues).setNumberFormat('0.############');
-  }
-  return migratedRows;
-}
 // ==========================================
 // AMBIL DATA SPK UNTUK REPEAT ORDER
 // ==========================================
 function getSpkData(spk) {
   try {
     const key = normalizeSpk_(spk);
-    if (key === '') {
-      return { status: 'not_found', found: false, message: 'Nomor SPK sebelumnya wajib diisi.' };
+    if (!key) return { status: 'not_found', found: false, message: 'Nomor SPK sebelumnya wajib diisi.' };
+    const aggregate = readDatabaseV2Spk_(key);
+    if (!aggregate) {
+      return { status: 'not_found', found: false, message: "Nomor SPK '" + key + "' tidak ditemukan di Database V2." };
     }
-
-    // Jalur baca murni: tanpa pemeriksaan schema dan tanpa pemindaian penuh
-    // kolom SPK agar tetap cepat pada database berukuran besar.
-    const sheet = getDbSheetReadOnly_();
-    const rowNumber = findSpkRowFast_(sheet, key, 0);
-    if (!rowNumber) {
-      return {
-        status: 'not_found',
-        found: false,
-        message: "Nomor SPK '" + key + "' tidak ditemukan di Database."
-      };
-    }
-
-    const row = readDatabaseRowValues_(sheet, rowNumber);
-    const proses = {};
-    PROSES_KEYS.forEach(function(keyName, index) {
-      proses[keyName] = isProcessActive_(row[DB_COL.PROSES_MIXER - 1 + index]);
-    });
-    const keteranganProses = getProcessNotesFromRow_(row);
-
-    const bsPercent = {};
-    BS_KEYS.forEach(function(keyName, index) {
-      bsPercent[keyName] = percentToInput_(row[DB_COL.BS_START - 1 + index]);
-    });
-
-    const komposisi = [];
-    for (let index = 0; index < 7; index++) {
-      const start = DB_COL.KOMPOSISI_START - 1 + (index * 3);
-      komposisi.push({
-        material: valueOrEmpty_(row[start]),
-        kg: numberOrEmptyForClient_(row[start + 1]),
-        percent: percentToInput_(row[start + 2])
-      });
-    }
-
-    // Slot 8 hanya nama bahan di kolom BR. Posisi slot tetap dipertahankan.
-    komposisi.push({
-      material: valueOrEmpty_(
-        row[DB_COL.KOMPOSISI_START - 1 + ((DB_MAX_BAHAN - 1) * 3)]
-      ),
-      kg: '',
-      percent: ''
-    });
-    while (komposisi.length > 2) {
-      const last = komposisi[komposisi.length - 1];
-      if (last.material !== '' || last.kg !== '' || last.percent !== '') break;
-      komposisi.pop();
-    }
-
-    return {
-      status: 'success',
-      found: true,
-      data: {
-        spk: normalizeSpk_(row[DB_COL.SPK - 1]),
-        tanggal: dateToInput_(row[DB_COL.TANGGAL - 1]),
-        jenisOrder: valueOrEmpty_(row[DB_COL.JENIS_ORDER - 1]),
-        marketing: valueOrEmpty_(row[DB_COL.MARKETING - 1]),
-        nomorPO: valueOrEmpty_(row[DB_COL.NOMOR_PO - 1]),
-        customer: valueOrEmpty_(row[DB_COL.CUSTOMER - 1]),
-        material: valueOrEmpty_(row[DB_COL.MATERIAL - 1]),
-        film: valueOrEmpty_(row[DB_COL.FILM - 1]),
-        artikel: valueOrEmpty_(row[DB_COL.ARTIKEL - 1]),
-        kodeItem: valueOrEmpty_(row[DB_COL.KODE_ITEM - 1]),
-        keteranganArtikel: valueOrEmpty_(row[DB_COL.KETERANGAN_ARTIKEL - 1]),
-        keteranganWarna: valueOrEmpty_(row[DB_COL.KETERANGAN_WARNA - 1]),
-        keteranganBahan: valueOrEmpty_(row[DB_COL.KETERANGAN_BAHAN - 1]),
-        modelKantong: valueOrEmpty_(row[DB_COL.MODEL_KANTONG - 1]),
-        ukuranBlow: valueOrEmpty_(row[DB_COL.UKURAN_BLOW - 1]),
-        ukuranJadi: valueOrEmpty_(row[DB_COL.UKURAN_JADI - 1]),
-        ...getRoutingDetailsFromRow_(row),
-        ...getExtraInputsFromRow_(row),
-        proses: proses,
-        keteranganProses: keteranganProses,
-        finishing: enumForClient_(row[DB_COL.FINISHING - 1], FINISHING_OPTIONS, '-'),
-        handlePm: enumForClient_(row[DB_COL.HANDLE_PON - 1], HANDLE_PON_OPTIONS, '-'),
-        bsPercent: bsPercent,
-        jumlahOrder: numberOrEmptyForClient_(row[DB_COL.JUMLAH_ORDER - 1]),
-        uomOrder: enumForClient_(row[DB_COL.UOM_ORDER - 1], ['PCS', 'KG', 'ROLL'], 'PCS'),
-        keluarBahan: numberOrEmptyForClient_(row[DB_COL.KELUAR_BAHAN - 1]),
-        uomKB: enumForClient_(row[DB_COL.UOM_KB - 1], ['KG', 'ROLL'], ''),
-        meterRoll: numberOrEmptyForClient_(
-          getStoredMeterRoll_(sheet, rowNumber, row)
-        ),
-        toleransi: percentToInput_(row[DB_COL.TOLERANSI - 1]),
-        etd: dateToInput_(row[DB_COL.ETD - 1]),
-        komposisi: komposisi,
-        warna: getWarnaFromRow_(row),
-        spkReferensi: valueOrEmpty_(row[DB_COL.SPK_REFERENSI - 1])
-      }
-    };
-  } catch (e) {
-    return { status: 'error', found: false, message: e.message };
+    return { status: 'success', found: true, data: buildDatabaseV2InputData_(aggregate) };
+  } catch (error) {
+    return { status: 'error', found: false, message: error.message };
   }
 }
 
@@ -2349,87 +867,17 @@ function getSpkData(spk) {
 function getSpkEditData(spk, preferredRowNumber) {
   try {
     const key = normalizeSpk_(spk);
-    if (key === '') {
-      return {
-        status: 'not_found',
-        found: false,
-        message: 'Nomor SPK yang akan diedit wajib diisi.'
-      };
+    if (!key) return { status: 'not_found', found: false, message: 'Nomor SPK yang akan diedit wajib diisi.' };
+    const aggregate = readDatabaseV2Spk_(key);
+    if (!aggregate) {
+      return { status: 'not_found', found: false, message: "Nomor SPK '" + key + "' tidak ditemukan di Database V2." };
     }
-
-    const sheet = getDbSheetReadOnly_();
-    const rowNumber = findSpkRowFast_(sheet, key, preferredRowNumber);
-    if (!rowNumber) {
-      return {
-        status: 'not_found',
-        found: false,
-        message: "Nomor SPK '" + key + "' tidak ditemukan di Database."
-      };
-    }
-
-    // Satu pembacaan baris untuk seluruh kolom yang dipakai modal edit,
-    // termasuk Kode Item di kolom terakhir. Tidak ada migrasi schema,
-    // flush, atau pemindaian seluruh kolom SPK.
-    const row = readDatabaseRowValues_(sheet, rowNumber);
-    const uomOrder = enumForClient_(
-      row[DB_COL.UOM_ORDER - 1],
-      ['PCS', 'KG', 'ROLL'],
-      'PCS'
-    );
-
-    return {
-      status: 'success',
-      found: true,
-      data: {
-        rowNumber: rowNumber,
-        spk: normalizeSpk_(row[DB_COL.SPK - 1]),
-        tanggal: dateToInput_(row[DB_COL.TANGGAL - 1]),
-        jenisOrder: valueOrEmpty_(row[DB_COL.JENIS_ORDER - 1]),
-        marketing: valueOrEmpty_(row[DB_COL.MARKETING - 1]),
-        nomorPO: valueOrEmpty_(row[DB_COL.NOMOR_PO - 1]),
-        customer: valueOrEmpty_(row[DB_COL.CUSTOMER - 1]),
-        material: valueOrEmpty_(row[DB_COL.MATERIAL - 1]),
-        film: valueOrEmpty_(row[DB_COL.FILM - 1]),
-        artikel: valueOrEmpty_(row[DB_COL.ARTIKEL - 1]),
-        kodeItem: valueOrEmpty_(row[DB_COL.KODE_ITEM - 1]),
-        keteranganArtikel: valueOrEmpty_(row[DB_COL.KETERANGAN_ARTIKEL - 1]),
-        keteranganWarna: valueOrEmpty_(row[DB_COL.KETERANGAN_WARNA - 1]),
-        keteranganBahan: valueOrEmpty_(row[DB_COL.KETERANGAN_BAHAN - 1]),
-        modelKantong: valueOrEmpty_(row[DB_COL.MODEL_KANTONG - 1]),
-        ukuranBlow: valueOrEmpty_(row[DB_COL.UKURAN_BLOW - 1]),
-        ukuranJadi: valueOrEmpty_(row[DB_COL.UKURAN_JADI - 1]),
-        ...getRoutingDetailsFromRow_(row),
-        ...getExtraInputsFromRow_(row),
-        jumlahOrder: numberOrEmptyForClient_(
-          row[DB_COL.JUMLAH_ORDER - 1]
-        ),
-        uomOrder: uomOrder,
-        keluarBahan: numberOrEmptyForClient_(
-          row[DB_COL.KELUAR_BAHAN - 1]
-        ),
-        uomKB: enumForClient_(
-          row[DB_COL.UOM_KB - 1],
-          ['KG', 'ROLL'],
-          ''
-        ),
-        meterRoll: uomOrder === 'ROLL'
-          ? numberOrEmptyForClient_(
-              getStoredMeterRoll_(sheet, rowNumber, row)
-            )
-          : '',
-        toleransi: percentToInput_(row[DB_COL.TOLERANSI - 1]),
-        etd: dateToInput_(row[DB_COL.ETD - 1]),
-        spkReferensi: valueOrEmpty_(
-          row[DB_COL.SPK_REFERENSI - 1]
-        )
-      }
-    };
-  } catch (e) {
-    return {
-      status: 'error',
-      found: false,
-      message: e.message
-    };
+    const data = buildDatabaseV2InputData_(aggregate);
+    data.rowNumber = 0;
+    if (data.uomOrder !== 'ROLL') data.meterRoll = '';
+    return { status: 'success', found: true, data: data };
+  } catch (error) {
+    return { status: 'error', found: false, message: error.message };
   }
 }
 
@@ -2438,136 +886,44 @@ function getSpkEditData(spk, preferredRowNumber) {
 // ==========================================
 function getSpkPrintData(spk, preferredRowNumber, authToken, includeSignatureData) {
   try {
-    var printSession = null;
+    let printSession = null;
     if (authToken) printSession = requireApprovalSession_(authToken);
     const key = normalizeSpk_(spk);
-    if (key === '') {
-      return { status: 'not_found', found: false, message: 'Nomor SPK untuk dicetak tidak ditemukan.' };
-    }
-
-    // Jalur baca murni; rowNumber dari halaman pemanggil (bila ada) membuat
-    // pencarian baris menjadi satu pembacaan sel saja.
-    const sheet = getDbSheetReadOnly_();
-    const rowNumber = findSpkRowFast_(sheet, key, preferredRowNumber);
-    if (!rowNumber) {
-      return {
-        status: 'not_found',
-        found: false,
-        message: "Nomor SPK '" + key + "' tidak ditemukan di Database."
-      };
-    }
-
-    const row = readDatabaseRowValues_(sheet, rowNumber);
-    const proses = {};
-    PROSES_KEYS.forEach(function(keyName, index) {
-      proses[keyName] = isProcessActive_(row[DB_COL.PROSES_MIXER - 1 + index]);
-    });
-    const keteranganProses = getProcessNotesFromRow_(row);
-
-    const bsPercent = {};
-    BS_KEYS.forEach(function(keyName, index) {
-      bsPercent[keyName] = percentToInput_(row[DB_COL.BS_START - 1 + index]);
-    });
-
-    const komposisi = [];
-    for (let index = 0; index < DB_MAX_BAHAN; index++) {
-      if (index === 7) {
-        const slotDelapan = valueOrEmpty_(
-          row[DB_COL.KOMPOSISI_START - 1 + ((DB_MAX_BAHAN - 1) * 3)]
-        );
-        if (slotDelapan !== '') komposisi.push({ material: slotDelapan, kg: '', percent: '' });
-        continue;
-      }
-
-      const start = DB_COL.KOMPOSISI_START - 1 + (index * 3);
-      const item = {
-        material: valueOrEmpty_(row[start]),
-        kg: numberOrEmptyForClient_(row[start + 1]),
-        percent: percentToInput_(row[start + 2])
-      };
-
-      if (item.material !== '' || item.kg !== '' || item.percent !== '') {
-        komposisi.push(item);
-      }
-    }
-
-    const releaseValue = String(row[DB_COL.RELEASE - 1] || '').trim().toUpperCase() === 'YA'
-      ? 'YA'
-      : 'Tidak';
-    const parsedDimensions = parseCalculationDimensions_(
-      row[DB_COL.UKURAN_BLOW - 1],
-      row[DB_COL.UKURAN_JADI - 1]
-    );
-
-    // Pemanggil lama tetap menerima paket lengkap. Pratinjau sematan secara
-    // eksplisit mengirim false agar lembar utama tidak menunggu file Drive.
+    if (!key) return { status: 'not_found', found: false, message: 'Nomor SPK untuk dicetak tidak ditemukan.' };
+    const aggregate = readDatabaseV2Spk_(key);
+    if (!aggregate) return { status: 'not_found', found: false, message: "Nomor SPK '" + key + "' tidak ditemukan di Database V2." };
+    const data = buildDatabaseV2InputData_(aggregate);
+    const master = aggregate.master;
+    const parsedDimensions = parseCalculationDimensions_(master['Ukuran Blow'], master['Ukuran Jadi']);
+    const releaseValue = String(master.Release || '').trim().toUpperCase() === 'YA' ? 'YA' : 'Tidak';
     const shouldIncludeSignatures = Boolean(printSession) && includeSignatureData !== false;
     const approvalSummary = getSpkApprovalSummary_(key, shouldIncludeSignatures);
-    const mayPrintReleasedLegacy = Boolean(printSession && releaseValue === 'YA');
-    return {
-      status: 'success',
-      found: true,
-      data: {
-        rowNumber: rowNumber,
-        spk: normalizeSpk_(row[DB_COL.SPK - 1]),
-        tanggal: dateToInput_(row[DB_COL.TANGGAL - 1]),
-        jenisOrder: valueOrEmpty_(row[DB_COL.JENIS_ORDER - 1]),
-        marketing: valueOrEmpty_(row[DB_COL.MARKETING - 1]),
-        nomorPO: valueOrEmpty_(row[DB_COL.NOMOR_PO - 1]),
-        customer: valueOrEmpty_(row[DB_COL.CUSTOMER - 1]),
-        material: valueOrEmpty_(row[DB_COL.MATERIAL - 1]),
-        film: valueOrEmpty_(row[DB_COL.FILM - 1]),
-        artikel: valueOrEmpty_(row[DB_COL.ARTIKEL - 1]),
-        kodeItem: valueOrEmpty_(row[DB_COL.KODE_ITEM - 1]),
-        keteranganArtikel: valueOrEmpty_(row[DB_COL.KETERANGAN_ARTIKEL - 1]),
-        keteranganWarna: valueOrEmpty_(row[DB_COL.KETERANGAN_WARNA - 1]),
-        keteranganBahan: valueOrEmpty_(row[DB_COL.KETERANGAN_BAHAN - 1]),
-        modelKantong: valueOrEmpty_(row[DB_COL.MODEL_KANTONG - 1]),
-        ukuranBlow: valueOrEmpty_(row[DB_COL.UKURAN_BLOW - 1]),
-        ukuranJadi: valueOrEmpty_(row[DB_COL.UKURAN_JADI - 1]),
-        ...getRoutingDetailsFromRow_(row),
-        ...getExtraInputsFromRow_(row),
-        ukuranKomponen: {
-          lebar: valueOrEmpty_(row[DB_COL.LEBAR_JADI - 1]),
-          panjang: valueOrEmpty_(row[DB_COL.PANJANG_JADI - 1]),
-          tebal: valueOrEmpty_(row[DB_COL.TEBAL - 1]),
-          lebarBahan: valueOrEmpty_(row[DB_COL.LEBAR_BAHAN - 1]),
-          tebalBlow: numberOrEmptyForClient_(parsedDimensions.tebalBlow)
-        },
-        density: numberOrEmptyForClient_(row[DB_COL.DENSITY - 1]),
-        pcsPerKg: numberOrEmptyForClient_(row[DB_COL.PCS_PER_KG - 1]),
-        meterPerKg: numberOrEmptyForClient_(row[DB_COL.METER_PER_KG - 1]),
-        proses: proses,
-        keteranganProses: keteranganProses,
-        finishing: valueOrEmpty_(row[DB_COL.FINISHING - 1]) || '-',
-        handlePm: valueOrEmpty_(row[DB_COL.HANDLE_PON - 1]) || '-',
-        bsPercent: bsPercent,
-        totalBs: percentToInput_(row[DB_COL.TOTAL_BS - 1]),
-        jumlahOrder: numberOrEmptyForClient_(row[DB_COL.JUMLAH_ORDER - 1]),
-        uomOrder: valueOrEmpty_(row[DB_COL.UOM_ORDER - 1]),
-        keluarBahan: numberOrEmptyForClient_(row[DB_COL.KELUAR_BAHAN - 1]),
-        uomKB: valueOrEmpty_(row[DB_COL.UOM_KB - 1]),
-        meterRoll: numberOrEmptyForClient_(
-          getStoredMeterRoll_(sheet, rowNumber, row)
-        ),
-        toleransi: percentToInput_(row[DB_COL.TOLERANSI - 1]),
-        etd: dateToInput_(row[DB_COL.ETD - 1]),
-        komposisi: komposisi,
-        totalKomposisiKg: numberOrEmptyForClient_(row[DB_COL.TOTAL_KOMPOSISI_KG - 1]),
-        totalKomposisiPercent: percentToInput_(row[DB_COL.TOTAL_KOMPOSISI_PERCENT - 1]),
-        warna: getWarnaFromRow_(row),
-        spkReferensi: valueOrEmpty_(row[DB_COL.SPK_REFERENSI - 1]),
-        release: releaseValue,
-        approvalStatus: approvalSummary.status,
-        approvalProgress: approvalSummary.progress,
-        approvals: approvalSummary.approvals,
-        signaturesLoaded: !Boolean(printSession) || shouldIncludeSignatures,
-        canPrint: Boolean(printSession && (mayPrintReleasedLegacy || approvalSummary.complete)),
-        canRelease: Boolean(printSession && printSession.roleKey === 'admin_ppic' && approvalSummary.complete)
-      }
-    };
-  } catch (e) {
-    return { status: 'error', found: false, message: e.message };
+    Object.assign(data, {
+      rowNumber: 0,
+      ukuranKomponen: {
+        lebar: numberOrEmptyForClient_(master['Lebar Jadi']),
+        panjang: numberOrEmptyForClient_(master['Panjang Jadi']),
+        tebal: numberOrEmptyForClient_(master.Tebal),
+        lebarBahan: numberOrEmptyForClient_(master['Lebar Bahan']),
+        tebalBlow: numberOrEmptyForClient_(parsedDimensions.tebalBlow)
+      },
+      density: numberOrEmptyForClient_(master.Density),
+      pcsPerKg: numberOrEmptyForClient_(master['PCS/KG']),
+      meterPerKg: numberOrEmptyForClient_(master['Meter/KG']),
+      totalBs: percentToInput_(master['Total BS']),
+      totalKomposisiKg: numberOrEmptyForClient_(master['Total Komposisi KG']),
+      totalKomposisiPercent: percentToInput_(master['Total Komposisi %']),
+      release: releaseValue,
+      approvalStatus: approvalSummary.status,
+      approvalProgress: approvalSummary.progress,
+      approvals: approvalSummary.approvals,
+      signaturesLoaded: !Boolean(printSession) || shouldIncludeSignatures,
+      canPrint: Boolean(printSession && (releaseValue === 'YA' || approvalSummary.complete)),
+      canRelease: Boolean(printSession && printSession.roleKey === 'admin_ppic' && approvalSummary.complete)
+    });
+    return { status: 'success', found: true, data: data };
+  } catch (error) {
+    return { status: 'error', found: false, message: error.message };
   }
 }
 
@@ -2579,139 +935,33 @@ function markSpkReleasedForPrint(spk, preferredRowNumber, authToken) {
   try {
     requireApprovalSession_(authToken, ['admin_ppic']);
     const key = normalizeSpk_(spk);
-    if (key === '') return { status: 'error', message: 'Nomor SPK untuk dicetak kosong.' };
-
-    const sheet = getDbSheetReadOnly_();
-    const rowNumber = findSpkRowFast_(sheet, key, preferredRowNumber);
-    if (!rowNumber) {
-      return { status: 'not_found', message: "Nomor SPK '" + key + "' tidak ditemukan di Database." };
-    }
-
+    if (!key) return { status: 'error', message: 'Nomor SPK untuk dicetak kosong.' };
     const approvalSummary = getSpkApprovalSummary_(key, false);
     if (!approvalSummary.complete) {
       return {
         status: 'approval_required',
-        message: 'SPK belum dapat diterbitkan. Persetujuan baru ' +
-          approvalSummary.progress.approved + ' dari ' + approvalSummary.progress.required + ' lengkap.',
+        message: 'SPK belum dapat diterbitkan. Persetujuan baru ' + approvalSummary.progress.approved +
+          ' dari ' + approvalSummary.progress.required + ' lengkap.',
         approvalStatus: approvalSummary.status,
         progress: approvalSummary.progress
       };
     }
-
-    sheet.getRange(rowNumber, DB_COL.RELEASE).setValue('YA');
-    const dualWrite = syncDatabaseV2AfterLegacyWrite_(sheet, rowNumber, 'RELEASE_PRINT');
+    const result = mutateDatabaseV2Spk_(key, 'RELEASE_PRINT_NATIVE', function(aggregate) {
+      if (String(aggregate.master.Release || '').trim().toUpperCase() === 'YA') return false;
+      aggregate.master.Release = 'YA';
+      return true;
+    });
+    if (result.status === 'NOT_FOUND') {
+      return { status: 'not_found', message: "Nomor SPK '" + key + "' tidak ditemukan di Database V2." };
+    }
     clearDashboardCache_();
-
     return {
-      status: 'success',
-      release: 'YA',
-      rowNumber: rowNumber,
-      dualWrite: dualWrite,
+      status: 'success', release: 'YA', rowNumber: 0, databaseV2: result,
       message: "SPK '" + key + "' ditandai Release = YA dan siap dicetak."
     };
-  } catch (e) {
-    return { status: 'error', message: e.message };
-  }
-}
-
-// Indeks baris per SPK. Nomor baris hanya berubah saat Database disortir atau
-// dirapikan, dan kedua operasi itu membersihkan cache ini. Setiap nilai yang
-// dipakai tetap diverifikasi ulang lewat satu pembacaan sel, sehingga entri
-// basi tidak pernah menghasilkan baris yang salah.
-const SPK_ROW_CACHE_PREFIX = 'spk-row-v1-';
-const SPK_ROW_CACHE_SECONDS = 21600;
-
-function readCachedSpkRow_(key) {
-  try {
-    const cached = CacheService
-      .getScriptCache()
-      .get(SPK_ROW_CACHE_PREFIX + key);
-    const rowNumber = Math.floor(Number(cached) || 0);
-    return rowNumber >= DB_DATA_START_ROW ? rowNumber : 0;
   } catch (error) {
-    return 0;
+    return { status: 'error', message: error.message };
   }
-}
-
-function writeCachedSpkRow_(key, rowNumber) {
-  try {
-    CacheService
-      .getScriptCache()
-      .put(
-        SPK_ROW_CACHE_PREFIX + key,
-        String(rowNumber),
-        SPK_ROW_CACHE_SECONDS
-      );
-  } catch (error) {
-    // Cache hanya akselerator; kegagalan tidak boleh menggagalkan pencarian.
-  }
-}
-
-function findSpkRowFast_(sheet, spk, preferredRowNumber) {
-  const key = normalizeSpk_(spk);
-  if (key === '') return 0;
-
-  const maxRows = sheet.getMaxRows();
-  const candidates = [
-    Math.floor(Number(preferredRowNumber) || 0),
-    readCachedSpkRow_(key)
-  ];
-
-  for (let index = 0; index < candidates.length; index++) {
-    const candidate = candidates[index];
-    if (candidate < DB_DATA_START_ROW || candidate > maxRows) continue;
-
-    const candidateSpk = sheet
-      .getRange(candidate, DB_COL.SPK)
-      .getDisplayValue();
-    if (normalizeSpk_(candidateSpk) === key) {
-      writeCachedSpkRow_(key, candidate);
-      return candidate;
-    }
-  }
-
-  // Jangan meminta TextFinder memindai seluruh kapasitas sheet. Banyak sheet
-  // mempunyai puluhan ribu baris kosong hasil penambahan kapasitas; pemindaian
-  // itu dapat menahan antrean Apps Script lama, terutama saat kunci tidak ada.
-  const finalUsedRow = sheet.getLastRow();
-  const searchRowCount = finalUsedRow - DB_DATA_START_ROW + 1;
-  if (searchRowCount < 1) return 0;
-
-  const match = sheet
-    .getRange(DB_DATA_START_ROW, DB_COL.SPK, searchRowCount, 1)
-    .createTextFinder(key)
-    .matchEntireCell(true)
-    .matchCase(false)
-    .useRegularExpression(false)
-    .findNext();
-
-  if (!match) return 0;
-
-  const foundRow = match.getRow();
-  writeCachedSpkRow_(key, foundRow);
-  return foundRow;
-}
-
-function getDatabaseLastSpkRowFast_(sheet) {
-  const physicalLastRow = sheet.getLastRow();
-  if (physicalLastRow < DB_DATA_START_ROW) return DB_DATA_START_ROW - 1;
-
-  // getNextDataCell(UP) dapat melempar "Argumen tidak valid" pada sheet
-  // Database yang besar. Baca kolom SPK per potongan dari bawah agar hasilnya
-  // tetap tepat tanpa menarik seluruh kolom ke memori sekaligus.
-  const chunkSize = 5000;
-  for (let endRow = physicalLastRow; endRow >= DB_DATA_START_ROW; endRow -= chunkSize) {
-    const startRow = Math.max(DB_DATA_START_ROW, endRow - chunkSize + 1);
-    const values = sheet
-      .getRange(startRow, DB_COL.SPK, endRow - startRow + 1, 1)
-      .getDisplayValues();
-
-    for (let index = values.length - 1; index >= 0; index--) {
-      if (normalizeSpk_(values[index][0]) !== '') return startRow + index;
-    }
-  }
-
-  return DB_DATA_START_ROW - 1;
 }
 
 function isProcessActive_(value) {
@@ -2784,37 +1034,12 @@ function getEtaBeliBahanFromRow_(row) {
   });
 }
 
-var KELUAR_BAHAN_CACHE_META_KEY = 'keluar-bahan-v3-meta';
-var KELUAR_BAHAN_CACHE_CHUNK_PREFIX = 'keluar-bahan-v3-part-';
+var KELUAR_BAHAN_CACHE_META_KEY = 'keluar-bahan-v4-native-v2-meta';
+var KELUAR_BAHAN_CACHE_CHUNK_PREFIX = 'keluar-bahan-v4-native-v2-part-';
 // Umur panjang aman karena setiap mutasi memanggil clearKeluarBahanCache_().
 var KELUAR_BAHAN_CACHE_SECONDS = 21600;
 var KELUAR_BAHAN_CACHE_CHUNK_SIZE = 75000;
 var KELUAR_BAHAN_CACHE_MAX_SIZE = 7000000;
-
-function getEtaBeliBahanFromBlock_(row) {
-  const source = Array.isArray(row) ? row : [];
-  return ETA_BELI_COLUMNS.map(function(columns, index) {
-    return {
-      index: index + 1,
-      eta: dateToInput_(
-        source[columns.eta - DB_COL.ETA_BELI_START]
-      ),
-      qty: columns.qty
-        ? numberOrEmptyForClient_(
-            source[columns.qty - DB_COL.ETA_BELI_START]
-          )
-        : '',
-      uom: columns.uom
-        ? enumForClient_(
-            source[columns.uom - DB_COL.ETA_BELI_START],
-            ['KG', 'ROLL'],
-            ''
-          )
-        : '',
-      hasQuantity: Boolean(columns.qty && columns.uom)
-    };
-  });
-}
 
 function readKeluarBahanCache_() {
   try {
@@ -2904,784 +1129,270 @@ function clearKeluarBahanCache_() {
 // ==========================================
 // SUBMIT DATA FORM -> SHEET DATABASE
 // ==========================================
+function getDatabaseV2EtaEntries_(aggregate) {
+  const byIndex = {};
+  aggregate.eta.forEach(function(item) { byIndex[Number(item.Urutan) || 0] = item; });
+  return [1, 2, 3, 4, 5].map(function(index) {
+    const item = byIndex[index];
+    if (!item) return { index: index, eta: '', qty: '', uom: '', hasQuantity: true };
+    return {
+      index: index,
+      eta: dateToInput_(item['Tanggal ETA']),
+      qty: numberOrEmptyForClient_(item.Qty),
+      uom: enumForClient_(item.UOM, ['KG', 'ROLL'], ''),
+      hasQuantity: true
+    };
+  });
+}
+
+function buildKeluarBahanManagerDetailV2_(aggregate) {
+  const data = buildDatabaseV2InputData_(aggregate);
+  const master = aggregate.master;
+  const bsItems = BS_KEYS.map(function(key) {
+    const percent = data.bsPercent[key];
+    return { key: key, label: BS_LABELS[key] || key, percent: percent === '' ? 0 : percent };
+  });
+  const calculationPayload = {
+    jumlahOrder: data.jumlahOrder, uomOrder: data.uomOrder,
+    material: data.material, customer: data.customer,
+    ukuranBlow: data.ukuranBlow, ukuranJadi: data.ukuranJadi,
+    film: data.film, meterRoll: data.meterRoll, bsPercent: data.bsPercent
+  };
+  const parsed = parseCalculationDimensions_(data.ukuranBlow, data.ukuranJadi);
+  return {
+    rowNumber: 0, spk: data.spk, tanggal: data.tanggal, jenisOrder: data.jenisOrder,
+    marketing: data.marketing, nomorPO: data.nomorPO, customer: data.customer,
+    artikel: data.artikel, material: data.material, film: data.film,
+    modelKantong: data.modelKantong, ukuranBlow: data.ukuranBlow, ukuranJadi: data.ukuranJadi,
+    jumlahOrder: data.jumlahOrder, uomOrder: data.uomOrder,
+    keluarBahan: data.keluarBahan, uomKB: data.uomKB, meterRoll: data.meterRoll,
+    etd: data.etd, spkReferensi: data.spkReferensi,
+    bs: { items: bsItems, total: getCalculationBsTotal_(data.bsPercent), totalTersimpan: percentToInput_(master['Total BS']) },
+    dimensions: {
+      lebarJadi: numberOrEmptyForClient_(parsed.lebar), panjangJadi: numberOrEmptyForClient_(parsed.panjang),
+      tebalJadi: numberOrEmptyForClient_(parsed.tebal), lebarBahan: numberOrEmptyForClient_(parsed.lebarBahan),
+      tebalBlow: numberOrEmptyForClient_(parsed.tebalBlow),
+      lebarJadiTersimpan: numberOrEmptyForClient_(master['Lebar Jadi']),
+      panjangJadiTersimpan: numberOrEmptyForClient_(master['Panjang Jadi']),
+      tebalTersimpan: numberOrEmptyForClient_(master.Tebal),
+      lebarBahanTersimpan: numberOrEmptyForClient_(master['Lebar Bahan']),
+      densityTersimpan: numberOrEmptyForClient_(master.Density),
+      pcsPerKgTersimpan: numberOrEmptyForClient_(master['PCS/KG']),
+      meterPerKgTersimpan: numberOrEmptyForClient_(master['Meter/KG'])
+    },
+    calculation: calculateRawMaterialPayload_(calculationPayload)
+  };
+}
+
 function getKeluarBahanManagerData(forceRefresh) {
   try {
     const startedAt = Date.now();
     if (!forceRefresh) {
       const cached = readKeluarBahanCache_();
-      if (cached) {
-        cached.performance = {
-          source: 'cache',
-          durationMs: Date.now() - startedAt,
-          rowCount: Array.isArray(cached.data) ? cached.data.length : 0
-        };
-        return cached;
-      }
+      if (cached) return Object.assign(cached, { performance: { source: 'cache-v2', durationMs: Date.now() - startedAt, rowCount: cached.data.length } });
     }
-
-    const sheet = getDbSheetReadOnly_();
-    const lastDataRow = getDatabaseLastSpkRowFast_(sheet);
-    if (lastDataRow < DB_DATA_START_ROW) {
-      const emptyResponse = {
-        status: 'success',
-        data: [],
-        summary: { total: 0, pending: 0, complete: 0 },
-        performance: {
-          source: 'sheet',
-          durationMs: Date.now() - startedAt,
-          rowCount: 0
-        }
-      };
-      writeKeluarBahanCache_(emptyResponse);
-      return emptyResponse;
-    }
-
-    const rowCount = lastDataRow - DB_DATA_START_ROW + 1;
-
-    // Daftar memakai pembacaan massal terarah (47 kolom), bukan A:CV
-    // yang berjumlah 100 kolom. A:L, AB:AM, AR:AW, dan BV juga cukup
-    // untuk menyiapkan detail halaman pertama tanpa RPC Sheet tambahan.
-    const mainRows = sheet
-      .getRange(DB_DATA_START_ROW, DB_COL.SPK, rowCount, DB_COL.UKURAN_JADI)
-      .getValues();
-    const bsRows = sheet
-      .getRange(
-        DB_DATA_START_ROW,
-        DB_COL.BS_START,
-        rowCount,
-        DB_COL.BS_END - DB_COL.BS_START + 1
-      )
-      .getValues();
-    const orderRows = sheet
-      .getRange(
-        DB_DATA_START_ROW,
-        DB_COL.JUMLAH_ORDER,
-        rowCount,
-        DB_COL.ETD - DB_COL.JUMLAH_ORDER + 1
-      )
-      .getValues();
-    const referenceRows = sheet
-      .getRange(DB_DATA_START_ROW, DB_COL.SPK_REFERENSI, rowCount, 1)
-      .getValues();
-    const etaRows = sheet
-      .getRange(
-        DB_DATA_START_ROW,
-        DB_COL.ETA_BELI_START,
-        rowCount,
-        DB_COL.ETA_BELI_KETERANGAN - DB_COL.ETA_BELI_START + 1
-      )
-      .getValues();
-    const data = [];
-    const detailBlocksByRow = {};
+    const book = SpreadsheetApp.openById(DB_SPREADSHEET_ID);
+    const masters = readDatabaseV2Table_('master', book).records;
+    const etaBySpk = {};
+    readDatabaseV2Table_('eta', book).records.forEach(function(item) {
+      const spk = normalizeDatabaseV2Key_(item.SPK);
+      if (!etaBySpk[spk]) etaBySpk[spk] = [];
+      etaBySpk[spk].push(item);
+    });
     let pending = 0;
     let complete = 0;
-
-    mainRows.forEach(function(mainRow, index) {
-      const rowNumber = DB_DATA_START_ROW + index;
-      const bsRow = bsRows[index];
-      const orderRow = orderRows[index];
-      const etaRow = etaRows[index];
-      const spk = normalizeSpk_(mainRow[DB_COL.SPK - 1]);
-      if (spk === '') return;
-
-      const keluarBahan = numberOrEmptyForClient_(
-        orderRow[DB_COL.KELUAR_BAHAN - DB_COL.JUMLAH_ORDER]
-      );
-      const uomKB = enumForClient_(
-        orderRow[DB_COL.UOM_KB - DB_COL.JUMLAH_ORDER],
-        ['KG', 'ROLL'],
-        ''
-      );
-      const isComplete = keluarBahan !== '' && Number(keluarBahan) > 0 && uomKB !== '';
-      if (isComplete) {
-        complete++;
-      } else {
-        pending++;
-      }
-
-      data.push({
-        rowNumber: rowNumber,
-        spk: spk,
-        tanggal: dateToInput_(mainRow[DB_COL.TANGGAL - 1]),
-        customer: valueOrEmpty_(mainRow[DB_COL.CUSTOMER - 1]),
-        artikel: valueOrEmpty_(mainRow[DB_COL.ARTIKEL - 1]),
-        material: valueOrEmpty_(mainRow[DB_COL.MATERIAL - 1]),
-        jumlahOrder: numberOrEmptyForClient_(
-          orderRow[DB_COL.JUMLAH_ORDER - DB_COL.JUMLAH_ORDER]
-        ),
-        uomOrder: valueOrEmpty_(
-          orderRow[DB_COL.UOM_ORDER - DB_COL.JUMLAH_ORDER]
-        ),
-        keluarBahan: keluarBahan,
-        uomKB: uomKB,
-        etaBeliBahan: getEtaBeliBahanFromBlock_(etaRow),
-        etaBeliKeterangan: valueOrEmpty_(
-          etaRow[DB_COL.ETA_BELI_KETERANGAN - DB_COL.ETA_BELI_START]
-        ),
-        complete: isComplete
-      });
-      detailBlocksByRow[rowNumber] = {
-        main: mainRow,
-        bs: bsRow,
-        order: orderRow,
-        reference: referenceRows[index][0]
+    const data = masters.map(function(master) {
+      const spk = normalizeDatabaseV2Key_(master.SPK);
+      const keluar = numberOrEmptyForClient_(master['Keluar Bahan']);
+      const uom = enumForClient_(master['UOM KB'], ['KG', 'ROLL'], '');
+      const done = keluar !== '' && Number(keluar) > 0 && uom !== '';
+      if (done) complete++; else pending++;
+      const etaAggregate = { eta: etaBySpk[spk] || [] };
+      const etaEntries = getDatabaseV2EtaEntries_(etaAggregate);
+      return {
+        rowNumber: 0, spk: spk, tanggal: dateToInput_(master.Tanggal),
+        customer: valueOrEmpty_(master.Customer), artikel: valueOrEmpty_(master.Artikel),
+        material: valueOrEmpty_(master.Material), jumlahOrder: numberOrEmptyForClient_(master['Jumlah Order']),
+        uomOrder: valueOrEmpty_(master['UOM Order']), keluarBahan: keluar, uomKB: uom,
+        etaBeliBahan: etaEntries,
+        etaBeliKeterangan: etaBySpk[spk] && etaBySpk[spk].length
+          ? valueOrEmpty_(etaBySpk[spk][0].Keterangan)
+          : '',
+        complete: done
       };
     });
-
     data.sort(function(a, b) {
       if (a.complete !== b.complete) return a.complete ? 1 : -1;
-      return buildSpkSortKey_(a.spk, 0).localeCompare(
-        buildSpkSortKey_(b.spk, 0)
-      );
+      return buildSpkSortKey_(a.spk, 0).localeCompare(buildSpkSortKey_(b.spk, 0));
     });
-
-    // Detail lengkap hanya dibundel untuk halaman pertama tiap status.
-    // Ini membuat klik utama instan tanpa memperbesar seluruh payload
-    // ribuan SPK atau menjalankan prefetch massal setelah halaman terbuka.
-    const detailTargets = data
-      .filter(function(item) { return !item.complete; })
-      .slice(0, 50)
-      .concat(
-        data
-          .filter(function(item) { return item.complete; })
-          .slice(0, 50)
-      );
-    detailTargets.forEach(function(item) {
-      const blocks = detailBlocksByRow[item.rowNumber];
-      if (!blocks) return;
-
-      const detailRow = new Array(DB_COL.SPK_REFERENSI).fill('');
-      blocks.main.forEach(function(value, index) {
-        detailRow[index] = value;
-      });
-      blocks.bs.forEach(function(value, index) {
-        detailRow[DB_COL.BS_START - 1 + index] = value;
-      });
-      blocks.order.forEach(function(value, index) {
-        detailRow[DB_COL.JUMLAH_ORDER - 1 + index] = value;
-      });
-      detailRow[DB_COL.SPK_REFERENSI - 1] = blocks.reference;
-      item.detail = buildKeluarBahanManagerDetail_(
-        sheet,
-        item.rowNumber,
-        detailRow
-      );
-    });
-
     const response = {
-      status: 'success',
-      data: data,
-      summary: {
-        total: data.length,
-        pending: pending,
-        complete: complete
-      },
-      performance: {
-        source: 'sheet',
-        durationMs: Date.now() - startedAt,
-        rowCount: data.length
-      }
+      status: 'success', data: data, summary: { total: data.length, pending: pending, complete: complete },
+      performance: { source: 'database-v2', durationMs: Date.now() - startedAt, rowCount: data.length }
     };
     writeKeluarBahanCache_(response);
     return response;
-  } catch (e) {
-    return {
-      status: 'error',
-      data: [],
-      summary: { total: 0, pending: 0, complete: 0 },
-      message: e.message
-    };
+  } catch (error) {
+    return { status: 'error', data: [], summary: { total: 0, pending: 0, complete: 0 }, message: error.message };
   }
-}
-
-function readKeluarBahanDetailRow_(
-  sheet,
-  spk,
-  preferredRowNumber,
-  knownMaxRows
-) {
-  const key = normalizeSpk_(spk);
-  const preferredRow = Math.floor(Number(preferredRowNumber) || 0);
-  const maxRows = Number(knownMaxRows) || sheet.getMaxRows();
-
-  // Saat rowNumber berasal dari daftar manager, baca seluruh detail sekali
-  // sekaligus dan verifikasi SPK dari hasil yang sama. Ini menghilangkan
-  // pembacaan sel SPK terpisah sebelum pembacaan A:BV.
-  if (
-    preferredRow >= DB_DATA_START_ROW &&
-    preferredRow <= maxRows
-  ) {
-    const preferredValues = sheet
-      .getRange(preferredRow, 1, 1, DB_COL.SPK_REFERENSI)
-      .getValues()[0];
-    if (normalizeSpk_(preferredValues[DB_COL.SPK - 1]) === key) {
-      return {
-        rowNumber: preferredRow,
-        values: preferredValues
-      };
-    }
-  }
-
-  const rowNumber = findSpkRowFast_(sheet, key, 0);
-  if (!rowNumber) return null;
-
-  return {
-    rowNumber: rowNumber,
-    values: sheet
-      .getRange(rowNumber, 1, 1, DB_COL.SPK_REFERENSI)
-      .getValues()[0]
-  };
-}
-
-function buildKeluarBahanManagerDetail_(sheet, rowNumber, row) {
-  const bsPercent = {};
-  const bsItems = BS_KEYS.map(function(keyName, index) {
-    const percent = percentToInput_(row[DB_COL.BS_START - 1 + index]);
-    bsPercent[keyName] = percent;
-    return {
-      key: keyName,
-      label: BS_LABELS[keyName] || keyName,
-      percent: percent === '' ? 0 : percent
-    };
-  });
-
-  const detailUomOrder = valueOrEmpty_(
-    row[DB_COL.UOM_ORDER - 1]
-  ).trim().toUpperCase();
-  const calculationPayload = {
-    jumlahOrder: numberOrEmptyForClient_(row[DB_COL.JUMLAH_ORDER - 1]),
-    uomOrder: detailUomOrder,
-    material: valueOrEmpty_(row[DB_COL.MATERIAL - 1]),
-    customer: valueOrEmpty_(row[DB_COL.CUSTOMER - 1]),
-    ukuranBlow: valueOrEmpty_(row[DB_COL.UKURAN_BLOW - 1]),
-    ukuranJadi: valueOrEmpty_(row[DB_COL.UKURAN_JADI - 1]),
-    film: valueOrEmpty_(row[DB_COL.FILM - 1]),
-    meterRoll: detailUomOrder === 'ROLL'
-      ? numberOrEmptyForClient_(
-          getStoredMeterRoll_(sheet, rowNumber, row)
-        )
-      : '',
-    bsPercent: bsPercent
-  };
-  const calculation = calculateRawMaterialPayload_(calculationPayload);
-  const parsedDimensions = parseCalculationDimensions_(
-    calculationPayload.ukuranBlow,
-    calculationPayload.ukuranJadi
-  );
-
-  return {
-    rowNumber: rowNumber,
-    spk: normalizeSpk_(row[DB_COL.SPK - 1]),
-    tanggal: dateToInput_(row[DB_COL.TANGGAL - 1]),
-    jenisOrder: valueOrEmpty_(row[DB_COL.JENIS_ORDER - 1]),
-    marketing: valueOrEmpty_(row[DB_COL.MARKETING - 1]),
-    nomorPO: valueOrEmpty_(row[DB_COL.NOMOR_PO - 1]),
-    customer: calculationPayload.customer,
-    artikel: valueOrEmpty_(row[DB_COL.ARTIKEL - 1]),
-    material: calculationPayload.material,
-    film: calculationPayload.film,
-    modelKantong: valueOrEmpty_(row[DB_COL.MODEL_KANTONG - 1]),
-    ukuranBlow: calculationPayload.ukuranBlow,
-    ukuranJadi: calculationPayload.ukuranJadi,
-    jumlahOrder: calculationPayload.jumlahOrder,
-    uomOrder: calculationPayload.uomOrder,
-    keluarBahan: numberOrEmptyForClient_(row[DB_COL.KELUAR_BAHAN - 1]),
-    uomKB: enumForClient_(row[DB_COL.UOM_KB - 1], ['KG', 'ROLL'], ''),
-    meterRoll: calculationPayload.meterRoll,
-    etd: dateToInput_(row[DB_COL.ETD - 1]),
-    spkReferensi: valueOrEmpty_(row[DB_COL.SPK_REFERENSI - 1]),
-    bs: {
-      items: bsItems,
-      total: getCalculationBsTotal_(bsPercent),
-      totalTersimpan: percentToInput_(row[DB_COL.TOTAL_BS - 1])
-    },
-    dimensions: {
-      lebarJadi: numberOrEmptyForClient_(parsedDimensions.lebar),
-      panjangJadi: numberOrEmptyForClient_(parsedDimensions.panjang),
-      tebalJadi: numberOrEmptyForClient_(parsedDimensions.tebal),
-      lebarBahan: numberOrEmptyForClient_(parsedDimensions.lebarBahan),
-      tebalBlow: numberOrEmptyForClient_(parsedDimensions.tebalBlow),
-      lebarJadiTersimpan: numberOrEmptyForClient_(row[DB_COL.LEBAR_JADI - 1]),
-      panjangJadiTersimpan: numberOrEmptyForClient_(row[DB_COL.PANJANG_JADI - 1]),
-      tebalTersimpan: numberOrEmptyForClient_(row[DB_COL.TEBAL - 1]),
-      lebarBahanTersimpan: numberOrEmptyForClient_(row[DB_COL.LEBAR_BAHAN - 1]),
-      densityTersimpan: numberOrEmptyForClient_(row[DB_COL.DENSITY - 1]),
-      pcsPerKgTersimpan: numberOrEmptyForClient_(row[DB_COL.PCS_PER_KG - 1]),
-      meterPerKgTersimpan: numberOrEmptyForClient_(row[DB_COL.METER_PER_KG - 1])
-    },
-    calculation: calculation
-  };
 }
 
 function getKeluarBahanManagerDetail(spk, preferredRowNumber) {
   try {
     const startedAt = Date.now();
     const key = normalizeSpk_(spk);
-    if (key === '') {
-      return {
-        status: 'not_found',
-        found: false,
-        message: 'Nomor SPK untuk dilihat tidak valid.'
-      };
-    }
-
-    const sheet = getDbSheetReadOnly_();
-    const detailRow = readKeluarBahanDetailRow_(
-      sheet,
-      key,
-      preferredRowNumber
-    );
-    if (!detailRow) {
-      return {
-        status: 'not_found',
-        found: false,
-        message: "Nomor SPK '" + key + "' tidak ditemukan di Database."
-      };
-    }
-
-    return {
-      status: 'success',
-      found: true,
-      data: buildKeluarBahanManagerDetail_(
-        sheet,
-        detailRow.rowNumber,
-        detailRow.values
-      ),
-      performance: {
-        durationMs: Date.now() - startedAt
-      }
-    };
-  } catch (e) {
-    return {
-      status: 'error',
-      found: false,
-      message: e.message
-    };
+    if (!key) return { status: 'not_found', found: false, message: 'Nomor SPK untuk dilihat tidak valid.' };
+    const aggregate = readDatabaseV2Spk_(key);
+    if (!aggregate) return { status: 'not_found', found: false, message: "Nomor SPK '" + key + "' tidak ditemukan di Database V2." };
+    return { status: 'success', found: true, data: buildKeluarBahanManagerDetailV2_(aggregate), performance: { durationMs: Date.now() - startedAt, source: 'database-v2' } };
+  } catch (error) {
+    return { status: 'error', found: false, message: error.message };
   }
 }
 
 function getKeluarBahanManagerDetailBatch(requests) {
+  const startedAt = Date.now();
   try {
-    const startedAt = Date.now();
-    const source = Array.isArray(requests) ? requests : [];
-    const uniqueRequests = [];
-    const seenSpk = {};
-
-    source.slice(0, 10).forEach(function(request) {
-      const key = normalizeSpk_(request && request.spk);
-      if (key === '' || seenSpk[key]) return;
-      seenSpk[key] = true;
-      uniqueRequests.push({
-        spk: key,
-        rowNumber: Number(request && request.rowNumber) || 0
-      });
-    });
-
-    if (!uniqueRequests.length) {
-      return {
-        status: 'success',
-        data: {},
-        missing: [],
-        performance: { durationMs: Date.now() - startedAt, rowCount: 0 }
-      };
-    }
-
-    const sheet = getDbSheetReadOnly_();
-    const maxRows = sheet.getMaxRows();
     const details = {};
     const missing = [];
-    uniqueRequests.forEach(function(request) {
-      const detailRow = readKeluarBahanDetailRow_(
-        sheet,
-        request.spk,
-        request.rowNumber,
-        maxRows
-      );
-      if (!detailRow) {
-        missing.push(request.spk);
-        return;
-      }
-      details[request.spk] = buildKeluarBahanManagerDetail_(
-        sheet,
-        detailRow.rowNumber,
-        detailRow.values
-      );
+    const seen = {};
+    (Array.isArray(requests) ? requests : []).slice(0, 10).forEach(function(request) {
+      const key = normalizeSpk_(request && request.spk);
+      if (!key || seen[key]) return;
+      seen[key] = true;
+      const aggregate = readDatabaseV2Spk_(key);
+      if (!aggregate) missing.push(key);
+      else details[key] = buildKeluarBahanManagerDetailV2_(aggregate);
     });
-
-    return {
-      status: 'success',
-      data: details,
-      missing: missing,
-      performance: {
-        durationMs: Date.now() - startedAt,
-        rowCount: Object.keys(details).length
-      }
-    };
-  } catch (e) {
-    return {
-      status: 'error',
-      data: {},
-      missing: [],
-      message: e.message
-    };
+    return { status: 'success', data: details, missing: missing, performance: { durationMs: Date.now() - startedAt, rowCount: Object.keys(details).length, source: 'database-v2' } };
+  } catch (error) {
+    return { status: 'error', data: {}, missing: [], message: error.message };
   }
 }
 
+function normalizeDatabaseV2EtaSchedule_(payload) {
+  const entries = Array.isArray(payload && payload.entries) ? payload.entries : [];
+  if (entries.length !== 5) throw new Error('Jadwal ETA harus memuat ETA 1 sampai ETA 5.');
+  const keterangan = String(payload && payload.keterangan || '').trim();
+  if (keterangan.length > 1000) throw new Error('Keterangan ETA maksimal 1.000 karakter.');
+  let gap = false;
+  let previous = '';
+  return {
+    keterangan: keterangan,
+    entries: entries.map(function(source, index) {
+      const eta = String(source && source.eta || '').trim();
+      const qtyText = String(source && source.qty != null ? source.qty : '').trim();
+      const uom = String(source && source.uom || '').trim().toUpperCase();
+      if (!eta) {
+        if (qtyText || uom) throw new Error('Tanggal ETA ' + (index + 1) + ' wajib diisi sebelum QTY dan UOM.');
+        gap = true;
+        return null;
+      }
+      if (!isValidDateInput_(eta)) throw new Error('Tanggal ETA ' + (index + 1) + ' tidak valid.');
+      if (gap) throw new Error('ETA ' + (index + 1) + ' tidak boleh melompati ETA sebelumnya.');
+      if (previous && eta < previous) throw new Error('Tanggal ETA ' + (index + 1) + ' tidak boleh lebih awal dari ETA sebelumnya.');
+      const qty = parseCalculationNumber_(qtyText);
+      if (!(qty > 0)) throw new Error('QTY ETA ' + (index + 1) + ' wajib berupa angka lebih dari 0.');
+      if (['KG', 'ROLL'].indexOf(uom) === -1) throw new Error('UOM ETA ' + (index + 1) + ' harus KG atau ROLL.');
+      previous = eta;
+      return { index: index + 1, eta: eta, qty: qty, uom: uom, hasQuantity: true };
+    }).filter(Boolean)
+  };
+}
+
+function databaseV2EtaRecord_(spk, entry, keterangan) {
+  return {
+    'ETA ID': databaseV2DetailId_(spk, 'E', entry.index), 'SPK': spk, 'Urutan': entry.index,
+    'Tanggal ETA': databaseV2DateInput_(entry.eta), 'Qty': entry.qty, 'UOM': entry.uom,
+    'Status': 'RENCANA', 'Keterangan': keterangan || '', 'Sumber': DB_V2_NATIVE_WRITE_SOURCE,
+    'Dibuat': '', 'Diperbarui': ''
+  };
+}
+
 function saveEtaBeliBahanScheduleByManager(payload) {
-  const lock = LockService.getScriptLock();
-  const gotLock = lock.tryLock(30000);
-
-  if (!gotLock) {
-    return {
-      status: 'error',
-      message: 'Sistem sedang sibuk. Coba simpan jadwal ETA kembali beberapa saat lagi.'
-    };
-  }
-
   try {
     const spk = normalizeSpk_(payload && payload.spk);
-    const sourceEntries = Array.isArray(payload && payload.entries)
-      ? payload.entries
-      : [];
-    const keterangan = String(payload && payload.keterangan || '').trim();
-
-    if (spk === '') {
-      return { status: 'error', message: 'Nomor SPK tidak valid.' };
-    }
-    if (sourceEntries.length !== ETA_BELI_COLUMNS.length) {
-      return {
-        status: 'error',
-        message: 'Jadwal ETA harus memuat ETA 1 sampai ETA 5.'
-      };
-    }
-    if (keterangan.length > 1000) {
-      return {
-        status: 'error',
-        message: 'Keterangan ETA maksimal 1.000 karakter.'
-      };
-    }
-
-    const entries = [];
-    const rowValues = [];
-    let previousDate = '';
-    let foundGap = false;
-    let filledCount = 0;
-
-    ETA_BELI_COLUMNS.forEach(function(columns, index) {
-      const source = sourceEntries[index] || {};
-      const etaText = String(source.eta || '').trim();
-      const qtyText = String(
-        source.qty !== null && source.qty !== undefined ? source.qty : ''
-      ).trim();
-      const uomText = String(source.uom || '').trim().toUpperCase();
-      const hasQuantity = Boolean(columns.qty && columns.uom);
-
-      if (etaText !== '' && !isValidDateInput_(etaText)) {
-        throw new Error('Tanggal ETA ' + (index + 1) + ' tidak valid.');
-      }
-      if (etaText === '') {
-        if (hasQuantity && (qtyText !== '' || uomText !== '')) {
-          throw new Error(
-            'Tanggal ETA ' + (index + 1) + ' wajib diisi sebelum QTY dan UOM.'
-          );
-        }
-        foundGap = true;
-        rowValues.push('');
-        if (hasQuantity) rowValues.push('', '');
-        entries.push({
-          index: index + 1,
-          eta: '',
-          qty: '',
-          uom: '',
-          hasQuantity: hasQuantity
-        });
-        return;
-      }
-
-      if (foundGap) {
-        throw new Error(
-          'ETA ' + (index + 1) + ' tidak boleh diisi sebelum ETA sebelumnya lengkap.'
-        );
-      }
-      if (previousDate !== '' && etaText < previousDate) {
-        throw new Error(
-          'Tanggal ETA ' + (index + 1) + ' tidak boleh lebih awal dari ETA sebelumnya.'
-        );
-      }
-
-      let qty = '';
-      let uom = '';
-      if (hasQuantity) {
-        qty = parseCalculationNumber_(qtyText);
-        if (!(qty > 0)) {
-          throw new Error(
-            'QTY ETA ' + (index + 1) + ' wajib berupa angka lebih dari 0.'
-          );
-        }
-        if (['KG', 'ROLL'].indexOf(uomText) === -1) {
-          throw new Error('UOM ETA ' + (index + 1) + ' harus KG atau ROLL.');
-        }
-        uom = uomText;
-      }
-
-      previousDate = etaText;
-      filledCount++;
-      rowValues.push(parseTanggal_(etaText));
-      if (hasQuantity) rowValues.push(qty, uom);
-      entries.push({
-        index: index + 1,
-        eta: etaText,
-        qty: qty,
-        uom: uom,
-        hasQuantity: hasQuantity
+    if (!spk) return { status: 'error', message: 'Nomor SPK tidak valid.' };
+    const normalized = normalizeDatabaseV2EtaSchedule_(payload);
+    const result = mutateDatabaseV2Spk_(spk, 'ETA_SCHEDULE_NATIVE', function(aggregate) {
+      aggregate.eta = normalized.entries.map(function(entry) {
+        return databaseV2EtaRecord_(spk, entry, normalized.keterangan);
       });
+      return true;
     });
-
-    rowValues.push(keterangan);
-    const sheet = getDbSheetReadOnly_();
-    const rowNumber = findSpkRowFast_(
-      sheet,
-      spk,
-      payload && payload.rowNumber
-    );
-    if (!rowNumber) {
-      return {
-        status: 'not_found',
-        message: "SPK '" + spk + "' tidak ditemukan di Database."
-      };
-    }
-
-    sheet
-      .getRange(
-        rowNumber,
-        DB_COL.ETA_BELI_START,
-        1,
-        DB_COL.ETA_BELI_KETERANGAN - DB_COL.ETA_BELI_START + 1
-      )
-      .setValues([rowValues]);
-    ETA_BELI_COLUMNS.forEach(function(columns) {
-      sheet.getRange(rowNumber, columns.eta).setNumberFormat('dd/MM/yyyy');
-      if (columns.qty) {
-        sheet.getRange(rowNumber, columns.qty).setNumberFormat('0.##');
-      }
-    });
-    SpreadsheetApp.flush();
-    const dualWrite = syncDatabaseV2AfterLegacyWrite_(sheet, rowNumber, 'ETA_SCHEDULE');
+    if (result.status === 'NOT_FOUND') return { status: 'not_found', message: "SPK '" + spk + "' tidak ditemukan di Database V2." };
     clearKeluarBahanCache_();
-
     return {
       status: 'success',
-      message: filledCount > 0
+      message: normalized.entries.length
         ? "Jadwal ETA beli bahan SPK '" + spk + "' berhasil disimpan."
         : "Jadwal ETA beli bahan SPK '" + spk + "' berhasil dikosongkan.",
-      data: {
-        rowNumber: rowNumber,
-        spk: spk,
-        entries: entries,
-        keterangan: keterangan,
-        filledCount: filledCount,
-        dualWrite: dualWrite
-      }
+      data: { rowNumber: 0, spk: spk, entries: normalized.entries, keterangan: normalized.keterangan, filledCount: normalized.entries.length, databaseV2: result }
     };
-  } catch (e) {
-    return { status: 'error', message: e.message };
-  } finally {
-    lock.releaseLock();
+  } catch (error) {
+    return { status: 'error', message: error.message };
   }
 }
 
 function updateEtaBeliBahanByManager(payload) {
-  const lock = LockService.getScriptLock();
-  const gotLock = lock.tryLock(30000);
-
-  if (!gotLock) {
-    return {
-      status: 'error',
-      message: 'Sistem sedang sibuk. Coba simpan ETA kembali beberapa saat lagi.'
-    };
-  }
-
   try {
     const spk = normalizeSpk_(payload && payload.spk);
-    const etaIndex = Number(payload && payload.etaIndex);
-    const etaText = String(payload && payload.eta || '').trim();
-    const qtyText = String(
-      payload && payload.qty !== null && payload.qty !== undefined
-        ? payload.qty
-        : ''
-    ).trim();
+    const index = Number(payload && payload.etaIndex);
+    const eta = String(payload && payload.eta || '').trim();
+    const qtyText = String(payload && payload.qty != null ? payload.qty : '').trim();
     const uom = String(payload && payload.uom || '').trim().toUpperCase();
-    const columns = ETA_BELI_COLUMNS[etaIndex - 1];
-
-    if (spk === '') {
-      return { status: 'error', message: 'Nomor SPK tidak valid.' };
+    if (!spk) return { status: 'error', message: 'Nomor SPK tidak valid.' };
+    if (!(index >= 1 && index <= 5)) return { status: 'error', message: 'Urutan ETA harus antara ETA 1 sampai ETA 5.' };
+    let entry = null;
+    if (eta || qtyText || uom) {
+      if (!eta || !isValidDateInput_(eta)) return { status: 'error', message: 'Tanggal ETA ' + index + ' tidak valid.' };
+      const qty = parseCalculationNumber_(qtyText);
+      if (!(qty > 0)) return { status: 'error', message: 'QTY ETA ' + index + ' wajib berupa angka lebih dari 0.' };
+      if (['KG', 'ROLL'].indexOf(uom) === -1) return { status: 'error', message: 'UOM ETA ' + index + ' harus KG atau ROLL.' };
+      entry = { index: index, eta: eta, qty: qty, uom: uom, hasQuantity: true };
     }
-    if (!columns) {
-      return { status: 'error', message: 'Urutan ETA harus antara ETA 1 sampai ETA 5.' };
-    }
-    if (etaText !== '' && !isValidDateInput_(etaText)) {
-      return { status: 'error', message: 'Tanggal ETA tidak valid.' };
-    }
-
-    let qty = '';
-    let normalizedUom = '';
-    if (columns.qty && columns.uom) {
-      const hasAnyValue = etaText !== '' || qtyText !== '' || uom !== '';
-      if (hasAnyValue) {
-        qty = parseCalculationNumber_(qtyText);
-        if (etaText === '') {
-          return { status: 'error', message: 'Tanggal ETA ' + etaIndex + ' wajib diisi.' };
-        }
-        if (!(qty > 0)) {
-          return {
-            status: 'error',
-            message: 'QTY ETA ' + etaIndex + ' wajib berupa angka lebih dari 0.'
-          };
-        }
-        if (['KG', 'ROLL'].indexOf(uom) === -1) {
-          return {
-            status: 'error',
-            message: 'UOM ETA ' + etaIndex + ' harus KG atau ROLL.'
-          };
-        }
-        normalizedUom = uom;
-      }
-    }
-
-    const sheet = getDbSheetReadOnly_();
-    const rowNumber = findSpkRowFast_(
-      sheet,
-      spk,
-      payload && payload.rowNumber
-    );
-    if (!rowNumber) {
-      return {
-        status: 'not_found',
-        message: "SPK '" + spk + "' tidak ditemukan di Database."
-      };
-    }
-
-    const values = [etaText === '' ? '' : parseTanggal_(etaText)];
-    if (columns.qty && columns.uom) {
-      values.push(qty, normalizedUom);
-    }
-
-    sheet
-      .getRange(rowNumber, columns.eta, 1, values.length)
-      .setValues([values]);
-    sheet
-      .getRange(rowNumber, columns.eta)
-      .setNumberFormat('dd/MM/yyyy');
-    if (columns.qty) {
-      sheet
-        .getRange(rowNumber, columns.qty)
-        .setNumberFormat('0.##');
-    }
-    SpreadsheetApp.flush();
-    const dualWrite = syncDatabaseV2AfterLegacyWrite_(sheet, rowNumber, 'ETA_SINGLE');
+    const result = mutateDatabaseV2Spk_(spk, 'ETA_SINGLE_NATIVE', function(aggregate) {
+      const existing = aggregate.eta.find(function(item) { return Number(item.Urutan) === index; });
+      const note = existing ? valueOrEmpty_(existing.Keterangan) : '';
+      aggregate.eta = aggregate.eta.filter(function(item) { return Number(item.Urutan) !== index; });
+      if (entry) aggregate.eta.push(databaseV2EtaRecord_(spk, entry, note));
+      aggregate.eta.sort(function(a, b) { return Number(a.Urutan) - Number(b.Urutan); });
+      return true;
+    });
+    if (result.status === 'NOT_FOUND') return { status: 'not_found', message: "SPK '" + spk + "' tidak ditemukan di Database V2." };
     clearKeluarBahanCache_();
-
-    const entry = {
-      index: etaIndex,
-      eta: etaText,
-      qty: columns.qty ? qty : '',
-      uom: columns.uom ? normalizedUom : '',
-      hasQuantity: Boolean(columns.qty && columns.uom)
-    };
-    const cleared = etaText === '' && qty === '' && normalizedUom === '';
-
     return {
       status: 'success',
-      message: cleared
-        ? "ETA " + etaIndex + " SPK '" + spk + "' berhasil dikosongkan."
-        : "ETA " + etaIndex + " SPK '" + spk + "' berhasil disimpan.",
-      data: {
-        rowNumber: rowNumber,
-        spk: spk,
-        etaIndex: etaIndex,
-        entry: entry,
-        dualWrite: dualWrite
-      }
+      message: entry ? "ETA " + index + " SPK '" + spk + "' berhasil disimpan." : "ETA " + index + " SPK '" + spk + "' berhasil dikosongkan.",
+      data: { rowNumber: 0, spk: spk, etaIndex: index, entry: entry || { index: index, eta: '', qty: '', uom: '', hasQuantity: true }, databaseV2: result }
     };
-  } catch (e) {
-    return { status: 'error', message: e.message };
-  } finally {
-    lock.releaseLock();
+  } catch (error) {
+    return { status: 'error', message: error.message };
   }
 }
 
 function updateKeluarBahanByManager(payload) {
-  const lock = LockService.getScriptLock();
-  const gotLock = lock.tryLock(30000);
-
-  if (!gotLock) {
-    return {
-      status: 'error',
-      message: 'Sistem sedang sibuk. Coba simpan kembali beberapa saat lagi.'
-    };
-  }
-
   try {
     const spk = normalizeSpk_(payload && payload.spk);
     const keluarBahan = parseCalculationNumber_(payload && payload.keluarBahan);
     const uomKB = String(payload && payload.uomKB || '').trim().toUpperCase();
-
-    if (spk === '') {
-      return { status: 'error', message: 'Nomor SPK tidak valid.' };
-    }
-    if (!(keluarBahan > 0)) {
-      return {
-        status: 'error',
-        message: 'Keluar Bahan wajib berupa angka lebih dari 0.'
-      };
-    }
-    if (['KG', 'ROLL'].indexOf(uomKB) === -1) {
-      return {
-        status: 'error',
-        message: 'UOM Keluar Bahan harus KG atau ROLL.'
-      };
-    }
-
-    const sheet = getDbSheetReadOnly_();
-    const rowNumber = findSpkRowFast_(
-      sheet,
-      spk,
-      payload && payload.rowNumber
-    );
-    if (!rowNumber) {
-      return {
-        status: 'not_found',
-        message: "SPK '" + spk + "' tidak ditemukan di Database."
-      };
-    }
-
-    sheet
-      .getRange(rowNumber, DB_COL.KELUAR_BAHAN, 1, 2)
-      .setValues([[keluarBahan, uomKB]]);
-    sheet
-      .getRange(rowNumber, DB_COL.KELUAR_BAHAN)
-      .setNumberFormat('0.############');
-    SpreadsheetApp.flush();
-    const dualWrite = syncDatabaseV2AfterLegacyWrite_(sheet, rowNumber, 'KELUAR_BAHAN');
+    if (!spk) return { status: 'error', message: 'Nomor SPK tidak valid.' };
+    if (!(keluarBahan > 0)) return { status: 'error', message: 'Keluar Bahan wajib berupa angka lebih dari 0.' };
+    if (['KG', 'ROLL'].indexOf(uomKB) === -1) return { status: 'error', message: 'UOM Keluar Bahan harus KG atau ROLL.' };
+    const result = mutateDatabaseV2Spk_(spk, 'KELUAR_BAHAN_NATIVE', function(aggregate) {
+      aggregate.master['Keluar Bahan'] = keluarBahan;
+      aggregate.master['UOM KB'] = uomKB;
+      if (aggregate.material.length === 1 && !aggregate.material[0].KG) aggregate.material[0].KG = keluarBahan;
+      return true;
+    });
+    if (result.status === 'NOT_FOUND') return { status: 'not_found', message: "SPK '" + spk + "' tidak ditemukan di Database V2." };
     clearDashboardCache_();
     clearKeluarBahanCache_();
-
     return {
-      status: 'success',
-      message: "Keluar Bahan SPK '" + spk + "' berhasil diperbarui.",
-      data: {
-        rowNumber: rowNumber,
-        spk: spk,
-        keluarBahan: keluarBahan,
-        uomKB: uomKB,
-        complete: true,
-        dualWrite: dualWrite
-      }
+      status: 'success', message: "Keluar Bahan SPK '" + spk + "' berhasil diperbarui di Database V2.",
+      data: { rowNumber: 0, spk: spk, keluarBahan: keluarBahan, uomKB: uomKB, complete: true, databaseV2: result }
     };
-  } catch (e) {
-    return { status: 'error', message: e.message };
-  } finally {
-    lock.releaseLock();
+  } catch (error) {
+    return { status: 'error', message: error.message };
   }
 }
 
@@ -3691,373 +1402,241 @@ function updateKeluarBahanByManager(payload) {
  * sengaja tidak diubah agar relasi dan progres operasional tetap aman.
  */
 function updateSpkFromDashboard(payload) {
-  const lock = LockService.getScriptLock();
-  const gotLock = lock.tryLock(30000);
-
-  if (!gotLock) {
-    return {
-      status: 'error',
-      message: 'Sistem sedang sibuk. Coba simpan kembali beberapa saat lagi.'
-    };
-  }
-
   try {
     const input = payload || {};
     const spkKey = normalizeSpk_(input.spk);
-    if (spkKey === '') {
-      return { status: 'error', message: 'Nomor SPK tidak valid.' };
-    }
-
-    const sheet = getDbSheetReadOnly_();
-    ensureKeteranganWarnaColumn_(sheet);
-    ensureKeteranganBahanColumn_(sheet);
-    ensureMeterRollColumn_(sheet);
-    const rowNumber = findSpkRowFast_(
-      sheet,
-      spkKey,
-      input.rowNumber
-    );
-    if (!rowNumber) {
-      return {
-        status: 'not_found',
-        message: "SPK '" + spkKey + "' tidak ditemukan di Database."
-      };
-    }
-
-    const currentRow = sheet
-      .getRange(rowNumber, 1, 1, DB_COL.RELEASE)
-      .getValues()[0];
-    const currentBsPercent = {};
-    BS_KEYS.forEach(function(keyName, index) {
-      currentBsPercent[keyName] = percentToInput_(
-        currentRow[DB_COL.BS_START - 1 + index]
-      );
-    });
-
+    if (!spkKey) return { status: 'error', message: 'Nomor SPK tidak valid.' };
+    const current = readDatabaseV2Spk_(spkKey);
+    if (!current) return { status: 'not_found', message: "SPK '" + spkKey + "' tidak ditemukan di Database V2." };
+    const currentData = buildDatabaseV2InputData_(current);
     const jenisOrder = normalizeOrderType_(input.jenisOrder);
-    const spkReferensi = jenisOrder === 'Repeat Order'
-      ? normalizeSpk_(input.spkReferensi)
-      : '';
+    const spkReferensi = jenisOrder === 'Repeat Order' ? normalizeSpk_(input.spkReferensi) : '';
     const editPayload = {
-      spk: spkKey,
-      tanggal: input.tanggal,
-      jenisOrder: jenisOrder,
-      marketing: String(input.marketing || '').trim(),
-      nomorPO: String(input.nomorPO || '').trim(),
-      customer: String(input.customer || '').trim(),
-      material: String(input.material || '').trim(),
-      film: String(input.film || '').trim(),
-      artikel: String(input.artikel || '').trim(),
+      spk: spkKey, tanggal: input.tanggal, jenisOrder: jenisOrder,
+      marketing: String(input.marketing || '').trim(), nomorPO: String(input.nomorPO || '').trim(),
+      customer: String(input.customer || '').trim(), material: String(input.material || '').trim(),
+      film: String(input.film || '').trim(), artikel: String(input.artikel || '').trim(),
       kodeItem: normalizeKodeItem_(input.kodeItem),
       keteranganArtikel: normalizeProcessNote_(input.keteranganArtikel),
       keteranganWarna: normalizeKeteranganWarna_(input.keteranganWarna),
       keteranganBahan: normalizeKeteranganBahan_(input.keteranganBahan),
       modelKantong: String(input.modelKantong || '').trim(),
-      ukuranBlow: String(input.ukuranBlow || '').trim(),
-      ukuranJadi: String(input.ukuranJadi || '').trim(),
-      jumlahOrder: input.jumlahOrder,
-      uomOrder: String(input.uomOrder || '').trim().toUpperCase(),
-      keluarBahan: input.keluarBahan,
-      uomKB: String(input.uomKB || '').trim().toUpperCase(),
-      meterRoll: input.meterRoll,
-      toleransi: input.toleransi,
-      etd: input.etd,
-      spkReferensi: spkReferensi,
-      bsPercent: currentBsPercent
+      ukuranBlow: String(input.ukuranBlow || '').trim(), ukuranJadi: String(input.ukuranJadi || '').trim(),
+      jumlahOrder: input.jumlahOrder, uomOrder: String(input.uomOrder || '').trim().toUpperCase(),
+      keluarBahan: input.keluarBahan, uomKB: String(input.uomKB || '').trim().toUpperCase(),
+      meterRoll: input.meterRoll, toleransi: input.toleransi, etd: input.etd,
+      spkReferensi: spkReferensi, bsPercent: currentData.bsPercent
     };
-
     const validationMessage = validatePayload_(editPayload);
-    if (validationMessage) {
-      return { status: 'error', message: validationMessage };
+    if (validationMessage) return { status: 'error', message: validationMessage };
+    if (spkReferensi) {
+      if (spkReferensi === spkKey) return { status: 'error', message: 'SPK repeat tidak boleh merujuk dirinya sendiri.' };
+      if (getDatabaseV2SpkDirectory_().spks.indexOf(spkReferensi) === -1) {
+        return { status: 'error', message: "SPK referensi '" + spkReferensi + "' tidak ditemukan di Database V2." };
+      }
     }
-
-    if (
-      jenisOrder === 'Repeat Order' &&
-      !findSpkRowFast_(sheet, spkReferensi, 0)
-    ) {
-      return {
-        status: 'error',
-        message: "SPK referensi '" + spkReferensi + "' tidak ditemukan di Database."
-      };
-    }
-
     const jumlahOrder = parseCalculationNumber_(editPayload.jumlahOrder);
-    const uomOrder = String(editPayload.uomOrder || '').trim().toUpperCase();
-    const meterRoll = uomOrder === 'ROLL'
+    const keluarBahan = parseCalculationNumber_(editPayload.keluarBahan);
+    const meterRoll = editPayload.uomOrder === 'ROLL'
       ? parseCalculationNumber_(editPayload.meterRoll)
       : null;
-
-    // A:L — data utama. Nomor SPK tetap memakai nilai yang sudah tersimpan.
-    sheet.getRange(rowNumber, DB_COL.SPK, 1, 12).setValues([[
-      spkKey,
-      parseTanggal_(editPayload.tanggal),
-      jenisOrder,
-      editPayload.marketing,
-      editPayload.nomorPO,
-      editPayload.customer,
-      editPayload.material,
-      editPayload.film,
-      editPayload.artikel,
-      editPayload.modelKantong,
-      editPayload.ukuranBlow,
-      editPayload.ukuranJadi
-    ]]);
-
-    const keluarBahan = parseCalculationNumber_(editPayload.keluarBahan);
-    const uomKeluarBahan = keluarBahan === null ? '' : editPayload.uomKB;
-
-    // AR:AW — jumlah order, kebutuhan bahan, toleransi, dan jadwal kirim.
-    sheet.getRange(rowNumber, DB_COL.JUMLAH_ORDER, 1, 6).setValues([[
-      jumlahOrder,
-      uomOrder,
-      keluarBahan === null ? '' : keluarBahan,
-      uomKeluarBahan,
-      toToleranceStorageValue_(editPayload.toleransi),
-      parseTanggal_(editPayload.etd)
-    ]]);
-
-    ensureReferenceColumnHeader_(sheet);
-    sheet.getRange(rowNumber, DB_COL.SPK_REFERENSI).setValue(spkReferensi);
-    sheet.getRange(rowNumber, DB_COL.KETERANGAN_ARTIKEL).setValue(editPayload.keteranganArtikel);
-    setKodeItemValue_(sheet, rowNumber, editPayload.kodeItem);
-    setKeteranganWarnaValue_(sheet, rowNumber, editPayload.keteranganWarna);
-    setKeteranganBahanValue_(sheet, rowNumber, editPayload.keteranganBahan);
-    setStoredMeterRoll_(sheet, rowNumber, meterRoll);
-    setConversionFormulas_(sheet, rowNumber, 1);
-    terapkanFormatBaris_(sheet, rowNumber);
-    SpreadsheetApp.flush();
-    const dualWrite = syncDatabaseV2AfterLegacyWrite_(sheet, rowNumber, 'DASHBOARD_EDIT');
+    const result = mutateDatabaseV2Spk_(spkKey, 'DASHBOARD_EDIT_NATIVE', function(aggregate) {
+      const master = aggregate.master;
+      Object.assign(master, {
+        'Tanggal': databaseV2DateInput_(editPayload.tanggal),
+        'Jenis Order': jenisOrder,
+        'Marketing': editPayload.marketing,
+        'Nomor PO': editPayload.nomorPO,
+        'Customer': editPayload.customer,
+        'Material': editPayload.material,
+        'Film': editPayload.film,
+        'Artikel': editPayload.artikel,
+        'Kode Item': editPayload.kodeItem,
+        'Keterangan Artikel': editPayload.keteranganArtikel,
+        'Keterangan Warna': editPayload.keteranganWarna,
+        'Keterangan Bahan': editPayload.keteranganBahan,
+        'Model Kantong': editPayload.modelKantong,
+        'Ukuran Blow': editPayload.ukuranBlow,
+        'Ukuran Jadi': editPayload.ukuranJadi,
+        'Jumlah Order': jumlahOrder,
+        'UOM Order': editPayload.uomOrder,
+        'Keluar Bahan': keluarBahan === null ? '' : keluarBahan,
+        'UOM KB': keluarBahan === null ? '' : editPayload.uomKB,
+        'Meter/Roll': meterRoll === null ? '' : meterRoll,
+        'Toleransi Order': toToleranceStorageValue_(editPayload.toleransi),
+        'ETD': databaseV2DateInput_(editPayload.etd),
+        'SPK Referensi': spkReferensi
+      });
+      const dimensions = parseCalculationDimensions_(editPayload.ukuranBlow, editPayload.ukuranJadi);
+      const density = getCalculationDensity_(editPayload.material);
+      master['Lebar Jadi'] = dimensions.lebar || '';
+      master['Panjang Jadi'] = dimensions.panjang || '';
+      master.Tebal = dimensions.tebal || '';
+      master['Lebar Bahan'] = dimensions.lebarBahan || '';
+      master.Density = density || '';
+      master['PCS/KG'] = dimensions.lebar && dimensions.panjang && dimensions.tebal
+        ? 5444 / dimensions.panjang / dimensions.tebal / dimensions.lebar
+        : '';
+      master['Meter/KG'] = calculateMeterPerKg_(
+        dimensions.lebar, dimensions.tebal, density, getFilmLayerFactor_(editPayload.film)
+      ) || '';
+      if (aggregate.material.length === 1 && current.master.Material === aggregate.material[0]['Nama Bahan']) {
+        aggregate.material[0]['Nama Bahan'] = editPayload.material;
+        aggregate.material[0].KG = keluarBahan === null ? '' : keluarBahan;
+      }
+      aggregate.delivery = aggregate.delivery.filter(function(item) {
+        return String(item.Status || '').toUpperCase().indexOf('PARSIAL') > -1;
+      });
+      if (master.ETD && !aggregate.delivery.length) {
+        aggregate.delivery.unshift({
+          'Pengiriman ID': databaseV2DetailId_(spkKey, 'P', 1), 'SPK': spkKey, 'Urutan': 1,
+          'Tanggal Kirim': master.ETD, 'Qty': jumlahOrder, 'UOM': editPayload.uomOrder,
+          'Status': 'RENCANA PENUH', 'Keterangan': '', 'Sumber': DB_V2_NATIVE_WRITE_SOURCE,
+          'Dibuat': '', 'Diperbarui': ''
+        });
+      }
+      return true;
+    });
     clearDashboardCache_();
     clearKeluarBahanCache_();
-
     return {
       status: 'success',
-      message: "Data SPK '" + spkKey + "' berhasil diperbarui.",
-      data: {
-        spk: spkKey,
-        release: String(currentRow[DB_COL.RELEASE - 1] || '').trim() || 'Tidak',
-        dualWrite: dualWrite
-      }
+      message: "Data SPK '" + spkKey + "' berhasil diperbarui di Database V2.",
+      data: { spk: spkKey, release: current.master.Release || 'Tidak', databaseV2: result }
     };
-  } catch (e) {
-    return { status: 'error', message: e.message };
-  } finally {
-    lock.releaseLock();
+  } catch (error) {
+    return { status: 'error', message: error.message };
   }
+}
+
+function buildDatabaseV2CandidatesFromInput_(payload) {
+  const spk = normalizeSpk_(payload.spk);
+  const row = new Array(150).fill('');
+  const jenisOrder = normalizeOrderType_(payload.jenisOrder);
+  const spkReferensi = jenisOrder === 'Repeat Order' ? normalizeSpk_(payload.spkReferensi) : '';
+  [
+    spk, databaseV2DateInput_(payload.tanggal), jenisOrder, String(payload.marketing || '').trim(),
+    String(payload.nomorPO || '').trim(), String(payload.customer || '').trim(),
+    String(payload.material || '').trim(), String(payload.film || '').trim(),
+    String(payload.artikel || '').trim(), String(payload.modelKantong || '').trim(),
+    String(payload.ukuranBlow || '').trim(), String(payload.ukuranJadi || '').trim()
+  ].forEach(function(value, index) { row[index] = value; });
+  const dimensions = parseCalculationDimensions_(payload.ukuranBlow, payload.ukuranJadi);
+  const density = getCalculationDensity_(payload.material);
+  row[DB_COL.LEBAR_JADI - 1] = dimensions.lebar || '';
+  row[DB_COL.PANJANG_JADI - 1] = dimensions.panjang || '';
+  row[DB_COL.TEBAL - 1] = dimensions.tebal || '';
+  row[DB_COL.LEBAR_BAHAN - 1] = dimensions.lebarBahan || '';
+  row[DB_COL.DENSITY - 1] = density || '';
+  row[DB_COL.PCS_PER_KG - 1] = dimensions.lebar && dimensions.panjang && dimensions.tebal
+    ? 5444 / dimensions.panjang / dimensions.tebal / dimensions.lebar
+    : '';
+  row[DB_COL.METER_PER_KG - 1] = calculateMeterPerKg_(
+    dimensions.lebar, dimensions.tebal, density, getFilmLayerFactor_(payload.film)
+  ) || '';
+  PROSES_KEYS.forEach(function(key, index) {
+    row[DB_COL.PROSES_MIXER - 1 + index] = payload.proses && payload.proses[key]
+      ? PROSES_LABELS[key]
+      : '-';
+  });
+  row[DB_COL.FINISHING - 1] = FINISHING_OPTIONS.indexOf(payload.finishing) > -1 ? payload.finishing : '-';
+  row[DB_COL.HANDLE_PON - 1] = HANDLE_PON_OPTIONS.indexOf(payload.handlePm) > -1 ? payload.handlePm : '-';
+  BS_KEYS.forEach(function(key, index) {
+    row[DB_COL.BS_START - 1 + index] = toDecimalPercent_(payload.bsPercent && payload.bsPercent[key]);
+  });
+  row[DB_COL.TOTAL_BS - 1] = BS_KEYS.reduce(function(total, key) {
+    return total + (Number(toDecimalPercent_(payload.bsPercent && payload.bsPercent[key])) || 0);
+  }, 0);
+  const jumlahOrder = parseCalculationNumber_(payload.jumlahOrder);
+  const uomOrder = String(payload.uomOrder || '').trim().toUpperCase();
+  const keluarBahan = parseCalculationNumber_(payload.keluarBahan);
+  row[DB_COL.JUMLAH_ORDER - 1] = jumlahOrder;
+  row[DB_COL.UOM_ORDER - 1] = uomOrder;
+  row[DB_COL.KELUAR_BAHAN - 1] = keluarBahan === null ? '' : keluarBahan;
+  row[DB_COL.UOM_KB - 1] = keluarBahan === null ? '' : String(payload.uomKB || '').trim().toUpperCase();
+  row[DB_COL.TOLERANSI - 1] = toToleranceStorageValue_(payload.toleransi);
+  row[DB_COL.ETD - 1] = databaseV2DateInput_(payload.etd);
+  buildKomposisiColumns_(payload.komposisi || [], keluarBahan).forEach(function(value, index) {
+    row[DB_COL.KOMPOSISI_START - 1 + index] = value;
+  });
+  let totalKg = 0;
+  let totalPercent = 0;
+  for (let slot = 0; slot < 7; slot++) {
+    totalKg += Number(row[DB_COL.KOMPOSISI_START + (slot * 3)]) || 0;
+    totalPercent += Number(row[DB_COL.KOMPOSISI_START + (slot * 3) + 1]) || 0;
+  }
+  row[DB_COL.TOTAL_KOMPOSISI_KG - 1] = totalKg;
+  row[DB_COL.TOTAL_KOMPOSISI_PERCENT - 1] = totalPercent;
+  buildWarnaColumns_(payload.warna || []).forEach(function(value, index) {
+    row[DB_COL.WARNA_START - 1 + index] = value;
+  });
+  row[DB_COL.SPK_REFERENSI - 1] = spkReferensi;
+  row[DB_COL.RELEASE - 1] = 'Tidak';
+  row[DB_COL.KETERANGAN_ARTIKEL - 1] = normalizeProcessNote_(payload.keteranganArtikel);
+  PROCESS_NOTE_KEYS.forEach(function(key, index) {
+    row[DB_COL.KET_PROSES_START - 1 + index] = normalizeProcessNote_(payload.keteranganProses && payload.keteranganProses[key]);
+  });
+  row[DB_COL.KODE_ITEM - 1] = normalizeKodeItem_(payload.kodeItem);
+  ROUTING_DETAIL_COLUMNS.forEach(function(item) { row[item.column - 1] = valueOrEmpty_(payload[item.key]); });
+  row[DB_COL.KETERANGAN_WARNA - 1] = normalizeKeteranganWarna_(payload.keteranganWarna);
+  row[DB_COL.KETERANGAN_BAHAN - 1] = normalizeKeteranganBahan_(payload.keteranganBahan);
+  row[DB_COL.METER_ROLL - 1] = uomOrder === 'ROLL' ? (parseCalculationNumber_(payload.meterRoll) || '') : '';
+  row[DB_COL.ROUTING_STEPS - 1] = serializeRoutingSteps_(payload.routingSteps || []);
+  row[DB_COL.PCS_KG_MODE - 1] = normalizeEnumValue_(payload.pcsKgMode, PCS_KG_MODE_OPTIONS, '');
+  row[DB_COL.JENIS_POTONGAN - 1] = normalizeEnumValue_(payload.jenisPotongan, JENIS_POTONGAN_OPTIONS, '');
+  row[DB_COL.PO_MASUK - 1] = databaseV2DateInput_(payload.poMasuk);
+  ['stok', 'ots', 'wip'].forEach(function(key, index) {
+    const value = parseCalculationNumber_(payload[key]);
+    row[DB_COL.STOK - 1 + index] = value === null ? '' : value;
+  });
+  row[DB_COL.TOLERANSI_PRODUKSI - 1] = toDecimalPercent_(payload.toleransiProduksi);
+  row[DB_COL.PENGIRIMAN_PARSIAL - 1] = serializePengirimanParsial_(payload.pengirimanParsial || []);
+  ['bahanLebar', 'bahanPanjang', 'bahanTebal', 'bahanDensity'].forEach(function(key, index) {
+    const value = parseCalculationNumber_(payload[key]);
+    row[DB_COL.BAHAN_LEBAR - 1 + index] = value === null ? '' : value;
+  });
+  const candidates = createDatabaseV2CandidateBuckets_();
+  const warnings = [];
+  buildDatabaseV2CandidatesForRow_(row, 0, spk, candidates, warnings);
+  return { spk: spk, spkReferensi: spkReferensi, jenisOrder: jenisOrder, candidates: candidates, warnings: warnings };
 }
 
 function submitDatabase(payload) {
   const startedAt = Date.now();
-  var creatorSession;
+  let creatorSession;
   try {
     creatorSession = requireCreatorApprovalSession_(payload && payload.authToken);
-  } catch (authError) {
-    return { status: 'auth_required', message: authError.message };
-  }
-  const lock = LockService.getScriptLock();
-  const gotLock = lock.tryLock(30000);
-
-  if (!gotLock) {
-    return {
-      status: 'error',
-      message: 'Sistem sedang sibuk (ada input lain yang sedang berjalan). Coba lagi beberapa saat.'
-    };
-  }
-
-  try {
     const validasi = validatePayload_(payload);
     if (validasi) return { status: 'error', message: validasi };
-
-    const jumlahOrder = parseCalculationNumber_(payload.jumlahOrder);
-    const uomOrder = String(payload.uomOrder || '').trim().toUpperCase();
-    const submittedMeterRoll = parseCalculationNumber_(payload.meterRoll);
-    const meterRoll = uomOrder === 'ROLL'
-      ? submittedMeterRoll
-      : null;
-
-    const sheet = getDbSheetReadOnly_();
-    ensureKeteranganWarnaColumn_(sheet);
-    ensureKeteranganBahanColumn_(sheet);
-    ensureRoutingDetailColumns_(sheet);
-    ensureMeterRollColumn_(sheet);
-    const spkKey = normalizeSpk_(payload.spk);
-    const jenisOrder = normalizeOrderType_(payload.jenisOrder);
-    const spkReferensi = jenisOrder === 'Repeat Order' ? normalizeSpk_(payload.spkReferensi) : '';
-    const saveContext = getDatabaseSaveContext_(sheet);
-
-    // Satu indeks SPK dipakai untuk cek duplikat, validasi referensi,
-    // dan menentukan baris tujuan tanpa pemindaian kolom A berulang.
-    if (saveContext.rowBySpk[spkKey]) {
-      return {
-        status: 'duplicate',
-        message: "Nomor SPK '" + payload.spk + "' sudah ada di Database. Data tidak disimpan."
-      };
+    const built = buildDatabaseV2CandidatesFromInput_(payload);
+    const directory = getDatabaseV2SpkDirectory_();
+    if (directory.spks.indexOf(built.spk) > -1) {
+      return { status: 'duplicate', message: "Nomor SPK '" + built.spk + "' sudah ada di Database V2. Data tidak disimpan." };
     }
-
-    // Repeat Order wajib mempunyai sumber yang masih valid saat transaksi disimpan.
-    if (jenisOrder === 'Repeat Order') {
-      if (spkReferensi === spkKey) {
-        return { status: 'error', message: 'SPK repeat baru tidak boleh sama dengan SPK item sebelumnya.' };
-      }
-      if (!saveContext.rowBySpk[spkReferensi]) {
-        return {
-          status: 'error',
-          message: "SPK referensi '" + spkReferensi + "' tidak ditemukan. Muat ulang data repeat order."
-        };
+    if (built.spkReferensi) {
+      if (built.spkReferensi === built.spk) return { status: 'error', message: 'SPK repeat baru tidak boleh sama dengan referensinya.' };
+      if (directory.spks.indexOf(built.spkReferensi) === -1) {
+        return { status: 'error', message: "SPK referensi '" + built.spkReferensi + "' tidak ditemukan di Database V2." };
       }
     }
-
-    const targetRow = saveContext.targetRow;
-    const maxRows = sheet.getMaxRows();
-    if (targetRow > maxRows) {
-      sheet.insertRowsAfter(maxRows, targetRow - maxRows);
-    }
-
-    // --- A:L (Data Utama) ---
-    sheet.getRange(targetRow, DB_COL.SPK, 1, 12).setValues([[
-      spkKey,
-      parseTanggal_(payload.tanggal),
-      jenisOrder,
-      payload.marketing || '',
-      payload.nomorPO || '',
-      payload.customer || '',
-      payload.material || '',
-      payload.film || '',
-      payload.artikel || '',
-      payload.modelKantong || '',
-      payload.ukuranBlow || '',
-      payload.ukuranJadi || ''
-    ]]);
-
-    // --- T:AN (Proses, Finishing, Handle/Pon, %BS, Total BS) ---
-    const prosesValues = PROSES_KEYS.map(key =>
-      payload.proses && payload.proses[key] ? PROSES_LABELS[key] : '-'
+    const committed = commitDatabaseV2Candidates_(
+      built.candidates, [built.spk], 'SUBMIT_DATABASE_NATIVE', { createOnly: true }
     );
-    const finishing = FINISHING_OPTIONS.indexOf(payload.finishing) > -1 ? payload.finishing : '-';
-    const handlePm = HANDLE_PON_OPTIONS.indexOf(payload.handlePm) > -1 ? payload.handlePm : '-';
-    const bsValues = BS_KEYS.map(key =>
-      toDecimalPercent_(payload.bsPercent ? payload.bsPercent[key] : 0)
-    );
-    const totalBs = bsValues.reduce((sum, value) => sum + (Number(value) || 0), 0);
-
-    sheet.getRange(targetRow, DB_COL.PROSES_MIXER, 1, 21).setValues([[
-      ...prosesValues,
-      finishing,
-      handlePm,
-      ...bsValues,
-      totalBs
-    ]]);
-
-    const keluarBahan = parseCalculationNumber_(payload.keluarBahan);
-    const uomKeluarBahan = keluarBahan === null
-      ? ''
-      : String(payload.uomKB || '').trim().toUpperCase();
-
-    // AR:CF ditulis sebagai satu blok: order, komposisi, referensi,
-    // release, dan seluruh keterangan proses.
-    const komposisiColumns = buildKomposisiColumns_(payload.komposisi || [], keluarBahan);
-    const warnaColumns = buildWarnaColumns_(payload.warna || []);
-    const processNotePayload = payload.keteranganProses || {};
-    const processNoteValues = PROCESS_NOTE_KEYS.map(function(key) {
-      return normalizeProcessNote_(processNotePayload[key]);
-    });
-    const deliveryToNotes = new Array(
-      DB_COL.KET_TSHIRT - DB_COL.JUMLAH_ORDER + 1
-    ).fill('');
-    const setDeliveryValue = function(column, value) {
-      deliveryToNotes[column - DB_COL.JUMLAH_ORDER] = value;
-    };
-
-    setDeliveryValue(DB_COL.JUMLAH_ORDER, jumlahOrder);
-    setDeliveryValue(DB_COL.UOM_ORDER, uomOrder);
-    setDeliveryValue(
-      DB_COL.KELUAR_BAHAN,
-      keluarBahan === null ? '' : keluarBahan
-    );
-    setDeliveryValue(DB_COL.UOM_KB, uomKeluarBahan);
-    setDeliveryValue(
-      DB_COL.TOLERANSI,
-      toToleranceStorageValue_(payload.toleransi)
-    );
-    setDeliveryValue(DB_COL.ETD, parseTanggal_(payload.etd));
-    komposisiColumns.forEach(function(value, index) {
-      setDeliveryValue(DB_COL.KOMPOSISI_START + index, value);
-    });
-    warnaColumns.forEach(function(value, index) {
-      setDeliveryValue(DB_COL.WARNA_START + index, value);
-    });
-    setDeliveryValue(DB_COL.SPK_REFERENSI, spkReferensi);
-    setDeliveryValue(DB_COL.RELEASE, 'Tidak');
-    setDeliveryValue(DB_COL.KETERANGAN_ARTIKEL, normalizeProcessNote_(payload.keteranganArtikel));
-    const kodeItem = normalizeKodeItem_(payload.kodeItem);
-    processNoteValues.forEach(function(value, index) {
-      setDeliveryValue(DB_COL.KET_PROSES_START + index, value);
-    });
-
-    sheet
-      .getRange(
-        targetRow,
-        DB_COL.JUMLAH_ORDER,
-        1,
-        deliveryToNotes.length
-      )
-      .setValues([deliveryToNotes]);
-
-    // DR:EC berada di luar blok AR:DA sehingga ditulis terpisah.
-    setKodeItemValue_(sheet, targetRow, kodeItem);
-    setRoutingDetailsForRow_(sheet, targetRow, payload);
-    setExtraInputsForRow_(sheet, targetRow, payload);
-    setKeteranganWarnaValue_(sheet, targetRow, payload.keteranganWarna);
-    setKeteranganBahanValue_(sheet, targetRow, payload.keteranganBahan);
-
-    // Meter/Roll mempunyai kolom mandiri EC agar tidak bergantung pada
-    // panjang Ukuran Jadi maupun catatan tersembunyi pada UOM Order.
-    setStoredMeterRollForNewRow_(
-      sheet,
-      targetRow,
-      meterRoll
-    );
-
-    // --- R:S adalah konversi KG/PCS dan Meter/KG; BT:BU total komposisi. ---
-    setConversionFormulas_(sheet, targetRow, 1);
-    tanamFormulaTotalKomposisi_(sheet, targetRow);
-
-    // Salin format dari baris data terdekat dalam satu operasi.
-    applyNewDatabaseRowFormatting_(
-      sheet,
-      targetRow,
-      saveContext.formatSourceRow
-    );
-
-    SpreadsheetApp.flush();
-    const dualWrite = syncDatabaseV2AfterLegacyWrite_(sheet, targetRow, 'SUBMIT_DATABASE');
-
-    writeCachedSpkRow_(spkKey, targetRow);
-    addSpkToExistenceCache_(spkKey, targetRow);
-    addMarketingToOptionsCache_(payload.marketing);
-    initializeSpkApprovals_(spkKey, targetRow, payload, creatorSession);
+    committed.warnings = built.warnings;
+    initializeSpkApprovals_(built.spk, 0, payload, creatorSession);
+    clearMarketingOptionsCache_();
     clearDashboardCache_();
     clearKeluarBahanCache_();
-
     return {
       status: 'success',
-      message: jenisOrder === 'Repeat Order'
-        ? "Repeat Order SPK '" + spkKey + "' berhasil disimpan dari referensi '" + spkReferensi + "'."
-        : "Data SPK '" + spkKey + "' berhasil disimpan ke Database.",
-      data: {
-        spk: spkKey,
-        rowNumber: targetRow,
-        dualWrite: dualWrite
-      },
-      performance: {
-        durationMs: Date.now() - startedAt,
-        writeMode: 'fast-append'
-      }
+      message: built.jenisOrder === 'Repeat Order'
+        ? "Repeat Order SPK '" + built.spk + "' berhasil disimpan ke Database V2."
+        : "Data SPK '" + built.spk + "' berhasil disimpan ke Database V2.",
+      data: { spk: built.spk, rowNumber: 0, databaseV2: committed },
+      performance: { durationMs: Date.now() - startedAt, writeMode: 'native-v2' }
     };
-  } catch (e) {
-    return { status: 'error', message: e.message };
-  } finally {
-    lock.releaseLock();
+  } catch (error) {
+    return { status: 'error', message: error.message };
   }
 }
 
@@ -4661,85 +2240,4 @@ function getWarnaFromRow_(row) {
     warna.pop();
   }
   return warna;
-}
-
-function ensureReferenceColumnHeader_(sheet) {
-  const headerCell = sheet.getRange(1, DB_COL.SPK_REFERENSI);
-  const typeCell = sheet.getRange(2, DB_COL.SPK_REFERENSI);
-  if (String(headerCell.getValue()).trim() === '') headerCell.setValue('SPK REFERENSI');
-  if (String(typeCell.getValue()).trim() === '') typeCell.setValue('str');
-}
-
-function buildPcsPerKgFormula_(row) {
-  return '=IFERROR(5444/N' + row + '/O' + row + '/M' + row + ', "")';
-}
-
-function buildMeterPerKgFormula_(row) {
-  const filmFactor =
-    'IF(REGEXMATCH(UPPER(H' + row + '), "TUBE"), 2, 1)';
-  return (
-    '=IF(OR(M' + row + '="",O' + row + '="",Q' + row + '="",H' + row + '=""),"",' +
-    'IFERROR(1/(Q' + row + '*((M' + row + '/100)*(O' + row + '*1000)*' +
-    filmFactor + ')/1000),""))'
-  );
-}
-
-function setConversionFormulas_(sheet, startRow, rowCount) {
-  if (!(rowCount > 0)) return;
-
-  const formulas = [];
-  for (let row = startRow; row < startRow + rowCount; row++) {
-    formulas.push([
-      buildPcsPerKgFormula_(row),
-      buildMeterPerKgFormula_(row)
-    ]);
-  }
-
-  sheet
-    .getRange(startRow, DB_COL.PCS_PER_KG, rowCount, 2)
-    .setFormulas(formulas)
-    .setNumberFormat('0.######');
-}
-
-function tanamFormulaTotalKomposisi_(sheet, r) {
-  sheet
-    .getRange(r, DB_COL.TOTAL_KOMPOSISI_KG, 1, 2)
-    .setFormulas([[
-      '=SUM(AY' + r + '+BB' + r + '+BE' + r + '+BH' + r + '+BK' + r + '+BN' + r + '+BQ' + r + ')',
-      '=SUM(AZ' + r + '+BC' + r + '+BF' + r + '+BI' + r + '+BL' + r + '+BO' + r + '+BR' + r + ')'
-    ]]);
-}
-
-function applyNewDatabaseRowFormatting_(sheet, targetRow, sourceRow) {
-  if (sourceRow >= DB_DATA_START_ROW && sourceRow !== targetRow) {
-    const width = Math.min(databaseTotalColumns_(), sheet.getMaxColumns());
-    sheet
-      .getRange(sourceRow, 1, 1, width)
-      .copyTo(
-        sheet.getRange(targetRow, 1, 1, width),
-        SpreadsheetApp.CopyPasteType.PASTE_FORMAT,
-        false
-      );
-    return;
-  }
-
-  terapkanFormatBaris_(sheet, targetRow);
-}
-
-function terapkanFormatBaris_(sheet, r) {
-  sheet.getRange('B' + r).setNumberFormat('mm-dd-yy');
-  sheet.getRange('AW' + r).setNumberFormat('dd/MM/yyyy');
-  sheet.getRange('AV' + r).setNumberFormat('0.00%');
-  sheet.getRange(r, DB_COL.KELUAR_BAHAN).setNumberFormat('0.############');
-
-  sheet
-    .getRange(r, DB_COL.BS_START, 1, DB_COL.TOTAL_BS - DB_COL.BS_START + 1)
-    .setNumberFormat('0.##%');
-
-  for (let slot = 0; slot < DB_MAX_BAHAN - 1; slot++) {
-    const kgColumn = DB_COL.KOMPOSISI_START + (slot * 3) + 1;
-    const percentColumn = kgColumn + 1;
-    sheet.getRange(r, kgColumn).setNumberFormat('0.###');
-    sheet.getRange(r, percentColumn).setNumberFormat('0.##%');
-  }
 }

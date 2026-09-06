@@ -94,15 +94,15 @@
 
       panel.querySelectorAll('[id^="bs-"]').forEach(function (input) {
         var cell = input.closest(".form-cell");
-        if (cell) cell.classList.add("legacy-bs-control");
+        if (cell) cell.classList.add("fallback-bs-control");
       });
       var extra = panel.querySelector(".routing-extra");
-      if (extra) extra.classList.add("legacy-bs-control");
+      if (extra) extra.classList.add("fallback-bs-control");
       renderRoutingBsRows_(item.key);
     });
 
     var sheetArea = document.getElementById("bsSheetArea");
-    if (sheetArea) sheetArea.classList.add("legacy-bs-control");
+    if (sheetArea) sheetArea.classList.add("fallback-bs-control");
   };
 
   window.renderRoutingBsRows_ = function (routeKey) {
@@ -224,7 +224,7 @@
     return true;
   };
 
-  window.migrateLegacyRoutingBsValues_ = function (routeKey, values, options) {
+  window.normalizeRoutingBsValues_ = function (routeKey, values, options) {
     if (routeKey === "mixer" || !values) return;
     var listId = "bsDaftar-" + routeKey;
     var hasList = Object.prototype.hasOwnProperty.call(values, listId);
@@ -242,9 +242,9 @@
         value: String(values["bsNilai-" + routeKey] || "")
       });
     } else {
-      var legacyStep = { key: routeKey, values: values };
-      stepBsKeys_(legacyStep).forEach(function (bsKey) {
-        var value = parseFloat(stepValue_(legacyStep, "bs-" + bsKey)) || 0;
+      var fallbackStep = { key: routeKey, values: values };
+      stepBsKeys_(fallbackStep).forEach(function (bsKey) {
+        var value = parseFloat(stepValue_(fallbackStep, "bs-" + bsKey)) || 0;
         if (value > 0) entries.push({ key: bsKey, value: String(value) });
       });
     }

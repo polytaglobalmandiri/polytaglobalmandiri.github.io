@@ -2002,7 +2002,7 @@ html.spk-footer-reveal body[data-page] .spk-app-footer.is-revealed {
 }
 
 /* Daftar BS dinamis menggantikan kolom BS tetap yang dipakai SPK lama. */
-#spkInputRoot .legacy-bs-control {
+#spkInputRoot .fallback-bs-control {
   display: none !important;
 }
 

@@ -1,0 +1,4629 @@
+<style>
+  /* Gaya wizard Input SPK. Seluruh aturan dikurung di bawah
+     #spkInputRoot supaya bisa dipakai apa adanya sebagai halaman
+     penuh maupun sebagai modal di atas Dashboard yang memakai
+     Bootstrap, tanpa saling menimpa. */
+  /* Pengganti utility Tailwind. Halaman ini dulu memuat Tailwind lewat CDN;
+     di dalam Dashboard hal itu akan menabrak Bootstrap, jadi hanya utility
+     yang benar-benar dipakai wizard yang ditulis ulang di sini. */
+  #spkInputRoot .block {
+    display: block;
+  }
+  #spkInputRoot .flex-1 {
+    flex: 1 1 0%;
+  }
+  #spkInputRoot .mb-4 {
+    margin-bottom: 1rem;
+  }
+  #spkInputRoot .mx-auto {
+    margin-left: auto; margin-right: auto;
+  }
+  #spkInputRoot .p-6 {
+    padding: 1.5rem;
+  }
+  #spkInputRoot .max-w-5xl {
+    max-width: 64rem;
+  }
+  #spkInputRoot .text-\[11px\] {
+    font-size: 11px;
+  }
+  #spkInputRoot .space-y-3 > :not([hidden]) ~ :not([hidden]) {
+    margin-top: .75rem;
+  }
+  @media (min-width: 640px) {
+    #spkInputRoot .sm\:flex-row {
+      flex-direction: row;
+    }
+    #spkInputRoot .sm\:items-start {
+      align-items: flex-start;
+    }
+    #spkInputRoot .sm\:justify-between {
+      justify-content: space-between;
+    }
+  }
+  @media (min-width: 768px) {
+    #spkInputRoot .md\:p-9 {
+      padding: 2.25rem;
+    }
+    #spkInputRoot .md\:grid-cols-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    #spkInputRoot .md\:grid-cols-4 {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1024px) {
+    #spkInputRoot .lg\:flex-row {
+      flex-direction: row;
+    }
+    #spkInputRoot .lg\:items-center {
+      align-items: center;
+    }
+    #spkInputRoot .lg\:justify-between {
+      justify-content: space-between;
+    }
+    #spkInputRoot .lg\:grid-cols-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    #spkInputRoot .lg\:max-w-md {
+      max-width: 28rem;
+    }
+  }
+  #spkInputRoot {
+    --surface: #e0e5ec;
+    --surface-dark: #cfd6df;
+    --text: #202020;
+    --muted: #6b7280;
+    --danger: #dc2626;
+    --danger-dark: #b91c1c;
+    --success: #16a34a;
+    --shadow-dark: rgba(163,177,198,0.58);
+    --shadow-light: rgba(255,255,255,0.72);
+  }
+  #spkInputRoot * {
+    box-sizing: border-box;
+  }
+  #spkInputRoot {
+    scroll-behavior: smooth;
+  }
+  #spkInputRoot {
+    background-color: var(--surface);
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    min-height: 100vh;
+  }
+  #spkInputRoot button,
+  #spkInputRoot input,
+  #spkInputRoot select {
+    font: inherit;
+  }
+  #spkInputRoot .neumorphic {
+    background: var(--surface);
+    box-shadow: 9px 9px 16px var(--shadow-dark), -9px -9px 16px var(--shadow-light);
+    border-radius: 22px;
+  }
+  #spkInputRoot .neumorphic-btn-black {
+    background: #202020;
+    box-shadow: 6px 6px 12px rgba(163,177,198,0.5), -6px -6px 12px rgba(255,255,255,0.5);
+    color: white;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  }
+  #spkInputRoot .neumorphic-btn-black:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+  #spkInputRoot .neumorphic-btn-black:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: inset 4px 4px 8px rgba(0,0,0,0.5), inset -4px -4px 8px rgba(70,70,70,0.5);
+  }
+  #spkInputRoot .neumorphic-btn-black:disabled {
+    opacity: 0.45; cursor: not-allowed; transform: none;
+  }
+  #spkInputRoot .neumorphic-btn-light {
+    color: #374151;
+    background: var(--surface);
+    box-shadow: 5px 5px 10px rgba(163,177,198,0.5), -5px -5px 10px rgba(255,255,255,0.68);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  }
+  #spkInputRoot .neumorphic-btn-light:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+  #spkInputRoot .neumorphic-btn-light:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: inset 3px 3px 7px rgba(163,177,198,0.55), inset -3px -3px 7px rgba(255,255,255,0.75);
+  }
+  #spkInputRoot .neumorphic-btn-light:disabled {
+    opacity: 0.38; cursor: not-allowed; transform: none;
+  }
+  #spkInputRoot .field-input {
+    width: 100%;
+    background: var(--surface);
+    box-shadow: inset 4px 4px 8px rgba(163,177,198,0.6), inset -4px -4px 8px rgba(255,255,255,0.8);
+    border-radius: 11px;
+    border: 1px solid transparent;
+    padding: 10px 14px;
+    min-height: 42px;
+    font-size: 0.875rem;
+    color: #374151;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  #spkInputRoot .field-input:focus {
+    border-color: var(--danger);
+  }
+  #spkInputRoot .field-input.wizard-invalid {
+    border-color: var(--danger);
+    box-shadow: inset 4px 4px 8px rgba(220,38,38,0.13), inset -4px -4px 8px rgba(255,255,255,0.8), 0 0 0 3px rgba(220,38,38,0.08);
+  }
+  #spkInputRoot .field-input.field-error {
+    border-color: var(--danger);
+    box-shadow: inset 4px 4px 8px rgba(220,38,38,0.15), inset -4px -4px 8px rgba(255,255,255,0.8), 0 0 0 0 rgba(220,38,38,0.28);
+    animation: spkPulse 1.8s ease-in-out infinite;
+  }
+  #spkInputRoot .field-input.field-success {
+    border-color: var(--success);
+    box-shadow: inset 4px 4px 8px rgba(22,163,74,0.12), inset -4px -4px 8px rgba(255,255,255,0.8);
+  }
+  @keyframes spkPulse {
+      0%, 100% { box-shadow: inset 4px 4px 8px rgba(220,38,38,0.15), inset -4px -4px 8px rgba(255,255,255,0.8), 0 0 0 0 rgba(220,38,38,0.28); }
+      50% { box-shadow: inset 4px 4px 8px rgba(220,38,38,0.15), inset -4px -4px 8px rgba(255,255,255,0.8), 0 0 0 6px rgba(220,38,38,0); }
+    }
+  #spkInputRoot .field-label {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--muted);
+    margin-bottom: 5px;
+    display: block;
+    letter-spacing: 0.02em;
+  }
+  #spkInputRoot .section-title {
+    font-size: 1rem;
+    font-weight: 900;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  #spkInputRoot .order-type-option {
+    appearance: none;
+    width: 100%;
+    border: 1px solid transparent;
+    background: var(--surface);
+    color: #4b5563;
+    border-radius: 15px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+    cursor: pointer;
+    box-shadow: 4px 4px 9px rgba(163,177,198,0.48), -4px -4px 9px rgba(255,255,255,0.66);
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+  }
+  #spkInputRoot .order-type-option:hover {
+    transform: translateY(-1px);
+  }
+  #spkInputRoot .order-type-option.active {
+    color: var(--danger-dark);
+    border-color: rgba(220,38,38,0.3);
+    box-shadow: inset 3px 3px 7px rgba(163,177,198,0.5), inset -3px -3px 7px rgba(255,255,255,0.75);
+  }
+  #spkInputRoot .order-type-option-icon {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 13px;
+    color: #4b5563;
+    background: var(--surface);
+    box-shadow: inset 2px 2px 5px rgba(163,177,198,0.45), inset -2px -2px 5px rgba(255,255,255,0.74);
+  }
+  #spkInputRoot .order-type-option.active .order-type-option-icon {
+    color: var(--danger);
+  }
+  #spkInputRoot .order-type-option-icon svg {
+    width: 21px; height: 21px;
+  }
+  #spkInputRoot .order-mode-section {
+    animation: modeReveal 0.3s ease;
+  }
+  #spkInputRoot .order-mode-hidden {
+    display: none !important;
+  }
+  @keyframes modeReveal {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  #spkInputRoot .repeat-result-card {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 0 13px;
+    margin-top: 0;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transform: translateY(-4px);
+    border-radius: 12px;
+    transition: max-height 0.35s ease, opacity 0.3s ease, transform 0.3s ease, padding 0.35s ease, margin 0.35s ease;
+  }
+  #spkInputRoot .repeat-result-card.show {
+    max-height: 130px;
+    opacity: 1;
+    transform: translateY(0);
+    padding: 11px 13px;
+    margin-top: 8px;
+  }
+  #spkInputRoot .repeat-result-card.success {
+    color: #166534;
+    border: 1px solid rgba(22,163,74,0.28);
+    border-left: 3px solid var(--success);
+    background: linear-gradient(135deg, rgba(22,163,74,0.09), rgba(22,163,74,0.02));
+  }
+  #spkInputRoot .repeat-result-card.error {
+    color: #7f1d1d;
+    border: 1px solid rgba(220,38,38,0.25);
+    border-left: 3px solid var(--danger);
+    background: linear-gradient(135deg, rgba(220,38,38,0.08), rgba(220,38,38,0.02));
+  }
+  #spkInputRoot .repeat-result-card svg {
+    width: 18px; height: 18px; flex: 0 0 18px; margin-top: 1px;
+  }
+  #spkInputRoot .repeat-result-title {
+    margin: 0; font-size: 0.78rem; font-weight: 900;
+  }
+  #spkInputRoot .repeat-result-desc {
+    margin: 2px 0 0; font-size: 0.71rem; font-weight: 600; line-height: 1.45;
+  }
+  #spkInputRoot .wizard-navigation button {
+    min-height: 46px;
+    border-radius: 13px;
+    padding: 0 18px;
+    font-size: 0.78rem;
+    font-weight: 900;
+    letter-spacing: 0.035em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  #spkInputRoot .wizard-navigation button svg {
+    width: 17px; height: 17px;
+  }
+  #spkInputRoot .button-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.35);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spkSpin 0.65s linear infinite;
+  }
+  /* ---------- SPK validation ---------- */
+  #spkInputRoot .spk-wrapper {
+    position: relative;
+  }
+  #spkInputRoot .spk-wrapper .field-input {
+    padding-right: 42px;
+  }
+  #spkInputRoot .spk-status-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+  #spkInputRoot .spk-status-icon > * {
+    display: none;
+  }
+  #spkInputRoot .spk-status-icon .spk-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(163,177,198,0.5);
+    border-top-color: var(--danger);
+    border-radius: 50%;
+    animation: spkSpin 0.6s linear infinite;
+  }
+  @keyframes spkSpin { to { transform: rotate(360deg); } }
+  #spkInputRoot .spk-status-icon.state-checking .spk-spinner {
+    display: block;
+  }
+  #spkInputRoot .spk-status-icon.state-success svg.icon-check {
+    display: block;
+  }
+  #spkInputRoot .spk-status-icon.state-error svg.icon-x {
+    display: block;
+  }
+  #spkInputRoot .spk-status-icon svg {
+    width: 20px; height: 20px; animation: spkPopIn 0.25s ease;
+  }
+  @keyframes spkPopIn { from { transform: scale(0.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  #spkInputRoot .spk-warning-card {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    background: linear-gradient(135deg, rgba(220,38,38,0.08), rgba(220,38,38,0.02));
+    border: 1px solid rgba(220,38,38,0.25);
+    border-left: 3px solid var(--danger);
+    border-radius: 12px;
+    padding: 0 14px;
+    margin-top: 0;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transform: translateY(-4px);
+    transition: max-height 0.35s ease, opacity 0.3s ease, transform 0.3s ease, padding 0.35s ease, margin 0.35s ease;
+  }
+  #spkInputRoot .spk-warning-card.show {
+    max-height: 120px;
+    opacity: 1;
+    transform: translateY(0);
+    padding: 10px 14px;
+    margin-top: 8px;
+    animation: spkShake 0.4s ease 0.05s;
+  }
+  @keyframes spkShake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-4px); }
+      40% { transform: translateX(4px); }
+      60% { transform: translateX(-3px); }
+      80% { transform: translateX(2px); }
+    }
+  #spkInputRoot .spk-warning-card svg {
+    width: 18px; height: 18px; color: var(--danger); flex-shrink: 0; margin-top: 1px;
+  }
+  #spkInputRoot .spk-warning-title {
+    font-size: 0.78rem; font-weight: 900; color: #b91c1c; margin: 0;
+  }
+  #spkInputRoot .spk-warning-desc {
+    font-size: 0.72rem; font-weight: 600; color: #7f1d1d; margin: 2px 0 0; line-height: 1.4;
+  }
+  #spkInputRoot .spk-success-note {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--success);
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+  }
+  #spkInputRoot .spk-success-note.show {
+    max-height: 30px; opacity: 1; margin-top: 6px;
+  }
+  #spkInputRoot .spk-success-note svg {
+    width: 14px; height: 14px;
+  }
+  #spkInputRoot .alur-note-wrap,
+  #spkInputRoot .finishing-note-panel {
+    margin-top: 11px;
+    padding-top: 11px;
+    border-top: 1px solid rgba(107,114,128,.28);
+    animation: alurNoteIn .22s ease;
+  }
+  #spkInputRoot .alur-note-wrap[hidden],
+  #spkInputRoot .finishing-note-panel[hidden] {
+    display: none !important;
+  }
+  #spkInputRoot .alur-note-input {
+    min-height: 86px;
+    resize: vertical;
+    line-height: 1.45;
+  }
+  #spkInputRoot .finishing-note-area {
+    margin-top: 14px;
+    padding: 12px;
+    border: 1px solid rgba(139,23,23,.52);
+    border-radius: 14px;
+    background:
+    linear-gradient(135deg, rgba(255,255,255,.48), transparent 42%),
+    #d8d9d6;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,.13), 0 2px 0 #fff;
+    animation: alurNoteIn .22s ease;
+  }
+  #spkInputRoot .finishing-note-area .finishing-note-panel {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
+  @keyframes alurNoteIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  #spkInputRoot .bahan-row {
+    background: var(--surface);
+    box-shadow: 4px 4px 8px rgba(163,177,198,0.4), -4px -4px 8px rgba(255,255,255,0.6);
+    border-radius: 13px;
+    padding: 12px;
+    animation: bahanIn 0.22s ease;
+  }
+  @keyframes bahanIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  #spkInputRoot .btn-remove {
+    color: var(--danger); font-size: 0.72rem; font-weight: 900; cursor: pointer;
+  }
+  #spkInputRoot .btn-add-bahan {
+    background: #202020;
+    color: white;
+    border-radius: 11px;
+    font-size: 0.78rem;
+    font-weight: 900;
+    padding: 11px;
+    text-align: center;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  #spkInputRoot .btn-add-bahan:hover:not(.disabled) {
+    opacity: 0.9; transform: translateY(-1px);
+  }
+  #spkInputRoot .btn-add-bahan.disabled {
+    opacity: 0.4; cursor: not-allowed; transform: none;
+  }
+  /* ---------- Warna & pemakaian tinta (Printing) ---------- */
+  #spkInputRoot .warna-chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  #spkInputRoot .warna-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 13px;
+    border-radius: 999px;
+    border: 1px solid #b7b9bb;
+    background: var(--surface);
+    box-shadow: 4px 4px 8px rgba(163,177,198,0.4), -4px -4px 8px rgba(255,255,255,0.6);
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #374151;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+  }
+  #spkInputRoot .warna-chip:hover:not(.disabled) {
+    transform: translateY(-1px);
+    border-color: #8b1717;
+  }
+  #spkInputRoot .warna-chip.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+  }
+  #spkInputRoot .warna-dot {
+    width: 13px;
+    height: 13px;
+    flex: none;
+    border-radius: 50%;
+    display: inline-block;
+    border: 1px solid rgba(0,0,0,0.22);
+    background: linear-gradient(135deg, #d1d5db, #9ca3af);
+  }
+  #spkInputRoot .warna-input-wrap {
+    position: relative;
+  }
+  #spkInputRoot .warna-input-wrap .warna-dot {
+    position: absolute;
+    left: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+  #spkInputRoot .warna-input-wrap .field-input {
+    padding-left: 35px;
+  }
+  #spkInputRoot .warna-empty {
+    padding: 13px;
+    margin-bottom: 15px;
+    border: 1.5px dashed #9ca3af;
+    border-radius: 11px;
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-align: center;
+  }
+  #spkInputRoot #warnaList:not(:empty) {
+    margin-bottom: 15px;
+  }
+  #spkInputRoot .metric-chip {
+    background: var(--surface);
+    box-shadow: inset 3px 3px 6px rgba(163,177,198,0.48), inset -3px -3px 6px rgba(255,255,255,0.7);
+    border-radius: 999px;
+    padding: 7px 11px;
+    font-size: 0.7rem;
+    font-weight: 900;
+    color: #4b5563;
+    white-space: nowrap;
+  }
+  #spkInputRoot .metric-chip span {
+    color: var(--danger);
+  }
+  #spkInputRoot ::-webkit-scrollbar {
+    width: 8px; height: 7px;
+  }
+  #spkInputRoot ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  #spkInputRoot ::-webkit-scrollbar-thumb {
+    background: #a3b1c6; border-radius: 10px;
+  }
+  @media (max-width: 767px) {
+    #spkInputRoot {
+      padding: 12px !important;
+    }
+    #spkInputRoot .main-shell {
+      padding: 18px !important; border-radius: 18px;
+    }
+    #spkInputRoot .wizard-navigation {
+      position: sticky; bottom: 8px; z-index: 20; background: rgba(224,229,236,0.92); backdrop-filter: blur(8px); border-radius: 15px; padding: 10px; box-shadow: 0 -8px 20px rgba(163,177,198,0.18);
+    }
+    #spkInputRoot .wizard-navigation button {
+      flex: 1; padding: 0 12px;
+    }
+    #spkInputRoot .wizard-navigation .nav-spacer {
+      display: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #spkInputRoot *,
+    #spkInputRoot *::before,
+    #spkInputRoot *::after {
+      animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important;
+    }
+  }
+  /* ---------- Shared industrial skeuomorphism shell ---------- */
+  #spkInputRoot {
+    --surface: #e2e3e0;
+    --surface-dark: #caccca;
+    --text: #25272b;
+    --muted: #6d7177;
+    --danger: #c92b2b;
+    --danger-dark: #8d1515;
+    --success: #167253;
+    --shadow-dark: rgba(0,0,0,.2);
+    --shadow-light: rgba(255,255,255,.82);
+    --app-page-background-color: #26282c;
+    --app-page-background-image:
+    linear-gradient(135deg, rgba(255,255,255,.025) 25%, transparent 25%),
+    linear-gradient(315deg, rgba(255,255,255,.025) 25%, transparent 25%),
+    radial-gradient(circle at 20% 0, rgba(255,255,255,.06), transparent 30rem);
+    --app-page-background-position: 0 0, 6px 6px, 0 0;
+    --app-page-background-size: 12px 12px, 12px 12px, auto;
+  }
+  #spkInputRoot {
+    margin: 0;
+    padding: 0 !important;
+    background-color: var(--app-page-background-color) !important;
+    background-image: var(--app-page-background-image);
+    background-position: var(--app-page-background-position);
+    background-size: var(--app-page-background-size);
+  }
+  #spkInputRoot .app-topbar {
+    min-height: 76px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-top: 1px solid #5a5d63;
+    border-bottom: 4px solid #8b1717;
+    background: linear-gradient(180deg, #4b4e54 0, #303238 45%, #202226 46%, #101114 100%);
+    color: #fff;
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.18),
+    inset 0 -1px 0 #000,
+    0 4px 10px rgba(0,0,0,.45);
+  }
+  #spkInputRoot .app-topbar::after {
+    position: absolute;
+    right: 0;
+    bottom: -4px;
+    left: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #751010, #ec4a4a 50%, #751010);
+    content: "";
+  }
+  #spkInputRoot .app-topbar-inner {
+    width: min(100%, 1600px);
+    min-height: 72px;
+    margin: 0 auto;
+    padding: 0 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  #spkInputRoot .app-brand {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  #spkInputRoot .app-brand-mark {
+    width: 46px;
+    height: 46px;
+    flex: 0 0 46px;
+    display: grid;
+    place-items: center;
+    padding: 4px;
+    border: 1px solid #74787d;
+    border-radius: 12px;
+    background:
+    linear-gradient(145deg, rgba(255,255,255,.92), rgba(255,255,255,.18) 42%, transparent 43%),
+    linear-gradient(145deg, #f7f7f4, #bfc2c4 54%, #85898e);
+    box-shadow:
+    inset 0 1px 1px #fff,
+    inset 0 -2px 3px rgba(0,0,0,.24),
+    0 2px 0 #09090a,
+    0 3px 5px rgba(0,0,0,.5);
+  }
+  #spkInputRoot .polyta-logo {
+    width: 100%;
+    height: 100%;
+    display: block;
+    filter: drop-shadow(0 2px 1px rgba(0,0,0,.28));
+  }
+  #spkInputRoot .app-brand-name {
+    display: block;
+    color: #fff;
+    font-size: .95rem;
+    font-weight: 800;
+    line-height: 1.2;
+    text-shadow: 0 -1px 0 #000;
+  }
+  #spkInputRoot .app-brand-subtitle {
+    display: block;
+    margin-top: 3px;
+    color: #c0c3c9;
+    font-size: .72rem;
+    line-height: 1.2;
+    text-shadow: 0 -1px 0 #000;
+  }
+  #spkInputRoot .app-nav {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  #spkInputRoot .app-nav-link {
+    min-height: 38px;
+    padding: 0 13px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 1px solid rgba(0,0,0,.5);
+    border-radius: 9px;
+    background: linear-gradient(180deg, #42454b, #25272c);
+    color: #d6d8dc;
+    box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.13),
+    0 1px 0 rgba(255,255,255,.07),
+    0 2px 2px rgba(0,0,0,.35);
+    font-size: .78rem;
+    font-weight: 750;
+    text-decoration: none;
+    text-shadow: 0 -1px 0 #000;
+  }
+  #spkInputRoot .app-nav-link:hover {
+    border-color: #111;
+    background: linear-gradient(180deg, #52555b, #303238);
+    color: #fff;
+  }
+  #spkInputRoot .app-nav-link.active {
+    border-color: #08090a;
+    background: #1b1c20;
+    color: #fff;
+    box-shadow:
+    inset 0 2px 5px rgba(0,0,0,.85),
+    0 1px 0 rgba(255,255,255,.1);
+  }
+  #spkInputRoot .page-frame {
+    width: 100%;
+    padding: 26px 16px 40px;
+  }
+  #spkInputRoot .main-shell.neumorphic {
+    position: relative;
+    border: 1px solid #777a7d;
+    border-radius: 20px;
+    background:
+    radial-gradient(circle at 15px 15px, #55585b 0 1px, #c8c9c7 2px 4px, #777 5px, transparent 6px),
+    radial-gradient(circle at calc(100% - 15px) 15px, #55585b 0 1px, #c8c9c7 2px 4px, #777 5px, transparent 6px),
+    radial-gradient(circle at 15px calc(100% - 15px), #55585b 0 1px, #c8c9c7 2px 4px, #777 5px, transparent 6px),
+    radial-gradient(circle at calc(100% - 15px) calc(100% - 15px), #55585b 0 1px, #c8c9c7 2px 4px, #777 5px, transparent 6px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.11) 0, rgba(255,255,255,.11) 1px, rgba(0,0,0,.018) 2px, transparent 4px),
+    linear-gradient(145deg, #eeeeeb, #d7d8d5);
+    box-shadow:
+    inset 0 1px 1px rgba(255,255,255,.95),
+    inset 0 -2px 4px rgba(0,0,0,.16),
+    0 3px 0 #151619,
+    0 16px 32px rgba(0,0,0,.45);
+  }
+  #spkInputRoot .main-shell .neumorphic {
+    border: 1px solid #c99797;
+    background: linear-gradient(145deg, #fff0f0, #e3b8b8);
+    box-shadow:
+    inset 1px 1px 0 rgba(255,255,255,.9),
+    inset -1px -1px 2px rgba(124,30,30,.22),
+    0 2px 3px rgba(0,0,0,.24);
+  }
+  #spkInputRoot .main-shell h1,
+  #spkInputRoot .section-title {
+    color: #25272b !important;
+    text-shadow: 0 1px 0 #fff;
+  }
+  #spkInputRoot .field-input {
+    border: 1px solid #9b9da0;
+    border-top-color: #74777a;
+    border-left-color: #74777a;
+    background: #fdfdfb;
+    color: #292b2f;
+    box-shadow:
+    inset 1px 2px 4px rgba(0,0,0,.2),
+    0 1px 0 rgba(255,255,255,.78);
+  }
+  #spkInputRoot .field-input:focus {
+    border-color: #7b1b1b;
+    box-shadow:
+    inset 1px 2px 4px rgba(0,0,0,.17),
+    0 0 0 3px rgba(185,35,35,.15),
+    0 1px 0 #fff;
+  }
+  #spkInputRoot .field-label,
+  #spkInputRoot .main-shell p {
+    text-shadow: 0 1px 0 rgba(255,255,255,.72);
+  }
+  #spkInputRoot .order-type-option,
+  #spkInputRoot .bahan-row {
+    border-color: #a6a8aa;
+    border-bottom-color: #7f8183;
+    background: linear-gradient(180deg, #fff, #e5e6e3 49%, #d0d1ce);
+    box-shadow:
+    inset 0 1px 0 #fff,
+    0 2px 0 #858789,
+    0 4px 7px rgba(0,0,0,.16);
+  }
+  #spkInputRoot .order-type-option:hover {
+    transform: translateY(-1px);
+  }
+  #spkInputRoot .order-type-option.active {
+    border-color: #8b1717;
+    background: #d2d3d0;
+    box-shadow:
+    inset 1px 2px 5px rgba(0,0,0,.28),
+    0 1px 0 #fff;
+    transform: translateY(1px);
+  }
+  #spkInputRoot .order-type-option-icon {
+    border: 1px solid #a3a5a7;
+    background: linear-gradient(145deg, #f7f7f4, #c9cac7);
+    box-shadow:
+    inset 1px 1px 0 #fff,
+    inset -1px -1px 2px rgba(0,0,0,.15),
+    0 1px 2px rgba(0,0,0,.18);
+  }
+  #spkInputRoot .metric-chip {
+    border: 1px solid #b5b7b9;
+    background: #dfe0de;
+    box-shadow:
+    inset 0 2px 3px rgba(0,0,0,.14),
+    0 1px 0 #fff;
+    text-shadow: 0 1px 0 #fff;
+  }
+  #spkInputRoot .neumorphic-btn-black,
+  #spkInputRoot .btn-add-bahan {
+    border: 1px solid #821111;
+    border-bottom-color: #5d0808;
+    background: linear-gradient(180deg, #ed5252 0, #d83232 46%, #b61d1d 52%, #8b1111 100%);
+    color: #fff;
+    box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.48),
+    inset 0 -1px 0 rgba(73,0,0,.45),
+    0 3px 0 #650b0b,
+    0 5px 8px rgba(77,0,0,.3);
+    text-shadow: 0 -1px 0 #620a0a;
+  }
+  #spkInputRoot .neumorphic-btn-black:hover:not(:disabled),
+  #spkInputRoot .btn-add-bahan:hover:not(.disabled) {
+    background: linear-gradient(180deg, #f25a5a 0, #dd3636 46%, #be2020 52%, #941313 100%);
+  }
+  #spkInputRoot .neumorphic-btn-black:active:not(:disabled),
+  #spkInputRoot .btn-add-bahan:active:not(.disabled) {
+    box-shadow:
+    inset 0 2px 4px rgba(0,0,0,.32),
+    0 1px 0 #650b0b;
+    transform: translateY(2px);
+  }
+  #spkInputRoot .neumorphic-btn-light {
+    border: 1px solid #9c9fa2;
+    border-bottom-color: #777a7d;
+    background: linear-gradient(180deg, #fff 0, #f6f6f4 46%, #e1e2df 52%, #c9cac8 100%);
+    color: #303238;
+    box-shadow:
+    inset 0 1px 0 #fff,
+    0 3px 0 #77797b,
+    0 5px 7px rgba(0,0,0,.22);
+    text-shadow: 0 1px 0 #fff;
+  }
+  #spkInputRoot .wizard-navigation {
+    border-top-color: #a7a9ab;
+    text-shadow: none;
+  }
+  /* Popup SweetAlert dipasang langsung di <body>, di luar
+     #spkInputRoot, jadi kelasnya sengaja tidak ikut di-scope. */
+  .swal2-popup-neumorphic {
+    border: 1px solid #8b8d8f;
+    background: linear-gradient(145deg, #f4f4f1, #d5d6d3) !important;
+    box-shadow:
+    inset 0 1px 0 #fff,
+    0 4px 0 #313236,
+    0 20px 50px rgba(0,0,0,.45);
+  }
+  #spkInputRoot.dialog-open {
+    overflow: hidden;
+  }
+  #spkInputRoot .save-success-overlay[hidden] {
+    display: none;
+  }
+  #spkInputRoot .save-success-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background:
+    radial-gradient(circle at 50% 38%, rgba(255,255,255,.18), transparent 38%),
+    rgba(20, 22, 25, .72);
+    backdrop-filter: blur(5px);
+  }
+  #spkInputRoot .save-success-card {
+    width: min(100%, 680px);
+    padding: 34px;
+    border: 1px solid #85888b;
+    border-radius: 18px;
+    background:
+    linear-gradient(145deg, rgba(255,255,255,.82), rgba(210,211,208,.96)),
+    #dedfdd;
+    box-shadow:
+    inset 0 1px 0 #fff,
+    inset 0 -1px 0 rgba(88,90,92,.3),
+    0 5px 0 #4e5053,
+    0 24px 65px rgba(0,0,0,.48);
+    text-align: center;
+  }
+  #spkInputRoot .save-success-icon {
+    display: grid;
+    place-items: center;
+    width: 74px;
+    height: 74px;
+    margin: 0 auto 18px;
+    border: 1px solid #126b3a;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #53d58a, #16844d);
+    box-shadow:
+    inset 0 2px 1px rgba(255,255,255,.55),
+    inset 0 -3px 4px rgba(0,62,30,.35),
+    0 4px 0 #0d5c30,
+    0 9px 18px rgba(0,83,40,.25);
+    color: #fff;
+    font-size: 2rem;
+    text-shadow: 0 -1px 0 #07562a;
+  }
+  #spkInputRoot .save-success-card h2 {
+    margin: 0;
+    color: #202226;
+    font-size: clamp(1.35rem, 4vw, 1.85rem);
+    font-weight: 900;
+    letter-spacing: -.02em;
+    text-shadow: 0 1px 0 #fff;
+  }
+  #spkInputRoot .save-success-message {
+    margin: 12px auto 20px;
+    color: #55595e;
+    line-height: 1.55;
+  }
+  #spkInputRoot .save-success-reference {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 25px;
+    padding: 13px 16px;
+    border: 1px solid #a8aaac;
+    border-radius: 10px;
+    background: #d5d6d3;
+    box-shadow:
+    inset 0 2px 4px rgba(0,0,0,.16),
+    0 1px 0 #fff;
+    text-align: left;
+  }
+  #spkInputRoot .save-success-reference span {
+    color: #696c70;
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  #spkInputRoot .save-success-reference strong {
+    color: #202226;
+    font-family: "Arial Narrow", Arial, sans-serif;
+    font-size: 1rem;
+    letter-spacing: .05em;
+    overflow-wrap: anywhere;
+  }
+  #spkInputRoot .save-success-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+    width: min(100%, 300px);
+    margin: 0 auto;
+  }
+  #spkInputRoot .save-success-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 38px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: .71rem;
+    font-weight: 900;
+    letter-spacing: .045em;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: transform .15s ease, filter .15s ease, box-shadow .15s ease;
+  }
+  #spkInputRoot .save-success-action:hover {
+    filter: brightness(1.04);
+  }
+  #spkInputRoot .save-success-action:active {
+    transform: translateY(2px);
+  }
+  #spkInputRoot .save-success-action:focus-visible {
+    outline: 3px solid rgba(216,50,50,.35);
+    outline-offset: 3px;
+  }
+  #spkInputRoot .save-success-secondary {
+    border: 1px solid #979a9d;
+    color: #303238;
+    background: linear-gradient(180deg, #fff, #f2f2f0 48%, #d1d2cf 52%, #bcbebb);
+    box-shadow:
+    inset 0 1px 0 #fff,
+    0 3px 0 #727477,
+    0 5px 8px rgba(0,0,0,.2);
+    text-shadow: 0 1px 0 #fff;
+  }
+  #spkInputRoot .save-success-primary {
+    border: 1px solid #821111;
+    color: #fff;
+    background: linear-gradient(180deg, #ed5252, #d83232 46%, #b61d1d 52%, #8b1111);
+    box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.48),
+    0 3px 0 #650b0b,
+    0 5px 8px rgba(77,0,0,.3);
+    text-shadow: 0 -1px 0 #620a0a;
+  }
+  #spkInputRoot ::-webkit-scrollbar-thumb {
+    border: 1px solid #64676b;
+    background: linear-gradient(90deg, #85888d, #55585d);
+    box-shadow: inset 1px 0 0 rgba(255,255,255,.25);
+  }
+  @media (max-width: 900px) {
+    #spkInputRoot .app-topbar-inner {
+      padding: 0 18px;
+    }
+    #spkInputRoot .app-nav-link {
+      width: 39px; padding: 0;
+    }
+    #spkInputRoot .app-nav-link span {
+      display: none;
+    }
+  }
+  @media (max-width: 767px) {
+    #spkInputRoot {
+      padding: 0 !important;
+    }
+    #spkInputRoot .page-frame {
+      padding: 16px 10px 28px;
+    }
+    #spkInputRoot .main-shell {
+      padding: 20px 16px !important;
+    }
+    #spkInputRoot .wizard-navigation {
+      background:
+      repeating-linear-gradient(90deg, rgba(255,255,255,.08) 0, rgba(255,255,255,.08) 1px, transparent 2px, transparent 4px),
+      rgba(216,217,214,.96);
+      border: 1px solid #a7a9ab;
+      box-shadow:
+      inset 0 1px 0 #fff,
+      0 3px 0 #858789,
+      0 7px 15px rgba(0,0,0,.2);
+    }
+  }
+  /* Compact density shared with Dashboard and Penarikan Data. */
+  #spkInputRoot {
+    font-size: 15px;
+  }
+  #spkInputRoot .app-topbar {
+    min-height: 72px;
+  }
+  #spkInputRoot .app-topbar-inner {
+    min-height: 68px;
+    padding-inline: 22px;
+    gap: 18px;
+  }
+  #spkInputRoot .app-brand {
+    gap: 11px;
+  }
+  #spkInputRoot .app-brand-mark {
+    width: 52px;
+    height: 52px;
+    flex-basis: 52px;
+    padding: 4px;
+    border-radius: 12px;
+  }
+  #spkInputRoot .app-brand-name {
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: .01em;
+    line-height: 1.2;
+  }
+  #spkInputRoot .app-brand-subtitle {
+    margin-top: 2px;
+    font-size: .74rem;
+    letter-spacing: .02em;
+    line-height: 1.2;
+  }
+  #spkInputRoot .app-nav {
+    gap: 5px;
+  }
+  #spkInputRoot .app-nav-link {
+    min-height: 35px;
+    padding-inline: 11px;
+    gap: 6px;
+    border-radius: 8px;
+    font-size: .72rem;
+  }
+  #spkInputRoot .app-fullscreen-button {
+    appearance: none;
+    font-family: inherit;
+    font-size: .72rem;
+    font-weight: 650;
+    letter-spacing: normal;
+    text-transform: none;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  @media (min-width: 901px) {
+    #spkInputRoot .app-fullscreen-button {
+      width: 104px;
+      flex: 0 0 104px;
+    }
+  }
+  #spkInputRoot .app-fullscreen-button[aria-pressed="true"] {
+    border-color: rgba(255,255,255,.18);
+    background: rgba(255,255,255,.14);
+    color: #fff;
+  }
+  #spkInputRoot .page-frame {
+    padding: 18px 12px 28px;
+  }
+  #spkInputRoot .main-shell {
+    padding: 20px !important;
+    border-radius: 17px !important;
+  }
+  #spkInputRoot .main-shell h1 {
+    font-size: 1.45rem !important;
+  }
+  #spkInputRoot .section-title {
+    gap: 7px;
+    font-size: .9rem;
+  }
+  #spkInputRoot .metric-chip {
+    padding: 5px 8px;
+    font-size: .63rem;
+  }
+  #spkInputRoot .field-label {
+    margin-bottom: 4px;
+    font-size: .69rem;
+  }
+  #spkInputRoot .field-input {
+    min-height: 36px;
+    padding: 7px 10px;
+    border-radius: 9px;
+    font-size: .78rem;
+  }
+  #spkInputRoot .order-type-option {
+    padding: 10px;
+    gap: 9px;
+    border-radius: 11px;
+  }
+  #spkInputRoot .order-type-option-icon {
+    width: 34px;
+    height: 34px;
+    flex-basis: 34px;
+    border-radius: 10px;
+  }
+  #spkInputRoot .order-type-option-icon svg {
+    width: 17px;
+    height: 17px;
+  }
+  #spkInputRoot .alur-note-input {
+    min-height: 68px;
+  }
+  #spkInputRoot .bahan-row {
+    padding: 9px;
+    border-radius: 10px;
+  }
+  #spkInputRoot .btn-add-bahan {
+    padding: 8px;
+    border-radius: 9px;
+    font-size: .72rem;
+  }
+  #spkInputRoot .wizard-navigation {
+    gap: 9px;
+    padding-top: 12px;
+    margin-top: 12px;
+  }
+  #spkInputRoot .wizard-navigation button {
+    min-height: 38px;
+    padding-inline: 13px;
+    border-radius: 10px;
+    font-size: .71rem;
+  }
+  #spkInputRoot .save-success-card {
+    width: min(100%, 470px);
+    padding: 25px 24px 22px;
+  }
+  #spkInputRoot .save-success-action {
+    min-height: 38px;
+    padding-inline: 12px;
+    font-size: .71rem;
+  }
+  @media (max-width: 767px) {
+    #spkInputRoot {
+      padding: 0 !important;
+    }
+    #spkInputRoot .app-topbar-inner {
+      padding-inline: 15px;
+    }
+    #spkInputRoot .page-frame {
+      padding: 14px 9px 22px;
+    }
+    #spkInputRoot .main-shell {
+      padding: 15px 12px !important;
+    }
+    #spkInputRoot .wizard-navigation {
+      bottom: 6px;
+      padding: 7px;
+    }
+  }
+  @media (max-width: 480px) {
+    #spkInputRoot {
+      font-size: 14.5px;
+    }
+    #spkInputRoot .app-topbar-inner {
+      padding: 0 13px;
+    }
+    #spkInputRoot .app-brand-name {
+      font-size: 1.05rem;
+    }
+    #spkInputRoot .app-brand-subtitle {
+      display: none;
+    }
+    #spkInputRoot .save-success-overlay {
+      padding: 14px;
+    }
+    #spkInputRoot .save-success-card {
+      padding: 27px 20px 23px;
+    }
+    #spkInputRoot .save-success-actions {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  #spkInputRoot .main-shell h1 {
+    font-size: 1.55rem !important;
+    font-weight: 850 !important;
+    line-height: 1.2 !important;
+    letter-spacing: -.025em !important;
+  }
+  #spkInputRoot .section-title {
+    font-size: .86rem;
+    font-weight: 850;
+    line-height: 1.2;
+  }
+  #spkInputRoot .field-label {
+    font-size: .69rem;
+    line-height: 1.4;
+  }
+  #spkInputRoot .field-label {
+    font-weight: 800;
+  }
+  #spkInputRoot .is-hidden {
+    display: none !important;
+  }
+  #spkInputRoot .calculation-sheet {
+    overflow: hidden;
+    border: 1px solid #c8cdd4;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, .62);
+  }
+  #spkInputRoot .calculation-sheet-row {
+    display: grid;
+    grid-template-columns: minmax(125px, .34fr) minmax(0, 1fr);
+    min-height: 39px;
+    border-bottom: 1px solid #d7dbe1;
+  }
+  #spkInputRoot .calculation-sheet-row:last-child {
+    border-bottom: 0;
+  }
+  #spkInputRoot .calculation-sheet-label,
+  #spkInputRoot .calculation-sheet-value {
+    display: flex;
+    align-items: center;
+    padding: 8px 10px;
+    line-height: 1.35;
+  }
+  #spkInputRoot .calculation-sheet-label {
+    border-right: 1px solid #d7dbe1;
+    color: #626873;
+    font-size: .62rem;
+    font-weight: 850;
+    letter-spacing: .025em;
+    text-transform: uppercase;
+  }
+  #spkInputRoot .calculation-sheet-value {
+    min-width: 0;
+    color: #30343b;
+    font-size: .72rem;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+  }
+  #spkInputRoot .calculation-sheet-result-row {
+    display: grid;
+    grid-template-columns: minmax(125px, .34fr) minmax(0, 1fr);
+    min-height: 46px;
+    border-bottom: 1px solid #a9caad;
+    background: linear-gradient(180deg, #f0f9f1, #dceede);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.82), inset 0 -1px 0 rgba(69,117,75,.08);
+  }
+  #spkInputRoot .calculation-sheet-result-label,
+  #spkInputRoot .calculation-sheet-result-value {
+    display: flex;
+    align-items: center;
+    padding: 9px 10px;
+    line-height: 1.35;
+  }
+  #spkInputRoot .calculation-sheet-result-label {
+    border-right: 1px solid #b8d4bb;
+    color: #34713d;
+    font-size: .63rem;
+    font-weight: 900;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+  #spkInputRoot .calculation-sheet-result-value {
+    min-width: 0;
+    color: #17652a;
+    font-size: .82rem;
+    font-weight: 950;
+    overflow-wrap: anywhere;
+    text-shadow: 0 1px 0 rgba(255,255,255,.82);
+  }
+  #spkInputRoot .calculation-sheet-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-height: 42px;
+    padding: 9px 10px;
+    border-bottom: 1px solid #bac5d5;
+    background: #dbe8f7;
+    color: #26384d;
+    font-size: .73rem;
+    font-weight: 900;
+  }
+  #spkInputRoot .calculation-sheet-header small {
+    flex: 0 0 auto;
+    color: #66788d;
+    font-size: .6rem;
+    font-weight: 800;
+  }
+  #spkInputRoot .calculation-sheet-reference {
+    padding: 8px 10px;
+    border-top: 1px dashed #d2d7de;
+    background: rgba(224, 229, 236, .48);
+    color: #626873;
+    font-size: .61rem;
+    font-weight: 700;
+    line-height: 1.45;
+  }
+  #spkInputRoot .calculation-sheet-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-top: 1px solid #d7dbe1;
+  }
+  #spkInputRoot .calculation-sheet-info {
+    min-width: 0;
+    padding: 8px 10px;
+    background: rgba(255, 255, 255, .48);
+  }
+  #spkInputRoot .calculation-sheet-info + .calculation-sheet-info {
+    border-left: 1px solid #d7dbe1;
+  }
+  #spkInputRoot .calculation-sheet-info span {
+    display: block;
+    color: #707782;
+    font-size: .57rem;
+    font-weight: 850;
+    text-transform: uppercase;
+  }
+  #spkInputRoot .calculation-sheet-info strong {
+    display: block;
+    margin-top: 3px;
+    color: #30343b;
+    font-size: .69rem;
+    font-weight: 850;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+  #spkInputRoot .calculation-message {
+    margin: 9px 1px 0;
+    color: #6b7280;
+    font-size: .65rem;
+    font-weight: 650;
+    line-height: 1.4;
+  }
+  @media (max-width: 767px) {
+    #spkInputRoot .calculation-sheet-row {
+      grid-template-columns: 1fr;
+    }
+    #spkInputRoot .calculation-sheet-label {
+      padding-bottom: 3px;
+      border-right: 0;
+    }
+    #spkInputRoot .calculation-sheet-value {
+      padding-top: 3px;
+    }
+    #spkInputRoot .calculation-sheet-result-row {
+      grid-template-columns: 1fr;
+    }
+    #spkInputRoot .calculation-sheet-result-label {
+      padding-bottom: 3px;
+      border-right: 0;
+    }
+    #spkInputRoot .calculation-sheet-result-value {
+      padding-top: 3px;
+    }
+    #spkInputRoot .calculation-sheet-info-grid {
+      grid-template-columns: 1fr;
+    }
+    #spkInputRoot .calculation-sheet-info + .calculation-sheet-info {
+      border-top: 1px solid #d7dbe1;
+      border-left: 0;
+    }
+  }
+  /* ==========================================================
+     KELOMPOK FORM
+     Membagi satu langkah menjadi beberapa kartu bertema, supaya
+     puluhan isian tidak terbaca sebagai satu daftar panjang.
+     ========================================================== */
+  #spkInputRoot .form-group-card {
+    border: 1px solid #b1b3b3;
+    border-bottom-color: #8f9192;
+    border-radius: 12px;
+    padding: 13px 13px 14px;
+    margin-bottom: 12px;
+    background:
+    linear-gradient(135deg, rgba(255,255,255,.62), transparent 42%),
+    linear-gradient(180deg, #fbfbf9, #ecedea);
+    box-shadow:
+    inset 0 1px 0 #fff,
+    inset 0 -1px 0 rgba(0,0,0,.09),
+    0 2px 0 #a9abac,
+    0 4px 8px rgba(0,0,0,.11);
+  }
+  #spkInputRoot .form-group-card:last-child {
+    margin-bottom: 0;
+  }
+  #spkInputRoot .form-group-head {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 11px;
+    padding-bottom: 9px;
+    border-bottom: 1px solid rgba(140,143,145,.34);
+  }
+  #spkInputRoot .form-group-icon {
+    width: 24px;
+    height: 24px;
+    flex: 0 0 24px;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #7c1a1a;
+    border: 1px solid #b8babb;
+    background: linear-gradient(180deg, #fdfdfb, #e4e5e2);
+    box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgba(0,0,0,.16);
+  }
+  #spkInputRoot .form-group-icon svg {
+    width: 13px;
+    height: 13px;
+  }
+  #spkInputRoot .form-group-title {
+    font-size: .73rem;
+    font-weight: 900;
+    letter-spacing: .055em;
+    text-transform: uppercase;
+    color: #33353a;
+    text-shadow: 0 1px 0 #fff;
+  }
+  #spkInputRoot .form-group-hint {
+    margin-left: auto;
+    font-size: .62rem;
+    font-weight: 700;
+    color: #7b7e81;
+    text-shadow: 0 1px 0 #fff;
+    white-space: nowrap;
+  }
+  /* Jumlah kolom sengaja dipatok, bukan auto-fit. Dengan auto-fit
+     jumlahnya berubah mengikuti lebar dan sering menyisakan satu kolom
+     yatim di baris terakhir; dengan patokan tiga kolom, setiap kelompok
+     isian di langkah ini habis terbagi rata. */
+  #spkInputRoot .form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 11px 12px;
+    align-items: start;
+  }
+  #spkInputRoot .form-grid.cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  #spkInputRoot .form-cell.span-2 {
+    grid-column: span 2;
+  }
+  #spkInputRoot .form-cell.span-full {
+    grid-column: 1 / -1;
+  }
+  @media (max-width: 860px) {
+    #spkInputRoot .form-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    #spkInputRoot .form-cell.span-2 {
+      grid-column: 1 / -1;
+    }
+  }
+  @media (max-width: 560px) {
+    #spkInputRoot .form-grid,
+    #spkInputRoot .form-grid.cols-2 {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  #spkInputRoot .field-hint {
+    margin-top: 4px;
+    font-size: .61rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: #7b7e81;
+    text-shadow: 0 1px 0 rgba(255,255,255,.7);
+  }
+  #spkInputRoot .identity-spk-slot {
+    margin-top: 11px;
+    padding-top: 11px;
+    border-top: 1px dashed rgba(150,130,130,.45);
+  }
+  /* ==========================================================
+     ROUTING (PROSES PRODUKSI)
+     Satu pemilih membuka satu editor proses. Setelah disimpan,
+     ringkasannya masuk ke daftar routing di bawah editor.
+     ========================================================== */
+  #spkInputRoot .routing-builder-select {
+    display: block;
+    margin-bottom: 10px;
+    padding: 11px 12px;
+    border: 1px solid #b4b6b7;
+    border-bottom-color: #929496;
+    border-radius: 12px;
+    background:
+      linear-gradient(145deg, rgba(255,255,255,.72), transparent 45%),
+      linear-gradient(180deg, #f1f2ef, #dfe1de);
+    box-shadow: inset 0 1px 0 #fff, 0 2px 0 #b2b4b3, 0 4px 9px rgba(31,33,36,.09);
+  }
+  #spkInputRoot .routing-builder-field {
+    min-width: 0;
+  }
+  #spkInputRoot .routing-builder-field .field-label {
+    margin-bottom: 5px;
+    color: #373a3e;
+    font-size: .68rem;
+    font-weight: 900;
+    letter-spacing: .035em;
+  }
+  #spkInputRoot .routing-select-control {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 40px;
+    border-radius: 10px;
+    transition: filter .18s ease, transform .18s ease;
+  }
+  #spkInputRoot .routing-process-select {
+    width: 100%;
+    appearance: none;
+    -webkit-appearance: none;
+    min-height: 40px;
+    padding: 8px 47px 8px 49px;
+    border: 1px solid #9da0a2;
+    border-bottom-color: #85888a;
+    border-radius: 10px;
+    outline: none;
+    background:
+      linear-gradient(135deg, rgba(255,255,255,.85), transparent 48%),
+      linear-gradient(180deg, #fbfcfa, #e5e7e4);
+    box-shadow:
+      inset 1px 2px 4px rgba(34,36,38,.13),
+      inset -1px -1px 2px rgba(255,255,255,.8),
+      0 1px 0 #fff,
+      0 2px 4px rgba(35,37,39,.1);
+    color: #292c30;
+    font-weight: 850;
+    letter-spacing: .005em;
+    cursor: pointer;
+    transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+  }
+  #spkInputRoot .routing-process-select::-ms-expand {
+    display: none;
+  }
+  #spkInputRoot .routing-select-icon,
+  #spkInputRoot .routing-select-chevron {
+    position: absolute;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    pointer-events: none;
+    transition: color .18s ease, background .18s ease, border-color .18s ease, transform .18s ease;
+  }
+  #spkInputRoot .routing-select-icon {
+    left: 7px;
+    width: 32px;
+    height: 30px;
+    border: 1px solid #85898c;
+    border-radius: 8px;
+    background: linear-gradient(145deg, #4c5156, #25292d);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(26,28,30,.2);
+    color: #fff;
+  }
+  #spkInputRoot .routing-select-icon svg {
+    width: 17px;
+    height: 17px;
+  }
+  #spkInputRoot .routing-select-chevron {
+    right: 7px;
+    width: 30px;
+    height: 30px;
+    border: 1px solid #b2b5b6;
+    border-radius: 8px;
+    background: linear-gradient(145deg, #f7f8f6, #d9dcda);
+    box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgba(31,33,35,.12);
+    color: #6f1616;
+  }
+  #spkInputRoot .routing-select-chevron svg {
+    width: 16px;
+    height: 16px;
+  }
+  #spkInputRoot .routing-select-control:hover {
+    filter: brightness(1.025);
+  }
+  #spkInputRoot .routing-select-control:hover .routing-process-select {
+    border-color: #878b8e;
+    box-shadow:
+      inset 1px 2px 4px rgba(34,36,38,.14),
+      inset -1px -1px 2px rgba(255,255,255,.86),
+      0 1px 0 #fff,
+      0 3px 6px rgba(35,37,39,.13);
+  }
+  #spkInputRoot .routing-select-control:focus-within .routing-process-select {
+    border-color: #8d1b1b;
+    background:
+      linear-gradient(135deg, rgba(255,255,255,.92), transparent 48%),
+      linear-gradient(180deg, #fff, #e9eae8);
+    box-shadow:
+      inset 1px 2px 4px rgba(34,36,38,.12),
+      0 0 0 2px rgba(143,24,24,.14),
+      0 3px 7px rgba(35,37,39,.13);
+  }
+  #spkInputRoot .routing-select-control:focus-within .routing-select-icon {
+    border-color: #741010;
+    background: linear-gradient(145deg, #ad2929, #701010);
+  }
+  #spkInputRoot .routing-select-control:focus-within .routing-select-chevron {
+    border-color: #a96b6b;
+    color: #8f1818;
+    transform: translateY(1px);
+  }
+  #spkInputRoot .routing-save-feedback {
+    margin-left: auto;
+    padding: 4px 9px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    opacity: 0;
+    color: #62666a;
+    font-size: .59rem;
+    font-weight: 850;
+    transform: translateY(2px);
+    transition: opacity .18s ease, transform .18s ease;
+  }
+  #spkInputRoot .routing-save-feedback.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  #spkInputRoot .routing-save-feedback.is-success {
+    border-color: #9ebfa3;
+    background: #e6f3e8;
+    color: #23652d;
+  }
+  #spkInputRoot .routing-save-feedback.is-remove {
+    border-color: #d0aaaa;
+    background: #f9eaea;
+    color: #8b2424;
+  }
+  #spkInputRoot .routing-editor-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed rgba(139,142,144,.45);
+  }
+  #spkInputRoot .routing-editor-actions[hidden] {
+    display: none;
+  }
+  #spkInputRoot .routing-editor-cancel,
+  #spkInputRoot .routing-editor-save {
+    min-height: 36px;
+    padding: 7px 15px;
+    border-radius: 9px;
+    font-size: .66rem;
+    font-weight: 900;
+    letter-spacing: .025em;
+    cursor: pointer;
+  }
+  #spkInputRoot .routing-editor-cancel {
+    border: 1px solid #b9bbbc;
+    background: linear-gradient(180deg, #fff, #e5e6e3);
+    box-shadow: inset 0 1px 0 #fff, 0 2px 0 #aaa;
+    color: #55585c;
+  }
+  #spkInputRoot .routing-editor-save {
+    border: 1px solid #6d1010;
+    background: linear-gradient(180deg, #b72424, #7c1111);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.27), 0 2px 0 #590b0b, 0 4px 7px rgba(91,13,13,.18);
+    color: #fff;
+    text-shadow: 0 1px 1px rgba(0,0,0,.34);
+  }
+  #spkInputRoot .routing-editor-cancel:hover,
+  #spkInputRoot .routing-editor-save:hover {
+    transform: translateY(-1px);
+  }
+  #spkInputRoot .routing-saved-section {
+    margin-top: 14px;
+    padding: 12px;
+    border: 1px solid #aeb1b2;
+    border-radius: 12px;
+    background:
+      linear-gradient(145deg, rgba(255,255,255,.58), transparent 42%),
+      linear-gradient(180deg, #eceeeb, #dfe1de);
+    box-shadow: inset 0 1px 0 #fff, 0 2px 0 #aaacad, 0 4px 9px rgba(31,33,36,.09);
+  }
+  #spkInputRoot .routing-saved-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+    padding: 0 1px 9px;
+    border-bottom: 1px solid rgba(142,145,147,.35);
+  }
+  #spkInputRoot .routing-saved-eyebrow {
+    display: block;
+    margin-bottom: 2px;
+    color: #8c2222;
+    font-size: .54rem;
+    font-weight: 900;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+  }
+  #spkInputRoot .routing-saved-head h3 {
+    margin: 0;
+    color: #33363a;
+    font-size: .72rem;
+    font-weight: 950;
+    letter-spacing: .035em;
+    text-transform: uppercase;
+    text-shadow: 0 1px 0 #fff;
+  }
+  #spkInputRoot .routing-saved-count {
+    flex: 0 0 auto;
+    padding: 4px 9px;
+    border: 1px solid #b3b6b7;
+    border-radius: 999px;
+    background: #e3e5e2;
+    box-shadow: inset 0 2px 3px rgba(0,0,0,.11), 0 1px 0 #fff;
+    color: #5c6064;
+    font-size: .59rem;
+    font-weight: 850;
+  }
+  #spkInputRoot .routing-saved-empty {
+    padding: 14px 12px;
+    border: 1px dashed #b2b5b6;
+    border-radius: 9px;
+    background: rgba(255,255,255,.38);
+    color: #74787c;
+    text-align: center;
+    font-size: .64rem;
+    font-weight: 650;
+  }
+  #spkInputRoot .routing-saved-list {
+    display: grid;
+    gap: 9px;
+  }
+  #spkInputRoot .routing-saved-card {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr);
+    gap: 10px;
+    padding: 10px;
+    border: 1px solid #b5b8b9;
+    border-bottom-color: #959899;
+    border-radius: 10px;
+    background: linear-gradient(180deg, #fbfcf9, #e9ebe7);
+    box-shadow: inset 0 1px 0 #fff, 0 2px 0 #b1b3b3, 0 3px 7px rgba(31,33,36,.08);
+    transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+  }
+  #spkInputRoot .routing-saved-card.is-editing {
+    border-color: #a55252;
+    box-shadow: inset 0 1px 0 #fff, 0 2px 0 #9e6f6f, 0 0 0 3px rgba(151,35,35,.08);
+  }
+  #spkInputRoot .routing-saved-index {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border: 1px solid #a6a9aa;
+    border-radius: 10px;
+    background: linear-gradient(180deg, #f7f8f6, #d7d9d6);
+    box-shadow: inset 0 1px 0 #fff, 0 2px 0 #a7a9aa;
+    color: #7d2020;
+    font-size: .65rem;
+    font-weight: 950;
+  }
+  #spkInputRoot .routing-saved-content {
+    min-width: 0;
+  }
+  #spkInputRoot .routing-saved-card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  #spkInputRoot .routing-saved-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #397241;
+    font-size: .52rem;
+    font-weight: 900;
+    letter-spacing: .055em;
+    text-transform: uppercase;
+  }
+  #spkInputRoot .routing-saved-status i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #3d984b;
+    box-shadow: 0 0 0 2px rgba(61,152,75,.14);
+  }
+  #spkInputRoot .routing-saved-card h4 {
+    margin: 2px 0 0;
+    color: #303338;
+    font-size: .72rem;
+    font-weight: 950;
+    letter-spacing: .035em;
+    text-transform: uppercase;
+  }
+  #spkInputRoot .routing-saved-actions {
+    display: flex;
+    gap: 6px;
+  }
+  #spkInputRoot .routing-saved-edit,
+  #spkInputRoot .routing-saved-remove {
+    min-height: 28px;
+    padding: 4px 10px;
+    border-radius: 7px;
+    font-size: .58rem;
+    font-weight: 900;
+    cursor: pointer;
+  }
+  #spkInputRoot .routing-saved-edit {
+    border: 1px solid #a7aaac;
+    background: linear-gradient(180deg, #fff, #e5e7e4);
+    box-shadow: inset 0 1px 0 #fff, 0 1px 0 #aaa;
+    color: #4b4f53;
+  }
+  #spkInputRoot .routing-saved-remove {
+    border: 1px solid #d1a5a5;
+    background: #fff5f5;
+    color: #962323;
+  }
+  #spkInputRoot .routing-saved-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+    gap: 6px;
+  }
+  #spkInputRoot .routing-saved-detail {
+    min-width: 0;
+    padding: 7px 8px;
+    border: 1px solid rgba(184,187,188,.78);
+    border-radius: 7px;
+    background: rgba(255,255,255,.52);
+    box-shadow: inset 0 1px 2px rgba(31,33,36,.07), 0 1px 0 #fff;
+  }
+  #spkInputRoot .routing-saved-detail span,
+  #spkInputRoot .routing-saved-detail strong {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  #spkInputRoot .routing-saved-detail span {
+    margin-bottom: 3px;
+    color: #777b7f;
+    font-size: .52rem;
+    font-weight: 850;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+  #spkInputRoot .routing-saved-detail strong {
+    color: #393c40;
+    font-size: .64rem;
+    font-weight: 850;
+    line-height: 1.35;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  #spkInputRoot .routing-saved-detail.is-composition-list strong {
+    white-space: pre-line;
+  }
+  @media (max-width: 620px) {
+    #spkInputRoot .routing-builder-select {
+      padding: 9px;
+    }
+    #spkInputRoot .routing-saved-card {
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 8px;
+      padding: 8px;
+    }
+    #spkInputRoot .routing-saved-index {
+      width: 34px;
+      height: 34px;
+    }
+    #spkInputRoot .routing-saved-card-head {
+      align-items: stretch;
+      flex-direction: column;
+    }
+    #spkInputRoot .routing-saved-actions {
+      width: 100%;
+    }
+    #spkInputRoot .routing-saved-edit,
+    #spkInputRoot .routing-saved-remove {
+      flex: 1 1 50%;
+    }
+  }
+  #spkInputRoot .routing-chip-row {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(116px, 1fr));
+    gap: 6px;
+    margin-bottom: 10px;
+    padding: 5px;
+    overflow-x: auto;
+    border: 1px solid #b5b7b8;
+    border-radius: 13px;
+    background: linear-gradient(180deg, #d2d4d2, #eceeeb);
+    box-shadow: inset 0 2px 5px rgba(0,0,0,.14), 0 1px 0 #fff;
+    scrollbar-width: thin;
+    scroll-snap-type: x proximity;
+  }
+  #spkInputRoot .routing-chip {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 34px;
+    min-width: 116px;
+    min-height: 44px;
+    border: 1px solid #a9abad;
+    border-bottom-color: #8a8c8e;
+    border-radius: 9px;
+    background: linear-gradient(180deg, #fdfdfb, #e6e7e4);
+    box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgba(0,0,0,.14);
+    color: #5b5e62;
+    overflow: hidden;
+    scroll-snap-align: start;
+    transition: transform .16s ease, background .18s ease, color .18s ease, border-color .18s ease, box-shadow .18s ease;
+  }
+  #spkInputRoot .routing-chip:hover {
+    border-color: #8a8c8e;
+    transform: translateY(-1px);
+  }
+  #spkInputRoot .routing-chip-label {
+    width: 100%;
+    overflow: hidden;
+    font-size: .65rem;
+    font-weight: 900;
+    line-height: 1.15;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  #spkInputRoot .routing-chip-mark {
+    display: grid;
+    place-items: center;
+    width: 17px;
+    height: 17px;
+    border-radius: 50%;
+    border: 1px solid #929598;
+    background: #f1f2f0;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.12), 0 1px 0 #fff;
+    transition: background .18s ease, border-color .18s ease;
+  }
+  #spkInputRoot .routing-chip-mark::after {
+    content: '+';
+    font-size: .75rem;
+    font-weight: 900;
+    line-height: 1;
+  }
+  #spkInputRoot .routing-chip.checked {
+    border-color: #c58888;
+    background: linear-gradient(180deg, #fff7f7, #ead4d4);
+    color: #7c1414;
+    box-shadow: inset 0 1px 0 #fff, 0 2px 0 #b79494;
+  }
+  #spkInputRoot .routing-chip.is-active {
+    border-color: #34363a;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 3px 0 #24262a, 0 5px 10px rgba(25,27,30,.2);
+    transform: translateY(-1px);
+  }
+  #spkInputRoot .routing-chip.checked .routing-chip-mark {
+    border-color: #650e0e;
+    background: #8d1515;
+    color: #fff;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 1px 2px rgba(73,0,0,.24);
+  }
+  #spkInputRoot .routing-chip.checked .routing-chip-mark::after {
+    content: '\2713';
+    font-size: .64rem;
+  }
+  #spkInputRoot .routing-chip.checked.is-active {
+    border-color: #721010;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 3px 0 #681010, 0 5px 10px rgba(80,0,0,.2);
+  }
+  #spkInputRoot .routing-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-bottom: 11px;
+  }
+  #spkInputRoot .routing-empty {
+    padding: 14px 12px;
+    border: 1px dashed #b0b2b4;
+    border-radius: 10px;
+    background: rgba(255,255,255,.4);
+    text-align: center;
+    font-size: .66rem;
+    font-weight: 600;
+    color: #7b7e81;
+    text-shadow: 0 1px 0 #fff;
+  }
+  #spkInputRoot .routing-panels {
+    display: block;
+  }
+  #spkInputRoot .routing-panels:empty {
+    display: none;
+  }
+  #spkInputRoot .route-panel {
+    border: 1px solid #b6b8b9;
+    border-bottom-color: #939596;
+    border-radius: 11px;
+    padding: 11px 11px 12px;
+    background:
+    linear-gradient(135deg, rgba(255,255,255,.55), transparent 40%),
+    linear-gradient(180deg, #fcfcfa, #eaebe8);
+    box-shadow: inset 0 1px 0 #fff, 0 2px 0 #a9abac, 0 4px 8px rgba(0,0,0,.1);
+    animation: modeReveal .28s ease;
+    max-height: min(58vh, 560px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+  #spkInputRoot .route-panel[hidden] {
+    display: none;
+  }
+  #spkInputRoot .route-panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 10px;
+    padding-bottom: 7px;
+    border-bottom: 1px solid rgba(140,143,145,.32);
+    position: sticky;
+    top: -11px;
+    z-index: 2;
+    margin-inline: -11px;
+    padding: 10px 11px 8px;
+    background: rgba(246,247,244,.96);
+    backdrop-filter: blur(8px);
+  }
+  #spkInputRoot .route-panel-title {
+    font-size: .72rem;
+    font-weight: 900;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: #8d1515;
+    text-shadow: 0 1px 0 #fff;
+  }
+  #spkInputRoot .route-panel-meta {
+    margin-left: auto;
+    font-size: .6rem;
+    font-weight: 700;
+    color: #7b7e81;
+    text-shadow: 0 1px 0 #fff;
+  }
+  /* Layout isian Routing dibuat independen dari grid tiga kolom Data Utama.
+     Setiap proses mendapat proporsi kolom yang sesuai isiannya sehingga tidak
+     ada lagi kolom yatim atau input yang tampak menggantung. */
+  #spkInputRoot .route-fields {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 10px;
+    align-items: stretch;
+  }
+  #spkInputRoot .route-fields > .form-cell {
+    grid-column: span 4;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    border: 1px solid rgba(169, 172, 174, .72);
+    border-radius: 11px;
+    background:
+    linear-gradient(145deg, rgba(255,255,255,.82), rgba(238,239,236,.76));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.95), 0 2px 5px rgba(35,37,40,.08);
+  }
+  #spkInputRoot .route-fields > .form-cell[hidden] {
+    display: none;
+  }
+  #spkInputRoot .route-fields--blowing > .form-cell:nth-child(-n+3) {
+    grid-column: span 4;
+  }
+  #spkInputRoot .route-fields--blowing > .form-cell:nth-child(n+4) {
+    grid-column: span 6;
+  }
+  #spkInputRoot .route-fields--split > .form-cell:first-child {
+    grid-column: span 8;
+  }
+  #spkInputRoot .route-fields--split > .form-cell:last-child {
+    grid-column: span 4;
+  }
+  /* Folding, Slitting, dan Gusset. Baris pertama sengaja dipertahankan sama
+     persis dengan layout lama (Ukuran 8 kolom, Target BS 4 kolom); dua kolom
+     ukuran tambahan mengisi baris kedua dengan lebar sama rata. */
+  #spkInputRoot .route-fields--sizes > .form-cell:nth-child(1) {
+    grid-column: span 8;
+  }
+  #spkInputRoot .route-fields--sizes > .form-cell:nth-child(2) {
+    grid-column: span 4;
+  }
+  #spkInputRoot .route-fields--sizes > .form-cell:nth-child(3),
+  #spkInputRoot .route-fields--sizes > .form-cell:nth-child(4) {
+    grid-column: span 6;
+  }
+  #spkInputRoot .route-fields--cutting > .form-cell:nth-child(1),
+  #spkInputRoot .route-fields--cutting > .form-cell:nth-child(2),
+  #spkInputRoot .route-fields--cutting > .form-cell:nth-child(3) {
+    grid-column: span 4;
+  }
+  #spkInputRoot .route-fields--cutting > .form-cell:nth-child(n+4) {
+    grid-column: 1 / -1;
+  }
+  #spkInputRoot .route-fields--cutting > .form-cell:nth-child(n+4) .field-input {
+    max-width: 300px;
+  }
+  #spkInputRoot .route-fields--bs > .form-cell {
+    grid-column: span 3;
+  }
+  #spkInputRoot .route-panel .field-label {
+    min-height: 17px;
+    margin: 0 0 6px;
+    color: #4f5357;
+    font-size: .66rem;
+    font-weight: 850;
+    letter-spacing: .035em;
+  }
+  #spkInputRoot .route-panel .field-input {
+    min-height: 38px;
+    margin-top: auto;
+    padding: 8px 11px;
+    border: 1px solid #c1c4c5;
+    border-radius: 8px;
+    background: rgba(255,255,255,.88);
+    box-shadow: inset 0 1px 2px rgba(36,38,40,.08), 0 1px 0 #fff;
+    color: #303338;
+    font-size: .76rem;
+    transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+  }
+  #spkInputRoot .route-panel .field-input:hover {
+    border-color: #a7aaac;
+    background: #fff;
+  }
+  #spkInputRoot .route-panel .field-input:focus {
+    border-color: #a52a2a;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(165,42,42,.11), inset 0 1px 2px rgba(36,38,40,.06);
+  }
+  #spkInputRoot .route-panel select.field-input {
+    cursor: pointer;
+  }
+  #spkInputRoot .route-note {
+    padding: 10px;
+    border: 1px solid rgba(176,179,181,.7);
+    border-radius: 11px;
+    background: rgba(255,255,255,.42);
+  }
+  #spkInputRoot .route-note .alur-note-input {
+    min-height: 68px;
+    resize: vertical;
+  }
+  #spkInputRoot .route-panel .bahan-row {
+    display: grid;
+    grid-template-columns: minmax(220px, 2fr) minmax(105px, .72fr) minmax(88px, .58fr) 34px;
+    gap: 9px;
+    align-items: end;
+    padding: 9px;
+    border: 1px solid rgba(177,180,182,.72);
+    border-radius: 10px;
+    background: rgba(255,255,255,.5);
+    box-shadow: inset 0 1px 0 #fff, 0 2px 4px rgba(35,37,40,.07);
+  }
+  #spkInputRoot .route-panel .route-color-row {
+    grid-template-columns: minmax(240px, 2fr) minmax(130px, .8fr) 34px;
+  }
+  #spkInputRoot .route-entry-main,
+  #spkInputRoot .route-entry-amount,
+  #spkInputRoot .route-entry-percent {
+    min-width: 0;
+  }
+  #spkInputRoot .route-entry-amount .bahan-auto-kg {
+    border-color: rgba(22, 132, 62, .34);
+    background:
+      linear-gradient(135deg, rgba(255,255,255,.82), transparent 54%),
+      linear-gradient(180deg, #eef8f0, #dfeee2);
+    box-shadow: inset 1px 2px 4px rgba(25,80,43,.1), 0 1px 0 #fff;
+    color: #176b38;
+    font-weight: 850;
+    cursor: default;
+  }
+  #spkInputRoot .route-entry-remove {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 5px;
+  }
+  #spkInputRoot .route-panel .btn-remove {
+    appearance: none;
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 1px solid #d3a7a7;
+    border-radius: 8px;
+    background: #fff7f7;
+    box-shadow: 0 1px 0 #fff;
+    color: #9a2020;
+    font-size: .82rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background .16s ease, color .16s ease, transform .16s ease;
+  }
+
+  /* Padding panel Routing lebih spesifik daripada aturan warna umum.
+     Ruang 42px ini menjaga nama warna selalu dimulai setelah bulatan. */
+  #spkInputRoot .route-panel .warna-input-wrap .field-input {
+    padding-left: 42px;
+  }
+
+  #spkInputRoot .route-panel .warna-input-wrap .warna-dot {
+    left: 14px;
+    z-index: 1;
+    width: 15px;
+    height: 15px;
+    box-shadow: 0 0 0 3px rgba(255,255,255,.86);
+  }
+  #spkInputRoot .route-panel .btn-remove:hover {
+    background: #9a2020;
+    color: #fff;
+    transform: translateY(-1px);
+  }
+  #spkInputRoot .route-panel .btn-add-bahan {
+    width: 100%;
+    min-height: 36px;
+    margin-top: 9px;
+    padding: 7px 12px;
+    border: 1px solid #34363a;
+    border-radius: 9px;
+    background: linear-gradient(180deg, #4f5257, #292b2f);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 2px 0 #151619;
+    color: #fff;
+    font-size: .68rem;
+    letter-spacing: .03em;
+  }
+  @media (max-width: 760px) {
+    #spkInputRoot .routing-chip-row {
+      grid-template-columns: repeat(7, minmax(118px, 1fr));
+    }
+    #spkInputRoot .route-panel {
+      max-height: min(62vh, 520px);
+    }
+    #spkInputRoot .route-fields {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    #spkInputRoot .route-fields > .form-cell,
+    #spkInputRoot .route-fields--blowing > .form-cell:nth-child(-n+3),
+    #spkInputRoot .route-fields--blowing > .form-cell:nth-child(n+4),
+    #spkInputRoot .route-fields--split > .form-cell:first-child,
+    #spkInputRoot .route-fields--split > .form-cell:last-child,
+    #spkInputRoot .route-fields--sizes > .form-cell:nth-child(n),
+    #spkInputRoot .route-fields--cutting > .form-cell:nth-child(n),
+    #spkInputRoot .route-fields--bs > .form-cell {
+      grid-column: auto;
+    }
+    #spkInputRoot .route-fields--cutting > .form-cell:nth-child(n+4) {
+      grid-column: 1 / -1;
+    }
+    #spkInputRoot .route-panel .bahan-row,
+    #spkInputRoot .route-panel .route-color-row {
+      grid-template-columns: minmax(0, 1fr) minmax(100px, .55fr) 34px;
+    }
+    #spkInputRoot .route-material-row .route-entry-percent {
+      grid-column: 2;
+    }
+    #spkInputRoot .route-material-row .route-entry-remove {
+      grid-column: 3;
+      grid-row: 1 / span 2;
+      align-self: stretch;
+      align-items: center;
+      padding-bottom: 0;
+    }
+  }
+  @media (max-width: 520px) {
+    #spkInputRoot .route-fields {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    #spkInputRoot .route-panel .bahan-row,
+    #spkInputRoot .route-panel .route-color-row {
+      grid-template-columns: minmax(0, 1fr) 34px;
+    }
+    #spkInputRoot .route-entry-main {
+      grid-column: 1 / -1;
+    }
+    #spkInputRoot .route-entry-amount,
+    #spkInputRoot .route-entry-percent,
+    #spkInputRoot .route-material-row .route-entry-percent {
+      grid-column: 1;
+    }
+    #spkInputRoot .route-entry-remove,
+    #spkInputRoot .route-material-row .route-entry-remove {
+      grid-column: 2;
+      grid-row: 2 / span 2;
+      padding-bottom: 0;
+    }
+  }
+  #spkInputRoot .route-note {
+    margin-top: 10px;
+  }
+  #spkInputRoot .routing-total {
+    margin: 9px 0 2px;
+    font-size: .64rem;
+    font-weight: 700;
+    color: #5b5e62;
+    text-shadow: 0 1px 0 #fff;
+  }
+  #spkInputRoot .routing-subpanel {
+    margin-top: 11px;
+    padding-top: 11px;
+    border-top: 1px dashed rgba(150,130,130,.45);
+  }
+  #spkInputRoot .routing-extra {
+    margin-top: 10px;
+    border: 1px solid #bcbebf;
+    border-radius: 9px;
+    background: rgba(255,255,255,.45);
+    padding: 7px 9px;
+  }
+  #spkInputRoot .routing-extra summary {
+    cursor: pointer;
+    font-size: .63rem;
+    font-weight: 800;
+    color: #5b5e62;
+    text-shadow: 0 1px 0 #fff;
+  }
+  #spkInputRoot .routing-extra .form-grid {
+    margin-top: 9px;
+  }
+  /* ---------- pilihan finishing ---------- */
+  #spkInputRoot .finishing-choice-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+  }
+  #spkInputRoot .finishing-choice {
+    appearance: none;
+    padding: 8px 9px;
+    border: 1px solid #a9abad;
+    border-bottom-color: #8a8c8e;
+    border-radius: 9px;
+    background: linear-gradient(180deg, #fdfdfb, #e6e7e4);
+    box-shadow: inset 0 1px 0 #fff, 0 2px 0 #a9abac, 0 3px 5px rgba(0,0,0,.14);
+    font-size: .66rem;
+    font-weight: 800;
+    color: #4b4e52;
+    cursor: pointer;
+    text-shadow: 0 1px 0 #fff;
+    transition: transform .16s ease, background .18s ease, color .18s ease;
+  }
+  #spkInputRoot .finishing-choice:hover {
+    transform: translateY(-1px);
+  }
+  #spkInputRoot .finishing-choice.active {
+    border-color: #7c1414;
+    background: linear-gradient(180deg, #b93030, #8d1515);
+    color: #fff;
+    text-shadow: 0 -1px 0 rgba(0,0,0,.45);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 2px 0 #5f0d0d;
+  }
+  @media (max-width: 560px) {
+    #spkInputRoot .finishing-choice-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  /* ---------- blok warna yang berpindah panel ---------- */
+  #spkInputRoot .warna-host:empty {
+    display: none;
+  }
+  #spkInputRoot .bs-sheet-host:empty {
+    display: none;
+  }
+  #spkInputRoot .bs-sheet-block {
+    margin-top: 11px;
+  }
+  #spkInputRoot .warna-block {
+    margin-top: 11px;
+    padding: 11px;
+    border: 1px solid #bcbebf;
+    border-radius: 10px;
+    background: rgba(255,255,255,.5);
+  }
+  #spkInputRoot .warna-block[hidden] {
+    display: none;
+  }
+  #spkInputRoot .warna-block-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 9px;
+    margin-bottom: 10px;
+  }
+  /* ---------- angka + satuan berdampingan ---------- */
+  /* Nilai dan UOM memakai dua kotak mandiri agar tinggi, garis tepi,
+     dan radiusnya identik dengan input lain pada semua peramban. */
+  #spkInputRoot .input-pair {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 82px;
+    gap: 6px;
+    width: 100%;
+    min-height: 39px;
+    height: 39px;
+    align-items: stretch;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  #spkInputRoot .input-pair > .field-input:first-child {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  #spkInputRoot .input-pair .field-input {
+    width: 100%;
+    min-height: 39px;
+    height: 39px;
+    border: 1px solid #9b9da0;
+    border-top-color: #74777a;
+    border-left-color: #74777a;
+    border-radius: 8px;
+    background: #fdfdfb;
+    box-shadow: inset 1px 2px 4px rgba(0,0,0,.16), 0 1px 0 rgba(255,255,255,.78);
+  }
+
+  #spkInputRoot .input-pair .field-input:focus {
+    border-color: #7b1b1b;
+    box-shadow: inset 1px 2px 4px rgba(0,0,0,.13), 0 0 0 3px rgba(185,35,35,.13), 0 1px 0 #fff;
+  }
+
+  #spkInputRoot .input-pair-uom {
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 60px;
+    padding-inline: 6px;
+    border-left: 1px solid #c6c8ca;
+    background: linear-gradient(180deg, #f3f3f1, #e3e4e1);
+    font-weight: 800;
+    color: #4b4e52;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  /* Selector dibuat lebih spesifik agar sekat dan latar UOM tidak kalah
+     oleh aturan input gabungan di atas. Lebarnya dipatok sama untuk Order
+     dan Keluar Bahan sehingga kedua kolom terlihat benar-benar sejajar. */
+  #spkInputRoot .input-pair > select.field-input.input-pair-uom {
+    flex: 0 0 82px;
+    width: 82px;
+    min-width: 82px;
+    height: 39px;
+    min-height: 39px;
+    padding: 0 24px 0 10px;
+    border: 1px solid #9b9da0;
+    border-top-color: #74777a;
+    border-left-color: #74777a;
+    border-radius: 8px;
+    background: linear-gradient(180deg, #f6f6f4, #e5e6e3);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.8), 0 1px 0 rgba(255,255,255,.65);
+    color: #42454a;
+    font-size: .66rem;
+    font-weight: 800;
+    line-height: normal;
+    text-align: center;
+  }
+
+  /* Sorotan fokus dipindah ke kotak gabungannya. */
+  #spkInputRoot .input-pair:focus-within {
+    border: 0;
+    box-shadow: none;
+  }
+
+  /* Penandaan kolom bermasalah juga mengikuti kotak gabungannya. Aturan
+     di dalamnya menjadi cadangan bagi peramban tanpa dukungan :has(),
+     karena garis tepi isian di dalam pair sudah dilepas. */
+  #spkInputRoot .input-pair .field-input.wizard-invalid,
+  #spkInputRoot .input-pair .field-input.field-error {
+    background: rgba(220, 38, 38, .07);
+  }
+
+  #spkInputRoot .input-pair:has(.wizard-invalid),
+  #spkInputRoot .input-pair:has(.field-error) {
+    border: 0;
+    box-shadow: none;
+  }
+  /* ---------- kolom hasil hitungan ---------- */
+  #spkInputRoot .field-input.is-readonly {
+    background: #eeefec;
+    color: #55585c;
+    cursor: default;
+    box-shadow: inset 1px 2px 4px rgba(0,0,0,.13);
+  }
+  /* ==========================================================
+     RINGKAS: SEGMEN JENIS ORDER, RINGKASAN REPEAT, LIPATAN HITUNG
+     ========================================================== */
+  /* Pilihan jenis order dulu berupa dua kartu berikon dan berdeskripsi
+     setinggi ~90px. Sebagai tombol segmen di baris judul, tingginya sama
+     dengan kontrol lain dan tidak memakan baris tersendiri. */
+  #spkInputRoot .order-type-segment {
+    display: inline-flex;
+    margin-left: auto;
+    padding: 2px;
+    border: 1px solid #a9abad;
+    border-radius: 8px;
+    background: linear-gradient(180deg, #dedfdd, #cccdca);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,.14);
+  }
+  #spkInputRoot .order-type-segment .order-type-option {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    min-height: 24px;
+    padding: 0 11px;
+    gap: 0;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
+    box-shadow: none;
+    font-size: .62rem;
+    font-weight: 800;
+    color: #5b5e62;
+    text-shadow: 0 1px 0 #fff;
+    cursor: pointer;
+    transition: background .18s ease, color .18s ease;
+  }
+  #spkInputRoot .order-type-segment .order-type-option:hover {
+    color: #33353a;
+    transform: none;
+  }
+  #spkInputRoot .order-type-segment .order-type-option.active {
+    border-color: #7c1414;
+    background: linear-gradient(180deg, #b93030, #8d1515);
+    color: #fff;
+    text-shadow: 0 -1px 0 rgba(0,0,0,.45);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.25);
+  }
+  /* Perhitungan bahan baku: hasilnya cukup satu baris, rinciannya dilipat. */
+  #spkInputRoot .calc-fold {
+    margin-bottom: 12px;
+    border: 1px solid #b1b3b3;
+    border-bottom-color: #8f9192;
+    border-radius: 10px;
+    background: linear-gradient(180deg, #fbfbf9, #ecedea);
+    box-shadow: inset 0 1px 0 #fff, 0 2px 0 #a9abac, 0 4px 8px rgba(0,0,0,.1);
+  }
+  #spkInputRoot .calc-fold-summary {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 11px;
+    cursor: pointer;
+    list-style: none;
+  }
+  #spkInputRoot .calc-fold-summary::-webkit-details-marker {
+    display: none;
+  }
+  #spkInputRoot .calc-fold-title {
+    font-size: .68rem;
+    font-weight: 900;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: #33353a;
+    text-shadow: 0 1px 0 #fff;
+  }
+  #spkInputRoot .calc-fold-status {
+    margin-left: auto;
+    padding: 3px 8px;
+    border: 1px solid #b5b7b9;
+    border-radius: 999px;
+    background: #dfe0de;
+    box-shadow: inset 0 2px 3px rgba(0,0,0,.12);
+    font-size: .58rem;
+    font-weight: 800;
+    color: #5b5e62;
+    text-shadow: 0 1px 0 #fff;
+    white-space: nowrap;
+  }
+  #spkInputRoot .calc-fold.is-ready .calc-fold-status {
+    border-color: #7f9f7f;
+    background: #e2f0e2;
+    color: #1c6b28;
+  }
+  #spkInputRoot .calc-fold.is-error .calc-fold-status {
+    border-color: #c08a8a;
+    background: #fdeeee;
+    color: #8d1515;
+  }
+  #spkInputRoot .calc-fold .calculation-sheet,
+  #spkInputRoot .calc-fold .calculation-message {
+    margin: 0 11px 11px;
+  }
+  /* ==========================================================
+     POLISH DATA UTAMA & ROUTING
+     Satu sistem jarak, tinggi kontrol, dan garis tepi membuat seluruh
+     form tampak sejajar tanpa meninggalkan karakter abu-abu/merahnya.
+     ========================================================== */
+  #spkInputRoot .data-main-card,
+  #spkInputRoot .routing-card {
+    padding: 14px;
+    border-color: #aeb1b2;
+    background:
+      linear-gradient(145deg, rgba(255,255,255,.58), transparent 42%),
+      linear-gradient(180deg, #f5f6f3, #e5e6e3);
+  }
+
+  #spkInputRoot .data-main-card .form-grid {
+    gap: 12px 14px;
+  }
+
+  #spkInputRoot .data-main-card .form-cell {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+  }
+
+  #spkInputRoot .data-main-card .field-label {
+    min-height: 17px;
+    margin-bottom: 5px;
+  }
+
+  #spkInputRoot .data-main-card .field-input,
+  #spkInputRoot .data-main-card .input-pair {
+    min-height: 39px;
+    margin-top: auto;
+  }
+
+  #spkInputRoot .routing-card .form-group-head {
+    margin-bottom: 11px;
+    padding-bottom: 10px;
+  }
+
+  #spkInputRoot .routing-chip-row {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 7px;
+    margin: 0;
+    padding: 6px;
+    overflow: visible;
+    border-color: #aeb1b2;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #d5d7d5, #e8e9e6);
+    box-shadow: inset 0 2px 4px rgba(36,38,40,.13), 0 1px 0 #fff;
+  }
+
+  /* Nama membuka panel; tombol bulat di kanan memilih atau membatalkan. */
+  #spkInputRoot .routing-chip {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    min-width: 0;
+    min-height: 39px;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid #a5a8aa;
+    border-radius: 9px;
+    background: linear-gradient(180deg, #fff, #e8e9e6);
+    box-shadow: inset 0 1px 0 #fff, 0 2px 3px rgba(30,32,35,.1);
+    color: #55585c;
+    transform: none;
+  }
+
+  #spkInputRoot .routing-chip:hover {
+    border-color: #7e8184;
+    transform: none;
+  }
+
+  #spkInputRoot .routing-chip-view {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    align-items: center;
+    padding: 0 10px;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  #spkInputRoot .routing-chip-label {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    font-size: .65rem;
+    font-weight: 850;
+    line-height: 1.15;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  #spkInputRoot .routing-chip-toggle {
+    display: grid;
+    flex: 0 0 32px;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-left: 1px solid rgba(78,81,84,.22);
+    background: rgba(64,67,70,.055);
+    cursor: pointer;
+  }
+
+  #spkInputRoot .routing-chip-toggle:hover {
+    background: rgba(124,26,26,.1);
+  }
+
+  #spkInputRoot .routing-chip-mark {
+    display: grid;
+    place-items: center;
+    width: 17px;
+    height: 17px;
+    border: 1px solid #8e9194;
+    border-radius: 50%;
+    background: #f7f7f5;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,.14), 0 1px 0 #fff;
+    color: #626569;
+  }
+
+  #spkInputRoot .routing-chip-mark::after {
+    content: '+';
+    display: block;
+    width: auto;
+    height: auto;
+    margin: 0;
+    border: 0;
+    font-size: .72rem;
+    font-weight: 900;
+    line-height: 1;
+    transform: none;
+  }
+
+  #spkInputRoot .routing-chip.checked {
+    border-color: #a65454;
+    background: linear-gradient(180deg, #fff9f9, #ecdcdc);
+    color: #781515;
+    box-shadow: inset 0 1px 0 #fff, 0 2px 3px rgba(104,16,16,.13);
+  }
+
+  #spkInputRoot .routing-chip.checked .routing-chip-toggle {
+    border-left-color: rgba(113,16,16,.3);
+    background: rgba(141,21,21,.12);
+  }
+
+  #spkInputRoot .routing-chip.checked .routing-chip-mark {
+    border-color: #650e0e;
+    background: linear-gradient(180deg, #a62323, #741010);
+    color: #fff;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.24), 0 1px 2px rgba(70,0,0,.2);
+  }
+
+  #spkInputRoot .routing-chip.checked .routing-chip-mark::after {
+    content: '\2713';
+    width: auto;
+    height: auto;
+    margin: 0;
+    border: 0;
+    font-size: .62rem;
+    transform: none;
+  }
+
+  /* Garis gelap berarti panel sedang dibuka; merah tetap khusus terpilih. */
+  #spkInputRoot .routing-chip.is-active {
+    border-color: #4a4d51;
+    outline: 2px solid rgba(55,58,62,.55);
+    outline-offset: -2px;
+    box-shadow: inset 0 1px 0 #fff, 0 3px 6px rgba(22,24,27,.16);
+    transform: none;
+  }
+
+  #spkInputRoot .routing-chip.checked.is-active {
+    border-color: #751111;
+    outline-color: rgba(117,17,17,.6);
+    box-shadow: inset 0 1px 0 #fff, 0 3px 7px rgba(95,11,11,.18);
+  }
+
+  #spkInputRoot .routing-meta {
+    justify-content: flex-end;
+    gap: 6px;
+    min-height: 26px;
+    margin: 8px 0 10px;
+  }
+
+  #spkInputRoot .routing-card .metric-chip {
+    padding: 5px 9px;
+    border-color: #b4b7b8;
+    background: linear-gradient(180deg, #f5f5f3, #dddfdc);
+    box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgba(25,27,30,.08);
+  }
+
+  #spkInputRoot .routing-empty {
+    margin-top: 1px;
+    padding: 15px 12px;
+    border-color: #b8babc;
+    background: rgba(255,255,255,.46);
+  }
+
+  #spkInputRoot .route-panel {
+    max-height: min(62vh, 590px);
+    padding: 0 13px 14px;
+    border: 1px solid #aeb1b2;
+    border-top: 3px solid #8d1515;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #f9faf7, #ebede9);
+    box-shadow: inset 0 1px 0 #fff, 0 3px 8px rgba(31,33,36,.11);
+  }
+
+  #spkInputRoot .route-panel-head {
+    min-height: 45px;
+    align-items: center;
+    top: 0;
+    margin: 0 -13px 13px;
+    padding: 10px 13px;
+    border-bottom: 1px solid #c5c8c8;
+    border-radius: 9px 9px 0 0;
+    background: rgba(244,245,242,.97);
+  }
+
+  #spkInputRoot .route-panel-title {
+    font-size: .73rem;
+    letter-spacing: .055em;
+  }
+
+  #spkInputRoot .route-panel-meta {
+    font-size: .59rem;
+  }
+
+  #spkInputRoot .route-panel.is-preview {
+    border-style: solid;
+    border-color: #b8babc;
+    border-top: 3px solid #55585c;
+    background: linear-gradient(180deg, #f8f9f6, #edeeea);
+    opacity: 1;
+  }
+
+  #spkInputRoot .route-fields {
+    gap: 12px;
+  }
+
+  #spkInputRoot .route-fields > .form-cell {
+    min-height: 86px;
+    justify-content: flex-end;
+    padding: 10px 11px;
+    border-color: #c4c7c7;
+    border-radius: 10px;
+    background: rgba(255,255,255,.68);
+    box-shadow: inset 0 1px 0 #fff, 0 2px 4px rgba(30,32,35,.06);
+  }
+
+  #spkInputRoot .route-panel .field-label {
+    min-height: 18px;
+    margin-bottom: 6px;
+  }
+
+  #spkInputRoot .route-panel .field-input {
+    min-height: 40px;
+    border-color: #b9bdbd;
+    border-radius: 8px;
+    background: #fff;
+  }
+
+  #spkInputRoot .route-note {
+    margin-top: 12px;
+    padding: 11px;
+    border-color: #c6c9c9;
+    background: rgba(255,255,255,.55);
+  }
+
+  #spkInputRoot .route-select-hint {
+    min-height: 24px;
+    margin-left: 8px;
+    padding: 3px 9px;
+    border: 1px solid #c99494;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #fff8f8, #f1dede);
+    color: #8d1515;
+    font-size: .54rem;
+    font-weight: 900;
+    letter-spacing: .045em;
+    text-transform: uppercase;
+    text-shadow: 0 1px 0 #fff;
+    cursor: pointer;
+  }
+
+  #spkInputRoot .route-select-hint:hover {
+    border-color: #9b3d3d;
+    background: #fff;
+  }
+
+  #spkInputRoot .route-select-hint[hidden] {
+    display: none;
+  }
+
+  #spkInputRoot .finishing-choice-grid {
+    gap: 10px;
+  }
+
+  #spkInputRoot .finishing-choice {
+    min-height: 40px;
+    border-radius: 9px;
+  }
+
+  @media (max-width: 820px) {
+    #spkInputRoot .routing-chip-row {
+      grid-template-columns: repeat(7, minmax(122px, 1fr));
+      overflow-x: auto;
+      scroll-snap-type: x proximity;
+    }
+
+    #spkInputRoot .routing-chip {
+      scroll-snap-align: start;
+    }
+  }
+
+  @media (max-width: 620px) {
+    #spkInputRoot .data-main-card,
+    #spkInputRoot .routing-card {
+      padding: 11px;
+    }
+
+    #spkInputRoot .routing-card .form-group-head {
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    #spkInputRoot .routing-card .form-group-hint {
+      width: 100%;
+      margin: 2px 0 0 32px;
+      white-space: normal;
+    }
+
+    #spkInputRoot .routing-meta {
+      justify-content: flex-start;
+    }
+
+    #spkInputRoot .route-panel-head {
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    #spkInputRoot .route-panel-meta {
+      width: calc(100% - 110px);
+      margin-left: auto;
+      text-align: right;
+    }
+  }
+  /* ==========================================================
+     IDENTITAS ORDER & SPK
+     Judul dan pemilih mode menjadi satu header yang tenang, sedangkan
+     nomor SPK mendapat panel khusus agar mudah dipindai dan diisi.
+     ========================================================== */
+  #spkInputRoot .spk-identity-bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px 16px;
+    margin-bottom: 12px;
+    padding-bottom: 13px;
+    border-bottom: 1px solid rgba(140,143,145,.34);
+  }
+
+  #spkInputRoot .identity-heading {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #spkInputRoot .identity-heading .form-group-icon {
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+    border-radius: 9px;
+    color: #861818;
+    background: linear-gradient(180deg, #fff, #e5e6e3);
+    box-shadow: inset 0 1px 0 #fff, 0 2px 4px rgba(31,33,36,.12);
+  }
+
+  #spkInputRoot .identity-heading .form-group-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  #spkInputRoot .identity-heading-copy {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  #spkInputRoot .identity-heading .form-group-title {
+    font-size: .78rem;
+    letter-spacing: .06em;
+  }
+
+  #spkInputRoot .identity-subtitle {
+    overflow: hidden;
+    color: #777a7e;
+    font-size: .59rem;
+    font-weight: 650;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    text-shadow: 0 1px 0 #fff;
+    white-space: nowrap;
+  }
+
+  #spkInputRoot .spk-identity-bar .order-type-segment {
+    grid-column: 2;
+    grid-row: 1;
+    min-height: 38px;
+    margin: 0;
+    padding: 3px;
+    border-radius: 10px;
+    background: linear-gradient(180deg, #d9dad8, #c9cbc8);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,.15), 0 1px 0 #fff;
+  }
+
+  #spkInputRoot .spk-identity-bar .order-type-option {
+    min-width: 92px;
+    min-height: 30px;
+    padding: 0 11px;
+    gap: 7px;
+    border-radius: 7px;
+    font-size: .61rem;
+  }
+
+  #spkInputRoot .spk-identity-bar .order-type-option::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    flex: 0 0 6px;
+    border-radius: 50%;
+    background: #96999b;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.2);
+  }
+
+  #spkInputRoot .spk-identity-bar .order-type-option.active::before {
+    background: #fff;
+    box-shadow: 0 0 0 2px rgba(255,255,255,.18);
+  }
+
+  /* Tanggal Kirim berpindah mengikuti mode order. New Order memakai dua
+     kolom, sedangkan Repeat Order memakai tiga kolom sama rata. */
+  #spkInputRoot .spk-inline-group {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    min-width: 0;
+    padding: 9px 10px 10px;
+    border: 1px solid #bec1c2;
+    border-radius: 11px;
+    background:
+      linear-gradient(145deg, rgba(255,255,255,.72), transparent 44%),
+      linear-gradient(180deg, #eff0ed, #e3e5e1);
+    box-shadow: inset 0 1px 0 #fff, 0 2px 5px rgba(31,33,36,.07);
+  }
+
+  #spkInputRoot #newOrderSpkSection {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #spkInputRoot #repeatOrderSpkSection {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  #spkInputRoot .spk-inline {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  #spkInputRoot .spk-inline .field-label {
+    min-height: 17px;
+    margin-bottom: 4px;
+    color: #4f5256;
+    font-size: .67rem;
+    letter-spacing: .03em;
+  }
+
+  #spkInputRoot .spk-inline .spk-wrapper {
+    width: 100%;
+  }
+
+  #spkInputRoot .spk-identity-bar .spk-wrapper .field-input {
+    min-height: 39px;
+    height: 39px;
+    padding: 7px 42px 7px 11px;
+    border-color: #aeb1b2;
+    border-radius: 9px;
+    background: #fff;
+    box-shadow: inset 0 1px 2px rgba(31,33,36,.09), 0 1px 0 #fff;
+    font-size: .78rem;
+  }
+
+  #spkInputRoot .spk-identity-bar .spk-wrapper .field-input:focus {
+    border-color: #8d1515;
+    box-shadow: inset 0 1px 2px rgba(31,33,36,.07), 0 0 0 3px rgba(141,21,21,.11);
+  }
+
+  /* Tanpa kotak sendiri, catatan status tidak menyisakan ruang kosong
+     saat tidak ada yang perlu ditampilkan. */
+  #spkInputRoot .spk-note-strip {
+    display: contents;
+  }
+
+  /* Status Repeat Order mengikuti dua kolom input SPK di atasnya: data SPK
+     sumber di kiri dan validasi nomor SPK repeat baru di kanan. */
+  #spkInputRoot #repeatOrderSpkNotes {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 12px;
+    margin: 0 10px;
+  }
+
+  #spkInputRoot #repeatOrderSpkNotes:has(> .show) {
+    margin-bottom: 9px;
+  }
+
+  #spkInputRoot #repeatOrderSpkNotes > .repeat-result-card {
+    grid-column: 1;
+  }
+
+  #spkInputRoot #repeatOrderSpkNotes > .spk-warning-card,
+  #spkInputRoot #repeatOrderSpkNotes > .spk-success-note {
+    grid-column: 2;
+  }
+
+  #spkInputRoot #repeatOrderSpkNotes > .repeat-result-card:not(.show),
+  #spkInputRoot #repeatOrderSpkNotes > .spk-warning-card:not(.show),
+  #spkInputRoot #repeatOrderSpkNotes > .spk-success-note:not(.show) {
+    display: none;
+  }
+
+  #spkInputRoot #repeatOrderSpkNotes > .repeat-result-card,
+  #spkInputRoot #repeatOrderSpkNotes > .spk-warning-card,
+  #spkInputRoot #repeatOrderSpkNotes > .spk-success-note {
+    min-width: 0;
+    margin: 0;
+    border-radius: 9px;
+    box-sizing: border-box;
+  }
+
+  #spkInputRoot #repeatOrderSpkNotes .repeat-result-card.show,
+  #spkInputRoot #repeatOrderSpkNotes .spk-warning-card.show,
+  #spkInputRoot #repeatOrderSpkNotes .spk-success-note.show {
+    height: 42px;
+    min-height: 42px;
+    max-height: 42px;
+    align-items: center;
+    padding: 6px 10px;
+    margin: 0;
+  }
+
+  #spkInputRoot #repeatOrderSpkNotes .repeat-result-card > div,
+  #spkInputRoot #repeatOrderSpkNotes .spk-warning-card > div {
+    min-width: 0;
+  }
+
+  #spkInputRoot #repeatOrderSpkNotes .repeat-result-title,
+  #spkInputRoot #repeatOrderSpkNotes .spk-warning-title {
+    font-size: .66rem;
+    line-height: 1.15;
+  }
+
+  #spkInputRoot #repeatOrderSpkNotes .repeat-result-desc,
+  #spkInputRoot #repeatOrderSpkNotes .spk-warning-desc {
+    margin-top: 2px;
+    overflow: hidden;
+    font-size: .61rem;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  #spkInputRoot #repeatOrderSpkNotes .repeat-result-card svg,
+  #spkInputRoot #repeatOrderSpkNotes .spk-warning-card svg,
+  #spkInputRoot #repeatOrderSpkNotes .spk-success-note svg {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 16px;
+    margin: 0;
+  }
+
+  #spkInputRoot #repeatOrderSpkNotes .repeat-result-card,
+  #spkInputRoot #repeatOrderSpkNotes .spk-warning-card {
+    gap: 8px;
+  }
+
+  #spkInputRoot #repeatOrderSpkNotes .spk-success-note.show {
+    display: flex;
+    border: 1px solid rgba(22,163,74,.24);
+    background: linear-gradient(135deg, rgba(22,163,74,.08), rgba(22,163,74,.025));
+    font-size: .65rem;
+    line-height: 1.2;
+  }
+
+  #spkInputRoot #repeatOrderSpkNotes .spk-warning-card.show {
+    animation: none;
+  }
+
+  #spkInputRoot .spk-note-strip .spk-warning-card.show,
+  #spkInputRoot .spk-note-strip .spk-success-note.show,
+  #spkInputRoot .spk-note-strip .repeat-result-card.show {
+    margin-bottom: 9px;
+  }
+
+  @media (max-width: 720px) {
+    #spkInputRoot .spk-identity-bar {
+      gap: 10px;
+    }
+
+    #spkInputRoot .spk-identity-bar .order-type-option {
+      min-width: 88px;
+      padding-inline: 10px;
+    }
+
+    #spkInputRoot .spk-inline-group {
+      gap: 9px;
+      padding: 10px;
+    }
+
+    #spkInputRoot #repeatOrderSpkNotes {
+      gap: 9px;
+    }
+  }
+
+  @media (max-width: 560px) {
+    #spkInputRoot .spk-identity-bar {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    #spkInputRoot .spk-identity-bar .order-type-segment {
+      grid-column: 1;
+      grid-row: 2;
+      width: 100%;
+    }
+
+    #spkInputRoot .spk-identity-bar .order-type-option {
+      flex: 1 1 50%;
+    }
+
+    #spkInputRoot .spk-inline-group {
+      grid-column: 1;
+      grid-row: 3;
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    #spkInputRoot #newOrderSpkSection,
+    #spkInputRoot #repeatOrderSpkSection {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    #spkInputRoot #repeatOrderSpkNotes {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    #spkInputRoot #repeatOrderSpkNotes > .repeat-result-card,
+    #spkInputRoot #repeatOrderSpkNotes > .spk-warning-card,
+    #spkInputRoot #repeatOrderSpkNotes > .spk-success-note {
+      grid-column: 1;
+    }
+  }
+
+  /* Draft tetap di kiri; aksi utama disimpan di ujung kanan. */
+  #spkInputRoot .wizard-navigation {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #spkInputRoot .wizard-navigation .nav-spacer {
+    display: block;
+    flex: 1 1 auto;
+  }
+
+  #spkInputRoot .wizard-navigation #btnSubmit {
+    margin-left: auto;
+  }
+
+  @media (max-width: 767px) {
+    #spkInputRoot .wizard-navigation .nav-spacer {
+      display: none;
+    }
+  }
+
+  /* Versi compact penuh dinonaktifkan: permintaan terbaru hanya
+     mengecilkan kontrol input dan mengembalikan elemen lain. */
+  @media (max-width: 0px) {
+  /* ==========================================================
+     MODERN COMPACT UI
+     Lapisan akhir ini merapikan kepadatan visual Input SPK tanpa
+     mengubah struktur, ID, alur data, atau karakter abu-abu/merahnya.
+     ========================================================== */
+  #spkInputRoot {
+    --compact-control: 36px;
+    --compact-radius: 8px;
+    --compact-border: #c3c6c6;
+    --compact-surface: #fafbf9;
+    --compact-muted: #73777a;
+    --compact-accent: #8d1b1b;
+  }
+
+  #spkInputRoot .page-frame {
+    padding: 15px 12px 26px;
+  }
+
+  #spkInputRoot .main-shell {
+    padding: 16px !important;
+    border-color: #929596 !important;
+    border-radius: 16px !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.78),
+      0 1px 2px rgba(31,33,36,.14),
+      0 10px 26px rgba(31,33,36,.15) !important;
+  }
+
+  #spkInputRoot .form-group-card,
+  #spkInputRoot .data-main-card,
+  #spkInputRoot .routing-card {
+    margin-bottom: 10px;
+    padding: 12px;
+    border: 1px solid #bfc2c2;
+    border-radius: 11px;
+    background: rgba(247,248,245,.88);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 2px 7px rgba(31,33,36,.07);
+  }
+
+  #spkInputRoot .form-group-head,
+  #spkInputRoot .routing-card .form-group-head {
+    gap: 8px;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom-color: rgba(141,144,145,.24);
+  }
+
+  #spkInputRoot .form-group-icon {
+    width: 22px;
+    height: 22px;
+    flex-basis: 22px;
+    border-color: #c3c6c6;
+    border-radius: 6px;
+    background: #f4f5f2;
+    box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgba(31,33,36,.09);
+  }
+
+  #spkInputRoot .form-group-icon svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  #spkInputRoot .form-group-title {
+    font-size: .69rem;
+    letter-spacing: .045em;
+    text-shadow: none;
+  }
+
+  #spkInputRoot .form-group-hint {
+    color: var(--compact-muted);
+    font-size: .59rem;
+    font-weight: 650;
+    text-shadow: none;
+  }
+
+  #spkInputRoot .form-grid,
+  #spkInputRoot .data-main-card .form-grid {
+    gap: 9px 11px;
+  }
+
+  #spkInputRoot .field-label,
+  #spkInputRoot .data-main-card .field-label,
+  #spkInputRoot .route-panel .field-label,
+  #spkInputRoot .routing-builder-field .field-label {
+    min-height: 0;
+    margin: 0 0 4px;
+    color: #55595c;
+    font-size: .65rem;
+    font-weight: 750;
+    line-height: 1.25;
+    letter-spacing: .018em;
+    text-shadow: none;
+  }
+
+  #spkInputRoot .field-input,
+  #spkInputRoot .data-main-card .field-input,
+  #spkInputRoot .route-panel .field-input {
+    min-height: var(--compact-control);
+    height: var(--compact-control);
+    padding: 7px 10px;
+    border: 1px solid var(--compact-border);
+    border-radius: var(--compact-radius);
+    background: var(--compact-surface);
+    box-shadow: inset 0 1px 2px rgba(31,33,36,.055), 0 1px 0 rgba(255,255,255,.9);
+    color: #303438;
+    font-size: .73rem;
+  }
+
+  #spkInputRoot .field-input:hover,
+  #spkInputRoot .route-panel .field-input:hover {
+    border-color: #aeb2b2;
+    background: #fff;
+  }
+
+  #spkInputRoot .field-input:focus,
+  #spkInputRoot .route-panel .field-input:focus {
+    border-color: var(--compact-accent);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(141,27,27,.10);
+  }
+
+  #spkInputRoot textarea.field-input,
+  #spkInputRoot .route-panel textarea.field-input,
+  #spkInputRoot .route-panel .route-note {
+    height: auto;
+    min-height: 52px;
+    padding-top: 8px;
+    line-height: 1.38;
+  }
+
+  #spkInputRoot .field-hint {
+    margin-top: 3px;
+    color: #7d8184;
+    font-size: .57rem;
+    font-weight: 550;
+    line-height: 1.3;
+    text-shadow: none;
+  }
+
+  #spkInputRoot .input-pair,
+  #spkInputRoot .data-main-card .input-pair {
+    min-height: var(--compact-control);
+    height: var(--compact-control);
+    border: 1px solid var(--compact-border);
+    border-radius: var(--compact-radius);
+    background: var(--compact-surface);
+    box-shadow: inset 0 1px 2px rgba(31,33,36,.055), 0 1px 0 rgba(255,255,255,.9);
+  }
+
+  #spkInputRoot .input-pair .field-input {
+    min-height: 34px;
+    height: 34px;
+    padding-block: 6px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  #spkInputRoot .input-pair > select.field-input.input-pair-uom {
+    width: 72px;
+    min-width: 72px;
+    flex-basis: 72px;
+    border-left: 1px solid #d2d5d5;
+    color: #54585b;
+    font-size: .68rem;
+    font-weight: 750;
+  }
+
+  #spkInputRoot .input-pair:focus-within {
+    border-color: var(--compact-accent);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(141,27,27,.10);
+  }
+
+  /* Identitas order dibuat seperti satu toolbar ringkas. */
+  #spkInputRoot .spk-identity-bar {
+    gap: 9px 11px;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #bec1c1;
+    border-radius: 10px;
+    background: #f1f2ef;
+    box-shadow: inset 0 1px 0 #fff, 0 2px 5px rgba(31,33,36,.06);
+  }
+
+  #spkInputRoot .spk-identity-bar .identity-icon {
+    width: 28px;
+    height: 28px;
+    flex-basis: 28px;
+    border-radius: 8px;
+  }
+
+  #spkInputRoot .spk-identity-bar .identity-title {
+    font-size: .72rem;
+    letter-spacing: .035em;
+  }
+
+  #spkInputRoot .spk-identity-bar .identity-subtitle {
+    margin-top: 1px;
+    font-size: .56rem;
+  }
+
+  #spkInputRoot .spk-identity-bar .order-type-segment {
+    gap: 3px;
+    min-height: 32px;
+    padding: 3px;
+    border-color: #b9bcbc;
+    border-radius: 9px;
+    background: #e1e3df;
+    box-shadow: inset 0 1px 3px rgba(31,33,36,.10);
+  }
+
+  #spkInputRoot .spk-identity-bar .order-type-option {
+    min-height: 26px;
+    padding: 5px 11px;
+    border-radius: 6px;
+    box-shadow: none;
+    font-size: .60rem;
+  }
+
+  #spkInputRoot .spk-inline-group {
+    gap: 10px;
+    padding: 8px;
+    border-color: #c8caca;
+    border-radius: 9px;
+    background: rgba(255,255,255,.42);
+    box-shadow: none;
+  }
+
+  #spkInputRoot .spk-inline .field-label {
+    min-height: 0;
+    margin-bottom: 4px;
+    font-size: .63rem;
+  }
+
+  #spkInputRoot .spk-identity-bar .spk-wrapper .field-input {
+    min-height: var(--compact-control);
+    height: var(--compact-control);
+    padding: 7px 38px 7px 10px;
+    border-color: var(--compact-border);
+    border-radius: var(--compact-radius);
+    box-shadow: inset 0 1px 2px rgba(31,33,36,.055);
+    font-size: .73rem;
+  }
+
+  /* Pemilih dan editor routing tetap interaktif, tetapi tanpa kartu berlapis. */
+  #spkInputRoot .routing-builder-select {
+    margin-bottom: 8px;
+    padding: 9px;
+    border: 1px solid #c1c4c4;
+    border-radius: 10px;
+    background: #f0f1ee;
+    box-shadow: inset 0 1px 0 #fff, 0 2px 5px rgba(31,33,36,.055);
+  }
+
+  #spkInputRoot .routing-select-control,
+  #spkInputRoot .routing-process-select {
+    min-height: var(--compact-control);
+    height: var(--compact-control);
+  }
+
+  #spkInputRoot .routing-process-select {
+    padding: 7px 39px 7px 38px;
+    border: 1px solid #b9bdbd;
+    border-radius: var(--compact-radius);
+    background: #fff;
+    box-shadow: inset 0 1px 2px rgba(31,33,36,.055);
+    font-size: .71rem;
+    font-weight: 750;
+  }
+
+  #spkInputRoot .routing-select-icon {
+    left: 5px;
+    width: 27px;
+    height: 26px;
+    border: 0;
+    border-radius: 6px;
+    background: #41464a;
+    box-shadow: none;
+  }
+
+  #spkInputRoot .routing-select-icon svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  #spkInputRoot .routing-select-chevron {
+    right: 5px;
+    width: 26px;
+    height: 26px;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  #spkInputRoot .routing-select-control:hover,
+  #spkInputRoot .routing-select-control:hover .routing-process-select {
+    filter: none;
+    border-color: #a8acad;
+    box-shadow: inset 0 1px 2px rgba(31,33,36,.055);
+  }
+
+  #spkInputRoot .routing-select-control:focus-within .routing-process-select {
+    border-color: var(--compact-accent);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(141,27,27,.10);
+  }
+
+  #spkInputRoot .routing-meta {
+    min-height: 22px;
+    margin: 6px 0 8px;
+  }
+
+  #spkInputRoot .routing-card .metric-chip {
+    padding: 3px 7px;
+    border-color: #c4c7c7;
+    background: #eff0ed;
+    box-shadow: none;
+    font-size: .56rem;
+  }
+
+  #spkInputRoot .routing-empty {
+    margin-top: 0;
+    padding: 10px;
+    border-color: #c6c9c9;
+    border-radius: 8px;
+    background: rgba(255,255,255,.35);
+    font-size: .62rem;
+  }
+
+  #spkInputRoot .route-panel,
+  #spkInputRoot .route-panel.is-preview {
+    max-height: none;
+    padding: 0 11px 11px;
+    overflow: visible;
+    border: 1px solid #bec1c1;
+    border-top: 2px solid var(--compact-accent);
+    border-radius: 10px;
+    background: #f4f5f2;
+    box-shadow: 0 2px 6px rgba(31,33,36,.065);
+  }
+
+  #spkInputRoot .route-panel.is-preview {
+    border-top-color: #666a6d;
+  }
+
+  #spkInputRoot .route-panel-head {
+    min-height: 38px;
+    margin: 0 -11px 10px;
+    padding: 8px 11px;
+    border-bottom-color: #d1d3d3;
+    border-radius: 8px 8px 0 0;
+    background: #eceeeb;
+  }
+
+  #spkInputRoot .route-panel-title {
+    font-size: .68rem;
+    letter-spacing: .04em;
+  }
+
+  #spkInputRoot .route-panel-meta {
+    font-size: .56rem;
+  }
+
+  #spkInputRoot .route-fields {
+    gap: 9px 10px;
+  }
+
+  #spkInputRoot .route-fields > .form-cell {
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  #spkInputRoot .route-panel .bahan-row,
+  #spkInputRoot .route-panel .route-color-row {
+    gap: 7px;
+    padding: 7px;
+    border-color: #d0d3d3;
+    border-radius: 8px;
+    background: rgba(255,255,255,.44);
+    box-shadow: none;
+  }
+
+  #spkInputRoot .route-panel .btn-add-bahan {
+    min-height: 34px;
+    margin-top: 7px;
+    border-radius: 8px;
+    box-shadow: none;
+    font-size: .62rem;
+  }
+
+  #spkInputRoot .route-panel .btn-remove {
+    width: 30px;
+    height: 30px;
+    min-height: 30px;
+    border-radius: 7px;
+    box-shadow: none;
+  }
+
+  #spkInputRoot .route-note {
+    margin-top: 9px;
+    border-color: var(--compact-border);
+    background: #fafbf9;
+  }
+
+  #spkInputRoot .finishing-choice-grid {
+    gap: 7px;
+  }
+
+  #spkInputRoot .finishing-choice {
+    min-height: 36px;
+    border-radius: 8px;
+    box-shadow: none;
+  }
+
+  #spkInputRoot .routing-editor-actions {
+    gap: 7px;
+    margin-top: 9px;
+    padding-top: 9px;
+    border-top-style: solid;
+    border-top-color: #d5d7d7;
+  }
+
+  #spkInputRoot .routing-editor-cancel,
+  #spkInputRoot .routing-editor-save {
+    min-height: 34px;
+    padding: 6px 13px;
+    border-radius: 8px;
+    box-shadow: none;
+    font-size: .63rem;
+  }
+
+  #spkInputRoot .routing-saved-section {
+    margin-top: 10px;
+    padding: 9px;
+    border: 1px solid #c0c3c3;
+    border-radius: 10px;
+    background: #eceeeb;
+    box-shadow: inset 0 1px 0 #fff;
+  }
+
+  #spkInputRoot .routing-saved-head {
+    margin-bottom: 8px;
+    padding: 0 0 7px;
+  }
+
+  #spkInputRoot .routing-saved-eyebrow {
+    font-size: .50rem;
+  }
+
+  #spkInputRoot .routing-saved-head h3 {
+    font-size: .67rem;
+    text-shadow: none;
+  }
+
+  #spkInputRoot .routing-saved-count {
+    padding: 3px 7px;
+    background: #f5f6f3;
+    box-shadow: none;
+    font-size: .55rem;
+  }
+
+  #spkInputRoot .routing-saved-empty {
+    padding: 9px;
+    border-radius: 7px;
+  }
+
+  #spkInputRoot .routing-saved-list {
+    gap: 7px;
+  }
+
+  #spkInputRoot .routing-saved-card {
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 8px;
+    padding: 8px;
+    border-color: #c3c6c6;
+    border-radius: 8px;
+    background: #fafbf9;
+    box-shadow: 0 1px 3px rgba(31,33,36,.06);
+  }
+
+  #spkInputRoot .routing-saved-index {
+    width: 34px;
+    height: 34px;
+    border-color: #c0c3c3;
+    border-radius: 8px;
+    background: #eceeeb;
+    box-shadow: none;
+    font-size: .60rem;
+  }
+
+  #spkInputRoot .routing-saved-card-head {
+    margin-bottom: 6px;
+  }
+
+  #spkInputRoot .routing-saved-edit,
+  #spkInputRoot .routing-saved-remove {
+    min-height: 26px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    box-shadow: none;
+    font-size: .55rem;
+  }
+
+  #spkInputRoot .routing-saved-details {
+    gap: 5px;
+  }
+
+  #spkInputRoot .routing-saved-detail {
+    padding: 6px 7px;
+    border-color: #d5d7d7;
+    border-radius: 6px;
+    background: #f3f4f1;
+    box-shadow: none;
+  }
+
+  /* Perhitungan dan aksi bawah mengikuti skala kontrol yang sama. */
+  #spkInputRoot .calc-fold {
+    margin-bottom: 9px;
+    border-color: #c0c3c3;
+    border-radius: 9px;
+    background: #f3f4f1;
+    box-shadow: inset 0 1px 0 #fff, 0 2px 5px rgba(31,33,36,.06);
+  }
+
+  #spkInputRoot .calc-fold-summary {
+    min-height: 38px;
+    padding: 7px 10px;
+  }
+
+  #spkInputRoot .calc-fold-title {
+    font-size: .65rem;
+    text-shadow: none;
+  }
+
+  #spkInputRoot .calc-fold-status {
+    padding: 2px 7px;
+    font-size: .54rem;
+  }
+
+  #spkInputRoot .wizard-navigation {
+    gap: 8px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top-color: #c2c5c5;
+  }
+
+  #spkInputRoot .wizard-navigation button {
+    min-height: 36px;
+    padding: 0 13px;
+    border-radius: 8px;
+    box-shadow: none;
+    font-size: .64rem;
+  }
+
+  @media (max-width: 860px) {
+    #spkInputRoot .main-shell {
+      padding: 14px !important;
+    }
+
+    #spkInputRoot .form-group-hint {
+      white-space: normal;
+      text-align: right;
+    }
+
+    #spkInputRoot .route-panel {
+      max-height: none;
+      overflow: visible;
+    }
+  }
+
+  @media (max-width: 560px) {
+    #spkInputRoot .page-frame {
+      padding: 9px 7px 18px;
+    }
+
+    #spkInputRoot .main-shell {
+      padding: 10px !important;
+      border-radius: 13px !important;
+    }
+
+    #spkInputRoot .form-group-card,
+    #spkInputRoot .data-main-card,
+    #spkInputRoot .routing-card {
+      padding: 10px;
+    }
+
+    #spkInputRoot .form-group-head {
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    #spkInputRoot .form-group-hint {
+      width: 100%;
+      margin-left: 30px;
+      text-align: left;
+    }
+
+    #spkInputRoot .spk-identity-bar {
+      padding: 8px;
+    }
+
+    #spkInputRoot .spk-inline-group,
+    #spkInputRoot #repeatOrderSpkNotes {
+      gap: 8px;
+    }
+
+    #spkInputRoot .wizard-navigation {
+      padding: 7px;
+    }
+  }
+  }
+
+  /* ==========================================================
+     COMPACT INPUTS ONLY
+     Panel, jarak, tombol, header, routing, dan efek kembali memakai
+     desain sebelumnya. Hanya kontrol isian yang dibuat lebih ringkas.
+     ========================================================== */
+  #spkInputRoot .data-main-card .field-input,
+  #spkInputRoot .route-panel .field-input,
+  #spkInputRoot .spk-identity-bar .spk-wrapper .field-input {
+    min-height: 36px;
+    height: 36px;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    box-sizing: border-box;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.25;
+  }
+
+  #spkInputRoot .data-main-card textarea.field-input,
+  #spkInputRoot .route-panel textarea.field-input {
+    height: auto;
+    min-height: 54px;
+    line-height: 1.4;
+  }
+
+  #spkInputRoot #keteranganWarna,
+  #spkInputRoot #keteranganBahan,
+  #spkInputRoot #keteranganArtikel {
+    height: 36px;
+    min-height: 36px;
+  }
+
+  #spkInputRoot #keteranganArtikel {
+    resize: vertical;
+  }
+
+  /* Keterangan Artikel menjadi catatan penuh di bawah seluruh Data Utama. */
+  #spkInputRoot .data-main-card .article-note-cell {
+    grid-column: 1 / -1;
+  }
+
+  #spkInputRoot .data-main-card .article-note-cell #keteranganArtikel {
+    width: 100%;
+    height: 62px;
+    min-height: 62px;
+    padding-top: 9px;
+    padding-bottom: 9px;
+    line-height: 1.4;
+  }
+
+  #spkInputRoot .data-main-card .input-pair {
+    min-height: 36px;
+    height: 36px;
+  }
+
+  #spkInputRoot .input-pair .field-input {
+    min-height: 34px;
+    height: 34px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.25;
+  }
+
+  #spkInputRoot .input-pair > select.field-input.input-pair-uom {
+    font-size: .95rem;
+  }
+
+  #spkInputRoot .routing-process-select {
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.25;
+  }
+
+  /* PCS/KG adalah hasil otomatis, tetapi visualnya tetap sama dengan
+     kolom input lain agar tidak terlihat seperti kontrol yang berbeda. */
+  #spkInputRoot #pcsPerKgDisplay.field-input.is-readonly {
+    background: #fdfdfb;
+    color: #292b2f;
+    box-shadow:
+      inset 1px 2px 4px rgba(0,0,0,.2),
+      0 1px 0 rgba(255,255,255,.78);
+  }
+
+  /* ==========================================================
+     ETD CEPAT
+     Pengguna mengetik 6/8, sedangkan nilai ISO tetap disimpan pada
+     input tersembunyi untuk menjaga kontrak payload Database.
+     ========================================================== */
+  #spkInputRoot .etd-display-input {
+    font-variant-numeric: tabular-nums;
+  }
+
+  #spkInputRoot .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* ==========================================================
+     TAB ROUTING LANGSUNG
+     Tab selalu terlihat agar satu klik segera mengganti editor proses.
+     Pada layar kecil daftar bergeser horizontal tanpa scroll vertikal.
+     ========================================================== */
+  #spkInputRoot .routing-tabs-shell {
+    margin-bottom: 9px;
+    padding: 9px;
+    overflow: hidden;
+    border: 1px solid #b7babb;
+    border-radius: 12px;
+    background:
+      linear-gradient(145deg, rgba(255,255,255,.72), transparent 46%),
+      linear-gradient(180deg, #eef0ed, #dfe2de);
+    box-shadow: inset 0 1px 0 #fff, 0 2px 0 #aeb1b1, 0 5px 11px rgba(31,33,36,.08);
+  }
+
+  #spkInputRoot .routing-process-tabs {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(86px, 1fr));
+    gap: 7px;
+    width: 100%;
+    overflow: visible;
+  }
+
+  #spkInputRoot .routing-process-tab {
+    position: relative;
+    display: flex;
+    min-width: 0;
+    min-height: 58px;
+    padding: 7px 5px 6px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    border: 1px solid #b8bbbc;
+    border-bottom-color: #969a9b;
+    border-radius: 9px;
+    background: linear-gradient(180deg, #fbfcfa, #e4e7e3);
+    box-shadow: inset 0 1px 0 #fff, 0 2px 0 #aeb1b1, 0 3px 5px rgba(31,33,36,.07);
+    color: #42474a;
+    cursor: pointer;
+    transition: transform .16s ease, border-color .16s ease, background .16s ease, color .16s ease, box-shadow .16s ease;
+  }
+
+  #spkInputRoot .routing-process-tab:hover {
+    transform: translateY(-1px);
+    border-color: #939798;
+    color: #741717;
+  }
+
+  #spkInputRoot .routing-process-tab:focus-visible {
+    outline: 0;
+    box-shadow: 0 0 0 3px rgba(141,27,27,.14), inset 0 1px 0 #fff, 0 2px 0 #aeb1b1;
+  }
+
+  #spkInputRoot .routing-process-tab.is-active {
+    border-color: #691111;
+    border-bottom-color: #4e0a0a;
+    background: linear-gradient(180deg, #b92c2c, #781212);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.28), 0 2px 0 #520b0b, 0 4px 8px rgba(100,13,13,.2);
+    color: #fff;
+    transform: translateY(1px);
+  }
+
+  #spkInputRoot .routing-process-tab-icon {
+    display: grid;
+    place-items: center;
+    width: 23px;
+    height: 23px;
+  }
+
+  #spkInputRoot .routing-process-tab-icon svg {
+    width: 21px;
+    height: 21px;
+  }
+
+  #spkInputRoot .routing-process-tab-label {
+    overflow: hidden;
+    max-width: 100%;
+    font-size: .62rem;
+    font-weight: 900;
+    letter-spacing: .02em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  #spkInputRoot .routing-process-tab-state {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    display: none;
+    place-items: center;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #1f8a38;
+    box-shadow: 0 0 0 2px #f0f1ee;
+    color: #fff;
+  }
+
+  #spkInputRoot .routing-process-tab-state svg {
+    width: 9px;
+    height: 9px;
+  }
+
+  #spkInputRoot .routing-process-tab.is-saved .routing-process-tab-state {
+    display: grid;
+  }
+
+  #spkInputRoot .routing-process-tab.is-active .routing-process-tab-state {
+    background: #fff;
+    box-shadow: 0 0 0 2px rgba(255,255,255,.2);
+    color: #781212;
+  }
+
+  #spkInputRoot .routing-tabs-hint {
+    margin: 8px 2px 0;
+    color: #6d7174;
+    font-size: .58rem;
+    font-weight: 650;
+    line-height: 1.35;
+  }
+
+  @media (max-width: 840px) {
+    #spkInputRoot .routing-process-tabs {
+      display: flex;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 1px 1px 5px;
+      scroll-snap-type: x proximity;
+      scrollbar-width: thin;
+    }
+
+    #spkInputRoot .routing-process-tab {
+      flex: 0 0 98px;
+      scroll-snap-align: start;
+    }
+  }
+
+  @media (max-width: 560px) {
+    #spkInputRoot .routing-tabs-shell {
+      padding: 8px;
+    }
+  }
+
+  /* ==========================================
+     URUTAN ROUTING BEBAS DAN BOLEH BERULANG
+     Ditaruh paling akhir agar menang atas aturan
+     .routing-saved-* pada generasi gaya sebelumnya.
+     ========================================== */
+  /* Nomor urut dan kedua tombol gesernya disatukan menjadi satu kendali
+     bertumpuk. Sebelumnya ketiganya berupa kotak terpisah dengan bingkai
+     sendiri sendiri, dan di kolom selebar 34px hasilnya terlihat berdesakan. */
+  #spkInputRoot .routing-saved-order {
+    display: flex;
+    overflow: hidden;
+    flex-direction: column;
+    width: 34px;
+    border: 1px solid #a6a9aa;
+    border-radius: 9px;
+    background: linear-gradient(180deg, #f7f8f6, #d7d9d6);
+    box-shadow: inset 0 1px 0 #fff, 0 2px 0 #a7a9aa;
+  }
+  #spkInputRoot .routing-saved-move {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    height: 15px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: rgba(255,255,255,.5);
+    box-shadow: none;
+    color: #5d6266;
+    font-size: .46rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background .14s ease, color .14s ease;
+  }
+  #spkInputRoot .routing-saved-move.is-up {
+    border-bottom: 1px solid rgba(94,99,103,.22);
+  }
+  #spkInputRoot .routing-saved-move.is-down {
+    border-top: 1px solid rgba(94,99,103,.22);
+  }
+  #spkInputRoot .routing-saved-move:hover:not(:disabled) {
+    background: #fff;
+    color: #7d2020;
+  }
+  #spkInputRoot .routing-saved-move:disabled {
+    background: rgba(255,255,255,.18);
+    box-shadow: none;
+    color: #b0b4b6;
+    cursor: not-allowed;
+  }
+
+  /* Kotak nomor melebur ke dalam kendali di atas, jadi bingkai dan bayangan
+     miliknya sendiri dilepas. */
+  #spkInputRoot .routing-saved-index {
+    width: 100%;
+    height: 32px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    font-size: .64rem;
+  }
+
+  #spkInputRoot .routing-saved-repeat {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 5px;
+    border: 1px solid #9fb6cf;
+    border-radius: 999px;
+    background: #eef4fa;
+    color: #2f5f8d;
+    font-size: .52rem;
+    font-weight: 900;
+    letter-spacing: .02em;
+    vertical-align: 1px;
+  }
+
+  #spkInputRoot .routing-process-tab-count {
+    position: absolute;
+    top: 4px;
+    left: 5px;
+    min-width: 15px;
+    padding: 1px 4px;
+    border-radius: 999px;
+    background: #2f5f8d;
+    color: #fff;
+    font-size: .48rem;
+    font-weight: 900;
+    line-height: 1.35;
+    text-align: center;
+  }
+
+  /* Kendali nomor urut ditaruh di tengah tinggi kartu, bukan menempel ke
+     atas, supaya seluruh kolom kiri terlihat seimbang terhadap isi di
+     sebelahnya berapa pun jumlah baris detailnya. */
+  #spkInputRoot .routing-saved-card {
+    align-items: center;
+    gap: 9px;
+  }
+  #spkInputRoot .routing-saved-card-head {
+    align-items: center;
+  }
+
+  @media (max-width: 640px) {
+    #spkInputRoot .routing-saved-move {
+      flex: 0 0 auto;
+      height: 15px;
+    }
+    #spkInputRoot .routing-saved-card-head {
+      align-items: stretch;
+    }
+  }
+
+  /* ==========================================
+     ISIAN HASIL RAPAT
+     ========================================== */
+
+  /* Keterangan kecil di sebelah nama kolom, misalnya satuan atau asal data. */
+  #spkInputRoot .field-label-hint {
+    color: #7c8083;
+    font-weight: 700;
+    text-transform: none;
+  }
+
+  /* Panel Folding dan Slitting kini berisi tiga kolom, Gusset empat. Lebar
+     tetap gaya lama tidak lagi cocok, jadi ketiganya memakai grid yang
+     membagi rata sisa ruang. */
+  #spkInputRoot .route-fields--sizes > .form-cell:nth-child(n) {
+    grid-column: auto / span 4;
+  }
+
+  /* --- Ukuran bahan yang tampil di setiap divisi --- */
+  #spkInputRoot .bahan-ukuran-area {
+    margin: 10px 0;
+    padding: 9px 10px;
+    border: 1px solid #c3c6c6;
+    border-radius: 9px;
+    background: #f4f6f3;
+  }
+  /* Empat nilai dibagi rata selebar panel divisi, sehingga blok ini seukuran
+     dengan baris isian lain di atasnya dan tidak menyisakan ruang kosong di
+     sebelah kanan. */
+  #spkInputRoot .bahan-ukuran-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px 10px;
+    align-items: start;
+  }
+  #spkInputRoot .bahan-ukuran-grid .form-cell {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+  }
+  #spkInputRoot .bahan-ukuran-grid .field-input {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (max-width: 560px) {
+    #spkInputRoot .bahan-ukuran-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  #spkInputRoot .bahan-ukuran-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 7px;
+    color: #52575b;
+    font-size: .56rem;
+    font-weight: 900;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+
+  /* Muncul hanya bila ada angka yang diketik sendiri, sebagai jalan kembali ke
+     hasil pembacaan Ukuran Blowing dan Ukuran Jadi. */
+  #spkInputRoot .bahan-ukuran-reset {
+    padding: 2px 8px;
+    border: 1px solid #c2c5c5;
+    border-radius: 999px;
+    background: #fbfcfa;
+    color: #7d2020;
+    font-size: .52rem;
+    font-weight: 800;
+    letter-spacing: .03em;
+    text-transform: none;
+    cursor: pointer;
+    transition: border-color .16s ease, background .16s ease;
+  }
+
+  #spkInputRoot .bahan-ukuran-reset:hover {
+    border-color: #b98b8b;
+    background: #fbf1f1;
+  }
+
+  #spkInputRoot .bahan-ukuran-hint {
+    margin: 7px 0 0;
+    color: #7c8083;
+    font-size: .55rem;
+    font-weight: 650;
+    line-height: 1.45;
+  }
+
+  /* --- Jadwal kirim ---
+     Tahap-tahapnya berurutan, jadi digambarkan sebagai garis waktu: nomor
+     bulat yang tersambung garis tipis, dengan tahap pertama ditandai sebagai
+     ETD. Bentuk ini membuat urutannya terbaca sekali lihat. */
+  #spkInputRoot .partial-head {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 9px;
+  }
+  #spkInputRoot .partial-summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 9px;
+    border: 1px solid #c5c8c8;
+    border-radius: 999px;
+    background: #f2f4f1;
+    color: #5c6165;
+    font-size: .56rem;
+    font-weight: 800;
+    letter-spacing: .01em;
+    transition: background .18s ease, border-color .18s ease, color .18s ease;
+  }
+  #spkInputRoot .partial-summary::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #a8adb0;
+    box-shadow: 0 0 0 2px rgba(168,173,176,.18);
+  }
+  #spkInputRoot .partial-summary.is-ok {
+    border-color: #a8c9ad;
+    background: #eef7ef;
+    color: #2f6a39;
+  }
+  #spkInputRoot .partial-summary.is-ok::before {
+    background: #3d984b;
+    box-shadow: 0 0 0 2px rgba(61,152,75,.16);
+  }
+  #spkInputRoot .partial-summary.is-warn {
+    border-color: #d8bd93;
+    background: #fdf6e9;
+    color: #8a5f16;
+  }
+  #spkInputRoot .partial-summary.is-warn::before {
+    background: #c98a1e;
+    box-shadow: 0 0 0 2px rgba(201,138,30,.18);
+  }
+
+  #spkInputRoot .btn-add-partial {
+    margin-left: auto;
+    padding: 5px 12px;
+    border: 1px solid #a7aaac;
+    border-radius: 8px;
+    background: linear-gradient(180deg, #fff, #e5e7e4);
+    box-shadow: inset 0 1px 0 #fff, 0 1px 0 #aaa;
+    color: #4b4f53;
+    font-size: .58rem;
+    font-weight: 900;
+    cursor: pointer;
+    transition: transform .14s ease, box-shadow .14s ease, color .14s ease;
+  }
+  #spkInputRoot .btn-add-partial:hover {
+    transform: translateY(-1px);
+    box-shadow: inset 0 1px 0 #fff, 0 2px 3px rgba(31,33,36,.14);
+    color: #7d2020;
+  }
+  #spkInputRoot .btn-add-partial:active {
+    transform: translateY(1px);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,.14);
+  }
+  #spkInputRoot .btn-add-partial.disabled {
+    transform: none;
+    box-shadow: none;
+    background: #e3e5e3;
+    color: #a9adaf;
+    pointer-events: none;
+  }
+
+  #spkInputRoot .partial-list {
+    display: grid;
+    gap: 8px;
+  }
+
+  /* Tahap tidak lagi dibungkus kartu berpadding. Padding itulah yang membuat
+     isiannya bergeser dari kolom Data Utama di atasnya; sekarang tiap tahap
+     memakai .form-grid yang sama persis sehingga Tanggal, Jumlah, dan Nilai
+     jatuh tepat di kolom yang sama. Pemisah antar tahap cukup garis tipis. */
+  #spkInputRoot .jadwal-stage + .jadwal-stage {
+    padding-top: 8px;
+    border-top: 1px dashed #cdd0cf;
+  }
+
+  /* Nomor tahap kini menjadi bagian dari nama kolom, jadi baris label hanya
+     perlu menampung tombol hapus di ujung kanan kolom Nilai. */
+  #spkInputRoot .jadwal-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 20px;
+  }
+  #spkInputRoot .jadwal-label--end {
+    justify-content: space-between;
+  }
+  /* Penanda ETD pada tahap pertama diberi warna merah agar tetap terbaca
+     sebagai tanggal kirim utama walau bulatan penandanya sudah tidak ada. */
+  #spkInputRoot .jadwal-stage.is-etd .field-label-hint {
+    color: #8d1515;
+    font-weight: 900;
+  }
+  /* Tombol hapus disamarkan sampai tahapnya disentuh, agar deretan tahap tidak
+     terlihat penuh ikon. Tetap muncul saat difokuskan lewat papan ketik. */
+  #spkInputRoot .jadwal-remove {
+    flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
+    color: #a86464;
+    font-size: .6rem;
+    line-height: 1;
+    opacity: 0;
+    cursor: pointer;
+    transition: opacity .16s ease, background .16s ease, color .16s ease;
+  }
+  #spkInputRoot .jadwal-stage:hover .jadwal-remove,
+  #spkInputRoot .jadwal-remove:focus-visible {
+    opacity: 1;
+  }
+  #spkInputRoot .jadwal-remove:hover {
+    border-color: #d1a5a5;
+    background: #fff5f5;
+    color: #962323;
+  }
+
+  /* Pilihan Full dan Custom memakai bentuk segmented control yang sama dengan
+     pemilih jenis order. Tinggi dan lengkung sudutnya diambil dari variabel
+     yang sama dengan kolom isian Data Utama (36px / 8px), bukan angka sendiri,
+     supaya ketiga kolom benar-benar setinggi dan sebentuk. */
+  #spkInputRoot .jadwal-segment {
+    display: flex;
+    padding: 3px;
+    height: var(--compact-control, 36px);
+    min-height: var(--compact-control, 36px);
+    border: 1px solid #a9abad;
+    border-radius: var(--compact-radius, 8px);
+    background: linear-gradient(180deg, #dedfdd, #cccdca);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,.14);
+  }
+  #spkInputRoot .jadwal-segment-option {
+    flex: 1 1 50%;
+    min-width: 0;
+    padding: 0 6px;
+    border: 1px solid transparent;
+    border-radius: calc(var(--compact-radius, 8px) - 2px);
+    background: transparent;
+    color: #5b5e62;
+    font-size: .58rem;
+    font-weight: 800;
+    text-shadow: 0 1px 0 #fff;
+    cursor: pointer;
+    transition: background .18s ease, color .18s ease;
+  }
+  #spkInputRoot .jadwal-segment-option:hover {
+    color: #33353a;
+  }
+  #spkInputRoot .jadwal-segment-option.active {
+    border-color: #7c1414;
+    background: linear-gradient(180deg, #b93030, #8d1515);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.25);
+    color: #fff;
+    text-shadow: 0 -1px 0 rgba(0,0,0,.45);
+  }
+
+  /* ==========================================
+     DATA UTAMA EMPAT KOLOM
+     ==========================================
+     Hanya kartu Data Utama yang dibuat empat kolom; panel routing tetap
+     memakai .form-grid tiga kolom seperti sebelumnya. Titik responsifnya
+     ditulis ulang di sini karena selektor ini lebih khusus daripada aturan
+     .form-grid umum, sehingga aturan media query yang lama tidak akan
+     mengenainya. */
+  #spkInputRoot .data-main-card .form-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  @media (max-width: 1180px) {
+    #spkInputRoot .data-main-card .form-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 860px) {
+    #spkInputRoot .data-main-card .form-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 560px) {
+    #spkInputRoot .data-main-card .form-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  #spkInputRoot .partial-hint {
+    margin-top: 7px;
+    color: #7c8083;
+    font-size: .55rem;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 520px) {
+    #spkInputRoot .jadwal-remove {
+      opacity: 1;
+    }
+  }
+
+</style>

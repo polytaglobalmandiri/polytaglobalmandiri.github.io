@@ -77,32 +77,7 @@ function normalizeKey(value) {
 }
 
 function getExistingExtractionSpkSet_() {
-  const sheet = findDatabaseSheet_(SpreadsheetApp.openById(DB_SPREADSHEET_ID));
-
-  if (!sheet) {
-    throw new Error(databaseSheetNotFoundMessage_());
-  }
-
-  const lastRow = sheet.getLastRow();
-  const existingSpks = new Set();
-
-  if (lastRow < DB_DATA_START_ROW) return existingSpks;
-
-  const values = sheet
-    .getRange(
-      DB_DATA_START_ROW,
-      DB_COL.SPK,
-      lastRow - DB_DATA_START_ROW + 1,
-      1
-    )
-    .getDisplayValues();
-
-  values.forEach(function(row) {
-    const spk = normalizeSourceSpk_(row[0]) || normalizeSpk_(row[0]);
-    if (spk !== '') existingSpks.add(spk);
-  });
-
-  return existingSpks;
+  return new Set(getDatabaseV2SpkDirectory_().spks);
 }
 
 function isSpreadsheetErrorValue(value) {
@@ -2432,248 +2407,9 @@ function readMainSheetSnapshot_(sheet) {
   };
 }
 
-function buildExistingSpkIndex_(sheet) {
-  const rowMap = new Map();
-  const duplicates = new Set();
-  const lastRow = getDatabaseDataLastRow_(sheet);
-  if (lastRow < DB_DATA_START_ROW) {
-    return {
-      rowMap: rowMap,
-      duplicates: duplicates
-    };
-  }
-
-  const values = sheet
-    .getRange(
-      DB_DATA_START_ROW,
-      DB_COL.SPK,
-      lastRow - DB_DATA_START_ROW + 1,
-      1
-    )
-    .getValues();
-
-  values.forEach(function(row, index) {
-    const spk = normalizeSourceSpk_(row[0]) || normalizeSpk_(row[0]);
-    if (spk === '') return;
-
-    if (rowMap.has(spk)) {
-      duplicates.add(spk);
-    } else {
-      rowMap.set(spk, DB_DATA_START_ROW + index);
-    }
-  });
-
-  return {
-    rowMap: rowMap,
-    duplicates: duplicates
-  };
-}
-
-function applyExtractionRowFormatting_(sheet, startRow, rowCount) {
-  if (rowCount < 1) return;
-
-  const endRow = startRow + rowCount - 1;
-
-  sheet.getRange(startRow, DB_COL.TANGGAL, rowCount, 1).setNumberFormat('dd/MM/yyyy');
-  sheet.getRange(startRow, DB_COL.ETD, rowCount, 1).setNumberFormat('dd/MM/yyyy');
-  sheet
-    .getRange(startRow, DB_COL.BS_START, rowCount, DB_COL.TOTAL_BS - DB_COL.BS_START + 1)
-    .setNumberFormat('0.##%');
-
-  sheet.getRangeList([
-    'AY' + startRow + ':AY' + endRow,
-    'BB' + startRow + ':BB' + endRow,
-    'BE' + startRow + ':BE' + endRow,
-    'BH' + startRow + ':BH' + endRow,
-    'BK' + startRow + ':BK' + endRow,
-    'BN' + startRow + ':BN' + endRow,
-    'BQ' + startRow + ':BQ' + endRow
-  ]).setNumberFormat('0.###');
-
-  sheet.getRangeList([
-    'AZ' + startRow + ':AZ' + endRow,
-    'BC' + startRow + ':BC' + endRow,
-    'BF' + startRow + ':BF' + endRow,
-    'BI' + startRow + ':BI' + endRow,
-    'BL' + startRow + ':BL' + endRow,
-    'BO' + startRow + ':BO' + endRow,
-    'BR' + startRow + ':BR' + endRow
-  ]).setNumberFormat('0.##%');
-}
-
-function setExtractionTotalFormulas_(sheet, startRow, rowCount) {
-  const formulas = [];
-
-  for (let row = startRow; row < startRow + rowCount; row++) {
-    formulas.push([
-      '=SUM(AY' + row + '+BB' + row + '+BE' + row + '+BH' + row +
-        '+BK' + row + '+BN' + row + '+BQ' + row + ')',
-      '=SUM(AZ' + row + '+BC' + row + '+BF' + row + '+BI' + row +
-        '+BL' + row + '+BO' + row + '+BR' + row + ')'
-    ]);
-  }
-
-  sheet
-    .getRange(startRow, DB_COL.TOTAL_KOMPOSISI_KG, rowCount, 2)
-    .setFormulas(formulas);
-}
-
 // Mengisi kolom baru (BV:CO warna tinta, CR keterangan artikel, CS:DA
 // keterangan divisi, DR kode item) pada baris SPK yang sudah ada. Sel yang
 // sudah terisi tidak pernah ditimpa agar hasil edit manual tetap aman.
-function backfillExtractionRow_(
-  sheet,
-  rowNumber,
-  warnaTinta,
-  keteranganArtikel,
-  processNotes,
-  kodeItem,
-  keteranganWarna
-) {
-  if (!rowNumber) return false;
-
-  let changed = false;
-  const isBlank = function(value) {
-    return String(value === null || value === undefined ? '' : value).trim() === '';
-  };
-
-  const warnaColumns = buildWarnaColumns_(warnaTinta || []);
-  if (warnaColumns.some(function(value) { return !isBlank(value); })) {
-    const width = DB_MAX_WARNA * 2;
-    const warnaRange = sheet.getRange(rowNumber, DB_COL.WARNA_START, 1, width);
-    const currentWarna = warnaRange.getValues()[0];
-    if (currentWarna.every(isBlank)) {
-      warnaRange.setValues([warnaColumns]);
-      changed = true;
-    }
-  }
-
-  if (!isBlank(keteranganArtikel)) {
-    const artikelCell = sheet.getRange(rowNumber, DB_COL.KETERANGAN_ARTIKEL);
-    if (isBlank(artikelCell.getValue())) {
-      artikelCell.setValue(keteranganArtikel);
-      changed = true;
-    }
-  }
-
-  const notes = processNotes || [];
-  if (notes.some(function(value) { return !isBlank(value); })) {
-    const notesRange = sheet.getRange(rowNumber, DB_COL.KET_PROSES_START, 1, 9);
-    const currentNotes = notesRange.getValues()[0];
-    let notesChanged = false;
-    const mergedNotes = currentNotes.map(function(value, index) {
-      if (isBlank(value) && !isBlank(notes[index])) {
-        notesChanged = true;
-        return notes[index];
-      }
-      return value;
-    });
-
-    if (notesChanged) {
-      notesRange.setValues([mergedNotes]);
-      changed = true;
-    }
-  }
-
-  if (!isBlank(kodeItem) && sheet.getMaxColumns() >= DB_COL.KODE_ITEM) {
-    const kodeItemCell = sheet.getRange(rowNumber, DB_COL.KODE_ITEM);
-    if (isBlank(kodeItemCell.getValue())) {
-      kodeItemCell.setValue(kodeItem);
-      changed = true;
-    }
-  }
-
-  if (
-    !isBlank(keteranganWarna) &&
-    sheet.getMaxColumns() >= DB_COL.KETERANGAN_WARNA
-  ) {
-    const keteranganWarnaCell = sheet.getRange(rowNumber, DB_COL.KETERANGAN_WARNA);
-    if (isBlank(keteranganWarnaCell.getValue())) {
-      keteranganWarnaCell.setValue(keteranganWarna);
-      changed = true;
-    }
-  }
-
-  return changed;
-}
-
-function writeExtractionGroup_(sheet, startRow, records, setDefaultRelease) {
-  if (!records.length) return;
-
-  const rowCount = records.length;
-
-  // Hanya kolom yang dikendalikan file sumber yang ditimpa.
-  sheet
-    .getRange(startRow, DB_COL.SPK, rowCount, 12)
-    .setValues(records.map(function(record) { return record.core; }));
-
-  // T:AN. M:S serta AO:AQ tetap dikelola oleh rumus di Spreadsheet/aplikasi.
-  sheet
-    .getRange(startRow, DB_COL.PROSES_MIXER, rowCount, 21)
-    .setValues(records.map(function(record) { return record.production; }));
-
-  // AR:BS.
-  sheet
-    .getRange(startRow, DB_COL.JUMLAH_ORDER, rowCount, 28)
-    .setValues(records.map(function(record) { return record.orderComposition; }));
-
-  // BV:CO — warna & pemakaian tinta Printing dari file sumber.
-  sheet
-    .getRange(startRow, DB_COL.WARNA_START, rowCount, DB_MAX_WARNA * 2)
-    .setValues(records.map(function(record) {
-      return record.warnaColumns || new Array(DB_MAX_WARNA * 2).fill('');
-    }));
-
-  // CP: SPK Sebelumnya yang dibaca dari C27:F27 pada file sumber.
-  sheet
-    .getRange(startRow, DB_COL.SPK_REFERENSI, rowCount, 1)
-    .setValues(records.map(function(record) {
-      return [record.spkSebelumnya || ''];
-    }));
-
-  // CR: keterangan artikel dari blok keterangan PO Produksi.
-  sheet
-    .getRange(startRow, DB_COL.KETERANGAN_ARTIKEL, rowCount, 1)
-    .setValues(records.map(function(record) {
-      return [record.keteranganArtikel || ''];
-    }));
-
-  // CS:DA — keterangan produk per divisi.
-  sheet
-    .getRange(startRow, DB_COL.KET_PROSES_START, rowCount, 9)
-    .setValues(records.map(function(record) {
-      return record.processNotes || new Array(9).fill('');
-    }));
-
-  // DR — kode item dari baris "Ket. Plastik" pada file sumber.
-  if (sheet.getMaxColumns() >= DB_COL.KODE_ITEM) {
-    sheet
-      .getRange(startRow, DB_COL.KODE_ITEM, rowCount, 1)
-      .setValues(records.map(function(record) {
-        return [record.kodeItem || ''];
-      }));
-  }
-
-  // EA — keterangan warna dari baris "WARNA" pada file sumber.
-  if (sheet.getMaxColumns() >= DB_COL.KETERANGAN_WARNA) {
-    sheet
-      .getRange(startRow, DB_COL.KETERANGAN_WARNA, rowCount, 1)
-      .setValues(records.map(function(record) {
-        return [record.keteranganWarna || ''];
-      }));
-  }
-
-  if (setDefaultRelease) {
-    sheet
-      .getRange(startRow, DB_COL.RELEASE, rowCount, 1)
-      .setValues(records.map(function() { return ['Tidak']; }));
-  }
-
-  setConversionFormulas_(sheet, startRow, rowCount);
-  setExtractionTotalFormulas_(sheet, startRow, rowCount);
-  applyExtractionRowFormatting_(sheet, startRow, rowCount);
-}
-
 // Penarikan data dulu memegang kunci skrip selama seluruh proses berjalan:
 // membuka Drive, membaca tiap file, sampai menulis hasilnya. Padahal bagian
 // paling lama justru pembacaan file, yang sama sekali tidak menyentuh
@@ -2683,23 +2419,129 @@ function writeExtractionGroup_(sheet, startRow, records, setDefaultRelease) {
 // Sekarang kunci hanya diambil sesaat, tepat saat menulis ke sheet, lalu
 // segera dilepas. Penarikan dan Input SPK dapat berjalan berbarengan tanpa
 // saling menunggu, sementara penulisannya tetap tidak mungkin bertabrakan.
-function withDatabaseLock_(action) {
-  const lock = LockService.getScriptLock();
-  if (!lock.tryLock(45000)) {
-    throw new Error(
-      'Database sedang dipakai proses lain lebih dari 45 detik. ' +
-      'Penarikan dihentikan sementara; jalankan lagi setelah penyimpanan SPK selesai.'
-    );
+function buildDatabaseV2CandidatesFromExtraction_(record) {
+  const row = new Array(150).fill('');
+  record.core.forEach(function(value, index) { row[DB_COL.SPK - 1 + index] = value; });
+  const dimensions = parseCalculationDimensions_(record.core[10], record.core[11]);
+  const density = getCalculationDensity_(record.core[6]);
+  const filmFactor = getFilmLayerFactor_(record.core[7]);
+  row[DB_COL.LEBAR_JADI - 1] = dimensions.lebar || '';
+  row[DB_COL.PANJANG_JADI - 1] = dimensions.panjang || '';
+  row[DB_COL.TEBAL - 1] = dimensions.tebal || '';
+  row[DB_COL.LEBAR_BAHAN - 1] = dimensions.lebarBahan || '';
+  row[DB_COL.DENSITY - 1] = density || '';
+  row[DB_COL.PCS_PER_KG - 1] = dimensions.lebar && dimensions.panjang && dimensions.tebal
+    ? 5444 / dimensions.panjang / dimensions.tebal / dimensions.lebar
+    : '';
+  row[DB_COL.METER_PER_KG - 1] = calculateMeterPerKg_(
+    dimensions.lebar, dimensions.tebal, density, filmFactor
+  ) || '';
+  record.production.forEach(function(value, index) {
+    row[DB_COL.PROSES_MIXER - 1 + index] = value;
+  });
+  record.orderComposition.forEach(function(value, index) {
+    row[DB_COL.JUMLAH_ORDER - 1 + index] = value;
+  });
+  (record.warnaColumns || []).forEach(function(value, index) {
+    row[DB_COL.WARNA_START - 1 + index] = value;
+  });
+  row[DB_COL.SPK_REFERENSI - 1] = record.spkSebelumnya || '';
+  row[DB_COL.RELEASE - 1] = 'Tidak';
+  row[DB_COL.KETERANGAN_ARTIKEL - 1] = record.keteranganArtikel || '';
+  (record.processNotes || []).forEach(function(value, index) {
+    row[DB_COL.KET_PROSES_START - 1 + index] = value;
+  });
+  row[DB_COL.KODE_ITEM - 1] = record.kodeItem || '';
+  row[DB_COL.KETERANGAN_WARNA - 1] = record.keteranganWarna || '';
+  let totalKg = 0;
+  let totalPercent = 0;
+  for (let slot = 0; slot < 7; slot++) {
+    totalKg += Number(row[DB_COL.KOMPOSISI_START + (slot * 3)]) || 0;
+    totalPercent += Number(row[DB_COL.KOMPOSISI_START + (slot * 3) + 1]) || 0;
   }
-
-  try {
-    return action();
-  } finally {
-    if (lock.hasLock()) lock.releaseLock();
-  }
+  row[DB_COL.TOTAL_KOMPOSISI_KG - 1] = totalKg;
+  row[DB_COL.TOTAL_KOMPOSISI_PERCENT - 1] = totalPercent;
+  const candidates = createDatabaseV2CandidateBuckets_();
+  const warnings = [];
+  buildDatabaseV2CandidatesForRow_(
+    row, 0, normalizeDatabaseV2Key_(record.spk), candidates, warnings
+  );
+  return { candidates: candidates, warnings: warnings };
 }
 
-function flushExtractionRecords_(sheet, records, existingRowMap) {
+function backfillDatabaseV2FromExtraction_(
+  spk,
+  warnaTinta,
+  keteranganArtikel,
+  processNotes,
+  kodeItem,
+  keteranganWarna
+) {
+  const blank = function(value) { return String(value == null ? '' : value).trim() === ''; };
+  return mutateDatabaseV2Spk_(spk, 'EXTRACTION_BACKFILL_NATIVE', function(aggregate) {
+    let changed = false;
+    [
+      ['Keterangan Artikel', keteranganArtikel],
+      ['Kode Item', kodeItem],
+      ['Keterangan Warna', keteranganWarna]
+    ].forEach(function(entry) {
+      if (blank(aggregate.master[entry[0]]) && !blank(entry[1])) {
+        aggregate.master[entry[0]] = entry[1];
+        changed = true;
+      }
+    });
+    if (!aggregate.color.length && (warnaTinta || []).length) {
+      aggregate.color = warnaTinta.slice(0, DB_MAX_WARNA).map(function(item, index) {
+        return {
+          'Warna ID': databaseV2DetailId_(spk, 'W', index + 1),
+          'SPK': normalizeDatabaseV2Key_(spk),
+          'Urutan': index + 1,
+          'Nama Warna': item.nama || '',
+          'Pemakaian': item.pemakaian == null ? '' : item.pemakaian,
+          'UOM': '',
+          'Kode Silinder': '',
+          'Sumber': DB_V2_NATIVE_WRITE_SOURCE,
+          'Dibuat': '',
+          'Diperbarui': ''
+        };
+      });
+      changed = aggregate.color.length > 0 || changed;
+    }
+    const noteKeys = PROCESS_NOTE_KEYS;
+    const incomingNotes = {};
+    noteKeys.forEach(function(key, index) {
+      if (!blank(processNotes && processNotes[index])) incomingNotes[key] = processNotes[index];
+    });
+    aggregate.routing.forEach(function(routing) {
+      const key = String(routing['Kode Proses'] || '').trim().toLowerCase();
+      const relevantKeys = key === 'cutting'
+        ? ['bottomSeal', 'sideSeal', 'tshirt']
+        : [key];
+      const directNotes = relevantKeys.map(function(name) { return incomingNotes[name] || ''; }).filter(Boolean);
+      if (blank(routing.Keterangan) && directNotes.length) {
+        routing.Keterangan = directNotes.join(' | ');
+        changed = true;
+      }
+      let payload;
+      try { payload = JSON.parse(String(routing['Payload JSON'] || '{}')); } catch (error) { payload = {}; }
+      if (!payload || typeof payload !== 'object' || Array.isArray(payload)) payload = {};
+      if (!payload.values || typeof payload.values !== 'object') payload.values = {};
+      if (!payload.values.processNotes || typeof payload.values.processNotes !== 'object') {
+        payload.values.processNotes = {};
+      }
+      relevantKeys.forEach(function(name) {
+        if (incomingNotes[name] && blank(payload.values.processNotes[name])) {
+          payload.values.processNotes[name] = incomingNotes[name];
+          changed = true;
+        }
+      });
+      routing['Payload JSON'] = JSON.stringify(payload);
+    });
+    return changed;
+  });
+}
+
+function flushExtractionRecords_(records, existingRowMap) {
   const newRecords = [];
   let skipped = 0;
 
@@ -2716,17 +2558,16 @@ function flushExtractionRecords_(sheet, records, existingRowMap) {
     return { created: 0, updated: 0, skipped: skipped };
   }
 
-  // Peta SPK dibangun sekali di awal penarikan, jadi bisa tertinggal bila ada
-  // SPK baru disimpan lewat Input SPK sementara penarikan sedang membaca file.
-  // Karena itu keberadaannya diperiksa ulang di dalam kunci.
-  return withDatabaseLock_(function() {
-    const terbaru = getDatabaseSpkRowMap_(sheet);
-    const layakTulis = [];
+  const terbaru = getDatabaseV2SpkDirectory_().spks.reduce(function(index, spk) {
+    index[spk] = true;
+    return index;
+  }, Object.create(null));
+  const layakTulis = [];
 
     newRecords.forEach(function(record) {
       const barisAda = terbaru[record.spk];
       if (barisAda) {
-        existingRowMap.set(record.spk, barisAda);
+        existingRowMap.set(record.spk, true);
         skipped++;
         return;
       }
@@ -2737,21 +2578,51 @@ function flushExtractionRecords_(sheet, records, existingRowMap) {
       return { created: 0, updated: 0, skipped: skipped };
     }
 
-    const startRow = getNextDatabaseDataRow_(sheet);
-    writeExtractionGroup_(sheet, startRow, layakTulis, true);
-    SpreadsheetApp.flush();
-    syncDatabaseV2RowsAfterLegacyWrite_(
-      sheet,
-      layakTulis.map(function(record, index) { return startRow + index; }),
-      'EXTRACTION_IMPORT'
-    );
+    const candidates = createDatabaseV2CandidateBuckets_();
+    const warnings = [];
+    layakTulis.forEach(function(record) {
+      const built = buildDatabaseV2CandidatesFromExtraction_(record);
+      Object.keys(candidates).forEach(function(name) {
+        candidates[name] = candidates[name].concat(built.candidates[name]);
+      });
+      warnings.push.apply(warnings, built.warnings);
+    });
+    const nativeWrite = commitDatabaseV2Candidates_(candidates, layakTulis.map(function(record) {
+      return record.spk;
+    }), 'EXTRACTION_IMPORT_NATIVE', { createOnly: true });
+    nativeWrite.warnings = warnings;
 
     layakTulis.forEach(function(record, index) {
-      existingRowMap.set(record.spk, startRow + index);
+      existingRowMap.set(record.spk, true);
     });
 
-    return { created: layakTulis.length, updated: 0, skipped: skipped };
-  });
+    return {
+      created: layakTulis.length,
+      updated: 0,
+      skipped: skipped,
+      databaseV2: summarizeExtractionDatabaseV2_(nativeWrite, layakTulis.length)
+    };
+}
+
+function summarizeExtractionDatabaseV2_(nativeWrite, requestedSpks) {
+  const requested = Math.max(0, Number(requestedSpks) || 0);
+  const result = nativeWrite && typeof nativeWrite === 'object' ? nativeWrite : {};
+  const committed = result.status === 'COMMITTED';
+  const queuedSpks = Array.isArray(result.queuedSpks) ? result.queuedSpks.length : 0;
+  return {
+    status: String(result.status || 'UNKNOWN'),
+    requestedSpks: requested,
+    committedSpks: committed ? requested : 0,
+    pendingSpks: committed ? 0 : Math.max(requested, queuedSpks),
+    verifiedRecords: committed
+      ? (result.report
+          ? Math.max(0, Number(result.report.verifiedRecords) || 0)
+          : (result.targets || []).reduce(function(total, target) {
+              return total + Math.max(0, Number(target.verifiedWrites) || 0);
+            }, 0))
+      : 0,
+    accuracyStatus: committed ? 'VERIFIED' : 'PENDING'
+  };
 }
 
 function extractData(targetFolderId, jobId, resumeIndex, resumeStats, targetFileId) {
@@ -2854,23 +2725,9 @@ function extractData(targetFolderId, jobId, resumeIndex, resumeStats, targetFile
     });
 
     const duplicateSourceSpks = findDuplicateSourceSpks_(sourceFiles);
-    const dbSheet = getDbSheet_();
-
-    if (!dbSheet) {
-      throw new Error(databaseSheetNotFoundMessage_());
-    }
-
-    // Pastikan Database siap sampai kolom terakhir schema aktif.
-    ensureDbColumnCapacity_(dbSheet);
-    ensureReferenceColumnHeader_(dbSheet);
-
-    const layoutBeforeSync = getDatabaseSpkLayout_(dbSheet);
-    const repairedRowLayout = layoutBeforeSync.hasGaps;
-    if (repairedRowLayout) {
-      compactDatabaseSpkRowsIfNeeded_(dbSheet);
-    }
-
-    const existingSpkRowMap = buildExistingSpkIndex_(dbSheet).rowMap;
+    const existingSpkRowMap = new Map(getDatabaseV2SpkDirectory_().spks.map(function(spk) {
+      return [spk, true];
+    }));
     const pendingRecordsBySpk = new Map();
 
     let countSuccess = Number(previousStats.success) || 0;
@@ -2879,6 +2736,9 @@ function extractData(targetFolderId, jobId, resumeIndex, resumeStats, targetFile
     let countSkipped = Number(previousStats.skipped) || 0;
     let countError = Number(previousStats.errors) || 0;
     let countWarning = Number(previousStats.warnings) || 0;
+    let countV2Committed = Number(previousStats.databaseV2Committed) || 0;
+    let countV2Pending = Number(previousStats.databaseV2Pending) || 0;
+    let countV2VerifiedRecords = Number(previousStats.databaseV2VerifiedRecords) || 0;
     let detailError = String(previousStats.detailError || '');
     let detailWarning = String(previousStats.detailWarning || '');
     const errorDetails = normalizeExtractionIssueList_(
@@ -3151,31 +3011,27 @@ function extractData(targetFolderId, jobId, resumeIndex, resumeStats, targetFile
           const kodeItem = extractKodeItem_(allSheets, sheetUtama);
           const keteranganWarna = extractKeteranganWarna_(sheetUtama);
 
-          // Pembacaan di atas tidak menyentuh Database; hanya penulisannya
-          // yang perlu dikunci. Nomor barisnya dicari ulang di dalam kunci,
-          // sebab baris dapat bergeser bila ada penyimpanan SPK lain yang
-          // sempat merapikan Database selagi file ini dibaca.
-          const backfillChanged = withDatabaseLock_(function() {
-            const barisSekarang = getDatabaseSpkRowMap_(dbSheet)[spkStr];
-            if (!barisSekarang) return false;
+          const nativeBackfill = backfillDatabaseV2FromExtraction_(
+            spkStr,
+            inkUsage,
+            keteranganArtikel,
+            divisionNotes,
+            kodeItem,
+            keteranganWarna
+          );
+          const backfillResult = {
+            changed: nativeBackfill.changed === true,
+            databaseV2: nativeBackfill.changed
+              ? summarizeExtractionDatabaseV2_(nativeBackfill, 1)
+              : null
+          };
 
-            existingSpkRowMap.set(spkStr, barisSekarang);
-            const changed = backfillExtractionRow_(
-              dbSheet,
-              barisSekarang,
-              inkUsage,
-              keteranganArtikel,
-              divisionNotes,
-              kodeItem,
-              keteranganWarna
-            );
-            if (changed) {
-              syncDatabaseV2RowsAfterLegacyWrite_(dbSheet, [barisSekarang], 'EXTRACTION_BACKFILL');
-            }
-            return changed;
-          });
-
-          if (backfillChanged) countUpdated++;
+          if (backfillResult.changed) {
+            countUpdated++;
+            countV2Committed += backfillResult.databaseV2.committedSpks;
+            countV2Pending += backfillResult.databaseV2.pendingSpks;
+            countV2VerifiedRecords += backfillResult.databaseV2.verifiedRecords;
+          }
           else countSkipped++;
           countSuccess++;
           continue;
@@ -3290,13 +3146,17 @@ function extractData(targetFolderId, jobId, resumeIndex, resumeStats, targetFile
 
         if (pendingRecordsBySpk.size >= EXTRACTION_WRITE_BATCH_SIZE) {
           const flushResult = flushExtractionRecords_(
-            dbSheet,
             Array.from(pendingRecordsBySpk.values()),
             existingSpkRowMap
           );
 
           countCreated += flushResult.created;
           countSkipped += flushResult.skipped;
+          if (flushResult.databaseV2) {
+            countV2Committed += flushResult.databaseV2.committedSpks;
+            countV2Pending += flushResult.databaseV2.pendingSpks;
+            countV2VerifiedRecords += flushResult.databaseV2.verifiedRecords;
+          }
           pendingRecordsBySpk.clear();
         }
       } catch (e) {
@@ -3352,32 +3212,32 @@ function extractData(targetFolderId, jobId, resumeIndex, resumeStats, targetFile
 
     if (pendingRecordsBySpk.size > 0) {
       const finalFlushResult = flushExtractionRecords_(
-        dbSheet,
         Array.from(pendingRecordsBySpk.values()),
         existingSpkRowMap
       );
 
       countCreated += finalFlushResult.created;
       countSkipped += finalFlushResult.skipped;
+      if (finalFlushResult.databaseV2) {
+        countV2Committed += finalFlushResult.databaseV2.committedSpks;
+        countV2Pending += finalFlushResult.databaseV2.pendingSpks;
+        countV2VerifiedRecords += finalFlushResult.databaseV2.verifiedRecords;
+      }
       pendingRecordsBySpk.clear();
     }
 
     if (countCreated > 0) {
-      clearSpkExistenceCache_();
+      clearMarketingOptionsCache_();
       clearDashboardCache_();
       clearKeluarBahanCache_();
     }
 
     const paused = !cancelledByUser && processedFiles < sourceFiles.length;
 
-    if (countCreated > 0 && !paused) {
-      sortDatabaseBySpk_(dbSheet);
-      SpreadsheetApp.flush();
-    }
-
     let statusType = 'success';
     if (countError > 0) statusType = 'warning';
     else if (countWarning > 0) statusType = 'warning';
+    else if (countV2Pending > 0) statusType = 'warning';
 
     let message;
     if (effectiveMode === 'backfill') {
@@ -3397,7 +3257,7 @@ function extractData(targetFolderId, jobId, resumeIndex, resumeStats, targetFile
         ? (
           'Penarikan selesai: ' + countCreated + ' SPK baru ditambahkan dan ' +
           countSkipped + ' file dilewati karena SPK sudah ada. ' +
-          'Database diurutkan dari SPK terkecil ke terbesar.'
+          'Data ditempatkan dan diverifikasi pada tabel Database V2.'
         )
         : (
           'Penarikan selesai: tidak ada SPK baru. ' +
@@ -3405,8 +3265,17 @@ function extractData(targetFolderId, jobId, resumeIndex, resumeStats, targetFile
         );
     }
 
-    if (repairedRowLayout) {
-      message += ' Baris kosong akibat rumus telah dirapikan.';
+    if (countV2Committed > 0) {
+      message +=
+        '\nDatabase V2: ' + countV2Committed +
+        ' SPK ditempatkan dan diverifikasi (' + countV2VerifiedRecords +
+        ' baris terstruktur).';
+    }
+
+    if (countV2Pending > 0) {
+      message +=
+        '\nPERINGATAN DATABASE V2: ' + countV2Pending +
+        ' SPK menunggu sinkronisasi/perbaikan; data utama tetap tersimpan.';
     }
 
     if (countWarning > 0) {
@@ -3441,6 +3310,9 @@ function extractData(targetFolderId, jobId, resumeIndex, resumeStats, targetFile
       skipped: countSkipped,
       errors: countError,
       warnings: countWarning,
+      databaseV2Committed: countV2Committed,
+      databaseV2Pending: countV2Pending,
+      databaseV2VerifiedRecords: countV2VerifiedRecords,
       detailError: detailError,
       detailWarning: detailWarning,
       errorDetails: errorDetails,
@@ -3457,6 +3329,12 @@ function extractData(targetFolderId, jobId, resumeIndex, resumeStats, targetFile
       skipped: countSkipped,
       errors: countError,
       warnings: countWarning,
+      databaseV2: {
+        committedSpks: countV2Committed,
+        pendingSpks: countV2Pending,
+        verifiedRecords: countV2VerifiedRecords,
+        accuracyStatus: countV2Pending > 0 ? 'PENDING_REPAIR' : 'VERIFIED'
+      },
       processed: processedFiles,
       total: sourceFiles.length,
       paused: paused,
@@ -3483,6 +3361,9 @@ function extractData(targetFolderId, jobId, resumeIndex, resumeStats, targetFile
       updated: countUpdated,
       skipped: countSkipped,
       errors: countError,
+      databaseV2Committed: countV2Committed,
+      databaseV2Pending: countV2Pending,
+      databaseV2VerifiedRecords: countV2VerifiedRecords,
       pending: 0,
       message: cancelledByUser
         ? 'Penarikan dibatalkan pada ' + processedFiles + ' dari ' + sourceFiles.length + ' file.'

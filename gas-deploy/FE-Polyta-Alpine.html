@@ -1,0 +1,27 @@
+<script>
+  // Controller Alpine global. Komponen ini sengaja kecil: ia menyediakan
+  // state bersama tanpa mengambil alih fungsi bisnis halaman yang sudah stabil.
+  (function registerPolytaAlpineController_() {
+    function register_() {
+      if (!window.Alpine || window.__polytaPageUiRegistered) return;
+      window.__polytaPageUiRegistered = true;
+
+      window.Alpine.data('polytaPageUi', function(pageName) {
+        return {
+          page: String(pageName || 'app'),
+          ready: false,
+          online: navigator.onLine,
+          init: function() {
+            this.ready = true;
+          },
+          setOnline: function(value) {
+            this.online = Boolean(value);
+          }
+        };
+      });
+    }
+
+    document.addEventListener('alpine:init', register_);
+    if (window.Alpine) register_();
+  })();
+</script>

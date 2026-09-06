@@ -1,111 +1,44 @@
-# Struktur Database SPK
+# Struktur Database SPK Native V2
 
-Dokumen ini mencatat perubahan struktur visual pada sheet `Database SPK` di
-spreadsheet `MASTER DATA PPIC` (sebelumnya `DATABASE SPK TERPADU` dan
-`DATABASE PO & SPK`). Perubahan pada 30 Agustus 2026 tidak mengubah
-nilai, formula, urutan, ataupun alamat kolom yang dipakai aplikasi.
+Spreadsheet produksi `MASTER DATA PPIC` memakai delapan tabel V2 sebagai satu-satunya sumber transaksi aplikasi. Sheet `Database SPK` dan `SPK Runtime V2` telah dihapus pada 5 September 2026 setelah audit dependensi, pengujian salinan, dan smoke test produksi lulus.
 
-Nama file diselaraskan setelah struktur versi 2 dibuat. ID spreadsheet tetap
-`1GldWp316hXRGKOa-ANJ4Eugdz0HFZSxvFQGy-dcex48`, sehingga tautan, izin akses,
-dan integrasi aplikasi berbasis ID tetap berlaku.
+## Tabel aktif
+
+| Sheet | Fungsi | Kunci |
+| --- | --- | --- |
+| `SPK Master` | Identitas, order, spesifikasi, dan ringkasan SPK | `SPK` |
+| `SPK Routing` | Urutan proses dan parameter produksi | `Routing ID` |
+| `SPK Bahan` | Komposisi dan kebutuhan bahan | `Bahan ID` |
+| `SPK Warna` | Warna dan pemakaian tinta | `Warna ID` |
+| `SPK Pengiriman` | Jadwal pengiriman | `Pengiriman ID` |
+| `SPK ETA` | Jadwal kedatangan bahan | `ETA ID` |
+| `SPK Aksesoris` | Aksesoris per SPK/routing | `Aksesoris ID` |
+| `SPK Tracking` | Riwayat status produksi | `Tracking ID` |
+
+Semua tabel detail memakai `SPK` sebagai foreign key. Aksesoris dan tracking dapat memakai `Routing ID`. ID detail dibuat deterministik agar retry tidak menghasilkan duplikasi.
+
+## Alur data
+
+- Input SPK dan Penarikan Data membentuk record sesuai jenis tabelnya, lalu melakukan commit native V2.
+- Edit, Release, Keluar Bahan, ETA, dan backfill memakai mutasi agregat SPK di dalam lock.
+- Writer memeriksa konflik sebelum menulis dan membaca kembali setiap perubahan sebelum transaksi dinyatakan berhasil.
+- Repeat Order, Cetak, Dashboard, Approval, dan Serah Terima membaca agregat V2 berdasarkan ID bisnis, bukan nomor baris.
+- Record baru bertanda sumber `APLIKASI NATIVE V2`.
+- Riwayat commit native dicatat pada sheet `Native Write SPK V2`; sheet itu merupakan audit, bukan sumber data aplikasi.
+
+## Aturan pengembangan
+
+- Jangan membuat kembali `Database SPK`, `SPK Runtime V2`, atau tabel transaksi 150 kolom.
+- Gunakan repository V2 untuk membaca dan writer V2 untuk menulis.
+- Jangan memakai nomor baris sebagai identitas bisnis.
+- Jalur tulis baru harus memvalidasi foreign key, memakai lock, dan melakukan verifikasi baca-balik.
+- Jalankan seluruh tes `tools/test-database-v2-*.cjs`, validator, readiness, dan audit setelah perubahan schema.
 
 ## Backup
 
-Sebelum perapian dibuat salinan penuh bernama:
+Backup sebelum penghapusan database lama:
 
-`BACKUP DATABASE PO & SPK - sebelum perapian struktur 2026-08-30`
+- Nama: `MASTER DATA PPIC - Backup sebelum hapus database lama - 2026-09-05`
+- ID: `16UWDhxVf-5mktKzQIJg1J0wVMYj7NEXlDhl5mIDlCoM`
 
-ID file backup: `1igPsVWNcAvEMytvsRoB0Meqtgextrh_PNlsPKLDDZpw`
-
-Sebelum pembuatan struktur SPK versi 2 dibuat salinan penuh kedua bernama:
-
-`BACKUP DATABASE PO & SPK - sebelum struktur SPK V2 2026-08-30`
-
-ID file backup: `12LA3X6aFk4TrllSRE6EpbSUGMSf8JQHJ17UePfAKn0I`
-
-## Perapian tahap pertama
-
-- Tiga baris teratas dibekukan. Baris 1-2 tetap menjadi header dan data tetap
-  dimulai pada baris 4.
-- Kolom `K:AQ` dikelompokkan sebagai spesifikasi, proses produksi, target BS,
-  dan perhitungan mesin.
-- Kolom `AX:CO` dikelompokkan sebagai komposisi bahan dan warna tinta.
-- Kolom `CS:ES` dikelompokkan sebagai keterangan proses, ETA, detail routing,
-  pengiriman, ukuran manual, dan aksesoris.
-- Ketiga kelompok dibuat terlipat secara default dan dapat dibuka dengan
-  tombol `+` pada header kolom.
-- Kolom inti, filter, formula, serta kolom `Tracking` di `ET` tetap pada posisi
-  semula.
-
-## Kompatibilitas
-
-Backend masih menggunakan posisi kolom tetap melalui `DB_COL`. Karena itu
-kolom tidak boleh dihapus, dipindahkan, atau diganti namanya sebelum lapisan
-kompatibilitas dan migrasi database versi berikutnya selesai diuji.
-
-Pengelompokan dan pembekuan baris hanya mengubah tampilan Google Sheets dan
-tidak mengubah pembacaan oleh Input SPK, Penarikan Data, Dashboard, Approval,
-Cetak SPK, Repeat Order, maupun Serah Terima.
-
-## Struktur SPK versi 2
-
-Struktur baru ditempatkan di file spreadsheet yang sama agar pengelolaan,
-otoritas akses, dan pencarian data tetap sederhana. `Database SPK` tetap
-menjadi sumber aktif aplikasi selama masa transisi.
-
-### SPK Master
-
-`SPK Master` adalah tampilan inti otomatis dari `Database SPK`. Sheet ini
-memilih 33 kolom utama dari 150 kolom lama menggunakan satu formula array,
-sehingga SPK baru ikut muncul tanpa input ulang.
-
-- Kolom identitas, PO, customer, artikel, jumlah, ETD, release, dan tracking
-  ditampilkan sebagai data utama.
-- Kolom spesifikasi `H:M` dan informasi tambahan `W:AG` dikelompokkan serta
-  dilipat secara default, tetapi tetap dapat dibuka saat diperlukan.
-- Baris header dan kolom SPK dibekukan; filter dan format tanggal/angka telah
-  disiapkan.
-- Sheet ini merupakan tampilan terkelola. Input dan perubahan operasional
-  tetap dilakukan melalui aplikasi atau `Database SPK` selama masa transisi.
-
-### Sheet detail
-
-Sheet berikut disiapkan sebagai tabel terpisah agar satu SPK dapat memiliki
-banyak detail tanpa terus menambah kolom ke kanan:
-
-- `SPK Routing`: urutan proses, mesin, parameter, target BS, status, dan waktu.
-- `SPK Bahan`: komposisi serta kebutuhan bahan per SPK.
-- `SPK Warna`: warna, pemakaian, UOM, dan kode silinder.
-- `SPK Pengiriman`: jadwal dan realisasi kuantitas pengiriman.
-- `SPK ETA`: riwayat estimasi tanggal serta kuantitas.
-- `SPK Aksesoris`: kebutuhan aksesoris yang dapat dihubungkan ke routing.
-- `SPK Tracking`: histori status dan posisi routing.
-
-Setiap sheet detail memiliki ID baris, kolom `SPK` sebagai penghubung, urutan,
-sumber data, serta waktu pembuatan/pembaruan bila relevan. Header, filter,
-format, kolom beku, dan lebar kolom sudah distandarkan.
-
-Sheet detail sengaja belum dijadikan sumber tulis aplikasi. Migrasi isi lama
-dan mekanisme dual-write harus dilakukan setelah pemetaan setiap blok kolom
-lama ke baris detail selesai diuji. Tahapan ini mencegah kehilangan informasi
-atau perubahan hasil Penarikan Data, Input SPK, Approval, dan Cetak SPK.
-
-## Aturan pengembangan berikutnya
-
-- Jangan menghapus atau memindahkan kolom `Database SPK` sebelum seluruh
-  pembacaan `DB_COL` dipindahkan ke lapisan data versi 2.
-- Gunakan kontrak skema dan pemetaan pada
-  [`database-spk-v2-mapping.md`](database-spk-v2-mapping.md). Jalankan validator
-  baca-saja sebelum mengembangkan migrator atau dual-write.
-- Gunakan `SPK` sebagai kunci relasi; gunakan ID detail unik untuk setiap
-  routing, bahan, warna, pengiriman, ETA, aksesoris, dan tracking.
-- Terapkan dual-write dan uji perbandingan data sebelum satu per satu fitur
-  dialihkan dari struktur lama.
-- Setelah semua pembacaan dan penulisan tervalidasi, `Database SPK` dapat
-  dipertahankan sebagai arsip kompatibilitas atau dihentikan secara terencana.
-
-## Rollback tampilan
-
-Jika tampilan perlu dikembalikan, buka ketiga kelompok kolom atau hapus
-dimension group tanpa menghapus kolomnya. File backup di atas digunakan hanya
-untuk pemulihan darurat dan tidak menjadi sumber data aplikasi.
+Backup hanya untuk pemulihan darurat dan tidak boleh dijadikan sumber aplikasi.

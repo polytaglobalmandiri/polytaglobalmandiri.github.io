@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Input SPK | Polyta Global Mandiri</title>
+  <meta name="theme-color" content="#202226">
+  <base target="_top">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='22' fill='%23f4f4f1'/%3E%3Cpath fill='%23111216' d='M14 12h50v43h42v53h-8V63H64v45H14V55h42V20H14z'/%3E%3Crect x='15' y='22' width='41' height='12' rx='6' fill='%234563b3'/%3E%3Crect x='22' y='63' width='34' height='37' fill='%23ef2631'/%3E%3Crect x='84' y='64' width='11' height='44' rx='5.5' fill='%2340b84e'/%3E%3C/svg%3E">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.15.12/dist/cdn.min.js"></script>
+  <?!= includePartial('FE-Polyta-Alpine', appUrl) ?>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+  <style><?!= includePartial('FE-Polyta-Tailwind', appUrl) ?></style>
+  <?!= includePartial('FE-SPK-Wizard-Style', appUrl) ?>
+
+  <style>
+    /* Halaman ini hanya membungkus wizard. Seluruh gaya wizard berada di
+       FE-SPK-Wizard-Style dan sudah dikurung di bawah #spkInputRoot,
+       sehingga pembungkusnya perlu mengisi tinggi layar penuh. */
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #e0e5ec;
+    }
+
+    #spkInputRoot {
+      min-height: 100vh;
+    }
+
+    /* Mode layar penuh hanya berlaku di halaman ini, sehingga aturannya
+       tidak ikut dibawa ke partial yang dipakai bersama modal Dashboard. */
+    html:fullscreen,
+    html:-webkit-full-screen,
+    html:fullscreen body,
+    html:-webkit-full-screen body {
+      min-height: 100%;
+      background-color: #e0e5ec;
+    }
+
+    body.app-focus-mode {
+      position: fixed;
+      z-index: 9999;
+      inset: 0;
+      overflow: auto;
+      background-color: #e0e5ec;
+    }
+  </style>
+</head>
+<body
+  class="tw:min-h-screen tw:text-polyta-ink selection:tw:bg-polyta-brand-soft selection:tw:text-polyta-brand"
+  data-ui-engine="tailwind-alpine"
+  data-page="input-spk"
+  x-data="polytaPageUi('input-spk')"
+  x-bind:data-ui-ready="ready ? 'true' : 'false'"
+  x-bind:data-connection="online ? 'online' : 'offline'"
+  x-on:online.window="setOnline(true)"
+  x-on:offline.window="setOnline(false)"
+>
+  <?!= includePartial('FE-Polyta-Status', appUrl) ?>
+  <div
+    id="spkInputRoot"
+    class="tw:bg-spk-canvas"
+    data-ui-engine="tailwind-alpine"
+    x-data="spkInputUi"
+    x-bind:data-order-mode="orderMode"
+    x-on:click="handleAction($event)"
+    x-on:spk-order-mode.window="syncOrderMode($event.detail)"
+  >
+  <header class="app-topbar">
+    <div class="app-topbar-inner">
+      <div class="app-brand">
+        <div class="app-brand-mark" aria-hidden="true">
+          <svg class="polyta-logo" viewBox="0 0 120 120" focusable="false">
+            <defs>
+              <linearGradient id="inputLogoMetal" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#4b4e54"/>
+                <stop offset=".42" stop-color="#111216"/>
+                <stop offset="1" stop-color="#020304"/>
+              </linearGradient>
+              <linearGradient id="inputLogoBlue" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#6f8fe0"/>
+                <stop offset=".48" stop-color="#4563b3"/>
+                <stop offset="1" stop-color="#293f87"/>
+              </linearGradient>
+              <linearGradient id="inputLogoRed" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#ff5660"/>
+                <stop offset=".5" stop-color="#ef2631"/>
+                <stop offset="1" stop-color="#b90f1d"/>
+              </linearGradient>
+              <linearGradient id="inputLogoGreen" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#72d77b"/>
+                <stop offset=".48" stop-color="#40b84e"/>
+                <stop offset="1" stop-color="#168d2d"/>
+              </linearGradient>
+            </defs>
+            <path d="M14 12h50v43h42v53h-8V63H64v45H14V55h42V20H14z" fill="url(#inputLogoMetal)"/>
+            <rect x="15" y="22" width="41" height="12" rx="6" fill="url(#inputLogoBlue)"/>
+            <rect x="22" y="63" width="34" height="37" fill="url(#inputLogoRed)"/>
+            <rect x="84" y="64" width="11" height="44" rx="5.5" fill="url(#inputLogoGreen)"/>
+            <path d="M17 15h43M24 66h30M86.5 67v35" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="2" opacity=".36"/>
+          </svg>
+        </div>
+        <div>
+          <span class="app-brand-name">Polyta Global Mandiri</span>
+          <span class="app-brand-subtitle">Plastic Packaging Industry</span>
+        </div>
+      </div>
+      <nav class="app-nav" aria-label="Navigasi utama">
+        <a class="app-nav-link" href="<?!= appUrl ?>" target="_top" title="PPIC">
+          <i class="fa-solid fa-chart-pie"></i><span>PPIC</span>
+        </a>
+        <a class="app-nav-link" href="<?!= appUrl ?>?page=Keluar-Bahan" target="_top" title="Keluar Bahan Manager PPIC">
+          <i class="fa-solid fa-dolly"></i><span>Keluar Bahan</span>
+        </a>
+        <a class="app-nav-link" href="<?!= appUrl ?>?page=Penarikan-Data" target="_top" title="Penarikan Data">
+          <i class="fa-solid fa-file-arrow-down"></i><span>Penarikan Data</span>
+        </a>
+        <button
+          id="btnFullscreen"
+          class="app-nav-link app-fullscreen-button"
+          type="button"
+          aria-pressed="false"
+          title="Buka tampilan layar penuh"
+        >
+          <i id="fullscreenIcon" class="fa-solid fa-expand" aria-hidden="true"></i>
+          <span id="fullscreenLabel">Layar Penuh</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+<?!= includePartial('FE-SPK-Wizard-Body', appUrl) ?>
+  </div>
+
+<?!= includePartial('FE-SPK-Wizard-Script', appUrl) ?>
+
+  <script>
+    // Layar penuh hanya milik halaman ini; di dalam modal Dashboard
+    // tombolnya disediakan oleh Dashboard sendiri.
+    function initializeFullscreen_() {
+      const button = document.getElementById('btnFullscreen');
+      if (!button) return;
+
+      button.addEventListener('click', toggleAppFullscreen_);
+      document.addEventListener('fullscreenchange', syncFullscreenButton_);
+      document.addEventListener('webkitfullscreenchange', syncFullscreenButton_);
+      document.addEventListener('keydown', event => {
+        if (event.key !== 'Escape' || !document.body.classList.contains('app-focus-mode')) return;
+        document.body.classList.remove('app-focus-mode');
+        syncFullscreenButton_();
+      });
+      syncFullscreenButton_();
+    }
+
+    function toggleAppFullscreen_() {
+      const nativeFullscreen =
+        document.fullscreenElement ||
+        document.webkitFullscreenElement;
+      const fallbackActive = document.body.classList.contains('app-focus-mode');
+
+      if (nativeFullscreen) {
+        const exitFullscreen =
+          document.exitFullscreen ||
+          document.webkitExitFullscreen;
+        if (exitFullscreen) {
+          Promise.resolve(exitFullscreen.call(document))
+            .catch(() => {
+              document.body.classList.remove('app-focus-mode');
+              syncFullscreenButton_();
+            });
+          return;
+        }
+      }
+
+      if (fallbackActive) {
+        document.body.classList.remove('app-focus-mode');
+        syncFullscreenButton_();
+        return;
+      }
+
+      const root = document.documentElement;
+      const requestFullscreen =
+        root.requestFullscreen ||
+        root.webkitRequestFullscreen;
+
+      if (!requestFullscreen) {
+        enableFullscreenFallback_();
+        return;
+      }
+
+      try {
+        const requestResult = requestFullscreen.call(root);
+        if (requestResult && typeof requestResult.catch === 'function') {
+          requestResult.catch(enableFullscreenFallback_);
+        }
+      } catch (error) {
+        enableFullscreenFallback_();
+      }
+    }
+
+    function enableFullscreenFallback_() {
+      document.body.classList.add('app-focus-mode');
+      syncFullscreenButton_();
+    }
+
+    function syncFullscreenButton_() {
+      const button = document.getElementById('btnFullscreen');
+      const icon = document.getElementById('fullscreenIcon');
+      const label = document.getElementById('fullscreenLabel');
+      if (!button || !icon || !label) return;
+
+      const active = Boolean(
+        document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        document.body.classList.contains('app-focus-mode')
+      );
+
+      button.setAttribute('aria-pressed', String(active));
+      button.title = active ? 'Keluar dari layar penuh' : 'Buka tampilan layar penuh';
+      icon.className = active ? 'fa-solid fa-compress' : 'fa-solid fa-expand';
+      label.textContent = active ? 'Keluar Penuh' : 'Layar Penuh';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initializeFullscreen_();
+      initSpkInputWizard_();
+    });
+  </script>
+</body>
+</html>

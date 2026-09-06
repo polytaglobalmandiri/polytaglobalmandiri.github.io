@@ -1,0 +1,827 @@
+  <div class="page-frame tw:min-h-screen tw:bg-spk-canvas">
+  <div class="neumorphic main-shell p-6 tw:mx-auto! tw:w-full tw:max-w-app! tw:bg-spk-shell! tw:shadow-spk-shell!">
+
+    <form id="dbForm" novalidate>
+
+      <!-- Tanggal SPK diisi otomatis hari ini dan sengaja tidak ditampilkan. -->
+      <input type="hidden" id="tanggal">
+      <input type="hidden" id="jenisOrder" value="New Order">
+
+      <!-- ==========================================================
+           JENIS ORDER & NOMOR SPK
+           ========================================================== -->
+      <div class="form-group-card data-main-card tw:relative tw:overflow-hidden">
+        <div class="tw:pointer-events-none tw:absolute tw:inset-x-0 tw:top-0 tw:h-px tw:bg-gradient-to-r tw:from-transparent tw:via-white tw:to-transparent" aria-hidden="true"></div>
+        <div class="spk-identity-bar">
+          <div class="identity-heading">
+            <span class="form-group-icon" aria-hidden="true">
+              <svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"></path></svg>
+            </span>
+            <span class="identity-heading-copy">
+              <span class="form-group-title">Data Utama</span>
+              <span class="identity-subtitle">Identitas order dan nomor SPK</span>
+            </span>
+          </div>
+
+          <div class="order-type-segment" role="group" aria-label="Jenis order">
+            <button type="button" id="orderTypeNew" class="order-type-option active" data-spk-order-type="New Order" aria-pressed="true" onclick="setOrderType_('New Order')">New Order</button>
+            <button type="button" id="orderTypeRepeat" class="order-type-option" data-spk-order-type="Repeat Order" aria-pressed="false" onclick="setOrderType_('Repeat Order')">Repeat Order</button>
+          </div>
+
+          <!-- New Order butuh satu nomor; Repeat Order butuh dua: SPK sumber
+               yang datanya ditarik, dan nomor baru untuk SPK repeat ini. -->
+          <div id="newOrderSpkSection" class="order-mode-section spk-inline-group">
+            <div class="spk-inline">
+              <label class="field-label" for="spkNew">Kode SPK</label>
+              <div class="spk-wrapper">
+                <input type="text" id="spkNew" class="field-input" placeholder="Contoh: G26.001" autocomplete="off">
+                  <div class="spk-status-icon" id="spkNewStatusIcon">
+                    <div class="spk-spinner"></div>
+                    <svg class="icon-check" fill="none" stroke="#16a34a" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                    <svg class="icon-x" fill="none" stroke="#dc2626" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                  </div>
+              </div>
+            </div>
+            <div id="poMasukInlineField" class="spk-inline">
+              <label class="field-label" for="poMasukDisplay">Tanggal PO Masuk</label>
+              <input
+                type="text"
+                id="poMasukDisplay"
+                class="field-input etd-display-input"
+                inputmode="numeric"
+                maxlength="20"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="6/8"
+                title="Ketik tanggal/bulan, contoh 6/8"
+              >
+              <input type="hidden" id="poMasuk">
+            </div>
+          </div>
+
+          <div id="repeatOrderSpkSection" class="order-mode-section spk-inline-group order-mode-hidden">
+            <div class="spk-inline">
+              <label class="field-label" for="spkSebelumnya">SPK Sebelumnya</label>
+              <div class="spk-wrapper">
+                <input type="text" id="spkSebelumnya" class="field-input" placeholder="SPK yang ditarik datanya" autocomplete="off">
+                  <div class="spk-status-icon" id="repeatLookupStatusIcon">
+                    <div class="spk-spinner"></div>
+                    <svg class="icon-check" fill="none" stroke="#16a34a" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                    <svg class="icon-x" fill="none" stroke="#dc2626" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                  </div>
+              </div>
+            </div>
+            <div class="spk-inline">
+              <label class="field-label" for="spkRepeat">SPK Repeat Baru</label>
+              <div class="spk-wrapper">
+                <input type="text" id="spkRepeat" class="field-input" placeholder="Contoh: G26.105" autocomplete="off">
+                  <div class="spk-status-icon" id="spkRepeatStatusIcon">
+                    <div class="spk-spinner"></div>
+                    <svg class="icon-check" fill="none" stroke="#16a34a" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                    <svg class="icon-x" fill="none" stroke="#dc2626" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                  </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Status pencarian dan ketersediaan nomor SPK cukup diwakili ikon
+             centang/silang di dalam kolomnya masing-masing, sehingga tidak
+             ada lagi strip kartu notifikasi di bawah baris isian. -->
+
+        <div id="dataUtamaFields">
+        <div class="form-grid">
+          <!-- Baris 1: pemesan dan artikel -->
+          <div class="form-cell">
+            <label class="field-label">Customer</label>
+            <input type="text" id="customer" class="field-input" required placeholder="Nama perusahaan pemesan">
+          </div>
+          <div class="form-cell">
+            <label class="field-label">No. PO Customer</label>
+            <input type="text" id="nomorPO" class="field-input" placeholder="Nomor PO dari customer">
+          </div>
+          <div class="form-cell">
+            <label class="field-label">Marketing</label>
+            <select id="marketing" class="field-input">
+              <option value="">Pilih marketing</option>
+              <option value="Sri Yamtinah">Sri Yamtinah</option>
+              <option value="Siti Juheriah">Siti Juheriah</option>
+              <option value="Mutiara">Mutiara</option>
+              <option value="Adel">Adel</option>
+              <option value="Welis">Welis</option>
+              <option value="Lutfi">Lutfi</option>
+              <option value="Puput">Puput</option>
+              <option value="Ersa">Ersa</option>
+              <option value="Michelle">Michelle</option>
+            </select>
+          </div>
+          <div class="form-cell">
+            <label class="field-label">Artikel / Brand</label>
+            <input type="text" id="artikel" class="field-input" placeholder="Nama artikel atau brand produk">
+          </div>
+
+          <!-- Baris 2: identitas dan ukuran barang -->
+          <div class="form-cell">
+            <label class="field-label">Kode Item</label>
+            <input type="text" id="kodeItem" class="field-input" maxlength="100" placeholder="Kode dari master barang">
+          </div>
+          <div class="form-cell">
+            <label class="field-label">Ukuran Jadi</label>
+            <input type="text" id="ukuranJadi" class="field-input" placeholder="Contoh: 37.5 (35 + 5LIDAH) X 30 X 0.05">
+          </div>
+          <div class="form-cell">
+            <label class="field-label">Model Kantong</label>
+            <input type="text" id="modelKantong" maxlength="120" class="field-input" placeholder="Contoh: SIDE SEAL + SEALTAPE 15 MM">
+          </div>
+          <div class="form-cell">
+            <label class="field-label">Keterangan Warna</label>
+            <input type="text" id="keteranganWarna" maxlength="60" class="field-input" placeholder="Contoh: 5+1 atau 1 Warna" title="Boleh format angka seperti 5+1, boleh juga teks seperti 1 Warna" oninput="normalizeKeteranganWarnaInput_(this)">
+          </div>
+
+          <!-- Baris 3: bahan, jumlah order, kebutuhan bahan, dan konversinya.
+               Keempatnya sama-sama berpasangan dengan satuan sehingga
+               sengaja disejajarkan dalam satu baris. -->
+          <div class="form-cell">
+            <label class="field-label">Jenis Bahan &amp; Film</label>
+            <div class="input-pair">
+              <select id="material" class="field-input" onchange="syncMaterialDerivedFields_()">
+                <option value="">Pilih</option>
+                <option value="HDPE">HDPE</option>
+                <option value="LLDPE">LLDPE</option>
+                <option value="SHRINK">SHRINK</option>
+                <option value="PP">PP</option>
+                <option value="OPP">OPP</option>
+                <option value="CPP">CPP</option>
+              </select>
+              <select id="film" class="field-input input-pair-uom" onchange="syncMaterialDerivedFields_()">
+                <option value="">Film</option>
+                <option value="SHEET">SHEET</option>
+                <option value="TUBE">TUBE</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-cell">
+            <label class="field-label">Order</label>
+            <div class="input-pair">
+              <input type="number" step="any" id="jumlahOrder" class="field-input" placeholder="Jumlah">
+              <select id="uomOrder" class="field-input input-pair-uom">
+                <option value="PCS">PCS</option>
+                <option value="KG">KG</option>
+                <option value="ROLL">ROLL</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-cell">
+            <label class="field-label">Keluar Bahan</label>
+            <div class="input-pair">
+              <input type="number" step="any" min="0" id="keluarBahan" class="field-input" placeholder="Boleh dikosongkan">
+              <select id="uomKB" class="field-input input-pair-uom">
+                <option value="">UOM</option>
+                <option value="KG">KG</option>
+                <option value="ROLL">ROLL</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-cell">
+            <label class="field-label">PCS / KG</label>
+            <div class="input-pair">
+              <input type="text" id="pcsPerKgDisplay" class="field-input is-readonly" readonly tabindex="-1" placeholder="Dari ukuran jadi">
+              <select id="pcsKgMode" class="field-input input-pair-uom" onchange="recalculateRawMaterial_()" title="Lembaran menggandakan PCS/KG; Kantong tidak">
+                <option value="">Mode</option>
+                <option value="LEMBARAN">Lembaran</option>
+                <option value="KANTONG">Kantong</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Baris 4: konversi roll, jenis potongan, sumber bahan, dan toleransi kirim -->
+          <div class="form-cell">
+            <label class="field-label">Meter / Roll</label>
+            <input type="number" step="any" min="0" id="meterRoll" class="field-input" placeholder="Panjang per roll">
+          </div>
+          <div class="form-cell">
+            <label class="field-label">Jenis Potongan</label>
+            <select id="jenisPotongan" class="field-input">
+              <option value="">Pilih jenis potongan</option>
+              <option value="BC">BC</option>
+              <option value="BB">BB</option>
+              <option value="BLL">BLL</option>
+              <option value="SK">SK</option>
+              <option value="SS">SS</option>
+              <option value="SB">SB</option>
+              <option value="SSL">SSL</option>
+            </select>
+          </div>
+          <div class="form-cell">
+            <label class="field-label">Keterangan Bahan</label>
+            <select id="keteranganBahan" class="field-input">
+              <option value="">Pilih sumber bahan</option>
+              <option value="BAHAN INTERNAL">Bahan Internal</option>
+              <option value="BAHAN DARI LUAR">Bahan dari Luar</option>
+            </select>
+          </div>
+          <div class="form-cell">
+            <label class="field-label">Toleransi Kirim (%)</label>
+            <input type="number" min="0" step="any" id="toleransi" class="field-input" placeholder="Kosongkan bila PASS">
+          </div>
+
+          <!-- Baris 5: penyesuaian kebutuhan bahan. Stok memotong Jumlah Order sehingga
+               sesatuan dengannya; OTS dan WIP menyesuaikan hasil perhitungan
+               yang satuannya KG. -->
+          <div class="form-cell">
+            <label class="field-label">Toleransi Produksi (%)</label>
+            <input type="number" min="0" step="any" id="toleransiProduksi" class="field-input" placeholder="Ditambahkan ke Total BS" oninput="hitungTotalBs()">
+          </div>
+          <div class="form-cell">
+            <label class="field-label">Stok <span class="field-label-hint" id="stokUomHint">(PCS)</span></label>
+            <input type="number" min="0" step="any" id="stok" class="field-input" placeholder="Mengurangi Jumlah Order" oninput="recalculateRawMaterial_()">
+          </div>
+          <div class="form-cell">
+            <label class="field-label">OTS <span class="field-label-hint">(KG)</span></label>
+            <input type="number" min="0" step="any" id="ots" class="field-input" placeholder="Menambah hasil perhitungan" oninput="recalculateRawMaterial_()">
+          </div>
+          <div class="form-cell">
+            <label class="field-label">WIP <span class="field-label-hint">(KG)</span></label>
+            <input type="number" min="0" step="any" id="wip" class="field-input" placeholder="Mengurangi hasil perhitungan" oninput="recalculateRawMaterial_()">
+          </div>
+
+          <!-- Keterangan Artikel ditaruh sebelum Jadwal Kirim: isinya masih
+               menerangkan barangnya, sedangkan Jadwal Kirim sudah berpindah
+               topik ke pengiriman. -->
+          <div class="form-cell span-full article-note-cell">
+            <label class="field-label">Keterangan Artikel</label>
+            <textarea id="keteranganArtikel" maxlength="300" rows="2" class="field-input alur-note-input" placeholder="Catatan atau deskripsi tambahan untuk artikel ini."></textarea>
+          </div>
+
+          <div class="form-cell span-full">
+            <div class="partial-head">
+              <label class="field-label">Jadwal Kirim</label>
+              <span class="partial-summary" id="partialSummary">Belum ada jadwal</span>
+              <button type="button" class="btn-add-partial" id="btnAddPartial" onclick="tambahPengiriman()">+ Tambah Tahap</button>
+            </div>
+            <div id="partialList" class="partial-list"></div>
+            <!-- Tanggal pada tahap pertama adalah ETD yang tersimpan di
+                 Database. Kolom tersembunyi ini menjaga agar seluruh kode dan
+                 validasi yang sudah ada tetap membacanya dari satu tempat. -->
+            <input type="hidden" id="etd">
+            <p class="partial-hint">Tahap pertama adalah tanggal kirim utama (ETD). Ketik tanggal singkat seperti <strong>6/8</strong>. Pilih <strong>Full</strong> agar tahap itu mengambil sisa order secara otomatis, atau <strong>Custom</strong> untuk mengisi jumlahnya sendiri.</p>
+          </div>
+        </div>
+        </div>
+      </div>
+
+      <!-- ==========================================================
+           ROUTING (PROSES PRODUKSI)
+           ========================================================== -->
+      <div class="form-group-card routing-card">
+        <div class="form-group-head">
+          <span class="form-group-icon" aria-hidden="true">
+            <svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 6.878V6a2.25 2.25 0 012.25-2.25h7.5A2.25 2.25 0 0118 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 004.5 9v.878m13.5-3A2.25 2.25 0 0119.5 9v.878m0 0a2.246 2.246 0 00-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0121 12v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6c0-.98.626-1.813 1.5-2.122"></path></svg>
+          </span>
+          <span class="form-group-title">Routing &mdash; Proses Produksi</span>
+          <span class="form-group-hint">Susun urutan bebas &mdash; satu proses boleh dipakai berkali-kali</span>
+        </div>
+
+        <div class="routing-tabs-shell">
+          <div id="routingProcessTabs" class="routing-process-tabs" role="tablist" aria-label="Pilih proses produksi"></div>
+          <p class="routing-tabs-hint">Klik proses untuk menambahkannya sebagai langkah berikutnya. Proses yang sama boleh dipilih lagi &mdash; misalnya Gusset, Folding, Slitting, lalu Folding sekali lagi. Urutan dapat digeser dan tiap langkah diedit lewat kartunya di bawah.</p>
+
+          <!-- Dipertahankan sebagai jembatan nilai untuk kode lama; kontrol
+               visualnya kini langsung memakai tab proses. -->
+          <select id="routingProcessSelect" class="is-hidden" tabindex="-1" aria-hidden="true">
+            <option value="">Pilih proses yang akan ditambahkan</option>
+          </select>
+        </div>
+
+        <!-- Status proses tetap menggunakan checkbox agar payload Database
+             tidak berubah; elemen ini tidak ditampilkan kepada pengguna. -->
+        <div id="prosesGrid" class="is-hidden" aria-hidden="true"></div>
+
+        <div class="routing-meta">
+          <span class="metric-chip">Langkah tersusun: <span id="totalProsesDisplay">0</span></span>
+          <span class="metric-chip">Total BS: <span id="totalBsDisplay">0.00%</span></span>
+          <span id="routingSaveFeedback" class="routing-save-feedback" role="status" aria-live="polite"></span>
+        </div>
+
+        <div id="routingEmpty" class="routing-empty">
+          Pilih tab proses produksi di atas untuk menampilkan input yang dibutuhkan.
+        </div>
+
+        <div class="routing-panels">
+
+          <!-- ---------- MIXER ---------- -->
+          <section class="route-panel" id="route-mixer" aria-label="Mixer" hidden>
+            <div class="route-panel-head">
+              <span class="route-panel-title">Mixer</span>
+              <span class="route-panel-meta">Komposisi bahan baku</span>
+            </div>
+            <div class="form-grid route-fields route-fields--split">
+              <div class="form-cell">
+                <label class="field-label">Mesin</label>
+                <select id="mesin-mixer" class="field-input"></select>
+              </div>
+            </div>
+            <div id="bahanList" class="space-y-3"></div>
+            <button type="button" class="btn-add-bahan" id="btnAddBahan" onclick="tambahBahan()">+ Tambah Bahan</button>
+            <div class="routing-total">Total komposisi: <strong id="totalKomposisiDisplay">0 KG &middot; 0%</strong></div>
+            <div class="route-note">
+              <label class="field-label" for="ket-mixer">Keterangan</label>
+              <textarea id="ket-mixer" maxlength="300" class="field-input alur-note-input" placeholder="Urutan pencampuran, waktu mixing, atau instruksi khusus Mixer."></textarea>
+            </div>
+          </section>
+
+          <!-- ---------- BLOWING ---------- -->
+          <section class="route-panel" id="route-blowing" aria-label="Blowing" hidden>
+            <div class="route-panel-head">
+              <span class="route-panel-title">Blowing</span>
+              <span class="route-panel-meta">Ukuran, threat, dan mode cetak</span>
+            </div>
+            <div class="form-grid route-fields route-fields--blowing">
+              <div class="form-cell">
+                <label class="field-label">Ukuran Blowing</label>
+                <input type="text" id="ukuranBlow" class="field-input" placeholder="Contoh: 78 X 0.05">
+              </div>
+              <div class="form-cell">
+                <!-- Nilainya berasal dari Jenis Bahan & Film di Data Utama dan
+                     ditampilkan di sini hanya sebagai informasi bagi operator. -->
+                <label class="field-label">Film <span class="field-label-hint">(dari Data Utama)</span></label>
+                <input type="text" id="blowingFilmDisplay" class="field-input is-readonly" readonly tabindex="-1" placeholder="Pilih di Data Utama">
+              </div>
+              <div class="form-cell">
+                <label class="field-label">Density <span class="field-label-hint">(dari Jenis Bahan)</span></label>
+                <input type="text" id="blowingDensityDisplay" class="field-input is-readonly" readonly tabindex="-1" placeholder="Pilih di Data Utama">
+              </div>
+              <div class="form-cell">
+                <label class="field-label">Mesin</label>
+                <select id="mesin-blowing" class="field-input"></select>
+              </div>
+
+              <div class="form-cell">
+                <label class="field-label">Threat</label>
+                <select id="blowingThreat" class="field-input">
+                  <option value="NON THREAT">Non Threat</option>
+                  <option value="THREAT 1 SISI">Threat 1 Sisi</option>
+                  <option value="THREAT 2 SISI">Threat 2 Sisi</option>
+                  <option value="THREAT POTONG">Threat Potong</option>
+                </select>
+              </div>
+              <div class="form-cell">
+                <label class="field-label">Mode Cetak</label>
+                <select id="blowingModeCetak" class="field-input" onchange="syncWarnaVisibility_()">
+                  <option value="NON PRINT">Non Print</option>
+                  <option value="INLINE">Inline</option>
+                </select>
+              </div>
+              <div class="form-cell">
+                <label class="field-label">Target BS (%)</label>
+                <input type="number" step="any" min="0" max="100" id="bs-blowing" class="field-input" placeholder="0" value="0" oninput="hitungTotalBs()">
+              </div>
+            </div>
+            <div id="bahanUkuranHost-blowing" class="bahan-ukuran-host"></div>
+            <div id="warnaHost-blowing" class="warna-host"></div>
+            <div class="route-note">
+              <label class="field-label" for="ket-blowing">Keterangan</label>
+              <textarea id="ket-blowing" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Blowing."></textarea>
+            </div>
+          </section>
+
+          <!-- ---------- PRINTING ---------- -->
+          <section class="route-panel" id="route-printing" aria-label="Printing" hidden>
+            <div class="route-panel-head">
+              <span class="route-panel-title">Printing</span>
+              <span class="route-panel-meta">Warna, tinta, dan silinder</span>
+            </div>
+            <div class="form-grid route-fields route-fields--split">
+              <div class="form-cell span-2">
+                <label class="field-label">Kode Silinder</label>
+                <input type="text" id="printingKodeSilinder" class="field-input" placeholder="Kode silinder yang dipakai">
+              </div>
+              <div class="form-cell">
+                <label class="field-label">Target BS (%)</label>
+                <input type="number" step="any" min="0" max="100" id="bs-printing" class="field-input" placeholder="0" value="0" oninput="hitungTotalBs()">
+              </div>
+              <div class="form-cell">
+                <label class="field-label">Mesin</label>
+                <select id="mesin-printing" class="field-input"></select>
+              </div>
+            </div>
+            <div id="bahanUkuranHost-printing" class="bahan-ukuran-host"></div>
+            <div id="warnaHost-printing" class="warna-host"></div>
+            <div class="route-note">
+              <label class="field-label" for="ket-printing">Keterangan</label>
+              <textarea id="ket-printing" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Printing."></textarea>
+            </div>
+          </section>
+
+          <!-- ---------- FOLDING ---------- -->
+          <section class="route-panel" id="route-folding" aria-label="Folding" hidden>
+            <div class="route-panel-head">
+              <span class="route-panel-title">Folding</span>
+              <span class="route-panel-meta">Ukuran lipat</span>
+            </div>
+            <div class="form-grid route-fields route-fields--sizes">
+              <div class="form-cell">
+                <label class="field-label">Ukuran Folding</label>
+                <input type="text" id="ukuranFolding" class="field-input" placeholder="Contoh: 35 + 5 LIDAH X 0.05">
+              </div>
+              <div class="form-cell">
+                <label class="field-label">Target BS (%)</label>
+                <input type="number" step="any" min="0" max="100" id="bs-folding" class="field-input" placeholder="0" value="0" oninput="hitungTotalBs()">
+              </div>
+              <div class="form-cell">
+                <label class="field-label">Mesin</label>
+                <select id="mesin-folding" class="field-input"></select>
+              </div>
+            </div>
+            <div id="bahanUkuranHost-folding" class="bahan-ukuran-host"></div>
+            <div id="bsSheetHost-folding" class="bs-sheet-host"></div>
+            <div class="route-note">
+              <label class="field-label" for="ket-folding">Keterangan</label>
+              <textarea id="ket-folding" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Folding."></textarea>
+            </div>
+          </section>
+
+          <!-- ---------- SLITTING ---------- -->
+          <section class="route-panel" id="route-slitting" aria-label="Slitting" hidden>
+            <div class="route-panel-head">
+              <span class="route-panel-title">Slitting</span>
+              <span class="route-panel-meta">Ukuran potong memanjang</span>
+            </div>
+            <div class="form-grid route-fields route-fields--sizes">
+              <div class="form-cell">
+                <label class="field-label">Ukuran Slitting</label>
+                <input type="text" id="ukuranSlitting" class="field-input" placeholder="Contoh: 35 X 0.05">
+              </div>
+              <div class="form-cell">
+                <label class="field-label">Target BS (%)</label>
+                <input type="number" step="any" min="0" max="100" id="bs-slitting" class="field-input" placeholder="0" value="0" oninput="hitungTotalBs()">
+              </div>
+              <div class="form-cell">
+                <label class="field-label">Mesin</label>
+                <select id="mesin-slitting" class="field-input"></select>
+              </div>
+            </div>
+            <div id="bahanUkuranHost-slitting" class="bahan-ukuran-host"></div>
+            <div id="bsSheetHost-slitting" class="bs-sheet-host"></div>
+            <div class="route-note">
+              <label class="field-label" for="ket-slitting">Keterangan</label>
+              <textarea id="ket-slitting" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Slitting."></textarea>
+            </div>
+          </section>
+
+          <!-- ---------- GUSSET ---------- -->
+          <section class="route-panel" id="route-gusset" aria-label="Gusset" hidden>
+            <div class="route-panel-head">
+              <span class="route-panel-title">Gusset</span>
+              <span class="route-panel-meta">Ukuran lipatan samping</span>
+            </div>
+            <div class="form-grid route-fields route-fields--sizes">
+              <div class="form-cell">
+                <label class="field-label">Ukuran Gusset</label>
+                <input type="text" id="ukuranGusset" class="field-input" placeholder="Contoh: 35 / 23 X 0.05">
+              </div>
+              <div class="form-cell">
+                <label class="field-label">Target BS (%)</label>
+                <input type="number" step="any" min="0" max="100" id="bs-gusset" class="field-input" placeholder="0" value="0" oninput="hitungTotalBs()">
+              </div>
+              <div class="form-cell">
+                <label class="field-label">Lebar Gusset</label>
+                <input type="text" id="lebarGusset" class="field-input" placeholder="Contoh: 12 atau 6 + 6">
+              </div>
+              <div class="form-cell">
+                <label class="field-label">Mesin</label>
+                <select id="mesin-gusset" class="field-input"></select>
+              </div>
+            </div>
+            <div id="bahanUkuranHost-gusset" class="bahan-ukuran-host"></div>
+            <div id="bsSheetHost-gusset" class="bs-sheet-host"></div>
+            <div class="route-note">
+              <label class="field-label" for="ket-gusset">Keterangan</label>
+              <textarea id="ket-gusset" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Gusset."></textarea>
+            </div>
+          </section>
+
+          <!-- ---------- CUTTING / FINISHING ---------- -->
+          <section class="route-panel" id="route-cutting" aria-label="Cutting" hidden>
+            <div class="route-panel-head">
+              <span class="route-panel-title">Cutting &mdash; Finishing</span>
+              <span class="route-panel-meta">Alur akhir dan packing</span>
+            </div>
+
+            <label class="field-label">Jenis Finishing</label>
+            <div class="finishing-choice-grid" id="finishingChoiceGrid">
+              <button type="button" class="finishing-choice" data-finishing="BOTTOM SEAL" onclick="setFinishingChoice_('BOTTOM SEAL')">Bottom Seal</button>
+              <button type="button" class="finishing-choice" data-finishing="SIDE SEAL" onclick="setFinishingChoice_('SIDE SEAL')">Side Seal</button>
+              <button type="button" class="finishing-choice" data-finishing="TSHIRT" onclick="setFinishingChoice_('TSHIRT')">T-Shirt</button>
+            </div>
+            <select id="finishing" class="is-hidden" aria-hidden="true" tabindex="-1">
+              <option value="-">-</option>
+              <option value="BOTTOM SEAL">Bottom Seal</option>
+              <option value="SIDE SEAL">Side Seal</option>
+              <option value="TSHIRT">T-Shirt</option>
+            </select>
+
+            <div id="bahanUkuranHost-cutting" class="bahan-ukuran-host"></div>
+
+            <div id="cuttingDetail" class="routing-subpanel" hidden>
+              <div class="form-grid route-fields route-fields--cutting">
+                <div class="form-cell">
+                  <label class="field-label">Handle/Pon</label>
+                  <!-- Pon dan Handle saling meniadakan, dan pilihan di sini
+                       menentukan BS mana yang ikut dihitung. -->
+                  <select id="handlePm" class="field-input" onchange="hitungTotalBs()">
+                    <option value="-">-</option>
+                    <option value="HANDLE">Handle</option>
+                    <option value="PON">Pon</option>
+                  </select>
+                </div>
+                <div class="form-cell">
+                  <label class="field-label">Mesin</label>
+                  <!-- Daftar mesinnya mengikuti jenis finishing yang dipilih. -->
+                  <select id="mesin-cutting" class="field-input"></select>
+                </div>
+                <div class="form-cell">
+                  <label class="field-label">Jenis Packing</label>
+                  <select id="jenisPacking" class="field-input">
+                    <option value="">Pilih jenis packing</option>
+                    <option value="KARUNG">Karung</option>
+                    <option value="DUS">Dus</option>
+                    <option value="INNER">Inner</option>
+                  </select>
+                </div>
+                <div class="form-cell">
+                  <label class="field-label">Packing</label>
+                  <select id="packing" class="field-input" onchange="updatePackingDetailVisibility_()">
+                    <option value="">Pilih bentuk packing</option>
+                    <option value="BAG">Bag</option>
+                    <option value="ROLL">Roll</option>
+                  </select>
+                </div>
+                <div class="form-cell" id="packingBagCell" hidden>
+                  <label class="field-label">Outer (Ball)</label>
+                  <input type="number" min="0" step="any" id="packingOuterBall" class="field-input" placeholder="Berapa ball per outer">
+                </div>
+                <div class="form-cell" id="packingBallCell" hidden>
+                  <label class="field-label">Isi per Ball</label>
+                  <div class="input-pair">
+                    <input type="number" min="0" step="any" id="packingBallNilai" class="field-input" placeholder="Nilai">
+                    <select id="packingBallUom" class="field-input input-pair-uom">
+                      <option value="">UOM</option>
+                      <option value="PCS">PCS</option>
+                      <option value="KG">KG</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-cell" id="packingRollCell" hidden>
+                  <label class="field-label">Isi per Roll</label>
+                  <div class="input-pair">
+                    <input type="number" min="0" step="any" id="packingRollNilai" class="field-input" placeholder="Nilai">
+                    <select id="packingRollUom" class="field-input input-pair-uom">
+                      <option value="">UOM</option>
+                      <option value="ROLL">ROLL</option>
+                      <option value="KG">KG</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-cell" id="bsBottomSealCell" hidden>
+                  <label class="field-label">Target BS (%)</label>
+                  <input type="number" step="any" min="0" max="100" id="bs-bottomSeal" class="field-input" placeholder="0" value="0" oninput="hitungTotalBs()">
+                </div>
+                <div class="form-cell" id="bsSideSealCell" hidden>
+                  <label class="field-label">Target BS (%)</label>
+                  <input type="number" step="any" min="0" max="100" id="bs-sideSeal" class="field-input" placeholder="0" value="0" oninput="hitungTotalBs()">
+                </div>
+                <div class="form-cell" id="bsTshirtCell" hidden>
+                  <label class="field-label">Target BS (%)</label>
+                  <input type="number" step="any" min="0" max="100" id="bs-tshirt" class="field-input" placeholder="0" value="0" oninput="hitungTotalBs()">
+                </div>
+              </div>
+
+              <details class="routing-extra">
+                <summary>Target BS tambahan</summary>
+                <div class="form-grid route-fields route-fields--bs">
+                  <div class="form-cell">
+                    <label class="field-label">BS Sheet Slitting (%)</label>
+                    <input type="number" step="any" min="0" max="100" id="bs-sheetSlitting" class="field-input" placeholder="0" value="0" oninput="hitungTotalBs()">
+                  </div>
+                  <div class="form-cell">
+                    <label class="field-label">BS Pon (%)</label>
+                    <input type="number" step="any" min="0" max="100" id="bs-pon" class="field-input" placeholder="0" value="0" oninput="hitungTotalBs()">
+                  </div>
+                  <div class="form-cell">
+                    <label class="field-label">BS Handle (%)</label>
+                    <input type="number" step="any" min="0" max="100" id="bs-handle" class="field-input" placeholder="0" value="0" oninput="hitungTotalBs()">
+                  </div>
+                </div>
+              </details>
+
+              <div id="finishingNoteArea" class="finishing-note-area">
+                <div id="finishing-note-bottomSeal" class="finishing-note-panel" data-finishing-note="BOTTOM SEAL" hidden>
+                  <label class="field-label" for="ket-bottomSeal">Keterangan Bottom Seal</label>
+                  <textarea id="ket-bottomSeal" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Bottom Seal."></textarea>
+                </div>
+                <div id="finishing-note-sideSeal" class="finishing-note-panel" data-finishing-note="SIDE SEAL" hidden>
+                  <label class="field-label" for="ket-sideSeal">Keterangan Side Seal</label>
+                  <textarea id="ket-sideSeal" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi Side Seal."></textarea>
+                </div>
+                <div id="finishing-note-tshirt" class="finishing-note-panel" data-finishing-note="TSHIRT" hidden>
+                  <label class="field-label" for="ket-tshirt">Keterangan T-Shirt</label>
+                  <textarea id="ket-tshirt" maxlength="300" class="field-input alur-note-input" placeholder="Instruksi khusus untuk divisi T-Shirt."></textarea>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Satu blok ukuran bahan dipakai bergantian oleh panel yang sedang
+             dibuka, sama seperti perlakuan blok warna tinta dan BS Sheet.
+             Nilainya turunan dari Ukuran Blowing, Ukuran Jadi, dan Jenis
+             Bahan, jadi tidak diisi manual per divisi.
+             Mixer sengaja tidak diberi penampung: di sana bahan masih berupa
+             komposisi biji plastik, belum berbentuk lembaran berukuran. -->
+        <div id="bahanUkuranArea" class="bahan-ukuran-area" hidden>
+          <div class="bahan-ukuran-head">
+            <span>Ukuran Bahan</span>
+            <button type="button" id="bahanUkuranReset" class="bahan-ukuran-reset" onclick="resetBahanUkuranManual_()" hidden>
+              Kembalikan hitungan otomatis
+            </button>
+          </div>
+          <div class="bahan-ukuran-grid">
+            <div class="form-cell">
+              <label class="field-label" for="bahanLebarDisplay">Lebar (cm)</label>
+              <input type="number" step="any" min="0" id="bahanLebarDisplay" class="field-input" data-bahan-ukuran="lebar" placeholder="0,00" oninput="commitBahanUkuran_()">
+            </div>
+            <div class="form-cell">
+              <label class="field-label" for="bahanPanjangDisplay">Panjang (cm)</label>
+              <input type="number" step="any" min="0" id="bahanPanjangDisplay" class="field-input" data-bahan-ukuran="panjang" placeholder="0,00" oninput="commitBahanUkuran_()">
+            </div>
+            <div class="form-cell">
+              <label class="field-label" for="bahanTebalDisplay">Tebal (mm)</label>
+              <input type="number" step="any" min="0" id="bahanTebalDisplay" class="field-input" data-bahan-ukuran="tebal" placeholder="0,000" oninput="commitBahanUkuran_()">
+            </div>
+            <div class="form-cell">
+              <label class="field-label" for="bahanDensityDisplay">Density</label>
+              <input type="number" step="any" min="0" id="bahanDensityDisplay" class="field-input" data-bahan-ukuran="density" placeholder="0,00" oninput="commitBahanUkuran_()">
+            </div>
+          </div>
+          <p class="bahan-ukuran-hint">Kolom kosong terisi otomatis dari Ukuran Blowing, Ukuran Jadi, dan Jenis Bahan. Begitu diketik, angka Anda yang dipakai untuk menghitung PCS/KG dan Keluar Bahan.</p>
+        </div>
+
+        <div id="routingEditorActions" class="routing-editor-actions" hidden>
+          <button type="button" class="routing-editor-cancel" onclick="cancelRoutingEditor_()">Batal</button>
+          <button type="button" id="routingSaveProcessBtn" class="routing-editor-save" onclick="saveActiveRoutingProcess_()">
+            Simpan Proses
+          </button>
+        </div>
+
+        <section class="routing-saved-section" aria-labelledby="routingSavedTitle">
+          <div class="routing-saved-head">
+            <div>
+              <span class="routing-saved-eyebrow">Routing tersusun</span>
+              <h3 id="routingSavedTitle">Detail Proses Produksi</h3>
+            </div>
+            <span class="routing-saved-count"><span id="routingSavedCount">0</span> langkah</span>
+          </div>
+          <div id="routingSavedEmpty" class="routing-saved-empty">
+            Belum ada langkah tersusun. Urutan proses akan muncul di area ini.
+          </div>
+          <div id="routingSavedList" class="routing-saved-list"></div>
+        </section>
+      </div>
+
+      <!-- Satu blok BS Sheet, dipindahkan ke panel Folding/Slitting/Gusset
+           yang sedang dibuka. BS Sheet berlaku untuk ketiganya namun nilainya
+           hanya satu, jadi elemennya pun tunggal. -->
+      <div id="bsSheetArea" class="bs-sheet-block" hidden>
+        <div class="form-grid route-fields route-fields--bs">
+          <div class="form-cell">
+            <label class="field-label">BS Sheet (%)</label>
+            <input type="number" step="any" min="0" max="100" id="bs-sheet" class="field-input" placeholder="0" value="0" oninput="hitungTotalBs()">
+          </div>
+        </div>
+      </div>
+
+      <!-- Satu blok warna tinta, dipindahkan ke panel yang sedang memakainya. -->
+      <div id="warnaArea" class="warna-block" hidden>
+        <div class="warna-block-head">
+          <div>
+            <label class="field-label">Warna &amp; Pemakaian Tinta</label>
+            <p class="field-hint">Klik warna untuk menambah cepat, lalu isi pemakaian KG. Maksimal sepuluh warna.</p>
+          </div>
+          <span class="metric-chip">Tinta: <span id="warnaSummary">0 warna &middot; 0 KG</span></span>
+        </div>
+        <div id="warnaChipRow" class="warna-chip-row mb-4"></div>
+        <div id="warnaList" class="space-y-3"></div>
+        <div id="warnaEmpty" class="warna-empty">Belum ada warna dipilih. Klik salah satu warna di atas atau tombol + Warna Lain.</div>
+        <button type="button" class="btn-add-bahan" id="btnAddWarna" onclick="tambahWarna()">+ Warna Lain</button>
+      </div>
+
+      <!-- ==========================================================
+           PERHITUNGAN BAHAN BAKU
+           Hasil ditampilkan setelah logika perhitungan; seluruh rinciannya
+           tetap dapat dilipat agar form utama tidak terlalu panjang.
+           ========================================================== -->
+      <details class="calc-fold" id="rawMaterialCalculation">
+        <summary class="calc-fold-summary">
+          <span class="calc-fold-title">Perhitungan bahan</span>
+          <span id="calculationStatus" class="calc-fold-status">Belum lengkap</span>
+        </summary>
+
+        <div class="calculation-sheet">
+          <div class="calculation-sheet-header">
+            <span id="calcSheetTitle">Logika Perhitungan</span>
+            <small id="calcSheetCategory">Kategori &mdash;</small>
+          </div>
+          <div class="calculation-sheet-row">
+            <div class="calculation-sheet-label">Order + BS</div>
+            <div id="calcOrderLine" class="calculation-sheet-value">&mdash;</div>
+          </div>
+          <div class="calculation-sheet-row">
+            <div id="calcFormulaLabel" class="calculation-sheet-label">Rumus</div>
+            <div id="calcFormulaLine" class="calculation-sheet-value">&mdash;</div>
+          </div>
+          <div class="calculation-sheet-result-row">
+            <div class="calculation-sheet-result-label">Hasil</div>
+            <strong id="calcResult" class="calculation-sheet-result-value">&mdash;</strong>
+          </div>
+          <div id="calcReferenceDetail" class="calculation-sheet-reference">Lengkapi Jenis Bahan, Ukuran, dan Order.</div>
+          <div id="calcOrderTypeNote" class="calculation-sheet-reference">Note: OPP - CPP - Kirim Roll, Mohon atur ukuran panjang sesuai meter kebutuhan!</div>
+          <div class="calculation-sheet-info-grid">
+            <div class="calculation-sheet-info">
+              <span>Ukuran Blowing</span>
+              <strong id="calcUkuranBlowing">&mdash;</strong>
+            </div>
+            <div class="calculation-sheet-info">
+              <span>Jenis Film</span>
+              <strong id="calcJenisFilm">&mdash;</strong>
+            </div>
+            <div class="calculation-sheet-info">
+              <span>Density</span>
+              <strong id="calcDensity">&mdash;</strong>
+            </div>
+            <div class="calculation-sheet-info">
+              <span>Meter/KG</span>
+              <strong id="calcMeterPerKg">&mdash;</strong>
+            </div>
+          </div>
+        </div>
+        <p id="calculationMessage" class="calculation-message">Lengkapi Jenis Bahan, Ukuran, dan Order.</p>
+      </details>
+
+      <!-- ==========================================================
+           AKSI
+           ========================================================== -->
+      <div class="wizard-navigation">
+        <button type="button" id="btnDraft" class="neumorphic-btn-light">
+          <svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zM19.5 14.25v4.125c0 1.243-1.007 2.25-2.25 2.25H5.625a2.25 2.25 0 01-2.25-2.25V9.375c0-1.243 1.007-2.25 2.25-2.25H9.75"></path></svg>
+          SIMPAN DRAFT
+        </button>
+        <span class="nav-spacer flex-1"></span>
+        <button type="submit" id="btnSubmit" class="neumorphic-btn-black">
+          SIMPAN KE DATABASE
+          <svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </button>
+      </div>
+    </form>
+  </div>
+  </div>
+
+  <div
+    id="saveSuccessOverlay"
+    class="save-success-overlay"
+    hidden
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="saveSuccessTitle"
+    aria-describedby="saveSuccessMessage"
+  >
+    <div class="save-success-card neumorphic">
+      <div class="save-success-icon" aria-hidden="true">
+        <svg fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"></path></svg>
+      </div>
+      <h2 id="saveSuccessTitle">SPK berhasil disimpan</h2>
+      <p id="saveSuccessMessage" class="save-success-message">
+        SPK menunggu persetujuan wajib sebelum dapat diterbitkan.
+      </p>
+      <div class="save-success-reference">
+        <span>Nomor SPK</span>
+        <strong id="saveSuccessSpk">&mdash;</strong>
+      </div>
+      <div class="save-success-actions">
+        <button type="button" id="saveSuccessCloseBtn" class="save-success-action save-success-secondary">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          Tidak
+        </button>
+        <a
+          id="printSpkLink"
+          class="save-success-action save-success-primary"
+          href="https://polytaglobalmandiri.github.io/apps/spk-automation/approval/"
+          data-base-url="https://polytaglobalmandiri.github.io/apps/spk-automation/approval/"
+          target="_top"
+        >
+          <i class="fa-solid fa-file-signature" aria-hidden="true"></i>
+          Buka Persetujuan
+        </a>
+      </div>
+    </div>
+  </div>

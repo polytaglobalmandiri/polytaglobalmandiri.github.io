@@ -8995,7 +8995,7 @@
             values[fieldId] = String(value === null || value === undefined ? '' : value);
           });
 
-          migrateLegacyRoutingBsValues_(key, values, {
+          normalizeRoutingBsValues_(key, values, {
             preserveExplicitEmpty: Object.prototype.hasOwnProperty.call(source, 'bsDaftar-' + key)
           });
           routingStepIdCounter += 1;
@@ -9018,7 +9018,7 @@
             else sheetBsTaken = true;
           }
 
-          migrateLegacyRoutingBsValues_(item.key, values);
+          normalizeRoutingBsValues_(item.key, values);
           routingStepIdCounter += 1;
           routingSteps.push(markAutomatic({
             id: routingStepIdCounter, key: item.key, values: values

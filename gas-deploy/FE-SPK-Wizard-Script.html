@@ -1,0 +1,4252 @@
+<script>
+  // Logika wizard Input SPK. Dipakai bersama oleh halaman Input SPK
+  // dan modal Input SPK di Dashboard.
+  const SPK_INPUT_APP_URL = '<?!= appUrl ?>';
+
+    const PROSES_LIST = [
+      {
+        key: 'mixer',
+        label: 'Mixer',
+        noteLabel: 'Keterangan Mixer',
+        placeholder: 'Contoh: urutan pencampuran, waktu mixing, atau instruksi khusus Mixer.'
+      },
+      {
+        key: 'blowing',
+        label: 'Blowing',
+        noteLabel: 'Keterangan Blowing',
+        placeholder: 'Contoh: setting mesin, warna, ketebalan, atau instruksi khusus Blowing.'
+      },
+      {
+        key: 'printing',
+        label: 'Printing',
+        noteLabel: 'Keterangan Printing',
+        placeholder: 'Contoh: warna tinta, posisi cetak, standar artwork, atau instruksi Printing.'
+      },
+      {
+        key: 'slitting',
+        label: 'Slitting',
+        noteLabel: 'Keterangan Slitting',
+        placeholder: 'Contoh: ukuran potong, jumlah jalur, atau instruksi khusus Slitting.'
+      },
+      {
+        key: 'folding',
+        label: 'Folding',
+        noteLabel: 'Keterangan Folding',
+        placeholder: 'Contoh: arah lipatan, ukuran lipat, atau instruksi khusus Folding.'
+      },
+      {
+        key: 'gusset',
+        label: 'Gusset',
+        noteLabel: 'Keterangan Gusset',
+        placeholder: 'Contoh: ukuran gusset, posisi, atau instruksi khusus Gusset.'
+      }
+    ];
+
+    // Cutting bukan bagian PROSES_LIST karena di Database ia diwakili
+    // kolom Finishing, bukan salah satu kolom proses T:Y.
+    const ROUTING_LIST = [
+      { key: 'mixer', label: 'Mixer' },
+      { key: 'blowing', label: 'Blowing' },
+      { key: 'printing', label: 'Printing' },
+      { key: 'folding', label: 'Folding' },
+      { key: 'slitting', label: 'Slitting' },
+      { key: 'gusset', label: 'Gusset' },
+      { key: 'cutting', label: 'Cutting' }
+    ];
+
+    // Auto-isi dari Ukuran Jadi tetap hanya menyentuh kolom Ukuran yang lama.
+    // Ukuran Sebelum dan Ukuran Sesudah selalu diisi manual oleh operator.
+    const AUTOMATIC_ROUTE_SIZE_FIELDS = {
+      folding: 'ukuranFolding',
+      slitting: 'ukuranSlitting',
+      gusset: 'ukuranGusset'
+    };
+
+    const ETD_MONTH_NAMES = [
+      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+
+    const PROCESS_NOTE_KEYS = [
+      'mixer', 'blowing', 'printing', 'slitting', 'folding',
+      'gusset', 'bottomSeal', 'sideSeal', 'tshirt'
+    ];
+    const FINISHING_NOTE_KEY_MAP = {
+      'BOTTOM SEAL': 'bottomSeal',
+      'SIDE SEAL': 'sideSeal',
+      'TSHIRT': 'tshirt'
+    };
+
+    const BS_LIST = [
+      { key: 'blowing', label: 'Blowing' },
+      { key: 'printing', label: 'Printing' },
+      { key: 'slitting', label: 'Slitting' },
+      { key: 'folding', label: 'Folding' },
+      { key: 'gusset', label: 'Gusset' },
+      { key: 'sheet', label: 'Sheet' },
+      { key: 'pon', label: 'Pon' },
+      { key: 'tshirt', label: 'T-Shirt' },
+      { key: 'bottomSeal', label: 'Bottom Seal' },
+      { key: 'sideSeal', label: 'Side Seal' },
+      { key: 'handle', label: 'Handle' },
+      { key: 'sheetSlitting', label: 'Sheet Slitting' }
+    ];
+
+    // BS Sheet berlaku untuk Folding, Slitting, dan Gusset. Elemen inputnya
+    // tunggal dan dipindah-pindah ke panel yang sedang dibuka, tetapi nilainya
+    // disimpan per langkah.
+    const BS_SHEET_ROUTING_KEYS = ['folding', 'slitting', 'gusset'];
+
+    // Isian yang menjadi milik satu langkah routing. Nilainya diambil dari
+    // panel saat langkah disimpan, lalu dikembalikan ke panel saat langkah itu
+    // diedit lagi.
+    //
+    // Ukuran Blowing, Film, komposisi Mixer, dan Keterangan Warna sengaja tidak
+    // masuk daftar ini: nilainya tunggal untuk satu SPK, dipakai Data Utama dan
+    // mesin perhitungan dimensi, sehingga tetap dibagi bersama antar langkah.
+    const ROUTE_STEP_FIELDS = {
+      mixer: ['mesin-mixer', 'ket-mixer'],
+      blowing: ['mesin-blowing', 'blowingThreat', 'blowingModeCetak', 'bs-blowing', 'ket-blowing'],
+      printing: ['mesin-printing', 'printingKodeSilinder', 'bs-printing', 'ket-printing'],
+      folding: ['mesin-folding', 'ukuranFolding', 'bs-folding', 'bs-sheet', 'ket-folding'],
+      slitting: ['mesin-slitting', 'ukuranSlitting', 'bs-slitting', 'bs-sheet', 'ket-slitting'],
+      gusset: ['mesin-gusset', 'ukuranGusset', 'lebarGusset', 'bs-gusset', 'bs-sheet', 'ket-gusset'],
+      cutting: [
+        'mesin-cutting', 'finishing', 'handlePm',
+        'jenisPacking', 'packing', 'packingOuterBall', 'packingBallNilai', 'packingBallUom',
+        'packingRollNilai', 'packingRollUom',
+        'bs-bottomSeal', 'bs-sideSeal', 'bs-tshirt',
+        'bs-pon', 'bs-handle', 'bs-sheetSlitting',
+        'ket-bottomSeal', 'ket-sideSeal', 'ket-tshirt'
+      ]
+    };
+
+    // Daftar mesin tiap divisi. Dibangkitkan dari pola penomoran supaya
+    // penambahan mesin baru cukup mengubah angka batasnya.
+    function machineRange_(prefix, count, pad) {
+      return Array.from({ length: count }, function(_, index) {
+        return prefix + String(index + 1).padStart(pad === undefined ? 2 : pad, '0');
+      });
+    }
+
+    const MACHINE_OPTIONS = {
+      mixer: machineRange_('MIXER HD', 6)
+        .concat(machineRange_('MIXER PE', 11))
+        .concat(machineRange_('MIXER PP', 1)),
+      blowing: machineRange_('BLOWING HD', 6)
+        .concat(machineRange_('BLOWING PE', 11))
+        .concat(machineRange_('BLOWING PP', 4)),
+      printing: ['PRINTING 1A', 'PRINTING 1B', 'PRINTING 2A', 'PRINTING 2B', 'PRINTING 3A', 'PRINTING 3B'],
+      folding: machineRange_('FOLDING', 4),
+      slitting: machineRange_('SLITTING', 5),
+      gusset: machineRange_('GUSSET', 3)
+    };
+
+    // Mesin Cutting mengikuti jenis finishing yang sedang dipilih.
+    const CUTTING_MACHINE_OPTIONS = {
+      'BOTTOM SEAL': machineRange_('BOTTOM SEAL ', 23),
+      'SIDE SEAL': machineRange_('SIDE SEAL ', 19),
+      'TSHIRT': machineRange_('TSHIRT', 3)
+    };
+
+    // Nilai awal tiap isian panel, direkam sekali dari markup supaya panel
+    // dapat dikosongkan kembali saat menyiapkan langkah baru.
+    const routeStepFieldDefaults = {};
+
+    const WIZARD_STEPS = [
+      { step: 1, name: 'Data Utama' },
+      { step: 2, name: 'Persentase BS' },
+      { step: 3, name: 'Bahan Baku' },
+      { step: 4, name: 'Alur Produksi' },
+      { step: 5, name: 'Dimensi & Order' }
+    ];
+
+    const MAX_BAHAN = 8;
+    let bahanRows = [];
+    let bahanIdCounter = 0;
+    const MAX_WARNA = 10;
+    let warnaRows = [];
+    let warnaIdCounter = 0;
+    let rawMaterialCalculation = { ok: false, incomplete: true };
+
+    // Form tidak lagi berlangkah. Nilai ini dipertahankan hanya karena
+    // pemeriksaan kelengkapan masih menomori bagian form, dan selalu
+    // bernilai penuh supaya tombol simpan langsung menyimpan.
+    let currentStep = 5;
+    const completedSteps = new Set();
+    let activeRoutingKey = '';
+    // Alur produksi kini berupa daftar langkah berurutan, bukan sekadar daftar
+    // proses yang tercentang. Satu proses boleh muncul beberapa kali, masing
+    // masing dengan detail dan target BS-nya sendiri.
+    let routingSteps = [];
+    let routingStepIdCounter = 0;
+    let activeStepId = 0; // 0 berarti editor sedang menyiapkan langkah baru
+    let routingFeedbackTimer = null;
+    let etdInputTimer = null;
+    let poMasukInputTimer = null;
+    let pengirimanRows = [];
+    let pengirimanIdCounter = 0;
+
+    const targetSpkStates = {
+      new: { state: 'idle', duplicate: false, timer: null, seq: 0 },
+      repeat: { state: 'idle', duplicate: false, timer: null, seq: 0 }
+    };
+    const SPK_SNAPSHOT_MAX_AGE_MS = 300000;
+    let spkExistenceSnapshot = null;
+    let spkExistenceSnapshotAt = 0;
+    let spkExistenceWarmupStarted = false;
+
+    const repeatLookupState = {
+      state: 'idle', // idle | checking | found | notfound | error
+      timer: null,
+      seq: 0,
+      loadedSpk: ''
+    };
+
+    // Dipasang ulang setiap wizard diinisialisasi, karena pilihan "Tidak"
+    // pada halaman penuh membangun ulang seluruh markup form.
+    let formEl = null;
+    let btnSubmitEl = null;
+    let jenisOrderField = null;
+    let spkSebelumnyaField = null;
+    let TARGET_SPK_UI = null;
+
+    function bindWizardElements_() {
+      formEl = document.getElementById('dbForm');
+      btnSubmitEl = document.getElementById('btnSubmit');
+      jenisOrderField = document.getElementById('jenisOrder');
+      spkSebelumnyaField = document.getElementById('spkSebelumnya');
+      TARGET_SPK_UI = {
+      new: {
+        field: document.getElementById('spkNew'),
+        statusIcon: document.getElementById('spkNewStatusIcon')
+      },
+      repeat: {
+          field: document.getElementById('spkRepeat'),
+          statusIcon: document.getElementById('spkRepeatStatusIcon')
+        }
+      };
+    }
+
+    // Markup asli disimpan sekali agar form bisa dikembalikan ke kondisi
+    // bersih tanpa memuat ulang halaman.
+    let spkInputPristineMarkup = null;
+
+    // Alpine mengelola state UI ringan melalui event delegation di root.
+    // Seluruh fungsi bisnis lama tetap dipertahankan agar modal Dashboard
+    // dan halaman Input SPK mempunyai perilaku yang sama.
+    function registerSpkAlpineUi_() {
+      if (!window.Alpine || window.__spkAlpineUiRegistered) return;
+      window.__spkAlpineUiRegistered = true;
+
+      window.Alpine.data('spkInputUi', function() {
+        return {
+          orderMode: 'new',
+          handleAction: function(event) {
+            const trigger = event.target.closest('[data-spk-order-type]');
+            if (!trigger || !this.$root.contains(trigger)) return;
+            const type = trigger.dataset.spkOrderType === 'Repeat Order'
+              ? 'Repeat Order'
+              : 'New Order';
+            this.orderMode = type === 'Repeat Order' ? 'repeat' : 'new';
+          },
+          syncOrderMode: function(mode) {
+            this.orderMode = mode === 'repeat' ? 'repeat' : 'new';
+          }
+        };
+      });
+    }
+
+    document.addEventListener('alpine:init', registerSpkAlpineUi_);
+    if (window.Alpine) registerSpkAlpineUi_();
+
+    function initSpkInputWizard_() {
+      const root = document.getElementById('spkInputRoot');
+      if (!root) return;
+      if (spkInputPristineMarkup === null) spkInputPristineMarkup = root.innerHTML;
+
+      bindWizardElements_();
+      clearInitialInputPresentation_();
+      renderProsesGrid();
+      updateFinishingNoteVisibility_();
+      tambahBahan();
+      tambahBahan();
+      renderWarnaChips_();
+      renderWarnaList();
+      setTanggalHariIni_();
+      renderPengirimanList_();
+      syncStokUomHint_();
+      syncMaterialDerivedFields_();
+      updatePackingDetailVisibility_();
+      bindEtdQuickInput_();
+      bindRawMaterialCalculator_();
+      bindAutomaticRouteSizeInputs_();
+      bindWizardTracking_();
+      bindWizardSubmit_();
+      bindDraftButton_();
+      bindOrderTypeEvents_();
+      bindSaveSuccessActions_();
+      setOrderType_('New Order', { focus: false });
+      recalculateRawMaterial_();
+      updateWizardState_();
+      warmSpkExistenceSnapshot_();
+    }
+
+    function getFreshSpkExistenceSnapshot_() {
+      if (!spkExistenceSnapshot) return null;
+      if (Date.now() - spkExistenceSnapshotAt <= SPK_SNAPSHOT_MAX_AGE_MS) {
+        return spkExistenceSnapshot;
+      }
+
+      spkExistenceSnapshot = null;
+      spkExistenceSnapshotAt = 0;
+      return null;
+    }
+
+    function warmSpkExistenceSnapshot_() {
+      if (getFreshSpkExistenceSnapshot_() || spkExistenceWarmupStarted) return;
+      spkExistenceWarmupStarted = true;
+
+      google.script.run
+        .withSuccessHandler(function(res) {
+          spkExistenceWarmupStarted = false;
+          if (!res || res.status !== 'success' || !Array.isArray(res.spks)) return;
+
+          spkExistenceSnapshot = new Set(
+            res.spks.map(normalizeClientSpk_).filter(Boolean)
+          );
+          spkExistenceSnapshotAt = Date.now();
+        })
+        .withFailureHandler(function() {
+          spkExistenceWarmupStarted = false;
+        })
+        .getSpkExistenceSnapshot();
+    }
+
+    // Form baru tampil benar-benar bersih: tidak ada teks contoh di dalam
+    // kolom dan Target BS tidak diawali angka 0. Label di luar kolom tetap
+    // dipertahankan agar nama field selalu jelas.
+    function clearInitialInputPresentation_() {
+      const root = document.getElementById('spkInputRoot');
+      if (!root) return;
+
+      root.querySelectorAll('input[placeholder], textarea[placeholder]').forEach(function(field) {
+        field.removeAttribute('placeholder');
+      });
+
+      BS_LIST.forEach(function(item) {
+        const field = document.getElementById('bs-' + item.key);
+        if (field) field.value = '';
+      });
+    }
+
+    // Membangun ulang markup form dari salinan bersih, lalu memasang
+    // kembali seluruh event dan nilai awalnya.
+    function resetSpkInputWizard_() {
+      const root = document.getElementById('spkInputRoot');
+      if (!root || spkInputPristineMarkup === null) return;
+
+      root.classList.remove('dialog-open');
+      root.innerHTML = spkInputPristineMarkup;
+
+      bahanRows = [];
+      bahanIdCounter = 0;
+      warnaRows = [];
+      warnaIdCounter = 0;
+      rawMaterialCalculation = { ok: false, incomplete: true };
+      currentStep = WIZARD_STEPS.length;
+      completedSteps.clear();
+      activeRoutingKey = '';
+      activeStepId = 0;
+      routingSteps = [];
+      routingStepIdCounter = 0;
+      pengirimanRows = [];
+      pengirimanIdCounter = 0;
+      if (poMasukInputTimer) window.clearTimeout(poMasukInputTimer);
+      poMasukInputTimer = null;
+      if (routingFeedbackTimer) window.clearTimeout(routingFeedbackTimer);
+      routingFeedbackTimer = null;
+      if (etdInputTimer) window.clearTimeout(etdInputTimer);
+      etdInputTimer = null;
+      resetTargetSpkStates_();
+      initSpkInputWizard_();
+    }
+
+    function resetTargetSpkStates_() {
+      ['new', 'repeat'].forEach(function (mode) {
+        const state = targetSpkStates[mode];
+        if (state.timer) window.clearTimeout(state.timer);
+        state.state = 'idle';
+        state.duplicate = false;
+        state.timer = null;
+        state.seq = 0;
+      });
+
+      if (repeatLookupState.timer) window.clearTimeout(repeatLookupState.timer);
+      repeatLookupState.state = 'idle';
+      repeatLookupState.timer = null;
+      repeatLookupState.seq = 0;
+      repeatLookupState.loadedSpk = '';
+    }
+
+    // Penyimpanan draft belum punya tempat penyimpanan yang disepakati,
+    // jadi tombolnya sengaja berterus terang alih-alih diam-diam tidak
+    // menyimpan apa pun.
+    function bindDraftButton_() {
+      const button = document.getElementById('btnDraft');
+      if (!button) return;
+
+      button.addEventListener('click', function () {
+        Swal.fire({
+          icon: 'info',
+          title: 'Draft Belum Aktif',
+          text: 'Tombolnya sudah tersedia, tetapi penyimpanan draft belum '
+            + 'dijalankan. Tidak ada data yang tersimpan saat tombol ini ditekan.',
+          confirmButtonColor: '#202020',
+          background: '#e0e5ec',
+          customClass: { popup: 'swal2-popup-neumorphic' }
+        });
+      });
+    }
+
+    function bindSaveSuccessActions_() {
+      const closeButton = document.getElementById('saveSuccessCloseBtn');
+
+      if (closeButton) {
+        closeButton.addEventListener('click', () => {
+          if (typeof window.closeSpkInputModal === 'function') {
+            window.closeSpkInputModal();
+            return;
+          }
+          resetSpkInputWizard_();
+        });
+      }
+    }
+
+    window.initSpkInputWizard_ = initSpkInputWizard_;
+    window.resetSpkInputWizard_ = resetSpkInputWizard_;
+
+
+
+
+
+    // Mengisi field tanggal menggunakan tanggal lokal browser.
+    // Hindari toISOString() karena menggunakan UTC dan dapat bergeser satu hari.
+    function getTanggalHariIni_() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function setTanggalHariIni_() {
+      const field = document.getElementById('tanggal');
+      if (field) field.value = getTanggalHariIni_();
+    }
+
+    // ==========================================
+    // KALKULASI BAHAN BAKU A-F
+    // ==========================================
+    function bindRawMaterialCalculator_() {
+      [
+        'customer', 'material', 'film', 'ukuranBlow', 'ukuranJadi',
+        'jumlahOrder', 'uomOrder', 'meterRoll', 'keluarBahan'
+      ].forEach(id => {
+        const field = document.getElementById(id);
+        if (!field) return;
+        const handleCalculationChange = function() {
+          recalculateRawMaterial_();
+          if (id === 'keluarBahan') syncMixerKgFromPercent_();
+          if (id === 'ukuranJadi') syncAutomaticRouteSizesFromMain_();
+          if (id === 'uomOrder') {
+            syncStokUomHint_();
+            refreshJadwalComputed_();
+          }
+          if (id === 'jumlahOrder') refreshJadwalComputed_();
+          // Ukuran bahan yang tampil di tiap divisi ikut berubah bersama
+          // Ukuran Blowing, Ukuran Jadi, dan Jenis Bahan.
+          if (['material', 'film', 'ukuranBlow', 'ukuranJadi'].indexOf(id) > -1) {
+            syncBahanUkuranDisplays_();
+          }
+        };
+        field.addEventListener('input', handleCalculationChange);
+        field.addEventListener('change', handleCalculationChange);
+      });
+    }
+
+    function parseCalculationNumber_(value) {
+      if (value === '' || value === null || value === undefined) return null;
+
+      let text = String(value).trim().replace(/\s+/g, '');
+      if (text === '') return null;
+
+      if (text.includes(',') && text.includes('.')) {
+        if (text.lastIndexOf(',') > text.lastIndexOf('.')) {
+          text = text.replace(/\./g, '').replace(',', '.');
+        } else {
+          text = text.replace(/,/g, '');
+        }
+      } else if (text.includes(',')) {
+        text = text.replace(',', '.');
+      }
+
+      const number = Number(text);
+      return Number.isFinite(number) ? number : null;
+    }
+
+    function extractFirstCalculationNumber_(value) {
+      const match = String(value === null || value === undefined ? '' : value)
+        .match(/-?\d+(?:[.,]\d+)?/);
+      return match ? parseCalculationNumber_(match[0]) : null;
+    }
+
+    function parseCalculationDimensions_(ukuranBlow, ukuranJadi) {
+      const jadiParts = String(ukuranJadi || '').split(/\s*[xX]\s*/);
+      const blowParts = String(ukuranBlow || '').split(/\s*[xX]\s*/);
+
+      return {
+        lebar: extractFirstCalculationNumber_(
+          String(jadiParts[0] || '').replace(/[(/]/g, ' ')
+        ),
+        panjang: jadiParts.length > 1
+          ? extractFirstCalculationNumber_(jadiParts[1])
+          : null,
+        tebal: jadiParts.length > 2
+          ? extractFirstCalculationNumber_(jadiParts[jadiParts.length - 1])
+          : null,
+        lebarBahan: extractFirstCalculationNumber_(
+          String(blowParts[0] || '').replace(/[(/]/g, ' ')
+        ),
+        upTertulis: extractWrittenUp_(ukuranBlow)
+      };
+    }
+
+    // Admin menuliskan jumlah lajur langsung pada Ukuran Blowing, misalnya
+    // "47 X 0.032 (10 UP)". Angka itu yang dipakai lebih dulu karena berasal
+    // dari orang yang tahu kondisi mesin; hitungan dari lebar hanya cadangan.
+    function extractWrittenUp_(ukuranBlow) {
+      const match = String(ukuranBlow || '').match(/(\d+)\s*UP\b/i);
+      if (!match) return null;
+      const value = parseInt(match[1], 10);
+      return Number.isFinite(value) && value > 0 ? value : null;
+    }
+
+    function getCalculationMeter_(tebal, material) {
+      if (!(tebal > 0)) return null;
+      if (String(material || '').toUpperCase().includes('CPP')) return 6000;
+      if (tebal >= 0.029) return 3000;
+      if (tebal >= 0.020) return 4000;
+      return 6000;
+    }
+
+    function getCalculationDensity_(material) {
+      const text = String(material || '').trim().toUpperCase();
+      // SHRINK tidak memuat penggal PE, HD, maupun PP. Tanpa baris ini
+      // massa jenisnya kosong dan hitungan meter per kg ikut gagal. Nilai
+      // lama 'PE SHRINK' pun tetap 0,92, jadi hasilnya tidak berubah.
+      if (text.includes('SHRINK')) return 0.92;
+      if (text.includes('HD')) return 0.94;
+      if (text.includes('PE')) return 0.92;
+      if (text.includes('CPP') || text.includes('OPP') || text.includes('PP')) return 0.91;
+      return null;
+    }
+
+    function getFilmLayerFactor_(film) {
+      const text = String(film || '').trim().toUpperCase();
+      if (text === '') return null;
+      return text.includes('TUBE') ? 2 : 1;
+    }
+
+    function calculateMeterPerKg_(lebar, tebal, density, filmLayerFactor) {
+      if (
+        !(lebar > 0) ||
+        !(tebal > 0) ||
+        !(density > 0) ||
+        !(filmLayerFactor > 0)
+      ) {
+        return null;
+      }
+
+      return 1 /
+        (
+          density *
+          ((lebar / 100) * (tebal * 1000) * filmLayerFactor) /
+          1000
+        );
+    }
+
+    function classifyRawMaterial_(material, uomOrder, customer) {
+      const materialText = String(material || '').trim().toUpperCase();
+      const customerText = String(customer || '').trim().toUpperCase();
+      const uom = String(uomOrder || '').trim().toUpperCase();
+      const isCpp = materialText.includes('CPP');
+      const isOpp = materialText.includes('OPP');
+      // PP memakai jalur rumus yang sama dengan HD/PE. Batas token menjaga
+      // agar PP di dalam CPP/OPP tidak ikut terbaca sebagai material PP.
+      const isHdPePp =
+        /(^|[^A-Z])(HDPE|HD|LLDPE|LDPE|PE|PP)([^A-Z]|$)/.test(materialText);
+
+      if (uom === 'ROLL') {
+        return {
+          code: 'F',
+          label: 'F · Order ROLL',
+          sheetTitle: 'Logika Perhitungan Kirim ROLL',
+          resultUom: 'ROLL'
+        };
+      }
+      if (isCpp && isOpp && uom === 'PCS') {
+        return {
+          error: true,
+          fieldId: 'material',
+          message: 'Material memuat CPP dan OPP sekaligus. Pilih salah satu di Data Utama.'
+        };
+      }
+      if (uom === 'PCS' && isCpp) {
+        if (customerText.includes('MUSTIKA')) {
+          return {
+            code: 'A-MUSTIKA',
+            label: 'A · CPP PCS Mustika',
+            sheetTitle: 'Logika Perhitungan CPP PCS Mustika',
+            resultUom: 'ROLL'
+          };
+        }
+        return {
+          code: 'A',
+          label: 'A · CPP + PCS',
+          sheetTitle: 'Logika Perhitungan CPP PCS',
+          resultUom: 'KG'
+        };
+      }
+      if (uom === 'PCS' && isOpp) {
+        return {
+          code: 'B',
+          label: 'B · OPP + PCS',
+          sheetTitle: 'Logika Perhitungan OPP PCS',
+          resultUom: 'ROLL'
+        };
+      }
+      if (uom === 'KG' && (isCpp || isOpp)) {
+        return {
+          code: 'C',
+          label: 'C · CPP/OPP + KG',
+          sheetTitle: 'Logika Perhitungan CPP/OPP KG',
+          resultUom: 'ROLL'
+        };
+      }
+      if (uom === 'PCS' && isHdPePp) {
+        return {
+          code: 'D',
+          label: 'D · HD/PE/PP + PCS',
+          sheetTitle: 'Logika Perhitungan HD/PE/PP PCS',
+          resultUom: 'KG'
+        };
+      }
+      if (uom === 'KG' && isHdPePp) {
+        return {
+          code: 'E',
+          label: 'E · HD/PE/PP + KG',
+          sheetTitle: 'Logika Perhitungan HD/PE/PP KG',
+          resultUom: 'KG'
+        };
+      }
+
+      return {
+        error: true,
+        fieldId: 'material',
+        message: 'Material dan UOM belum masuk kategori A-F. Periksa Material di Data Utama.'
+      };
+    }
+
+    function calculateRawMaterial_() {
+      const material = document.getElementById('material').value;
+      const customer = document.getElementById('customer').value;
+      const film = document.getElementById('film').value;
+      const ukuranBlow = document.getElementById('ukuranBlow').value;
+      const ukuranJadi = document.getElementById('ukuranJadi').value;
+      const jumlahOrder = parseCalculationNumber_(document.getElementById('jumlahOrder').value);
+      const uomOrder = document.getElementById('uomOrder').value.toUpperCase();
+      // Stok yang sudah ada memotong jumlah yang perlu diproduksi. Satuannya
+      // sama dengan Jumlah Order karena keduanya menghitung barang jadi.
+      const stok = parseCalculationNumber_(getFieldValue_('stok'));
+      const ots = parseCalculationNumber_(getFieldValue_('ots'));
+      const wip = parseCalculationNumber_(getFieldValue_('wip'));
+      const orderSetelahStok = jumlahOrder === null
+        ? null
+        : Math.max(0, jumlahOrder - (stok === null ? 0 : stok));
+      const meterRoll = uomOrder === 'ROLL'
+        ? parseCalculationNumber_(document.getElementById('meterRoll').value)
+        : null;
+      const dimensions = getEffectiveDimensions_();
+      const meter = getCalculationMeter_(dimensions.tebal, material);
+      const density = getEffectiveDensity_(material);
+      const filmLayerFactor = getFilmLayerFactor_(film);
+      const meterPerKg = calculateMeterPerKg_(
+        dimensions.lebar,
+        dimensions.tebal,
+        density,
+        filmLayerFactor
+      );
+      const totalBs = getTotalBs_();
+      const orderAfterBs = orderSetelahStok === null
+        ? null
+        : orderSetelahStok * (1 + (totalBs / 100));
+      let pcsPerKg = null;
+      let up = null;
+
+      // PCS/KG memakai lebar jadi (angka pertama Ukuran Jadi), bukan
+      // lebar bahan/blowing (angka pertama Ukuran Blow).
+      if (
+        dimensions.panjang > 0 &&
+        dimensions.tebal > 0 &&
+        dimensions.lebar > 0
+      ) {
+        pcsPerKg = 5444 /
+          dimensions.panjang /
+          dimensions.tebal /
+          dimensions.lebar;
+      }
+      // Lembaran menghasilkan dua keping per kantong, jadi PCS/KG-nya dua kali
+      // lipat. Kantong maupun mode kosong dipakai apa adanya.
+      if (pcsPerKg !== null) pcsPerKg *= getPcsKgModeFactor_();
+      up = dimensions.upTertulis;
+      if (!(up > 0) && dimensions.lebar > 0 && dimensions.lebarBahan > 0) {
+        up = Math.floor(dimensions.lebarBahan / dimensions.lebar);
+      }
+
+      const base = {
+        ok: false,
+        dimensions,
+        meter,
+        totalBs,
+        orderAfterBs,
+        pcsPerKg,
+        density,
+        filmLayerFactor,
+        meterPerKg,
+        up,
+        meterRoll,
+        stok,
+        ots,
+        wip,
+        orderSetelahStok
+      };
+
+      if (!String(material).trim()) {
+        return {
+          ...base,
+          incomplete: true,
+          fieldId: 'material',
+          message: 'Isi Material pada tab Data Utama.'
+        };
+      }
+
+      const category = classifyRawMaterial_(material, uomOrder, customer);
+      if (category.error) return { ...base, ...category };
+      const categorizedBase = { ...base, category };
+
+      if (!String(ukuranBlow).trim()) {
+        return {
+          ...categorizedBase,
+          incomplete: true,
+          fieldId: 'ukuranBlow',
+          message: 'Isi Ukuran Blow.'
+        };
+      }
+      if (!String(ukuranJadi).trim()) {
+        return {
+          ...categorizedBase,
+          incomplete: true,
+          fieldId: 'ukuranJadi',
+          message: 'Isi Ukuran Jadi.'
+        };
+      }
+      if (!(jumlahOrder > 0)) {
+        return {
+          ...categorizedBase,
+          incomplete: true,
+          fieldId: 'jumlahOrder',
+          message: 'Isi Jumlah Order lebih dari 0.'
+        };
+      }
+
+      let keluarBahan = null;
+      if (category.code === 'A' || category.code === 'D') {
+        if (!(pcsPerKg > 0)) {
+          return {
+            ...base,
+            category,
+            error: true,
+            fieldId: 'ukuranJadi',
+            message: 'Panjang, Tebal, atau Lebar Jadi belum valid.'
+          };
+        }
+        keluarBahan = orderAfterBs / pcsPerKg;
+      } else if (category.code === 'B' || category.code === 'A-MUSTIKA') {
+        if (!(dimensions.panjang > 0) || !(meter > 0)) {
+          return {
+            ...base,
+            category,
+            error: true,
+            fieldId: 'ukuranJadi',
+            message: 'Panjang atau Tebal pada Ukuran Jadi belum valid.'
+          };
+        }
+        keluarBahan = orderAfterBs * dimensions.panjang / 100 / meter;
+      } else if (category.code === 'C') {
+        if (!(dimensions.panjang > 0) || !(pcsPerKg > 0) || !(meter > 0)) {
+          return {
+            ...base,
+            category,
+            error: true,
+            fieldId: 'ukuranJadi',
+            message: 'Dimensi belum lengkap untuk kategori C.'
+          };
+        }
+        keluarBahan = orderAfterBs * dimensions.panjang * pcsPerKg / 100 / meter;
+      } else if (category.code === 'E') {
+        keluarBahan = orderAfterBs;
+      } else if (category.code === 'F') {
+        if (!(meter > 0)) {
+          return {
+            ...base,
+            category,
+            error: true,
+            fieldId: 'ukuranJadi',
+            message: 'Tebal/Mikron belum valid untuk menentukan Meter.'
+          };
+        }
+        if (!(up >= 1)) {
+          return {
+            ...base,
+            category,
+            error: true,
+            fieldId: 'ukuranBlow',
+            message: 'UP tidak valid. Lebar Bahan harus minimal sama dengan Lebar Jadi.'
+          };
+        }
+        if (!(meterRoll > 0)) {
+          return {
+            ...base,
+            category,
+            incomplete: true,
+            fieldId: 'meterRoll',
+            message: 'Isi Meter/Roll untuk order ROLL.'
+          };
+        }
+        keluarBahan = orderAfterBs * meterRoll / meter / up;
+      }
+
+      // UP yang ditulis pada Ukuran Blowing berlaku untuk seluruh kategori.
+      // Kategori F dikecualikan karena rumusnya sudah membagi dengan UP.
+      // Hanya UP tertulis yang dipakai, agar SPK tanpa keterangan UP pada
+      // Ukuran Blowing tidak ikut berubah hasilnya.
+      if (
+        category.code !== 'F' &&
+        dimensions.upTertulis > 0 &&
+        keluarBahan !== null
+      ) {
+        keluarBahan = keluarBahan / dimensions.upTertulis;
+      }
+
+      // OTS menambah dan WIP mengurangi kebutuhan bahan. Keduanya dalam KG,
+      // jadi hanya diterapkan pada hasil yang memang bersatuan KG; order ROLL
+      // (kategori F) menghasilkan ROLL sehingga tidak ikut disesuaikan.
+      if (keluarBahan !== null && category.resultUom !== 'ROLL') {
+        if (ots !== null) keluarBahan += ots;
+        if (wip !== null) keluarBahan -= wip;
+        if (keluarBahan < 0) keluarBahan = 0;
+      }
+
+      if (!(keluarBahan >= 0) || !Number.isFinite(keluarBahan)) {
+        return {
+          ...base,
+          category,
+          error: true,
+          message: 'Hasil tidak valid. Periksa dimensi dan order.'
+        };
+      }
+
+      return {
+        ...base,
+        ok: true,
+        incomplete: false,
+        category,
+        keluarBahan,
+        uomKB: category.resultUom,
+        message: 'Hasil otomatis kategori ' + category.code + '. Gunakan sebagai acuan; input Keluar Bahan bersifat opsional untuk Admin.'
+      };
+    }
+
+    function formatCalculationNumber_(value, maximumFractionDigits, minimumFractionDigits) {
+      if (value === null || value === undefined || !Number.isFinite(Number(value))) return '—';
+      const maximum = maximumFractionDigits === undefined ? 2 : maximumFractionDigits;
+      const minimum = minimumFractionDigits === undefined ? 0 : minimumFractionDigits;
+      return Number(value).toLocaleString('id-ID', {
+        minimumFractionDigits: Math.min(minimum, maximum),
+        maximumFractionDigits: maximum
+      });
+    }
+
+    function setCalculationMetric_(id, value) {
+      const element = document.getElementById(id);
+      if (element) element.textContent = value;
+    }
+
+    function getCalculationOrderTypeNote_() {
+      return 'Note: OPP - CPP - Kirim Roll, Mohon atur ukuran panjang sesuai meter kebutuhan!';
+    }
+
+    function buildCalculationSheetView_(result) {
+      const category = result.category || null;
+      const dimensions = result.dimensions || {};
+      const material = document.getElementById('material').value;
+      const jumlahOrder = parseCalculationNumber_(document.getElementById('jumlahOrder').value);
+      const uomOrder = document.getElementById('uomOrder').value || 'PCS';
+      const number = value => formatCalculationNumber_(value, 2);
+      const resultNumber = value => formatCalculationNumber_(value, 2, 2);
+      const orderLine = jumlahOrder > 0
+        ? number(jumlahOrder) + ' ' + uomOrder +
+          ' + ' + number(result.totalBs) + '% = ' +
+          number(result.orderAfterBs) + ' ' + uomOrder
+        : '—';
+
+      let formulaLabel = 'Rumus';
+      let formulaLine = '—';
+      const references = [];
+
+      // Kategori F menampilkan UP lewat rumusnya sendiri. Untuk kategori lain,
+      // pembagian UP hanya terjadi bila angkanya ditulis pada Ukuran Blowing,
+      // sehingga rumus yang tampil pun harus ikut menyebutkannya.
+      const upTertulisAktif = category &&
+        category.code !== 'F' &&
+        dimensions.upTertulis > 0;
+      const upLabelSuffix = upTertulisAktif ? ' ÷ UP' : '';
+      const upValueSuffix = upTertulisAktif
+        ? ' ÷ ' + number(dimensions.upTertulis)
+        : '';
+
+      if (category) {
+        if (category.code === 'A' || category.code === 'D') {
+          formulaLabel = 'Hasil ÷ Konversi PCS/KG' + upLabelSuffix;
+          formulaLine =
+            number(result.orderAfterBs) + ' ÷ ' +
+            number(result.pcsPerKg) + upValueSuffix + ' = ' +
+            (result.ok ? resultNumber(result.keluarBahan) + ' KG' : '—');
+          references.push(
+            'Panjang: ' + number(dimensions.panjang),
+            'Tebal: ' + number(dimensions.tebal),
+            'Lebar Jadi: ' + number(dimensions.lebar),
+            'PCS/KG: ' + number(result.pcsPerKg)
+          );
+        } else if (category.code === 'B' || category.code === 'A-MUSTIKA') {
+          formulaLabel = 'Hasil × Panjang ÷ 100 ÷ Meter' + upLabelSuffix;
+          formulaLine =
+            number(result.orderAfterBs) + ' × ' +
+            number(dimensions.panjang) + ' ÷ 100 ÷ ' +
+            number(result.meter) + upValueSuffix + ' = ' +
+            (result.ok ? resultNumber(result.keluarBahan) + ' ROLL' : '—');
+          references.push(
+            'Panjang: ' + number(dimensions.panjang),
+            'Tebal: ' + number(dimensions.tebal),
+            'Meter: ' + number(result.meter)
+          );
+        } else if (category.code === 'C') {
+          formulaLabel = 'Hasil × Panjang × Konversi PCS/KG ÷ 100 ÷ Meter' + upLabelSuffix;
+          formulaLine =
+            number(result.orderAfterBs) + ' × ' +
+            number(dimensions.panjang) + ' × ' +
+            number(result.pcsPerKg) + ' ÷ 100 ÷ ' +
+            number(result.meter) + upValueSuffix + ' = ' +
+            (result.ok ? resultNumber(result.keluarBahan) + ' ROLL' : '—');
+          references.push(
+            'Panjang: ' + number(dimensions.panjang),
+            'Tebal: ' + number(dimensions.tebal),
+            'Lebar Jadi: ' + number(dimensions.lebar),
+            'PCS/KG: ' + number(result.pcsPerKg),
+            'Meter: ' + number(result.meter)
+          );
+        } else if (category.code === 'E') {
+          formulaLabel = 'Hasil' + upLabelSuffix;
+          formulaLine =
+            number(result.orderAfterBs) + ' KG' + upValueSuffix + ' = ' +
+            (result.ok ? resultNumber(result.keluarBahan) + ' KG' : '—');
+          references.push('Tidak memakai konversi; hasil sama dengan Order + BS.');
+        } else if (category.code === 'F') {
+          formulaLabel = 'Hasil × Meter Roll ÷ Meter ÷ UP';
+          formulaLine =
+            number(result.orderAfterBs) + ' × ' +
+            number(result.meterRoll) + ' ÷ ' +
+            number(result.meter) + ' ÷ ' +
+            (result.up === null || result.up === undefined ? '—' : result.up) +
+            ' UP = ' +
+            (result.ok ? resultNumber(result.keluarBahan) + ' ROLL' : '—');
+          references.push(
+            'Lebar: ' + number(dimensions.lebar),
+            'Lebar Bahan: ' + number(dimensions.lebarBahan),
+            'Tebal: ' + number(dimensions.tebal),
+            'Meter Roll: ' + number(result.meterRoll),
+            'Meter: ' + number(result.meter),
+            'UP: ' + (result.up === null || result.up === undefined ? '—' : result.up) +
+              (dimensions.upTertulis > 0
+                ? ' (tertulis pada Ukuran Blowing)'
+                : ' (dihitung dari lebar)')
+          );
+        }
+      }
+
+      if (upTertulisAktif) {
+        references.push(
+          'UP: ' + number(dimensions.upTertulis) + ' (tertulis pada Ukuran Blowing)'
+        );
+      }
+
+      if (
+        category &&
+        ['A-MUSTIKA', 'B', 'C', 'F'].includes(category.code) &&
+        result.meter > 0
+      ) {
+        references.push(
+          String(material || '').toUpperCase().includes('CPP')
+            ? 'Aturan Meter CPP: tetap 6.000'
+            : 'Meter dari Tebal ' + number(dimensions.tebal) + ': ' + number(result.meter)
+        );
+      }
+
+      if (result.meterPerKg > 0) {
+        references.push(
+          'Meter/KG: ' + number(result.meterPerKg),
+          'Density: ' + formatCalculationNumber_(result.density, 2),
+          'Lapisan film: ' + result.filmLayerFactor
+        );
+      }
+
+      return {
+        title: category ? category.sheetTitle : 'Logika Perhitungan',
+        categoryText: category
+          ? (category.code === 'A-MUSTIKA' ? 'Kategori A · Khusus Mustika' : 'Kategori ' + category.code)
+          : 'Kategori —',
+        orderLine,
+        formulaLabel,
+        formulaLine,
+        resultLine: result.ok
+          ? resultNumber(result.keluarBahan) + ' ' + result.uomKB
+          : '—',
+        referenceLine: references.length
+          ? references.join(' · ')
+          : 'Kategori ditentukan dari Material dan UOM Order.',
+        orderTypeNote: getCalculationOrderTypeNote_(),
+        ukuranBlowing: document.getElementById('ukuranBlow').value.trim() || '—',
+        jenisFilm: document.getElementById('film').value.trim() || '—',
+        density: formatCalculationNumber_(result.density, 2),
+        meterPerKg: formatCalculationNumber_(result.meterPerKg, 2)
+      };
+    }
+
+    function renderRawMaterialCalculation_(result) {
+      const card = document.getElementById('rawMaterialCalculation');
+      const status = document.getElementById('calculationStatus');
+      const message = document.getElementById('calculationMessage');
+      const sheetView = buildCalculationSheetView_(result);
+
+      card.classList.toggle('is-ready', Boolean(result.ok));
+      card.classList.toggle('is-error', Boolean(!result.ok && result.error));
+      status.textContent = result.ok ? 'Siap' : (result.error ? 'Periksa input' : 'Belum lengkap');
+      message.textContent = result.message || 'Lengkapi data perhitungan.';
+
+      setCalculationMetric_('calcSheetTitle', sheetView.title);
+      setCalculationMetric_('calcSheetCategory', sheetView.categoryText);
+      setCalculationMetric_('calcOrderLine', sheetView.orderLine);
+      setCalculationMetric_('calcFormulaLabel', sheetView.formulaLabel);
+      setCalculationMetric_('calcFormulaLine', sheetView.formulaLine);
+      setCalculationMetric_('calcResult', sheetView.resultLine);
+      setCalculationMetric_('calcReferenceDetail', sheetView.referenceLine);
+      setCalculationMetric_('calcOrderTypeNote', sheetView.orderTypeNote);
+      setCalculationMetric_('calcUkuranBlowing', sheetView.ukuranBlowing);
+      setCalculationMetric_('calcJenisFilm', sheetView.jenisFilm);
+      setCalculationMetric_('calcDensity', sheetView.density);
+      setCalculationMetric_('calcMeterPerKg', sheetView.meterPerKg);
+    }
+
+    // Rumus PCS/KG di Database: 5444 / panjang / tebal / lebar (kolom M-O).
+    // Ditiru di sini hanya untuk ditampilkan; kolom R tetap berisi rumus.
+    function getFieldValue_(id) {
+      const field = document.getElementById(id);
+      return field ? field.value : '';
+    }
+
+    // Lembaran menggandakan PCS/KG. Kantong dan mode yang belum dipilih
+    // memakai nilai apa adanya.
+    function getPcsKgModeFactor_() {
+      return String(getFieldValue_('pcsKgMode') || '').toUpperCase() === 'LEMBARAN' ? 2 : 1;
+    }
+
+    // Density dan jumlah lapisan film sepenuhnya turunan dari Jenis Bahan dan
+    // Film di Data Utama. Panel Blowing hanya menampilkannya kembali.
+    function syncMaterialDerivedFields_() {
+      const material = getFieldValue_('material');
+      const film = getFieldValue_('film');
+
+      const filmMirror = document.getElementById('blowingFilmDisplay');
+      if (filmMirror) filmMirror.value = film || '';
+
+      const densityMirror = document.getElementById('blowingDensityDisplay');
+      if (densityMirror) {
+        const density = getEffectiveDensity_(material);
+        densityMirror.value = density === null ? '' : formatCalculationNumber_(density, 2, 2);
+      }
+
+      syncBahanUkuranDisplays_();
+      recalculateRawMaterial_();
+    }
+
+    // Label satuan Stok mengikuti UOM Order karena keduanya menghitung barang
+    // jadi yang sama.
+    function syncStokUomHint_() {
+      const hint = document.getElementById('stokUomHint');
+      if (!hint) return;
+      const uom = String(getFieldValue_('uomOrder') || 'PCS').toUpperCase();
+      hint.textContent = '(' + (uom || 'PCS') + ')';
+    }
+
+    function updatePcsPerKgDisplay_() {
+      const field = document.getElementById('pcsPerKgDisplay');
+      if (!field) return;
+
+      const dimensions = getEffectiveDimensions_();
+      const lebar = parseCalculationNumber_(dimensions.lebar);
+      const panjang = parseCalculationNumber_(dimensions.panjang);
+      const tebal = parseCalculationNumber_(dimensions.tebal);
+
+      if (!(lebar > 0) || !(panjang > 0) || !(tebal > 0)) {
+        field.value = '';
+        return;
+      }
+
+      field.value = formatCalculationNumber_(
+        (5444 / panjang / tebal / lebar) * getPcsKgModeFactor_(),
+        2,
+        2
+      );
+    }
+
+    function recalculateRawMaterial_() {
+      updatePcsPerKgDisplay_();
+
+      rawMaterialCalculation = calculateRawMaterial_();
+      renderRawMaterialCalculation_(rawMaterialCalculation);
+    }
+
+    // ==========================================
+    // WIZARD
+    // ==========================================
+    function bindWizardTracking_() {
+      formEl.addEventListener('input', event => {
+        if (event.target.classList.contains('wizard-invalid') && String(event.target.value).trim() !== '') {
+          event.target.classList.remove('wizard-invalid');
+        }
+        updateWizardState_();
+      });
+
+      formEl.addEventListener('change', () => updateWizardState_());
+    }
+
+    function getProgressLevel_(filled, total) {
+      if (total > 0 && filled >= total) return 'complete';
+      if (total > 0 && filled / total >= 0.5) return 'half';
+      return 'low';
+    }
+
+    function getStepTabStatus_(step) {
+      if (step === 1) {
+        const mode = getOrderMode_();
+        const fieldIds = [
+          mode === 'repeat' ? 'spkRepeat' : 'spkNew',
+          'tanggal',
+          'marketing',
+          'nomorPO',
+          'customer',
+          'material',
+          'film',
+          'artikel',
+          'kodeItem',
+          'keteranganWarna',
+          'keteranganBahan',
+          'keteranganArtikel',
+          'modelKantong',
+          'etd'
+        ];
+        if (mode === 'repeat') fieldIds.unshift('spkSebelumnya');
+
+        const filled = fieldIds.filter(id => {
+          const field = document.getElementById(id);
+          return field && String(field.value).trim() !== '';
+        }).length;
+
+        return {
+          text: filled + '/' + fieldIds.length + ' terisi',
+          level: getProgressLevel_(filled, fieldIds.length)
+        };
+      }
+
+      if (step === 2) {
+        const filled = BS_LIST.filter(item => {
+          const field = document.getElementById('bs-' + item.key);
+          return field && Number(field.value) > 0;
+        }).length;
+
+        return {
+          text: filled + '/' + BS_LIST.length + ' terisi',
+          level: getProgressLevel_(filled, BS_LIST.length)
+        };
+      }
+
+      if (step === 3) {
+        let total = 0;
+        let filled = 0;
+
+        bahanRows.forEach((row, index) => {
+          const values = index === MAX_BAHAN - 1
+            ? [row.material]
+            : [row.material, row.kg, row.percent];
+          total += values.length;
+          filled += values.filter(value =>
+            String(value === null || value === undefined ? '' : value).trim() !== ''
+          ).length;
+        });
+
+        return {
+          text: filled + '/' + total + ' terisi',
+          level: getProgressLevel_(filled, total)
+        };
+      }
+
+      if (step === 4) {
+        const cuttingStep = findFirstRoutingStep_('cutting');
+        const filled = [
+          routingSteps.length > 0,
+          Boolean(cuttingStep) && String(stepValue_(cuttingStep, 'finishing') || '-') !== '-',
+          Boolean(cuttingStep) && String(stepValue_(cuttingStep, 'handlePm') || '-') !== '-'
+        ].filter(Boolean).length;
+
+        return {
+          text: filled + '/3 terisi',
+          level: getProgressLevel_(filled, 3)
+        };
+      }
+
+      if (step === 5) {
+        const values = [
+          document.getElementById('ukuranBlow').value,
+          document.getElementById('ukuranJadi').value,
+          document.getElementById('jumlahOrder').value
+        ];
+        if (document.getElementById('uomOrder').value === 'ROLL') {
+          values.push(document.getElementById('meterRoll').value);
+        }
+        const filled = values.filter(value => String(value).trim() !== '').length;
+        return {
+          text: filled + '/' + values.length + ' terisi',
+          level: getProgressLevel_(filled, values.length)
+        };
+      }
+
+      return { text: 'Belum mulai', level: 'low' };
+    }
+
+
+
+
+    // Dulu berpindah panel; kini seluruh bagian selalu tampil sehingga
+    // fungsinya hanya menggulir ke bagian yang dituju.
+    function changeStep_(targetStep) {
+      const target = document.querySelector(`[data-panel="${targetStep}"]`);
+      if (target && typeof target.scrollIntoView === 'function') {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+
+    function validateStep_(step, showAlert) {
+      clearWizardInvalid_();
+
+      if (step === 1) {
+        const missing = [];
+        const tanggal = document.getElementById('tanggal');
+        const customer = document.getElementById('customer');
+        const material = document.getElementById('material');
+        const etd = document.getElementById('etd');
+        const etdDisplay = document.querySelector('[data-partial-date]') ||
+          document.getElementById('partialList');
+        const mode = getOrderMode_();
+        const targetUi = getActiveTargetSpkUi_();
+        const targetState = getActiveTargetSpkState_();
+
+        if (mode === 'repeat') {
+          if (spkSebelumnyaField.value.trim() === '') {
+            missing.push('SPK Item Sebelumnya');
+            spkSebelumnyaField.classList.add('wizard-invalid');
+          }
+          if (repeatLookupState.state !== 'found') {
+            if (repeatLookupState.state === 'checking') {
+              if (showAlert) showValidationAlert_('SPK Lama Sedang Dicari', 'Tunggu sampai data SPK sebelumnya selesai dimuat.');
+              return false;
+            }
+            if (spkSebelumnyaField.value.trim() !== '') {
+              if (showAlert) showValidationAlert_('SPK Lama Belum Ditemukan', 'Pastikan SPK item sebelumnya ditemukan dan data berhasil dimuat.');
+              spkSebelumnyaField.classList.add('wizard-invalid');
+              spkSebelumnyaField.focus();
+              return false;
+            }
+          }
+        }
+
+        if (targetUi.field.value.trim() === '') {
+          missing.push(mode === 'repeat' ? 'Nomor SPK Repeat Baru' : 'Nomor SPK New Order');
+          targetUi.field.classList.add('wizard-invalid');
+        }
+        if (tanggal.value === '') {
+          missing.push('Tanggal');
+          tanggal.classList.add('wizard-invalid');
+        }
+        if (customer.value.trim() === '') {
+          missing.push('Customer');
+          customer.classList.add('wizard-invalid');
+        }
+        if (material.value.trim() === '') {
+          missing.push('Material');
+          material.classList.add('wizard-invalid');
+        }
+        if (etd.value === '') {
+          missing.push('Tanggal Kirim');
+          if (etdDisplay) etdDisplay.classList.add('wizard-invalid');
+        }
+
+        if (missing.length) {
+          if (showAlert) showValidationAlert_('Data Utama Belum Lengkap', 'Lengkapi: ' + missing.join(', ') + '.');
+          focusFirstInvalid_();
+          return false;
+        }
+
+        const keteranganWarnaField = document.getElementById('keteranganWarna');
+        const keteranganWarnaValue = String(keteranganWarnaField.value || '').trim();
+        if (keteranganWarnaValue !== '' && !/^\d+(?:\+\d+)?$/.test(keteranganWarnaValue)) {
+          keteranganWarnaField.classList.add('wizard-invalid');
+          if (showAlert) showValidationAlert_('Keterangan Warna Belum Valid', 'Gunakan angka atau format angka+angka, contoh 5+1.');
+          keteranganWarnaField.focus();
+          return false;
+        }
+
+        const keteranganBahanField = document.getElementById('keteranganBahan');
+        if (
+          keteranganBahanField.value !== '' &&
+          !['BAHAN INTERNAL', 'BAHAN DARI LUAR'].includes(keteranganBahanField.value)
+        ) {
+          keteranganBahanField.classList.add('wizard-invalid');
+          if (showAlert) showValidationAlert_('Keterangan Bahan Belum Valid', 'Pilih Bahan Internal atau Bahan dari Luar.');
+          keteranganBahanField.focus();
+          return false;
+        }
+
+        if (mode === 'repeat' && normalizeClientSpk_(targetUi.field.value) === normalizeClientSpk_(spkSebelumnyaField.value)) {
+          targetUi.field.classList.add('wizard-invalid');
+          if (showAlert) showValidationAlert_('Nomor SPK Tidak Boleh Sama', 'SPK repeat baru harus berbeda dari SPK item sebelumnya.');
+          targetUi.field.focus();
+          return false;
+        }
+
+        if (targetState.state === 'checking') {
+          if (showAlert) showValidationAlert_('SPK Sedang Diperiksa', 'Tunggu sampai pengecekan nomor SPK baru selesai.');
+          return false;
+        }
+
+        if (targetState.state === 'duplicate' || targetState.duplicate) {
+          if (showAlert) showValidationAlert_('SPK Sudah Ada', 'Ganti nomor SPK baru sebelum melanjutkan.');
+          targetUi.field.focus();
+          return false;
+        }
+
+        if (targetState.state !== 'available') {
+          if (showAlert) showValidationAlert_('SPK Belum Terverifikasi', 'Ketik nomor SPK baru lalu tunggu hingga statusnya tersedia.');
+          targetUi.field.focus();
+          return false;
+        }
+      }
+
+      if (step === 5) {
+        recalculateRawMaterial_();
+        const ukuranJadiField = document.getElementById('ukuranJadi');
+        const jumlahOrderField = document.getElementById('jumlahOrder');
+        const uomOrderField = document.getElementById('uomOrder');
+        const meterRollField = document.getElementById('meterRoll');
+        const keluarBahanField = document.getElementById('keluarBahan');
+        const uomKbField = document.getElementById('uomKB');
+        const jumlahOrder = parseCalculationNumber_(jumlahOrderField.value);
+        const meterRoll = parseCalculationNumber_(meterRollField.value);
+        const manualKeluarBahan = parseCalculationNumber_(keluarBahanField.value);
+
+        if (ukuranJadiField.value.trim() === '') {
+          ukuranJadiField.classList.add('wizard-invalid');
+          if (showAlert) showValidationAlert_('Data Utama Belum Lengkap', 'Lengkapi: Ukuran Jadi.');
+          ukuranJadiField.focus();
+          return false;
+        }
+
+        if (!(jumlahOrder > 0)) {
+          jumlahOrderField.classList.add('wizard-invalid');
+          if (showAlert) showValidationAlert_('Data Utama Belum Lengkap', 'Jumlah Order wajib lebih dari 0.');
+          jumlahOrderField.focus();
+          return false;
+        }
+
+        if (!['PCS', 'KG', 'ROLL'].includes(uomOrderField.value)) {
+          uomOrderField.classList.add('wizard-invalid');
+          if (showAlert) showValidationAlert_('UOM Order Belum Valid', 'Pilih PCS, KG, atau ROLL.');
+          uomOrderField.focus();
+          return false;
+        }
+
+        if (uomOrderField.value === 'ROLL' && !(meterRoll > 0)) {
+          meterRollField.classList.add('wizard-invalid');
+          if (showAlert) {
+            showValidationAlert_(
+              'Meter/Roll Belum Lengkap',
+              'Isi Meter/Roll lebih dari 0 untuk order ROLL.'
+            );
+          }
+          meterRollField.focus();
+          return false;
+        }
+
+        if (keluarBahanField.value.trim() !== '' && !(manualKeluarBahan > 0)) {
+          keluarBahanField.classList.add('wizard-invalid');
+          if (showAlert) {
+            showValidationAlert_(
+              'Keluar Bahan Belum Valid',
+              'Kosongkan kolom atau isi Keluar Bahan lebih dari 0.'
+            );
+          }
+          keluarBahanField.focus();
+          return false;
+        }
+
+        if (
+          keluarBahanField.value.trim() !== '' &&
+          !['KG', 'ROLL'].includes(uomKbField.value)
+        ) {
+          uomKbField.classList.add('wizard-invalid');
+          if (showAlert) {
+            showValidationAlert_('UOM Keluar Bahan Belum Valid', 'Pilih UOM KG atau ROLL.');
+          }
+          uomKbField.focus();
+          return false;
+        }
+
+        // Perhitungan bahan tetap ditampilkan sebagai bantuan, tetapi hasil
+        // yang belum lengkap tidak lagi menghalangi penyimpanan Data Utama.
+      }
+
+      return true;
+    }
+
+    function validateAllSteps_() {
+      if (!validateStep_(1, false)) {
+        changeStep_(1, 'backward');
+        validateStep_(1, true);
+        return false;
+      }
+      if (!validateStep_(5, false)) {
+        changeStep_(5, currentStep > 5 ? 'backward' : 'forward');
+        validateStep_(5, true);
+        return false;
+      }
+      return true;
+    }
+
+    function updateWizardState_() {
+      document.querySelectorAll('.wizard-tab').forEach(tab => {
+        const step = Number(tab.dataset.step);
+        const active = step === currentStep;
+        const status = tab.querySelector('.wizard-tab-status');
+        const tabStatus = getStepTabStatus_(step);
+        const complete = tabStatus.level === 'complete';
+
+        tab.classList.toggle('active', active);
+        tab.classList.toggle('completed', complete);
+        tab.classList.toggle('progress-complete', tabStatus.level === 'complete');
+        tab.classList.toggle('progress-half', tabStatus.level === 'half');
+        tab.classList.toggle('progress-low', tabStatus.level === 'low');
+        tab.setAttribute('aria-selected', active ? 'true' : 'false');
+
+        status.textContent = tabStatus.text;
+      });
+
+      updateNavigationButtons_();
+    }
+
+    function updateNavigationButtons_() {
+      if (btnSubmitEl.dataset.saving) return;
+
+      btnSubmitEl.innerHTML = `
+        SIMPAN KE DATABASE
+        <svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      `;
+
+      // Selama nomor SPK masih diperiksa ke server, penyimpanan ditahan
+      // agar tidak menabrak nomor yang ternyata sudah terpakai.
+      const activeTargetState = getActiveTargetSpkState_();
+      const repeatIsChecking = getOrderMode_() === 'repeat' && repeatLookupState.state === 'checking';
+      btnSubmitEl.disabled = activeTargetState.state === 'checking' || repeatIsChecking;
+    }
+
+    function showValidationAlert_(title, text) {
+      Swal.fire({
+        icon: 'warning',
+        title: title,
+        text: text,
+        confirmButtonColor: '#202020',
+        background: '#e0e5ec',
+        customClass: { popup: 'swal2-popup-neumorphic' }
+      });
+    }
+
+    function clearWizardInvalid_() {
+      document.querySelectorAll('.wizard-invalid').forEach(el => el.classList.remove('wizard-invalid'));
+    }
+
+    // Kolom yang bermasalah bisa berada di panel routing yang sedang
+    // tertutup; panelnya dibuka lebih dulu agar bisa benar-benar dilihat.
+    function focusFirstInvalid_() {
+      const first = document.querySelector('.wizard-invalid');
+      if (!first) return;
+
+      const panel = first.closest('.route-panel');
+      if (panel && panel.hidden) {
+        const key = String(panel.id || '').replace('route-', '');
+        activeRoutingKey = key;
+        syncRoutingTabs_();
+        syncWarnaVisibility_();
+        syncBsSheetVisibility_();
+      syncBahanUkuranVisibility_();
+      }
+
+      if (typeof first.scrollIntoView === 'function') {
+        first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      first.focus();
+    }
+
+    // ==========================================
+    // JENIS ORDER & REPEAT ORDER
+    // ==========================================
+    function bindOrderTypeEvents_() {
+      TARGET_SPK_UI.new.field.addEventListener('input', () => handleTargetSpkInput_('new'));
+      TARGET_SPK_UI.repeat.field.addEventListener('input', () => handleTargetSpkInput_('repeat'));
+      spkSebelumnyaField.addEventListener('input', handleRepeatSourceInput_);
+    }
+
+    function getOrderMode_() {
+      return jenisOrderField.value === 'Repeat Order' ? 'repeat' : 'new';
+    }
+
+    function getActiveTargetSpkUi_() {
+      return TARGET_SPK_UI[getOrderMode_()];
+    }
+
+    function getActiveTargetSpkState_() {
+      return targetSpkStates[getOrderMode_()];
+    }
+
+    function getActiveSpkValue_() {
+      return getActiveTargetSpkUi_().field.value.trim().toUpperCase();
+    }
+
+    function normalizeClientSpk_(value) {
+      return String(value === null || value === undefined ? '' : value).trim().toUpperCase();
+    }
+
+    function setOrderType_(type, options) {
+      const opts = options || {};
+      const isRepeat = type === 'Repeat Order';
+      jenisOrderField.value = isRepeat ? 'Repeat Order' : 'New Order';
+
+      // Satu kolom Tanggal PO Masuk dipakai kedua mode. Elemennya dipindah,
+      // bukan diduplikasi, agar tidak ada dua ID yang sama dan nilainya tidak
+      // perlu disinkronkan. Sebelumnya kolom ini tertinggal di blok New Order
+      // sehingga tidak pernah tampil saat mode Repeat Order.
+      const newOrderSection = document.getElementById('newOrderSpkSection');
+      const repeatOrderSection = document.getElementById('repeatOrderSpkSection');
+      const poMasukInlineField = document.getElementById('poMasukInlineField');
+      const activeOrderSection = isRepeat ? repeatOrderSection : newOrderSection;
+      if (poMasukInlineField && activeOrderSection && poMasukInlineField.parentElement !== activeOrderSection) {
+        activeOrderSection.appendChild(poMasukInlineField);
+      }
+
+      document.getElementById('orderTypeNew').classList.toggle('active', !isRepeat);
+      document.getElementById('orderTypeRepeat').classList.toggle('active', isRepeat);
+      document.getElementById('orderTypeNew').setAttribute('aria-pressed', String(!isRepeat));
+      document.getElementById('orderTypeRepeat').setAttribute('aria-pressed', String(isRepeat));
+      newOrderSection.classList.toggle('order-mode-hidden', isRepeat);
+      repeatOrderSection.classList.toggle('order-mode-hidden', !isRepeat);
+
+      window.dispatchEvent(new CustomEvent('spk-order-mode', {
+        detail: isRepeat ? 'repeat' : 'new'
+      }));
+
+      clearWizardInvalid_();
+      recalculateRawMaterial_();
+      updateWizardState_();
+
+      if (opts.focus !== false) {
+        setTimeout(() => {
+          (isRepeat ? spkSebelumnyaField : TARGET_SPK_UI.new.field).focus();
+        }, 30);
+      }
+    }
+
+    function handleTargetSpkInput_(mode) {
+      const ui = TARGET_SPK_UI[mode];
+      const state = targetSpkStates[mode];
+      ui.field.value = ui.field.value.toUpperCase();
+      ui.field.classList.remove('wizard-invalid');
+      clearTimeout(state.timer);
+
+      const seq = ++state.seq;
+      const value = ui.field.value.trim();
+
+      if (value === '') {
+        setTargetSpkIdle_(mode);
+        return;
+      }
+
+      setTargetSpkChecking_(mode);
+      const snapshot = getFreshSpkExistenceSnapshot_();
+      if (!snapshot) warmSpkExistenceSnapshot_();
+      state.timer = setTimeout(() => {
+        const currentSnapshot = getFreshSpkExistenceSnapshot_();
+        if (currentSnapshot) {
+          if (seq !== state.seq) return;
+          currentSnapshot.has(normalizeClientSpk_(value))
+            ? setTargetSpkDuplicate_(mode, value)
+            : setTargetSpkAvailable_(mode);
+          return;
+        }
+
+        google.script.run
+          .withSuccessHandler(res => {
+            if (seq !== state.seq) return;
+            if (res.status === 'success') {
+              res.exists ? setTargetSpkDuplicate_(mode, value) : setTargetSpkAvailable_(mode);
+            } else {
+              setTargetSpkIdle_(mode);
+              showSystemError_('Gagal Memeriksa SPK', res.message);
+            }
+          })
+          .withFailureHandler(err => {
+            if (seq !== state.seq) return;
+            setTargetSpkIdle_(mode);
+            showSystemError_('Gagal Memeriksa SPK', err.message);
+          })
+          .checkSpkExists(value);
+      }, snapshot ? 70 : 180);
+    }
+
+    function resetTargetSpkVisual_(mode) {
+      const ui = TARGET_SPK_UI[mode];
+      ui.field.classList.remove('field-error', 'field-success');
+      ui.statusIcon.classList.remove('state-checking', 'state-success', 'state-error');
+    }
+
+    function setTargetSpkIdle_(mode) {
+      resetTargetSpkVisual_(mode);
+      targetSpkStates[mode].duplicate = false;
+      targetSpkStates[mode].state = 'idle';
+      updateWizardState_();
+    }
+
+    function setTargetSpkChecking_(mode) {
+      resetTargetSpkVisual_(mode);
+      TARGET_SPK_UI[mode].statusIcon.classList.add('state-checking');
+      targetSpkStates[mode].duplicate = true;
+      targetSpkStates[mode].state = 'checking';
+      updateWizardState_();
+    }
+
+    function setTargetSpkDuplicate_(mode, value) {
+      const ui = TARGET_SPK_UI[mode];
+      resetTargetSpkVisual_(mode);
+      ui.field.classList.add('field-error');
+      ui.statusIcon.classList.add('state-error');
+      targetSpkStates[mode].duplicate = true;
+      targetSpkStates[mode].state = 'duplicate';
+      updateWizardState_();
+    }
+
+    function setTargetSpkAvailable_(mode) {
+      const ui = TARGET_SPK_UI[mode];
+      resetTargetSpkVisual_(mode);
+      ui.field.classList.add('field-success');
+      ui.statusIcon.classList.add('state-success');
+      targetSpkStates[mode].duplicate = false;
+      targetSpkStates[mode].state = 'available';
+      updateWizardState_();
+    }
+
+    function handleRepeatSourceInput_() {
+      spkSebelumnyaField.value = spkSebelumnyaField.value.toUpperCase();
+      spkSebelumnyaField.classList.remove('wizard-invalid', 'field-error', 'field-success');
+      recalculateRawMaterial_();
+      clearTimeout(repeatLookupState.timer);
+
+      const value = spkSebelumnyaField.value.trim();
+      const seq = ++repeatLookupState.seq;
+
+      if (repeatLookupState.loadedSpk && normalizeClientSpk_(value) !== repeatLookupState.loadedSpk) {
+        clearRepeatLoadedFields_();
+      }
+
+      if (value === '') {
+        setRepeatLookupIdle_();
+        return;
+      }
+
+      setRepeatLookupChecking_();
+      repeatLookupState.timer = setTimeout(() => {
+        google.script.run
+          .withSuccessHandler(res => {
+            if (seq !== repeatLookupState.seq) return;
+
+            if (res.status === 'success' && res.found) {
+              applyRepeatData_(res.data);
+              setRepeatLookupFound_(res.data);
+            } else if (res.status === 'not_found' || (res.status === 'success' && !res.found)) {
+              setRepeatLookupNotFound_(value, res.message || 'Nomor SPK tidak ditemukan di Database.');
+            } else {
+              setRepeatLookupError_(res.message || 'Data SPK gagal dimuat.');
+            }
+          })
+          .withFailureHandler(err => {
+            if (seq !== repeatLookupState.seq) return;
+            setRepeatLookupError_(err.message || 'Data SPK gagal dimuat.');
+          })
+          .getSpkData(value);
+      }, 450);
+    }
+
+    function resetRepeatLookupVisual_() {
+      const icon = document.getElementById('repeatLookupStatusIcon');
+      icon.classList.remove('state-checking', 'state-success', 'state-error');
+      spkSebelumnyaField.classList.remove('field-error', 'field-success');
+    }
+
+    function setRepeatLookupIdle_() {
+      resetRepeatLookupVisual_();
+      repeatLookupState.state = 'idle';
+      repeatLookupState.loadedSpk = '';
+      updateWizardState_();
+    }
+
+    function setRepeatLookupChecking_() {
+      resetRepeatLookupVisual_();
+      document.getElementById('repeatLookupStatusIcon').classList.add('state-checking');
+      repeatLookupState.state = 'checking';
+      repeatLookupState.loadedSpk = '';
+      updateWizardState_();
+    }
+
+    function setRepeatLookupFound_(data) {
+      resetRepeatLookupVisual_();
+      document.getElementById('repeatLookupStatusIcon').classList.add('state-success');
+      spkSebelumnyaField.classList.add('field-success');
+
+      repeatLookupState.state = 'found';
+      repeatLookupState.loadedSpk = normalizeClientSpk_(data.spk);
+      updateWizardState_();
+    }
+
+    function setRepeatLookupNotFound_(value, message) {
+      resetRepeatLookupVisual_();
+      document.getElementById('repeatLookupStatusIcon').classList.add('state-error');
+      spkSebelumnyaField.classList.add('field-error');
+
+      repeatLookupState.state = 'notfound';
+      repeatLookupState.loadedSpk = '';
+      updateWizardState_();
+    }
+
+    function setRepeatLookupError_(message) {
+      resetRepeatLookupVisual_();
+      document.getElementById('repeatLookupStatusIcon').classList.add('state-error');
+      spkSebelumnyaField.classList.add('field-error');
+
+      repeatLookupState.state = 'error';
+      repeatLookupState.loadedSpk = '';
+      updateWizardState_();
+    }
+
+    function applyRepeatData_(data) {
+      const preservedRepeatSpk = TARGET_SPK_UI.repeat.field.value;
+      clearAutomaticRouteSizeMarkers_();
+
+      // Tanggal repeat order adalah tanggal transaksi baru, bukan tanggal SPK sumber.
+      // Pertahankan tanggal yang sudah dipilih pengguna; jika kosong, gunakan hari ini.
+      if (!document.getElementById('tanggal').value) setTanggalHariIni_();
+      setFieldValue_('marketing', data.marketing);
+      setFieldValue_('nomorPO', data.nomorPO);
+      setFieldValue_('customer', data.customer);
+      setFieldValue_('material', data.material);
+      setFieldValue_('film', data.film);
+      setFieldValue_('artikel', data.artikel);
+      setFieldValue_('kodeItem', data.kodeItem);
+      setFieldValue_('keteranganWarna', data.keteranganWarna);
+      setFieldValue_('keteranganBahan', data.keteranganBahan);
+      setFieldValue_('keteranganArtikel', data.keteranganArtikel);
+      setFieldValue_('modelKantong', data.modelKantong);
+      setFieldValue_('ukuranBlow', data.ukuranBlow);
+      setFieldValue_('ukuranJadi', data.ukuranJadi);
+      setFieldValue_('blowingThreat', data.blowingThreat || 'NON THREAT');
+      setFieldValue_('blowingModeCetak', data.blowingModeCetak || 'NON PRINT');
+      setFieldValue_('printingKodeSilinder', data.printingKodeSilinder);
+      setFieldValue_('ukuranFolding', data.ukuranFolding);
+      setFieldValue_('ukuranSlitting', data.ukuranSlitting);
+      setFieldValue_('ukuranGusset', data.ukuranGusset);
+      setFieldValue_('pcsKgMode', data.pcsKgMode);
+      setFieldValue_('jenisPotongan', data.jenisPotongan);
+      setFieldValue_('toleransiProduksi', data.toleransiProduksi);
+      // Ukuran bahan ikut dibawa karena menggambarkan barangnya, bukan
+      // keadaan sesaat seperti Stok atau WIP.
+      setBahanUkuranManual_({
+        lebar: data.bahanLebar,
+        panjang: data.bahanPanjang,
+        tebal: data.bahanTebal,
+        density: data.bahanDensity
+      });
+      // Stok, OTS, dan WIP menggambarkan keadaan persediaan saat itu, jadi
+      // tidak ikut dibawa ke SPK repeat yang baru.
+      setFieldValue_('stok', '');
+      setFieldValue_('ots', '');
+      setFieldValue_('wip', '');
+      setPoMasukValue_('');
+      // Jadwal kirim milik SPK sumber tidak dibawa; tanggalnya selalu
+      // ditentukan ulang untuk SPK repeat yang baru.
+      setPengirimanRows_([]);
+      setFieldValue_('jenisPacking', data.jenisPacking);
+      setFieldValue_('packing', data.packing);
+      setFieldValue_('finishing', data.finishing || '-');
+      setFieldValue_('handlePm', data.handlePm || '-');
+      setFieldValue_('jumlahOrder', data.jumlahOrder);
+      setFieldValue_('uomOrder', data.uomOrder || 'PCS');
+      setFieldValue_('meterRoll', data.meterRoll);
+      // Keluar Bahan repeat order tetap dimulai kosong agar nilai SPK baru
+      // ditentukan secara sadar oleh Admin atau dikelola Manager PPIC.
+      setFieldValue_('keluarBahan', '');
+      setFieldValue_('uomKB', '');
+      setFieldValue_(
+        'toleransi',
+        String(data.toleransi || '').toUpperCase() === 'PASS'
+          ? ''
+          : data.toleransi
+      );
+
+      PROSES_LIST.forEach(item => {
+        const checked = Boolean(data.proses && data.proses[item.key]);
+        const input = document.getElementById('proses-' + item.key);
+        if (input) input.checked = checked;
+        if (item.noteLabel) {
+          setFieldValue_(
+            'ket-' + item.key,
+            data.keteranganProses && data.keteranganProses[item.key]
+          );
+        }
+      });
+      ['bottomSeal', 'sideSeal', 'tshirt'].forEach(function(key) {
+        setFieldValue_(
+          'ket-' + key,
+          data.keteranganProses && data.keteranganProses[key]
+        );
+      });
+
+      // Cutting mengikuti ada tidaknya finishing atau Handle/Pon pada SPK sumber.
+      const cuttingInput = document.getElementById('proses-cutting');
+      if (cuttingInput) {
+        cuttingInput.checked = Boolean(
+          FINISHING_NOTE_KEY_MAP[String(data.finishing || '-').toUpperCase()] ||
+          ['HANDLE', 'PON'].includes(String(data.handlePm || '-').toUpperCase())
+        );
+      }
+
+      // Untuk Repeat Order, ukuran turunan hanya diterapkan pada proses
+      // Folding, Slitting, atau Gusset yang benar-benar berjalan di SPK sumber.
+      syncRepeatAutomaticRouteSizes_();
+
+      // Target BS diisi lebih dulu karena jalur cadangan di bawah membangun
+      // langkah dari nilai yang sedang ada di panel.
+      BS_LIST.forEach(item => {
+        const input = document.getElementById('bs-' + item.key);
+        if (input) input.value = data.bsPercent && data.bsPercent[item.key] !== undefined ? data.bsPercent[item.key] : '';
+      });
+
+      activeRoutingKey = '';
+      activeStepId = 0;
+      restoreRoutingStepsFromData_(data);
+
+      ROUTING_LIST.forEach(function(item) { syncRoutePanel_(item.key); });
+      updateFinishingNoteVisibility_();
+      updateTotalProses_();
+      syncRoutingEmpty_();
+      syncWarnaVisibility_();
+      syncBsSheetVisibility_();
+      syncBahanUkuranVisibility_();
+      hitungTotalBs();
+
+      bahanRows = [];
+      (data.komposisi || []).slice(0, MAX_BAHAN).forEach(item => {
+        bahanIdCounter += 1;
+        bahanRows.push({
+          id: bahanIdCounter,
+          material: item.material || '',
+          kg: item.kg === null || item.kg === undefined ? '' : item.kg,
+          percent: item.percent === null || item.percent === undefined ? '' : item.percent
+        });
+      });
+      while (bahanRows.length < 2) {
+        bahanIdCounter += 1;
+        bahanRows.push({ id: bahanIdCounter, material: '', kg: '', percent: '' });
+      }
+      renderBahanList();
+
+      warnaRows = [];
+      (data.warna || []).slice(0, MAX_WARNA).forEach(item => {
+        if (
+          String(item.nama || '').trim() === '' &&
+          String(item.pemakaian === null || item.pemakaian === undefined ? '' : item.pemakaian).trim() === ''
+        ) return;
+        warnaIdCounter += 1;
+        warnaRows.push({
+          id: warnaIdCounter,
+          nama: item.nama || '',
+          pemakaian: item.pemakaian === null || item.pemakaian === undefined ? '' : item.pemakaian
+        });
+      });
+      renderWarnaList();
+      renderSavedRoutingList_();
+
+      TARGET_SPK_UI.repeat.field.value = preservedRepeatSpk;
+      if (preservedRepeatSpk.trim() === '') setTargetSpkIdle_('repeat');
+
+      completedSteps.clear();
+      updateWizardState_();
+    }
+
+    function clearRepeatLoadedFields_() {
+      [
+        'marketing', 'nomorPO', 'customer', 'material', 'film', 'artikel', 'kodeItem',
+        'keteranganWarna', 'keteranganBahan', 'keteranganArtikel', 'modelKantong', 'ukuranBlow', 'ukuranJadi', 'jumlahOrder',
+        'meterRoll', 'keluarBahan', 'toleransi', 'printingKodeSilinder',
+        'ukuranFolding', 'ukuranSlitting', 'ukuranGusset', 'lebarGusset',
+        'jenisPacking', 'packing', 'packingOuterBall', 'packingBallNilai', 'packingBallUom',
+        'packingRollNilai', 'packingRollUom',
+        'pcsKgMode', 'jenisPotongan', 'toleransiProduksi', 'stok', 'ots', 'wip'
+      ].forEach(id => setFieldValue_(id, ''));
+      setPoMasukValue_('');
+      setPengirimanRows_([]);
+      setBahanUkuranManual_({});
+      updatePackingDetailVisibility_();
+      clearAutomaticRouteSizeMarkers_();
+      setTanggalHariIni_();
+      setFieldValue_('finishing', '-');
+      setFieldValue_('handlePm', '-');
+      setFieldValue_('uomOrder', 'PCS');
+      setFieldValue_('uomKB', '');
+      setFieldValue_('blowingThreat', 'NON THREAT');
+      setFieldValue_('blowingModeCetak', 'NON PRINT');
+
+      PROSES_LIST.forEach(item => {
+        const input = document.getElementById('proses-' + item.key);
+        if (input) input.checked = false;
+        if (item.noteLabel) setFieldValue_('ket-' + item.key, '');
+      });
+      ['bottomSeal', 'sideSeal', 'tshirt'].forEach(function(key) {
+        setFieldValue_('ket-' + key, '');
+      });
+
+      const cuttingReset = document.getElementById('proses-cutting');
+      if (cuttingReset) cuttingReset.checked = false;
+      activeRoutingKey = '';
+      activeStepId = 0;
+      routingSteps = [];
+      routingStepIdCounter = 0;
+
+      ROUTING_LIST.forEach(function(item) { syncRoutePanel_(item.key); });
+      updateFinishingNoteVisibility_();
+      updateTotalProses_();
+      syncRoutingEmpty_();
+      syncWarnaVisibility_();
+      syncBsSheetVisibility_();
+      syncBahanUkuranVisibility_();
+
+      BS_LIST.forEach(item => {
+        const input = document.getElementById('bs-' + item.key);
+        if (input) input.value = '';
+      });
+      hitungTotalBs();
+
+      bahanRows = [];
+      for (let i = 0; i < 2; i++) {
+        bahanIdCounter += 1;
+        bahanRows.push({ id: bahanIdCounter, material: '', kg: '', percent: '' });
+      }
+      renderBahanList();
+
+      warnaRows = [];
+      renderWarnaList();
+      repeatLookupState.loadedSpk = '';
+      completedSteps.clear();
+      updateWizardState_();
+    }
+
+    // Dulu isian ini dipaksa berbentuk angka atau angka+angka. Di lapangan
+    // ternyata ada juga yang ditulis sebagai teks seperti "1 Warna", jadi
+    // isinya kini bebas dan hanya dirapikan spasinya.
+    function normalizeKeteranganWarnaValue_(value) {
+      return String(value === null || value === undefined ? '' : value)
+        .replace(/\s+/g, ' ')
+        .replace(/^\s+/, '')
+        .slice(0, 60);
+    }
+
+    function normalizeKeteranganWarnaInput_(field) {
+      if (!field) return;
+      field.value = normalizeKeteranganWarnaValue_(field.value);
+      // Kolomnya berada di Data Utama, tetapi nilainya ikut tampil pada detail
+      // Blowing yang sudah tersimpan. Render ulang agar keduanya tetap sinkron
+      // tanpa perlu menyimpan ulang alurnya. Modal edit Dashboard memakai
+      // fungsi normalisasi yang sama namun tidak punya daftar routing wizard.
+      if (field.id === 'keteranganWarna') renderSavedRoutingList_();
+    }
+
+    function normalizeKeteranganBahanValue_(value) {
+      const normalized = String(value === null || value === undefined ? '' : value)
+        .trim()
+        .toUpperCase()
+        .replace(/\s+/g, ' ');
+      if (normalized === 'BAHAN INTERNAL' || normalized === 'INTERNAL') return 'BAHAN INTERNAL';
+      if (
+        normalized === 'BAHAN DARI LUAR' ||
+        normalized === 'BAHAN LUAR' ||
+        normalized === 'DARI LUAR' ||
+        normalized === 'LUAR' ||
+        normalized === 'EKSTERNAL' ||
+        normalized === 'EXTERNAL'
+      ) return 'BAHAN DARI LUAR';
+      return '';
+    }
+
+    function buildEtdIso_(year, month, day) {
+      const safeYear = Number(year);
+      const safeMonth = Number(month);
+      const safeDay = Number(day);
+      if (!Number.isInteger(safeYear) || !Number.isInteger(safeMonth) || !Number.isInteger(safeDay)) return '';
+      if (safeYear < 2000 || safeYear > 2100 || safeMonth < 1 || safeMonth > 12 || safeDay < 1 || safeDay > 31) return '';
+
+      const candidate = new Date(Date.UTC(safeYear, safeMonth - 1, safeDay));
+      if (
+        candidate.getUTCFullYear() !== safeYear ||
+        candidate.getUTCMonth() !== safeMonth - 1 ||
+        candidate.getUTCDate() !== safeDay
+      ) return '';
+
+      return [
+        String(safeYear).padStart(4, '0'),
+        String(safeMonth).padStart(2, '0'),
+        String(safeDay).padStart(2, '0')
+      ].join('-');
+    }
+
+    function parseEtdQuickValue_(value) {
+      const raw = String(value === null || value === undefined ? '' : value).trim();
+      if (!raw) return '';
+
+      let match = raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+      if (match) return buildEtdIso_(match[1], match[2], match[3]);
+
+      match = raw.match(/^(\d{1,2})[\/.\-](\d{1,2})(?:[\/.\-](\d{2}|\d{4}))?$/);
+      if (match) {
+        let year = match[3] ? Number(match[3]) : new Date().getFullYear();
+        if (year < 100) year += 2000;
+        return buildEtdIso_(year, match[2], match[1]);
+      }
+
+      const monthPattern = ETD_MONTH_NAMES.join('|');
+      match = raw.match(new RegExp('^(\\d{1,2})\\s+(' + monthPattern + ')\\s+(\\d{4})$', 'i'));
+      if (match) {
+        const monthIndex = ETD_MONTH_NAMES.findIndex(function(monthName) {
+          return monthName.toLowerCase() === match[2].toLowerCase();
+        });
+        return buildEtdIso_(match[3], monthIndex + 1, match[1]);
+      }
+
+      return '';
+    }
+
+    function formatEtdLong_(isoValue) {
+      const match = String(isoValue || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (!match) return '';
+      return String(Number(match[3])).padStart(2, '0') + ' ' + ETD_MONTH_NAMES[Number(match[2]) - 1] + ' ' + match[1];
+    }
+
+    function setQuickDateValue_(hiddenId, displayId, value) {
+      const hidden = document.getElementById(hiddenId);
+      const display = document.getElementById(displayId);
+      if (!hidden || !display) return;
+
+      const raw = String(value === null || value === undefined ? '' : value).trim();
+      const isoValue = parseEtdQuickValue_(raw);
+      hidden.value = isoValue;
+      display.value = isoValue ? formatEtdLong_(isoValue) : raw;
+      display.classList.toggle('wizard-invalid', Boolean(raw && !isoValue));
+    }
+
+    // ETD kini tahap pertama pada Jadwal Kirim, bukan kolom tersendiri.
+    function setEtdValue_(value) {
+      const iso = parseEtdQuickValue_(value);
+      if (!pengirimanRows.length) tambahPengirimanRow_();
+      pengirimanRows[0].tanggal = iso;
+      renderPengirimanList_();
+    }
+
+    function setPoMasukValue_(value) {
+      setQuickDateValue_('poMasuk', 'poMasukDisplay', value);
+    }
+
+    function commitQuickDate_(hiddenId, displayId) {
+      const hidden = document.getElementById(hiddenId);
+      const display = document.getElementById(displayId);
+      if (!hidden || !display) return false;
+
+      const raw = display.value.trim();
+      if (!raw) {
+        hidden.value = '';
+        display.classList.remove('wizard-invalid');
+        updateWizardState_();
+        return true;
+      }
+
+      const isoValue = parseEtdQuickValue_(raw);
+      if (!isoValue) {
+        hidden.value = '';
+        display.classList.add('wizard-invalid');
+        updateWizardState_();
+        return false;
+      }
+
+      hidden.value = isoValue;
+      display.value = formatEtdLong_(isoValue);
+      display.classList.remove('wizard-invalid');
+      updateWizardState_();
+      return true;
+    }
+
+
+
+    function commitPoMasukDisplay_() {
+      if (poMasukInputTimer) window.clearTimeout(poMasukInputTimer);
+      poMasukInputTimer = null;
+      return commitQuickDate_('poMasuk', 'poMasukDisplay');
+    }
+
+    function bindQuickDateInput_(hiddenId, displayId, commit, setTimer, clearTimer) {
+      const hidden = document.getElementById(hiddenId);
+      const display = document.getElementById(displayId);
+      if (!hidden || !display) return;
+
+      display.addEventListener('input', function() {
+        hidden.value = '';
+        display.classList.remove('wizard-invalid');
+        clearTimer();
+
+        const raw = display.value.trim();
+        const completeQuickDate = /^\d{1,2}[\/.\-]\d{1,2}(?:[\/.\-](?:\d{2}|\d{4}))?$/.test(raw);
+        if (completeQuickDate) setTimer(window.setTimeout(commit, 550));
+      });
+
+      display.addEventListener('blur', commit);
+      display.addEventListener('keydown', function(event) {
+        if (event.key !== 'Enter') return;
+        event.preventDefault();
+        if (commit()) display.blur();
+      });
+    }
+
+    // Contoh penulisan tanggal cukup disampaikan lewat placeholder dan tooltip
+    // kolomnya, jadi tidak perlu keterangan tambahan di sebelah nama kolom.
+    function bindEtdQuickInput_() {
+      bindQuickDateInput_(
+        'poMasuk', 'poMasukDisplay', commitPoMasukDisplay_,
+        function(timer) { poMasukInputTimer = timer; },
+        function() { if (poMasukInputTimer) window.clearTimeout(poMasukInputTimer); }
+      );
+    }
+
+    function setFieldValue_(id, value) {
+      const element = document.getElementById(id);
+      if (!element) return;
+      if (id === 'etd') {
+        setEtdValue_(value);
+        return;
+      }
+      if (id === 'keteranganWarna') {
+        element.value = normalizeKeteranganWarnaValue_(value);
+        return;
+      }
+      if (id === 'keteranganBahan') {
+        element.value = normalizeKeteranganBahanValue_(value);
+        return;
+      }
+      element.value = value === null || value === undefined ? '' : value;
+    }
+
+    function showSystemError_(title, text) {
+      Swal.fire({
+        icon: 'error',
+        title: title,
+        text: text,
+        confirmButtonColor: '#dc2626',
+        background: '#e0e5ec',
+        customClass: { popup: 'swal2-popup-neumorphic' }
+      });
+    }
+
+    // ==========================================
+    // ALUR PRODUKSI
+    // ==========================================
+    function deriveAutomaticRouteSize_(ukuranJadiValue) {
+      const raw = String(ukuranJadiValue === null || ukuranJadiValue === undefined ? '' : ukuranJadiValue)
+        .trim()
+        .replace(/\s+/g, ' ');
+      if (!raw) return '';
+
+      const dimensions = raw
+        .split(/\s*[x\u00d7]\s*/i)
+        .map(function(part) { return part.trim(); })
+        .filter(Boolean);
+      if (dimensions.length < 3) return '';
+
+      const widthAndFold = dimensions[0].replace(/\s*\/\s*/g, '/');
+      const thickness = dimensions[dimensions.length - 1];
+      if (!/^\d+(?:[.,]\d+)?\/\d+(?:[.,]\d+)?$/.test(widthAndFold)) return '';
+      if (!/^\d+(?:[.,]\d+)?(?:\s*(?:MM|MIC|MICRON|MIKRON))?$/i.test(thickness)) return '';
+
+      return widthAndFold + ' X ' + thickness;
+    }
+
+    function clearAutomaticRouteSizeMarkers_() {
+      Object.keys(AUTOMATIC_ROUTE_SIZE_FIELDS).forEach(function(key) {
+        const field = document.getElementById(AUTOMATIC_ROUTE_SIZE_FIELDS[key]);
+        if (field) delete field.dataset.automaticRouteSize;
+      });
+    }
+
+    function setAutomaticRouteSizeForProcess_(key, options) {
+      const fieldId = AUTOMATIC_ROUTE_SIZE_FIELDS[key];
+      const field = fieldId ? document.getElementById(fieldId) : null;
+      const ukuranJadi = document.getElementById('ukuranJadi');
+      if (!field || !ukuranJadi) return false;
+
+      const opts = options || {};
+      const derived = deriveAutomaticRouteSize_(ukuranJadi.value);
+      const currentValue = String(field.value || '').trim();
+      const previousAutomatic = String(field.dataset.automaticRouteSize || '').trim();
+
+      if (!derived) {
+        if (previousAutomatic && currentValue === previousAutomatic) {
+          field.value = '';
+          delete field.dataset.automaticRouteSize;
+          return true;
+        }
+        return false;
+      }
+
+      if (!opts.force && currentValue && currentValue !== previousAutomatic) return false;
+      if (currentValue === derived && previousAutomatic === derived) return false;
+
+      field.value = derived;
+      field.dataset.automaticRouteSize = derived;
+      return true;
+    }
+
+    // Ukuran turunan mengikuti Ukuran Jadi hanya pada langkah yang nilainya
+    // memang masih hasil isian otomatis. Langkah yang ukurannya sudah diubah
+    // operator ditandai auto = false dan tidak pernah ditimpa.
+    function syncAutomaticRouteSizesFromMain_() {
+      const ukuranJadi = document.getElementById('ukuranJadi');
+      const derived = ukuranJadi ? (deriveAutomaticRouteSize_(ukuranJadi.value) || '') : '';
+
+      if (activeRoutingKey && AUTOMATIC_ROUTE_SIZE_FIELDS[activeRoutingKey]) {
+        setAutomaticRouteSizeForProcess_(activeRoutingKey);
+      }
+
+      routingSteps.forEach(function(step) {
+        const sizeField = AUTOMATIC_ROUTE_SIZE_FIELDS[step.key];
+        if (!sizeField || !step.auto) return;
+        if (activeStepId === step.id) return; // panel terbuka sudah ditangani di atas
+        step.values[sizeField] = derived;
+      });
+
+      renderSavedRoutingList_();
+    }
+
+    function syncRepeatAutomaticRouteSizes_() {
+      const derived = deriveAutomaticRouteSize_(document.getElementById('ukuranJadi').value);
+      if (!derived) return;
+
+      Object.keys(AUTOMATIC_ROUTE_SIZE_FIELDS).forEach(function(key) {
+        const processInput = document.getElementById('proses-' + key);
+        const field = document.getElementById(AUTOMATIC_ROUTE_SIZE_FIELDS[key]);
+        if (!field) return;
+
+        if (processInput && processInput.checked) {
+          setAutomaticRouteSizeForProcess_(key, { force: true });
+          return;
+        }
+
+        // Data ukuran proses yang tidak berjalan tidak dibawa ke Repeat Order.
+        field.value = '';
+        delete field.dataset.automaticRouteSize;
+      });
+    }
+
+    function bindAutomaticRouteSizeInputs_() {
+      Object.keys(AUTOMATIC_ROUTE_SIZE_FIELDS).forEach(function(key) {
+        const field = document.getElementById(AUTOMATIC_ROUTE_SIZE_FIELDS[key]);
+        if (!field) return;
+        field.addEventListener('input', function() {
+          const automaticValue = String(field.dataset.automaticRouteSize || '').trim();
+          if (automaticValue && String(field.value || '').trim() !== automaticValue) {
+            delete field.dataset.automaticRouteSize;
+          }
+        });
+      });
+    }
+
+    // ==========================================
+    // LANGKAH ROUTING (URUTAN BEBAS, BOLEH BERULANG)
+    // ==========================================
+    function fillSelectOptions_(select, options, placeholder) {
+      if (!select) return;
+      const previous = select.value;
+      select.innerHTML = '<option value="">' + placeholder + '</option>' +
+        options.map(function(option) {
+          return '<option value="' + escapeAttr_(option) + '">' + escapeAttr_(option) + '</option>';
+        }).join('');
+      // Pilihan sebelumnya dipertahankan bila masih ada di daftar yang baru.
+      select.value = options.indexOf(previous) > -1 ? previous : '';
+    }
+
+    function renderMachineOptions_() {
+      Object.keys(MACHINE_OPTIONS).forEach(function(key) {
+        fillSelectOptions_(
+          document.getElementById('mesin-' + key),
+          MACHINE_OPTIONS[key],
+          'Pilih mesin'
+        );
+      });
+      syncCuttingMachineOptions_();
+    }
+
+    function syncCuttingMachineOptions_() {
+      const finishing = String(getFieldValue_('finishing') || '-').toUpperCase();
+      fillSelectOptions_(
+        document.getElementById('mesin-cutting'),
+        CUTTING_MACHINE_OPTIONS[finishing] || [],
+        CUTTING_MACHINE_OPTIONS[finishing] ? 'Pilih mesin' : 'Pilih jenis finishing dulu'
+      );
+    }
+
+    // Bag memerlukan jumlah ball per outer, sedangkan Roll memerlukan isi per
+    // roll beserta satuannya. Keduanya tidak pernah tampil bersamaan.
+    function updatePackingDetailVisibility_() {
+      const packing = String(getFieldValue_('packing') || '').toUpperCase();
+      const bagCell = document.getElementById('packingBagCell');
+      const rollCell = document.getElementById('packingRollCell');
+      const ballCell = document.getElementById('packingBallCell');
+      if (bagCell) bagCell.hidden = packing !== 'BAG';
+      // Isi per Ball mendampingi Outer (Ball): keduanya hanya berlaku bila
+      // barang dipak sebagai bag, jadi tampil dan tersembunyi bersamaan.
+      if (ballCell) ballCell.hidden = packing !== 'BAG';
+      if (rollCell) rollCell.hidden = packing !== 'ROLL';
+    }
+
+    // Ukuran bahan boleh diketik sendiri. Nilai yang diketik disimpan di sini,
+    // sedangkan kolom yang dibiarkan kosong tetap diisi hasil pembacaan Ukuran
+    // Blowing, Ukuran Jadi, dan Jenis Bahan. Dengan begitu pengisian otomatis
+    // tidak pernah menimpa angka yang sudah ditentukan operator.
+    const BAHAN_UKURAN_FIELDS = {
+      lebar: { id: 'bahanLebarDisplay', decimals: 2 },
+      panjang: { id: 'bahanPanjangDisplay', decimals: 2 },
+      tebal: { id: 'bahanTebalDisplay', decimals: 3 },
+      density: { id: 'bahanDensityDisplay', decimals: 2 }
+    };
+    let bahanUkuranManual = { lebar: '', panjang: '', tebal: '', density: '' };
+
+    // Kolom bertipe number hanya menerima titik sebagai pemisah desimal, jadi
+    // pengisian otomatis tidak boleh memakai format ribuan Indonesia.
+    function bahanUkuranAutoText_(value, decimals) {
+      if (!(value > 0)) return '';
+      return String(Number(Number(value).toFixed(decimals)));
+    }
+
+    function bahanUkuranAda_() {
+      return Object.keys(bahanUkuranManual).some(function(key) {
+        return String(bahanUkuranManual[key] || '').trim() !== '';
+      });
+    }
+
+    // Dipanggil setiap ketikan pada keempat kolom ukuran bahan.
+    function commitBahanUkuran_() {
+      Object.keys(BAHAN_UKURAN_FIELDS).forEach(function(key) {
+        const field = document.getElementById(BAHAN_UKURAN_FIELDS[key].id);
+        bahanUkuranManual[key] = field ? String(field.value || '').trim() : '';
+      });
+
+      syncBahanUkuranResetButton_();
+      updatePcsPerKgDisplay_();
+      recalculateRawMaterial_();
+      updateWizardState_();
+    }
+
+    function resetBahanUkuranManual_() {
+      bahanUkuranManual = { lebar: '', panjang: '', tebal: '', density: '' };
+      Object.keys(BAHAN_UKURAN_FIELDS).forEach(function(key) {
+        const field = document.getElementById(BAHAN_UKURAN_FIELDS[key].id);
+        if (field) field.value = '';
+      });
+
+      syncBahanUkuranDisplays_();
+      updatePcsPerKgDisplay_();
+      recalculateRawMaterial_();
+      updateWizardState_();
+    }
+
+    function syncBahanUkuranResetButton_() {
+      const button = document.getElementById('bahanUkuranReset');
+      if (button) button.hidden = !bahanUkuranAda_();
+    }
+
+    // Mengisi kolom yang masih kosong dengan hasil pembacaan otomatis. Kolom
+    // yang sudah diketik operator dibiarkan apa adanya.
+    function syncBahanUkuranDisplays_() {
+      const dimensions = parseCalculationDimensions_(
+        getFieldValue_('ukuranBlow'),
+        getFieldValue_('ukuranJadi')
+      );
+      const density = getCalculationDensity_(getFieldValue_('material'));
+      const otomatis = {
+        lebar: dimensions.lebar,
+        panjang: dimensions.panjang,
+        tebal: dimensions.tebal,
+        density: density === null ? 0 : density
+      };
+
+      Object.keys(BAHAN_UKURAN_FIELDS).forEach(function(key) {
+        const setelan = BAHAN_UKURAN_FIELDS[key];
+        const field = document.getElementById(setelan.id);
+        if (!field) return;
+        if (String(bahanUkuranManual[key] || '').trim() !== '') return;
+        field.value = bahanUkuranAutoText_(otomatis[key], setelan.decimals);
+      });
+
+      syncBahanUkuranResetButton_();
+    }
+
+    // Ukuran yang dipakai seluruh perhitungan: hasil pembacaan Ukuran Blowing
+    // dan Ukuran Jadi, ditimpa angka manual pada kolom yang diisi.
+    function getEffectiveDimensions_() {
+      const dimensions = parseCalculationDimensions_(
+        getFieldValue_('ukuranBlow'),
+        getFieldValue_('ukuranJadi')
+      );
+
+      ['lebar', 'panjang', 'tebal'].forEach(function(key) {
+        const manual = parseCalculationNumber_(bahanUkuranManual[key]);
+        if (manual !== null && manual > 0) dimensions[key] = manual;
+      });
+
+      return dimensions;
+    }
+
+    function getEffectiveDensity_(material) {
+      const manual = parseCalculationNumber_(bahanUkuranManual.density);
+      if (manual !== null && manual > 0) return manual;
+      return getCalculationDensity_(material);
+    }
+
+    function setBahanUkuranManual_(nilai) {
+      const sumber = nilai || {};
+      Object.keys(BAHAN_UKURAN_FIELDS).forEach(function(key) {
+        const teks = String(
+          sumber[key] === null || sumber[key] === undefined ? '' : sumber[key]
+        ).trim();
+        bahanUkuranManual[key] = teks;
+        const field = document.getElementById(BAHAN_UKURAN_FIELDS[key].id);
+        if (field) field.value = teks;
+      });
+
+      syncBahanUkuranDisplays_();
+    }
+
+    // Blok ukuran bahan berpindah ke panel yang sedang dibuka, sepola dengan
+    // blok warna tinta dan BS Sheet.
+    function syncBahanUkuranVisibility_() {
+      const area = document.getElementById('bahanUkuranArea');
+      if (!area) return;
+
+      const host = activeRoutingKey
+        ? document.getElementById('bahanUkuranHost-' + activeRoutingKey)
+        : null;
+
+      if (!host) {
+        area.hidden = true;
+        return;
+      }
+
+      if (area.parentElement !== host) host.appendChild(area);
+      area.hidden = false;
+      syncBahanUkuranDisplays_();
+    }
+
+    function captureRouteStepFieldDefaults_() {
+      Object.keys(ROUTE_STEP_FIELDS).forEach(function(key) {
+        ROUTE_STEP_FIELDS[key].forEach(function(fieldId) {
+          if (Object.prototype.hasOwnProperty.call(routeStepFieldDefaults, fieldId)) return;
+          const field = document.getElementById(fieldId);
+          routeStepFieldDefaults[fieldId] = field
+            ? String(field.value === null || field.value === undefined ? '' : field.value)
+            : '';
+        });
+      });
+    }
+
+    function routeStepFieldDefault_(fieldId) {
+      return Object.prototype.hasOwnProperty.call(routeStepFieldDefaults, fieldId)
+        ? routeStepFieldDefaults[fieldId]
+        : '';
+    }
+
+    function stepValue_(step, fieldId) {
+      const values = step && step.values ? step.values : {};
+      return Object.prototype.hasOwnProperty.call(values, fieldId)
+        ? values[fieldId]
+        : routeStepFieldDefault_(fieldId);
+    }
+
+    function captureRouteStepValues_(key) {
+      const values = {};
+      (ROUTE_STEP_FIELDS[key] || []).forEach(function(fieldId) {
+        const field = document.getElementById(fieldId);
+        if (!field) return;
+        values[fieldId] = String(field.value === null || field.value === undefined ? '' : field.value);
+      });
+      return values;
+    }
+
+    function applyRouteStepValues_(key, values, step) {
+      // Daftar mesin Cutting bergantung pada finishing, jadi finishing dipasang
+      // lebih dulu agar pilihan mesin langkah ini tidak hilang.
+      if (key === 'cutting') {
+        const source = values || {};
+        const finishingField = document.getElementById('finishing');
+        if (finishingField) {
+          finishingField.value = Object.prototype.hasOwnProperty.call(source, 'finishing')
+            ? source.finishing
+            : routeStepFieldDefault_('finishing');
+        }
+        syncCuttingMachineOptions_();
+      }
+
+      (ROUTE_STEP_FIELDS[key] || []).forEach(function(fieldId) {
+        const field = document.getElementById(fieldId);
+        if (!field) return;
+        field.value = values && Object.prototype.hasOwnProperty.call(values, fieldId)
+          ? values[fieldId]
+          : routeStepFieldDefault_(fieldId);
+        // Penanda isi otomatis dilepas supaya ukuran hasil edit operator tidak
+        // ikut tertimpa saat Ukuran Jadi berubah.
+        if (field.dataset && field.dataset.automaticRouteSize) {
+          delete field.dataset.automaticRouteSize;
+        }
+      });
+
+      // Langkah yang ukurannya masih hasil isian otomatis mendapatkan kembali
+      // penandanya, supaya statusnya tidak hilang setelah diedit lalu disimpan.
+      const sizeField = AUTOMATIC_ROUTE_SIZE_FIELDS[key];
+      if (step && step.auto && sizeField) {
+        const field = document.getElementById(sizeField);
+        if (field) field.dataset.automaticRouteSize = String(field.value || '');
+      }
+
+      if (key === 'cutting') updatePackingDetailVisibility_();
+    }
+
+    // Ukuran dianggap masih otomatis bila isinya sama persis dengan nilai yang
+    // terakhir diturunkan dari Ukuran Jadi.
+    function isActiveRouteSizeAutomatic_(key) {
+      const sizeField = AUTOMATIC_ROUTE_SIZE_FIELDS[key];
+      if (!sizeField) return false;
+      const field = document.getElementById(sizeField);
+      if (!field) return false;
+      const marker = String(field.dataset.automaticRouteSize || '').trim();
+      return marker !== '' && String(field.value || '').trim() === marker;
+    }
+
+    function routingStepById_(stepId) {
+      return routingSteps.find(function(step) { return step.id === stepId; }) || null;
+    }
+
+    // Target BS yang benar-benar berlaku untuk satu langkah. Berbeda dengan
+    // pemeriksaan lama yang global, gerbangnya kini dinilai per langkah.
+    function stepBsKeys_(step) {
+      const key = step ? step.key : '';
+      if (key === 'blowing' || key === 'printing') return [key];
+      if (BS_SHEET_ROUTING_KEYS.indexOf(key) > -1) return [key, 'sheet'];
+      if (key !== 'cutting') return [];
+
+      const keys = ['sheetSlitting'];
+      const noteKey = FINISHING_NOTE_KEY_MAP[
+        String(stepValue_(step, 'finishing') || '-').toUpperCase()
+      ];
+      if (noteKey) keys.push(noteKey);
+
+      const handlePon = String(stepValue_(step, 'handlePm') || '-').toUpperCase();
+      if (handlePon === 'PON') keys.push('pon');
+      if (handlePon === 'HANDLE') keys.push('handle');
+      return keys;
+    }
+
+    // Langkah yang sedang diedit dibaca langsung dari panel supaya Total BS dan
+    // Keluar Bahan ikut bergerak sebelum tombol simpan ditekan. Langkah baru
+    // yang belum disimpan sengaja tidak dihitung.
+    function getEffectiveRoutingSteps_() {
+      return routingSteps.map(function(step) {
+        if (!activeStepId || step.id !== activeStepId) return step;
+        return {
+          id: step.id,
+          key: step.key,
+          values: captureRouteStepValues_(step.key),
+          auto: isActiveRouteSizeAutomatic_(step.key)
+        };
+      });
+    }
+
+    function findFirstRoutingStep_(key) {
+      return getEffectiveRoutingSteps_().find(function(step) {
+        return step.key === key;
+      }) || null;
+    }
+
+    // Database menyimpan satu kolom per jenis BS, jadi langkah yang berulang
+    // dijumlahkan. Total BS-nya tetap sama persis dengan cara lama untuk alur
+    // yang tidak mengulang proses.
+    function getAggregatedBsPercent_() {
+      const totals = {};
+      BS_LIST.forEach(function(item) { totals[item.key] = 0; });
+      getEffectiveRoutingSteps_().forEach(function(step) {
+        stepBsKeys_(step).forEach(function(bsKey) {
+          if (!Object.prototype.hasOwnProperty.call(totals, bsKey)) return;
+          totals[bsKey] += parseFloat(stepValue_(step, 'bs-' + bsKey)) || 0;
+        });
+      });
+      return totals;
+    }
+
+    // Kotak centang proses dipertahankan sebagai cermin daftar langkah supaya
+    // pemeriksaan lama seperti isRoutingProcessSelected_ tetap berlaku.
+    function syncRoutingCheckboxes_() {
+      ROUTING_LIST.forEach(function(item) {
+        const input = document.getElementById('proses-' + item.key);
+        if (!input) return;
+        input.checked = routingSteps.some(function(step) { return step.key === item.key; });
+      });
+    }
+
+    function afterRoutingStepsChanged_(message, tone) {
+      syncRoutingCheckboxes_();
+      updateTotalProses_();
+      syncRoutingTabs_();
+      syncWarnaVisibility_();
+      syncBsSheetVisibility_();
+      syncBahanUkuranVisibility_();
+      hitungTotalBs();
+      if (message) showRoutingFeedback_(message, tone);
+      updateWizardState_();
+    }
+
+    // Membangun ulang urutan langkah dari data SPK sumber. SPK yang disimpan
+    // sebelum fitur ini ada tidak punya kolom urutan, jadi dipulihkan sebagai
+    // satu langkah per proses aktif mengikuti urutan baku.
+    function restoreRoutingStepsFromData_(data) {
+      routingSteps = [];
+      routingStepIdCounter = 0;
+
+      const ukuranJadi = document.getElementById('ukuranJadi');
+      const derivedSize = ukuranJadi
+        ? String(deriveAutomaticRouteSize_(ukuranJadi.value) || '').trim()
+        : '';
+      const markAutomatic = function(step) {
+        const sizeField = AUTOMATIC_ROUTE_SIZE_FIELDS[step.key];
+        step.auto = Boolean(
+          sizeField && derivedSize &&
+          String(step.values[sizeField] || '').trim() === derivedSize
+        );
+        return step;
+      };
+
+      const incoming = data && Array.isArray(data.routingSteps) ? data.routingSteps : [];
+      if (incoming.length) {
+        incoming.forEach(function(entry) {
+          const key = entry && entry.key ? String(entry.key) : '';
+          if (!routingItemByKey_(key)) return;
+
+          const source = entry.values && typeof entry.values === 'object' ? entry.values : {};
+          const values = {};
+          (ROUTE_STEP_FIELDS[key] || []).forEach(function(fieldId) {
+            if (!Object.prototype.hasOwnProperty.call(source, fieldId)) return;
+            const value = source[fieldId];
+            values[fieldId] = String(value === null || value === undefined ? '' : value);
+          });
+
+          routingStepIdCounter += 1;
+          routingSteps.push(markAutomatic({
+            id: routingStepIdCounter, key: key, values: values
+          }));
+        });
+      } else {
+        // BS Sheet hanya satu nilai di SPK lama. Bila Folding, Slitting, dan
+        // Gusset sama-sama berjalan, nilai itu diberikan pada langkah pertama
+        // saja supaya Total BS tidak terhitung berlipat.
+        let sheetBsTaken = false;
+        ROUTING_LIST.forEach(function(item) {
+          const input = document.getElementById('proses-' + item.key);
+          if (!input || !input.checked) return;
+
+          const values = captureRouteStepValues_(item.key);
+          if (BS_SHEET_ROUTING_KEYS.indexOf(item.key) > -1) {
+            if (sheetBsTaken) values['bs-sheet'] = routeStepFieldDefault_('bs-sheet');
+            else sheetBsTaken = true;
+          }
+
+          routingStepIdCounter += 1;
+          routingSteps.push(markAutomatic({
+            id: routingStepIdCounter, key: item.key, values: values
+          }));
+        });
+      }
+
+      syncRoutingCheckboxes_();
+    }
+
+    function moveRoutingStep_(stepId, direction) {
+      const index = routingSteps.findIndex(function(step) { return step.id === stepId; });
+      const target = index + direction;
+      if (index === -1 || target < 0 || target >= routingSteps.length) return;
+
+      const moved = routingSteps.splice(index, 1)[0];
+      routingSteps.splice(target, 0, moved);
+
+      const item = routingItemByKey_(moved.key);
+      afterRoutingStepsChanged_(
+        (item ? item.label : moved.key) + ' dipindah ke langkah ' + (target + 1) + '.',
+        'success'
+      );
+    }
+
+    function renderProsesGrid() {
+      const grid = document.getElementById('prosesGrid');
+      if (!grid) return;
+
+      grid.innerHTML = ROUTING_LIST.map(function(item) {
+        return `<input type="checkbox" id="proses-${item.key}" tabindex="-1" aria-hidden="true">`;
+      }).join('');
+
+      const select = document.getElementById('routingProcessSelect');
+      if (select) {
+        select.innerHTML = '<option value="">Pilih proses yang akan ditambahkan</option>' +
+          ROUTING_LIST.map(function(item) {
+            return `<option value="${item.key}">${item.label}</option>`;
+          }).join('');
+      }
+
+      renderRoutingProcessTabs_();
+
+      renderMachineOptions_();
+      captureRouteStepFieldDefaults_();
+      activeRoutingKey = '';
+      activeStepId = 0;
+      syncRoutingTabs_();
+      updateTotalProses_();
+      syncRoutingEmpty_();
+    }
+
+    function routingItemByKey_(key) {
+      return ROUTING_LIST.find(function(item) { return item.key === key; }) || null;
+    }
+
+    function routingProcessIcon_(key) {
+      const paths = {
+        mixer: '<path stroke-linecap="round" stroke-linejoin="round" d="M8 3h8M9 3v4l-4 7a4 4 0 0 0 3.5 6h7a4 4 0 0 0 3.5-6l-4-7V3M7.5 14h9M9 17h6"></path>',
+        blowing: '<path stroke-linecap="round" d="M3 8h10.5a2.5 2.5 0 1 0-2.2-3.7M3 12h15a2.5 2.5 0 1 1-2.2 3.7M3 16h7"></path>',
+        printing: '<path stroke-linecap="round" stroke-linejoin="round" d="M7 8V3h10v5M7 17H5a2 2 0 0 1-2-2v-4a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v4a2 2 0 0 1-2 2h-2M7 14h10v7H7zM17 11h.01"></path>',
+        folding: '<path stroke-linecap="round" stroke-linejoin="round" d="M4 4h10v16H4zM14 4l6 5v11h-6M14 9h6M9 8l2 2-2 2"></path>',
+        slitting: '<path stroke-linecap="round" stroke-linejoin="round" d="m4 4 8 8M4 20l6-6M14 10l6-6M14 14l6 6M8 12h8"></path><circle cx="5" cy="4" r="2"></circle><circle cx="5" cy="20" r="2"></circle>',
+        gusset: '<path stroke-linecap="round" stroke-linejoin="round" d="M5 3h14v18H5zM9 3v18M15 3v18M9 8l3 3 3-3M9 16l3-3 3 3"></path>',
+        cutting: '<path stroke-linecap="round" stroke-linejoin="round" d="m4 5 7 7-7 7M20 5l-7 7 7 7M9 12h6"></path><circle cx="4" cy="5" r="2"></circle><circle cx="4" cy="19" r="2"></circle>'
+      };
+      return '<svg fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24" aria-hidden="true">' + (paths[key] || paths.mixer) + '</svg>';
+    }
+
+    function renderRoutingProcessTabs_() {
+      const tabs = document.getElementById('routingProcessTabs');
+      if (!tabs) return;
+      tabs.innerHTML = ROUTING_LIST.map(function(item) {
+        return '<button type="button" class="routing-process-tab" role="tab" data-routing-process="' + item.key + '" aria-controls="route-' + item.key + '" aria-selected="false" onclick="selectRoutingProcess_(\'' + item.key + '\')">' +
+          '<span class="routing-process-tab-icon">' + routingProcessIcon_(item.key) + '</span>' +
+          '<span class="routing-process-tab-label">' + item.label + '</span>' +
+          '<span class="routing-process-tab-state" aria-hidden="true"><svg fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m6 12 4 4 8-9"></path></svg></span>' +
+          '</button>';
+      }).join('');
+    }
+
+    function getSelectedRoutingKeys_() {
+      return ROUTING_LIST.filter(function(item) {
+        const input = document.getElementById('proses-' + item.key);
+        return Boolean(input && input.checked);
+      }).map(function(item) { return item.key; });
+    }
+
+    // Menekan tab proses selalu menyiapkan langkah BARU, termasuk bila proses
+    // itu sudah ada di urutan. Itulah cara satu proses dapat dipilih berulang;
+    // untuk mengubah langkah yang sudah ada, pakai tombol Edit pada kartunya.
+    function selectRoutingProcess_(key) {
+      if (!routingItemByKey_(key)) {
+        activeRoutingKey = '';
+        activeStepId = 0;
+      } else {
+        activeRoutingKey = key;
+        activeStepId = 0;
+        applyRouteStepValues_(key, null);
+        if (AUTOMATIC_ROUTE_SIZE_FIELDS[key]) {
+          setAutomaticRouteSizeForProcess_(key, { force: true });
+        }
+      }
+
+      syncRoutingTabs_();
+      syncWarnaVisibility_();
+      syncBsSheetVisibility_();
+      syncBahanUkuranVisibility_();
+      updateFinishingNoteVisibility_();
+      updateWizardState_();
+    }
+
+    // Nama lama dipertahankan sebagai jembatan bagi pemanggilan internal
+    // yang mungkin masih membuka panel dari validasi.
+    function openRoutingTab_(key) {
+      selectRoutingProcess_(key);
+    }
+
+    function saveActiveRoutingProcess_() {
+      const key = activeRoutingKey;
+      const item = routingItemByKey_(key);
+      if (!item) return;
+
+      const values = captureRouteStepValues_(key);
+      const auto = isActiveRouteSizeAutomatic_(key);
+      const editing = activeStepId ? routingStepById_(activeStepId) : null;
+      let message;
+
+      if (editing) {
+        editing.values = values;
+        editing.auto = auto;
+        message = item.label + ' langkah ' +
+          (routingSteps.indexOf(editing) + 1) + ' diperbarui.';
+      } else {
+        routingStepIdCounter += 1;
+        routingSteps.push({ id: routingStepIdCounter, key: key, values: values, auto: auto });
+        message = item.label + ' ditambahkan sebagai langkah ' + routingSteps.length + '.';
+      }
+
+      activeRoutingKey = '';
+      activeStepId = 0;
+      afterRoutingStepsChanged_(message, 'success');
+    }
+
+    function cancelRoutingEditor_() {
+      activeRoutingKey = '';
+      activeStepId = 0;
+      syncRoutingTabs_();
+      syncWarnaVisibility_();
+      syncBsSheetVisibility_();
+      syncBahanUkuranVisibility_();
+      updateWizardState_();
+    }
+
+    function editRoutingStep_(stepId) {
+      const step = routingStepById_(stepId);
+      if (!step) return;
+
+      activeRoutingKey = step.key;
+      activeStepId = step.id;
+      applyRouteStepValues_(step.key, step.values, step);
+
+      syncRoutingTabs_();
+      syncWarnaVisibility_();
+      syncBsSheetVisibility_();
+      syncBahanUkuranVisibility_();
+      updateFinishingNoteVisibility_();
+      updateWizardState_();
+
+      const panel = document.getElementById('route-' + step.key);
+      if (panel && typeof panel.scrollIntoView === 'function') {
+        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+
+    function removeRoutingStep_(stepId) {
+      const step = routingStepById_(stepId);
+      if (!step) return;
+
+      const item = routingItemByKey_(step.key);
+      const position = routingSteps.indexOf(step) + 1;
+      routingSteps = routingSteps.filter(function(entry) { return entry.id !== stepId; });
+      if (activeStepId === stepId) {
+        activeRoutingKey = '';
+        activeStepId = 0;
+      }
+
+      afterRoutingStepsChanged_(
+        (item ? item.label : step.key) + ' langkah ' + position + ' dihapus.',
+        'remove'
+      );
+    }
+
+    function showRoutingFeedback_(message, tone) {
+      const feedback = document.getElementById('routingSaveFeedback');
+      if (!feedback) return;
+      if (routingFeedbackTimer) window.clearTimeout(routingFeedbackTimer);
+      feedback.textContent = message;
+      feedback.className = 'routing-save-feedback is-visible ' + (tone === 'remove' ? 'is-remove' : 'is-success');
+      routingFeedbackTimer = window.setTimeout(function() {
+        feedback.className = 'routing-save-feedback';
+        feedback.textContent = '';
+      }, 2600);
+    }
+
+    function countRoutingStepsByKey_(key) {
+      return routingSteps.filter(function(step) { return step.key === key; }).length;
+    }
+
+    function syncRoutingSelectOptions_() {
+      const select = document.getElementById('routingProcessSelect');
+      if (select) {
+        ROUTING_LIST.forEach(function(item) {
+          const option = select.querySelector('option[value="' + item.key + '"]');
+          if (!option) return;
+          const total = countRoutingStepsByKey_(item.key);
+          option.textContent = item.label + (total ? ' — ' + total + '×' : '');
+        });
+        select.value = activeRoutingKey || '';
+      }
+
+      ROUTING_LIST.forEach(function(item) {
+        const tab = document.querySelector('[data-routing-process="' + item.key + '"]');
+        if (!tab) return;
+        const active = activeRoutingKey === item.key;
+        const total = countRoutingStepsByKey_(item.key);
+        tab.classList.toggle('is-active', active);
+        tab.classList.toggle('is-saved', total > 0);
+        tab.setAttribute('aria-selected', String(active));
+        tab.setAttribute(
+          'aria-label',
+          item.label + (total ? ', dipakai ' + total + ' kali' : '')
+        );
+
+        // Badge jumlah pemakaian hanya muncul bila prosesnya berulang, supaya
+        // tab yang biasa tetap bersih seperti sebelumnya.
+        let badge = tab.querySelector('.routing-process-tab-count');
+        if (total > 1) {
+          if (!badge) {
+            badge = document.createElement('span');
+            badge.className = 'routing-process-tab-count';
+            tab.appendChild(badge);
+          }
+          badge.textContent = total + '×';
+        } else if (badge) {
+          badge.remove();
+        }
+      });
+
+    }
+
+    function syncRoutingTabs_() {
+      ROUTING_LIST.forEach(function(item) {
+        const panel = document.getElementById('route-' + item.key);
+        const active = activeRoutingKey === item.key;
+        if (panel) {
+          panel.hidden = !active;
+          panel.setAttribute('aria-hidden', active ? 'false' : 'true');
+          panel.classList.toggle('is-editing-existing', active && activeStepId > 0);
+          panel.classList.remove('is-preview');
+        }
+      });
+
+      const actions = document.getElementById('routingEditorActions');
+      if (actions) actions.hidden = activeRoutingKey === '';
+      const saveButton = document.getElementById('routingSaveProcessBtn');
+      if (saveButton) {
+        const editing = activeStepId ? routingStepById_(activeStepId) : null;
+        saveButton.textContent = editing
+          ? 'Perbarui Langkah ' + (routingSteps.indexOf(editing) + 1)
+          : 'Tambah ke Urutan';
+      }
+
+      syncRoutingSelectOptions_();
+      renderSavedRoutingList_();
+      syncRoutingEmpty_();
+    }
+
+    function syncRoutePanel_(key) {
+      syncRoutingTabs_();
+    }
+
+    function syncRoutingEmpty_() {
+      const empty = document.getElementById('routingEmpty');
+      if (!empty) return;
+      empty.hidden = activeRoutingKey !== '';
+      empty.textContent = routingSteps.length
+        ? 'Pilih proses berikutnya untuk menambah langkah. Proses yang sama boleh dipilih lagi; gunakan tombol Edit pada kartu untuk mengubah langkah yang sudah ada.'
+        : 'Pilih proses produksi di atas untuk menambahkan langkah pertama pada urutan.';
+    }
+
+    function toggleProsesPill(key) {
+      syncRoutingTabs_();
+
+      // Nilai Cutting tetap dipertahankan saat proses dibatalkan agar dapat
+      // ditinjau atau dipilih kembali. Payload memastikan nilai yang tidak
+      // aktif tidak ikut disimpan ke Database.
+      if (key === 'cutting') {
+        updateFinishingNoteVisibility_();
+      }
+
+      if (key === 'printing' || key === 'blowing') syncWarnaVisibility_();
+      if (BS_SHEET_ROUTING_KEYS.indexOf(key) > -1) syncBsSheetVisibility_();
+
+      updateTotalProses_();
+      syncRoutingEmpty_();
+      hitungTotalBs();
+    }
+
+    function routeFieldText_(id, fallback) {
+      const field = document.getElementById(id);
+      const value = field ? String(field.value || '').trim() : '';
+      return value && value !== '-' ? value : (fallback || '—');
+    }
+
+    function getWarnaSummaryText_() {
+      const colors = warnaRows.filter(function(row) { return String(row.nama || '').trim() !== ''; });
+      if (!colors.length) return '—';
+      const totalKg = colors.reduce(function(sum, row) {
+        return sum + (parseCalculationNumber_(row.pemakaian) || 0);
+      }, 0);
+      return colors.map(function(row) { return String(row.nama).trim(); }).join(', ') +
+        ' · ' + formatCalculationNumber_(totalKg, 2) + ' KG';
+    }
+
+    function stepFieldText_(step, fieldId, fallback) {
+      const value = String(stepValue_(step, fieldId) || '').trim();
+      return value && value !== '-' ? value : (fallback || '—');
+    }
+
+    function stepBsText_(step, bsKey) {
+      const value = parseCalculationNumber_(stepValue_(step, 'bs-' + bsKey));
+      return value === null ? '—' : formatCalculationNumber_(value, 2) + '%';
+    }
+
+    function getStepPackingDetail_(step) {
+      const packing = String(stepValue_(step, 'packing') || '').toUpperCase();
+      if (packing === 'BAG') {
+        const ball = String(stepValue_(step, 'packingOuterBall') || '').trim();
+        const isi = String(stepValue_(step, 'packingBallNilai') || '').trim();
+        const isiUom = String(stepValue_(step, 'packingBallUom') || '').trim();
+        const bagian = [];
+        if (ball !== '') bagian.push(ball + ' ball / outer');
+        if (isi !== '') bagian.push(isi + (isiUom ? ' ' + isiUom : '') + ' / ball');
+        return bagian.join(' · ');
+      }
+      if (packing === 'ROLL') {
+        const nilai = String(stepValue_(step, 'packingRollNilai') || '').trim();
+        const uom = String(stepValue_(step, 'packingRollUom') || '').trim();
+        if (nilai === '') return '';
+        return nilai + (uom ? ' ' + uom : '');
+      }
+      return '';
+    }
+
+    function getStepCuttingBsSummary_(step) {
+      // 'sheet' tidak ada di sini karena kini menjadi bagian dari Slitting.
+      const keys = ['bottomSeal', 'sideSeal', 'tshirt', 'sheetSlitting', 'pon', 'handle'];
+      const activeKeys = stepBsKeys_(step);
+      return keys.map(function(bsKey) {
+        if (activeKeys.indexOf(bsKey) === -1) return '';
+        const value = parseCalculationNumber_(stepValue_(step, 'bs-' + bsKey));
+        if (value === null || value === 0) return '';
+        const item = BS_LIST.find(function(bsItem) { return bsItem.key === bsKey; });
+        return (item ? item.label : bsKey) + ' ' + formatCalculationNumber_(value, 2) + '%';
+      }).filter(Boolean).join(' · ') || '—';
+    }
+
+    // Ringkasan dibaca dari nilai langkah, bukan dari panel, supaya setiap
+    // kartu menampilkan datanya sendiri walau prosesnya berulang.
+    function getRouteSummaryItems_(step) {
+      const key = step ? step.key : '';
+      const items = [];
+      const add = function(label, value) {
+        const text = String(value === null || value === undefined ? '' : value).trim();
+        if (text && text !== '—' && text !== '-') items.push({ label: label, value: text });
+      };
+
+      if (key === 'mixer') {
+        const calculable = bahanRows.slice(0, MAX_BAHAN - 1);
+        const filled = calculable.filter(function(row) { return String(row.material || '').trim() !== ''; });
+        const totalKg = calculable.reduce(function(sum, row) { return sum + (parseCalculationNumber_(row.kg) || 0); }, 0);
+        const totalPercent = calculable.reduce(function(sum, row) { return sum + (parseCalculationNumber_(row.percent) || 0); }, 0);
+        add('Komposisi', filled.map(function(row, index) {
+          return (index + 1) + '. ' + String(row.material).trim();
+        }).join('\n'));
+        add('Total', formatCalculationNumber_(totalKg, 2) + ' KG · ' + formatCalculationNumber_(totalPercent, 2) + '%');
+      }
+      if (key === 'blowing') {
+        // Ukuran Blowing dan Film bernilai tunggal untuk satu SPK, jadi tetap
+        // dibaca dari Data Utama walau langkah Blowing lebih dari satu.
+        add('Ukuran', routeFieldText_('ukuranBlow'));
+        add('Film', routeFieldText_('film'));
+        add('Threat', stepFieldText_(step, 'blowingThreat'));
+        add('Mesin', stepFieldText_(step, 'mesin-blowing'));
+        add('Mode Cetak', stepFieldText_(step, 'blowingModeCetak'));
+        // Sengaja tidak lewat add(): Keterangan Warna tetap ditampilkan walau
+        // kosong, agar posisinya pada detail Blowing dan Printing konsisten
+        // antar SPK. Nilainya berasal dari Data Utama, bukan panel routing.
+        items.push({ label: 'Keterangan Warna', value: routeFieldText_('keteranganWarna', '-') });
+        if (stepFieldText_(step, 'blowingModeCetak') === 'INLINE') add('Warna', getWarnaSummaryText_());
+        add('Target BS', stepBsText_(step, 'blowing'));
+      }
+      if (key === 'printing') {
+        add('Mesin', stepFieldText_(step, 'mesin-printing'));
+        add('Kode Silinder', stepFieldText_(step, 'printingKodeSilinder'));
+        items.push({ label: 'Keterangan Warna', value: routeFieldText_('keteranganWarna', '-') });
+        add('Warna', getWarnaSummaryText_());
+        add('Target BS', stepBsText_(step, 'printing'));
+      }
+      if (BS_SHEET_ROUTING_KEYS.indexOf(key) > -1) {
+        add('Mesin', stepFieldText_(step, 'mesin-' + key));
+        add('Ukuran', stepFieldText_(step, AUTOMATIC_ROUTE_SIZE_FIELDS[key]));
+        if (key === 'gusset') add('Lebar Gusset', stepFieldText_(step, 'lebarGusset'));
+        add('Target BS', stepBsText_(step, key));
+        add('BS Sheet', stepBsText_(step, 'sheet'));
+      }
+      if (key === 'mixer') add('Mesin', stepFieldText_(step, 'mesin-mixer'));
+      if (key === 'cutting') {
+        add('Finishing', stepFieldText_(step, 'finishing'));
+        add('Mesin', stepFieldText_(step, 'mesin-cutting'));
+        add('Handle/Pon', stepFieldText_(step, 'handlePm'));
+        add('Jenis Packing', stepFieldText_(step, 'jenisPacking'));
+        add('Packing', stepFieldText_(step, 'packing'));
+        add('Packing Detail', getStepPackingDetail_(step));
+        add('Target BS', getStepCuttingBsSummary_(step));
+      }
+
+      let noteId = 'ket-' + key;
+      if (key === 'cutting') {
+        const noteKey = FINISHING_NOTE_KEY_MAP[stepFieldText_(step, 'finishing', '-')];
+        noteId = noteKey ? 'ket-' + noteKey : '';
+      }
+      if (noteId) add('Keterangan', stepFieldText_(step, noteId));
+      return items.length ? items : [{ label: 'Detail', value: 'Data proses tersimpan' }];
+    }
+
+    function renderSavedRoutingList_() {
+      const steps = getEffectiveRoutingSteps_();
+      const list = document.getElementById('routingSavedList');
+      const empty = document.getElementById('routingSavedEmpty');
+      const count = document.getElementById('routingSavedCount');
+      if (count) count.textContent = steps.length;
+      if (empty) empty.hidden = steps.length > 0;
+      if (!list) return;
+
+      const lastIndex = steps.length - 1;
+      list.innerHTML = steps.map(function(step, index) {
+        const item = routingItemByKey_(step.key);
+        if (!item) return '';
+
+        // Urutan pemakaian ditandai hanya bila prosesnya memang berulang, agar
+        // alur biasa tidak jadi ramai oleh label tambahan.
+        const repeatTotal = countRoutingStepsByKey_(step.key);
+        let repeatIndex = 0;
+        for (let scan = 0; scan <= index; scan++) {
+          if (steps[scan].key === step.key) repeatIndex += 1;
+        }
+        const repeatBadge = repeatTotal > 1
+          ? `<span class="routing-saved-repeat">${repeatIndex}/${repeatTotal}</span>`
+          : '';
+
+        const details = getRouteSummaryItems_(step).map(function(detail) {
+          const isCompositionList = step.key === 'mixer' && detail.label === 'Komposisi';
+          return `
+            <div class="routing-saved-detail${isCompositionList ? ' is-composition-list' : ''}">
+              <span>${escapeAttr_(detail.label)}</span>
+              <strong>${escapeAttr_(detail.value)}</strong>
+            </div>`;
+        }).join('');
+
+        return `
+          <article class="routing-saved-card${activeStepId === step.id ? ' is-editing' : ''}">
+            <div class="routing-saved-order">
+              <button type="button" class="routing-saved-move is-up" onclick="moveRoutingStep_(${step.id}, -1)" ${index === 0 ? 'disabled' : ''} title="Naikkan langkah" aria-label="Naikkan ${escapeAttr_(item.label)} ke langkah ${index}">&#9650;</button>
+              <div class="routing-saved-index">${String(index + 1).padStart(2, '0')}</div>
+              <button type="button" class="routing-saved-move is-down" onclick="moveRoutingStep_(${step.id}, 1)" ${index === lastIndex ? 'disabled' : ''} title="Turunkan langkah" aria-label="Turunkan ${escapeAttr_(item.label)} ke langkah ${index + 2}">&#9660;</button>
+            </div>
+            <div class="routing-saved-content">
+              <div class="routing-saved-card-head">
+                <div>
+                  <span class="routing-saved-status"><i></i>Tersimpan</span>
+                  <h4>${escapeAttr_(item.label)}${repeatBadge}</h4>
+                </div>
+                <div class="routing-saved-actions">
+                  <button type="button" class="routing-saved-edit" onclick="editRoutingStep_(${step.id})">Edit</button>
+                  <button type="button" class="routing-saved-remove" onclick="removeRoutingStep_(${step.id})" aria-label="Hapus langkah ${index + 1} ${escapeAttr_(item.label)}">Hapus</button>
+                </div>
+              </div>
+              <div class="routing-saved-details">${details}</div>
+            </div>
+          </article>`;
+      }).join('');
+    }
+
+    // Blok warna hanya ada satu; ia dipindahkan ke panel yang memakainya.
+    // Printing didahulukan karena kolom warna di Database memang miliknya.
+    function syncWarnaVisibility_() {
+      const area = document.getElementById('warnaArea');
+      if (!area) return;
+
+      const modeCetak = document.getElementById('blowingModeCetak');
+      const inlineOn = modeCetak
+        && String(modeCetak.value).toUpperCase() === 'INLINE';
+
+      let host = null;
+      if (activeRoutingKey === 'printing') {
+        host = document.getElementById('warnaHost-printing');
+      } else if (activeRoutingKey === 'blowing' && inlineOn) {
+        host = document.getElementById('warnaHost-blowing');
+      }
+
+      if (!host) {
+        area.hidden = true;
+        return;
+      }
+
+      if (area.parentElement !== host) host.appendChild(area);
+      area.hidden = false;
+    }
+
+    // Elemen BS Sheet tunggal dipindahkan ke panel konversi yang sedang
+    // dibuka, sama seperti perlakuan blok warna tinta.
+    function syncBsSheetVisibility_() {
+      const area = document.getElementById('bsSheetArea');
+      if (!area) return;
+
+      const host = BS_SHEET_ROUTING_KEYS.indexOf(activeRoutingKey) > -1
+        ? document.getElementById('bsSheetHost-' + activeRoutingKey)
+        : null;
+
+      if (!host) {
+        area.hidden = true;
+        return;
+      }
+
+      if (area.parentElement !== host) host.appendChild(area);
+      area.hidden = false;
+    }
+
+    function setFinishingChoice_(value) {
+      const field = document.getElementById('finishing');
+      if (!field) return;
+
+      const normalized = String(value || '-').toUpperCase();
+      field.value = FINISHING_NOTE_KEY_MAP[normalized] ? normalized : '-';
+      updateFinishingNoteVisibility_();
+      hitungTotalBs();
+    }
+
+
+    function closeNotePanel_(panelId) {
+      if (!panelId) return;
+      const panel = document.getElementById(panelId);
+      const toggle = document.querySelector('[data-note-toggle="' + panelId + '"]');
+      if (panel) panel.hidden = true;
+      if (toggle) toggle.setAttribute('aria-expanded', 'false');
+    }
+
+
+    // Menyesuaikan isi panel Cutting terhadap jenis finishing terpilih:
+    // tombol pilihan, kolom target BS, dan kotak keterangannya.
+    function updateFinishingNoteVisibility_() {
+      const field = document.getElementById('finishing');
+      if (!field) return;
+
+      const selected = String(field.value || '-').toUpperCase();
+      const noteKey = FINISHING_NOTE_KEY_MAP[selected] || '';
+
+      document.querySelectorAll('.finishing-choice').forEach(function(button) {
+        button.classList.toggle(
+          'active',
+          String(button.dataset.finishing || '').toUpperCase() === selected
+        );
+      });
+
+      const detail = document.getElementById('cuttingDetail');
+      if (detail) detail.hidden = noteKey === '';
+
+      syncCuttingMachineOptions_();
+      updatePackingDetailVisibility_();
+
+      const bsCells = {
+        bottomSeal: 'bsBottomSealCell',
+        sideSeal: 'bsSideSealCell',
+        tshirt: 'bsTshirtCell'
+      };
+      Object.keys(bsCells).forEach(function(key) {
+        const cell = document.getElementById(bsCells[key]);
+        if (cell) cell.hidden = key !== noteKey;
+      });
+
+      const noteArea = document.getElementById('finishingNoteArea');
+      if (noteArea) {
+        noteArea.querySelectorAll('[data-finishing-note]').forEach(function(panel) {
+          panel.hidden = String(panel.dataset.finishingNote || '').toUpperCase() !== selected;
+        });
+      }
+    }
+
+    // Yang dihitung adalah jumlah langkah, bukan jumlah proses yang berbeda,
+    // karena satu proses boleh muncul lebih dari sekali dalam satu alur.
+    function updateTotalProses_() {
+      const display = document.getElementById('totalProsesDisplay');
+      if (display) display.textContent = routingSteps.length;
+    }
+
+    // Sebuah proses dianggap terpilih bila kotak centangnya aktif; membuka
+    // tabnya untuk melihat isian saja tidak menjadikannya terpilih.
+    function isRoutingProcessSelected_(key) {
+      const input = document.getElementById('proses-' + key);
+      return Boolean(input && input.checked);
+    }
+
+    // Total BS dijumlahkan per langkah, sehingga Folding yang dijalankan dua
+    // kali menyumbang target BS-nya dua kali pula.
+    function getTotalBs_() {
+      const totals = getAggregatedBsPercent_();
+      const bs = BS_LIST.reduce(function(total, item) {
+        return total + (totals[item.key] || 0);
+      }, 0);
+      // Toleransi produksi adalah kelebihan yang sengaja dijalankan di luar
+      // target BS tiap proses, jadi ikut menambah Total BS.
+      return bs + getToleransiProduksi_();
+    }
+
+    function getToleransiProduksi_() {
+      const value = parseFloat(getFieldValue_('toleransiProduksi'));
+      return Number.isFinite(value) && value > 0 ? value : 0;
+    }
+
+    function hitungTotalBs() {
+      const total = getTotalBs_();
+      const display = document.getElementById('totalBsDisplay');
+      if (display) display.textContent = total.toFixed(2) + '%';
+      recalculateRawMaterial_();
+      updateWizardState_();
+    }
+
+    // ==========================================
+    // KOMPOSISI BAHAN BAKU
+    // ==========================================
+    function tambahBahan() {
+      if (bahanRows.length >= MAX_BAHAN) return;
+      bahanIdCounter += 1;
+      bahanRows.push({ id: bahanIdCounter, material: '', kg: '', percent: '' });
+      renderBahanList();
+      updateWizardState_();
+    }
+
+    function hapusBahan(id) {
+      bahanRows = bahanRows.filter(row => row.id !== id);
+      renderBahanList();
+      updateWizardState_();
+    }
+
+    function renderBahanList() {
+      const container = document.getElementById('bahanList');
+      syncMixerKgFromPercent_(false);
+      container.innerHTML = bahanRows.map((row, index) => {
+        const isSlot8 = index === 7;
+        return `
+          <div class="bahan-row route-material-row">
+            <div class="route-entry-main">
+              <label class="field-label">Nama Bahan ${index + 1}</label>
+              <input type="text" class="field-input" value="${escapeAttr_(row.material)}" oninput="updateBahan(${row.id},'material',this.value)">
+            </div>
+            <div class="route-entry-amount ${isSlot8 ? 'opacity-40 pointer-events-none' : ''}">
+              <label class="field-label">KG Otomatis</label>
+              <input id="bahanKg-${row.id}" type="number" step="any" class="field-input bahan-auto-kg" value="${escapeAttr_(row.kg)}" readonly aria-readonly="true" ${isSlot8 ? 'disabled' : ''}>
+            </div>
+            <div class="route-entry-percent ${isSlot8 ? 'opacity-40 pointer-events-none' : ''}">
+              <label class="field-label">%</label>
+              <input type="number" min="0" step="any" class="field-input" value="${escapeAttr_(row.percent)}" oninput="updateBahan(${row.id},'percent',this.value)" ${isSlot8 ? 'disabled' : ''}>
+            </div>
+            <div class="route-entry-remove">
+              <button type="button" class="btn-remove" onclick="hapusBahan(${row.id})" title="Hapus bahan" aria-label="Hapus bahan ${index + 1}">✕</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const btn = document.getElementById('btnAddBahan');
+      btn.classList.toggle('disabled', bahanRows.length >= MAX_BAHAN);
+      hitungTotalKomposisi();
+    }
+
+    function updateBahan(id, field, value) {
+      const row = bahanRows.find(item => item.id === id);
+      if (row) row[field] = value;
+      if (field === 'percent') syncMixerKgFromPercent_();
+      if (field === 'material') refreshSavedMixerSummary_();
+      updateWizardState_();
+    }
+
+    function refreshSavedMixerSummary_() {
+      if (isRoutingProcessSelected_('mixer')) renderSavedRoutingList_();
+    }
+
+    // KG setiap bahan Mixer selalu diturunkan dari persentase komposisi dan
+    // nilai Keluar Bahan: KG = (% / 100) x Keluar Bahan.
+    function calculateMixerKg_(percent, keluarBahan) {
+      const percentNumber = parseCalculationNumber_(percent);
+      if (!(keluarBahan > 0) || percentNumber === null || percentNumber < 0) return '';
+
+      const result = (percentNumber / 100) * keluarBahan;
+      return Math.round(result * 1000000) / 1000000;
+    }
+
+    function syncMixerKgFromPercent_(updateInputs) {
+      const shouldUpdateInputs = updateInputs !== false;
+      const keluarBahanField = document.getElementById('keluarBahan');
+      const keluarBahan = parseCalculationNumber_(keluarBahanField ? keluarBahanField.value : '');
+
+      bahanRows.forEach((row, index) => {
+        if (index === MAX_BAHAN - 1) return;
+        const calculatedKg = calculateMixerKg_(row.percent, keluarBahan);
+        row.kg = calculatedKg === '' ? '' : String(calculatedKg);
+
+        if (shouldUpdateInputs) {
+          const kgInput = document.getElementById('bahanKg-' + row.id);
+          if (kgInput) kgInput.value = row.kg;
+        }
+      });
+
+      hitungTotalKomposisi();
+      refreshSavedMixerSummary_();
+    }
+
+    function escapeAttr_(value) {
+      return String(value === null || value === undefined ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function hitungTotalKomposisi() {
+      let totalKg = 0;
+      let totalPercent = 0;
+      bahanRows.forEach((row, index) => {
+        if (index === MAX_BAHAN - 1) return;
+        totalKg += parseCalculationNumber_(row.kg) || 0;
+        totalPercent += parseCalculationNumber_(row.percent) || 0;
+      });
+      document.getElementById('totalKomposisiDisplay').textContent =
+        totalKg.toFixed(2) + ' KG · ' + totalPercent.toFixed(2) + '%';
+    }
+
+    // ==========================================
+    // WARNA & PEMAKAIAN TINTA (PRINTING)
+    // ==========================================
+    const WARNA_QUICK_LIST = [
+      'BLACK', 'WHITE', 'RED', 'MAROON', 'BLUE', 'GREEN',
+      'TEAL', 'YELLOW', 'ORANGE', 'CYAN'
+    ];
+
+    const WARNA_DOT_COLORS = [
+      ['MAGENTA', '#d946ef'],
+      ['TOSCA|TEAL', '#0d9488'],
+      ['CYAN', '#06b6d4'],
+      ['NAVY|DONGKER', '#1e3a8a'],
+      ['MAROON', '#7f1d1d'],
+      ['HITAM|BLACK', '#1f2937'],
+      ['PUTIH|WHITE', '#f9fafb'],
+      ['MERAH|RED', '#dc2626'],
+      ['BIRU|BLUE', '#2563eb'],
+      ['HIJAU|GREEN', '#16a34a'],
+      ['KUNING|YELLOW', '#eab308'],
+      ['ORANGE|ORANYE|JINGGA', '#f97316'],
+      ['PINK', '#ec4899'],
+      ['UNGU|VIOLET|PURPLE', '#7c3aed'],
+      ['GOLD|EMAS', '#d4af37'],
+      ['SILVER|PERAK', '#c0c0c0'],
+      ['COKLAT|BROWN', '#92400e'],
+      ['ABU|GREY|GRAY', '#6b7280'],
+      ['CREAM|KREM', '#ead9a6']
+    ];
+
+    function warnaDotColor_(nama) {
+      const text = String(nama || '').toUpperCase();
+      if (text.trim() === '') return '';
+      for (let index = 0; index < WARNA_DOT_COLORS.length; index++) {
+        if (new RegExp('\\b(' + WARNA_DOT_COLORS[index][0] + ')').test(text)) {
+          return WARNA_DOT_COLORS[index][1];
+        }
+      }
+      return '';
+    }
+
+    function renderWarnaChips_() {
+      document.getElementById('warnaChipRow').innerHTML = WARNA_QUICK_LIST.map(nama => {
+        const color = warnaDotColor_(nama);
+        return `
+          <span class="warna-chip" data-warna-chip="${nama}" onclick="tambahWarnaDariChip_('${nama}')">
+            <span class="warna-dot"${color ? ` style="background:${color}"` : ''}></span>${nama}
+          </span>
+        `;
+      }).join('');
+    }
+
+    function tambahWarnaDariChip_(nama) {
+      const existing = warnaRows.find(row => String(row.nama).trim().toUpperCase() === nama);
+      if (existing) {
+        focusWarnaKg_(existing.id);
+        return;
+      }
+
+      const emptyRow = warnaRows.find(row => String(row.nama).trim() === '');
+      if (emptyRow) {
+        emptyRow.nama = nama;
+      } else {
+        if (warnaRows.length >= MAX_WARNA) return;
+        warnaIdCounter += 1;
+        warnaRows.push({ id: warnaIdCounter, nama: nama, pemakaian: '' });
+      }
+
+      const targetId = emptyRow ? emptyRow.id : warnaIdCounter;
+      renderWarnaList();
+      focusWarnaKg_(targetId);
+      updateWizardState_();
+    }
+
+    function focusWarnaKg_(id) {
+      const input = document.querySelector('[data-warna-kg="' + id + '"]');
+      if (input) input.focus();
+    }
+
+    function tambahWarna() {
+      if (warnaRows.length >= MAX_WARNA) return;
+      warnaIdCounter += 1;
+      const rowId = warnaIdCounter;
+      warnaRows.push({ id: rowId, nama: '', pemakaian: '' });
+      renderWarnaList();
+      const input = document.querySelector('[data-warna-nama="' + rowId + '"]');
+      if (input) input.focus();
+      updateWizardState_();
+    }
+
+    function hapusWarna(id) {
+      warnaRows = warnaRows.filter(row => row.id !== id);
+      renderWarnaList();
+      updateWizardState_();
+    }
+
+    function updateWarna(id, field, value) {
+      const row = warnaRows.find(item => item.id === id);
+      if (row) row[field] = value;
+      if (field === 'pemakaian') updateWarnaSummary_();
+      updateWizardState_();
+    }
+
+    function syncWarnaDot_(input) {
+      const dot = input.parentElement.querySelector('.warna-dot');
+      if (dot) dot.style.background = warnaDotColor_(input.value) || '';
+    }
+
+    function renderWarnaList() {
+      const container = document.getElementById('warnaList');
+      container.innerHTML = warnaRows.map((row, index) => {
+        const color = warnaDotColor_(row.nama);
+        return `
+          <div class="bahan-row route-color-row">
+            <div class="route-entry-main">
+              <label class="field-label">Warna ${index + 1}</label>
+              <div class="warna-input-wrap">
+                <span class="warna-dot"${color ? ` style="background:${color}"` : ''}></span>
+                <input type="text" class="field-input" data-warna-nama="${row.id}" value="${escapeAttr_(row.nama)}" oninput="updateWarna(${row.id},'nama',this.value); syncWarnaDot_(this)">
+              </div>
+            </div>
+            <div class="route-entry-amount">
+              <label class="field-label">Pemakaian (KG)</label>
+              <input type="number" step="any" min="0" class="field-input" data-warna-kg="${row.id}" value="${escapeAttr_(row.pemakaian)}" oninput="updateWarna(${row.id},'pemakaian',this.value)">
+            </div>
+            <div class="route-entry-remove">
+              <button type="button" class="btn-remove" onclick="hapusWarna(${row.id})" title="Hapus warna" aria-label="Hapus warna ${index + 1}">✕</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('warnaEmpty').hidden = warnaRows.length > 0;
+      document.getElementById('btnAddWarna').classList.toggle('disabled', warnaRows.length >= MAX_WARNA);
+
+      const isFull = warnaRows.length >= MAX_WARNA;
+      document.querySelectorAll('[data-warna-chip]').forEach(chip => {
+        chip.classList.toggle('disabled', isFull);
+      });
+
+      updateWarnaSummary_();
+    }
+
+    function updateWarnaSummary_() {
+      const filledCount = warnaRows.filter(row =>
+        String(row.nama).trim() !== '' || String(row.pemakaian).trim() !== ''
+      ).length;
+      let total = 0;
+      warnaRows.forEach(row => { total += parseFloat(row.pemakaian) || 0; });
+      document.getElementById('warnaSummary').textContent =
+        filledCount + ' warna · ' +
+        (Math.round(total * 100) / 100).toLocaleString('id-ID') + ' KG';
+    }
+
+    // Validasi SPK baru dan pencarian SPK lama ditangani pada blok JENIS ORDER di atas.
+
+    // ==========================================
+    // JADWAL KIRIM
+    // ==========================================
+    // Tanggal kirim dan pengiriman bertahap adalah satu daftar: tahap pertama
+    // menjadi ETD, tahap berikutnya hanya diisi bila barang dikirim bertahap.
+    //
+    // Jumlah tiap tahap dipilih antara Full dan Custom. Full berarti tahap itu
+    // mengambil sisa order yang belum dipesan tahap Custom mana pun, sehingga
+    // Admin tidak perlu menghitung sendiri. Bila lebih dari satu tahap memakai
+    // Full, sisanya dibagi rata di antara mereka dan jumlah seluruh tahap tetap
+    // sama dengan Jumlah Order.
+    const MAX_PENGIRIMAN = 12;
+    const JADWAL_MODE_FULL = 'FULL';
+    const JADWAL_MODE_CUSTOM = 'CUSTOM';
+
+    function tambahPengirimanRow_(entry) {
+      pengirimanIdCounter += 1;
+      const mode = String(entry && entry.mode ? entry.mode : '').toUpperCase() === JADWAL_MODE_CUSTOM
+        ? JADWAL_MODE_CUSTOM
+        : JADWAL_MODE_FULL;
+      pengirimanRows.push({
+        id: pengirimanIdCounter,
+        tanggal: String(entry && entry.tanggal ? entry.tanggal : ''),
+        mode: mode,
+        jumlah: entry && entry.jumlah !== null && entry.jumlah !== undefined ? entry.jumlah : '',
+        uom: String(entry && entry.uom ? entry.uom : '').toUpperCase()
+      });
+    }
+
+    function tambahPengiriman() {
+      if (pengirimanRows.length >= MAX_PENGIRIMAN) return;
+      tambahPengirimanRow_({ uom: String(getFieldValue_('uomOrder') || 'PCS').toUpperCase() });
+      renderPengirimanList_();
+      updateWizardState_();
+    }
+
+    // Tahap pertama tidak dapat dihapus karena ia yang menjadi ETD; yang bisa
+    // dilakukan hanya mengosongkan tanggalnya.
+    function hapusPengiriman(id) {
+      if (pengirimanRows.length <= 1) return;
+      pengirimanRows = pengirimanRows.filter(function(row) { return row.id !== id; });
+      renderPengirimanList_();
+      updateWizardState_();
+    }
+
+    function updatePengiriman(id, field, value) {
+      const row = pengirimanRows.find(function(item) { return item.id === id; });
+      if (!row) return;
+      row[field] = value;
+      refreshJadwalComputed_();
+      updateWizardState_();
+    }
+
+    function setJadwalMode_(id, mode) {
+      const row = pengirimanRows.find(function(item) { return item.id === id; });
+      if (!row) return;
+
+      const next = mode === JADWAL_MODE_CUSTOM ? JADWAL_MODE_CUSTOM : JADWAL_MODE_FULL;
+      if (row.mode === next) return;
+
+      // Beralih ke Custom membawa serta angka yang sedang tampil, supaya Admin
+      // tinggal menyesuaikan alih-alih mengetik ulang dari nol.
+      if (next === JADWAL_MODE_CUSTOM) {
+        const amounts = computeJadwalAmounts_();
+        const index = pengirimanRows.indexOf(row);
+        const current = amounts[index];
+        if (current !== null && current > 0) row.jumlah = formatCalculationNumber_(current, 2, 0);
+      }
+
+      row.mode = next;
+      renderPengirimanList_();
+      updateWizardState_();
+    }
+
+    // Nilai tiap tahap setelah Full diterjemahkan menjadi angka.
+    function computeJadwalAmounts_() {
+      const order = parseCalculationNumber_(getFieldValue_('jumlahOrder'));
+      let diambilCustom = 0;
+      let jumlahFull = 0;
+
+      pengirimanRows.forEach(function(row) {
+        if (row.mode === JADWAL_MODE_CUSTOM) {
+          diambilCustom += parseCalculationNumber_(row.jumlah) || 0;
+        } else {
+          jumlahFull += 1;
+        }
+      });
+
+      const sisa = order === null ? null : Math.max(0, order - diambilCustom);
+      const perFull = sisa === null || jumlahFull === 0 ? null : sisa / jumlahFull;
+
+      return pengirimanRows.map(function(row) {
+        return row.mode === JADWAL_MODE_CUSTOM
+          ? parseCalculationNumber_(row.jumlah)
+          : perFull;
+      });
+    }
+
+    // Tanggal diketik singkat seperti 6/8, lalu ditulis kembali dalam bentuk
+    // panjang begitu isian ditinggalkan.
+    function commitPengirimanTanggal_(id, input) {
+      const row = pengirimanRows.find(function(item) { return item.id === id; });
+      if (!row || !input) return;
+
+      const raw = String(input.value || '').trim();
+      if (raw === '') {
+        row.tanggal = '';
+        input.classList.remove('wizard-invalid');
+      } else {
+        const iso = parseEtdQuickValue_(raw);
+        row.tanggal = iso;
+        input.classList.toggle('wizard-invalid', !iso);
+        if (iso) input.value = formatEtdLong_(iso);
+      }
+
+      syncEtdFromJadwal_();
+      refreshJadwalComputed_();
+      updateWizardState_();
+    }
+
+    // ETD adalah tanggal paling awal pada jadwal, sehingga urutan pengisian
+    // barisnya tidak memengaruhi hasil.
+    function syncEtdFromJadwal_() {
+      const field = document.getElementById('etd');
+      if (!field) return;
+
+      const dates = pengirimanRows
+        .map(function(row) { return String(row.tanggal || '').trim(); })
+        .filter(Boolean)
+        .sort();
+      field.value = dates.length ? dates[0] : '';
+    }
+
+    // Menyegarkan angka tahap Full dan ringkasannya tanpa menggambar ulang
+    // daftar, supaya kursor tidak lompat saat Admin sedang mengetik.
+    function refreshJadwalComputed_() {
+      const amounts = computeJadwalAmounts_();
+
+      pengirimanRows.forEach(function(row, index) {
+        const field = document.querySelector('[data-jadwal-full="' + row.id + '"]');
+        if (!field) return;
+        const value = amounts[index];
+        field.value = value === null ? '' : formatCalculationNumber_(value, 2, 0);
+      });
+
+      updatePengirimanSummary_(amounts);
+    }
+
+    function updatePengirimanSummary_(precomputed) {
+      const summary = document.getElementById('partialSummary');
+      if (!summary) return;
+
+      const amounts = precomputed || computeJadwalAmounts_();
+      const terjadwal = pengirimanRows.filter(function(row) {
+        return String(row.tanggal || '').trim() !== '';
+      });
+
+      const setTone = function(tone, text) {
+        summary.className = 'partial-summary' + (tone ? ' is-' + tone : '');
+        summary.textContent = text;
+      };
+
+      if (!terjadwal.length) {
+        setTone('', 'Tanggal kirim belum diisi');
+        return;
+      }
+      if (pengirimanRows.length === 1) {
+        setTone('ok', 'Kirim sekaligus pada ' + formatEtdLong_(terjadwal[0].tanggal));
+        return;
+      }
+
+      const uom = String(getFieldValue_('uomOrder') || '').toUpperCase();
+      const total = amounts.reduce(function(sum, value) { return sum + (value || 0); }, 0);
+      const order = parseCalculationNumber_(getFieldValue_('jumlahOrder'));
+      let text = pengirimanRows.length + ' tahap \u00b7 ' + formatCalculationNumber_(total, 2, 0) + ' ' + uom;
+
+      if (order === null) {
+        setTone('', text);
+        return;
+      }
+
+      const sisa = order - total;
+      if (Math.abs(sisa) < 0.005) {
+        setTone('ok', text + ' \u00b7 sesuai order');
+        return;
+      }
+      setTone(
+        'warn',
+        text + ' \u00b7 ' + (sisa > 0 ? 'kurang ' : 'lebih ') +
+          formatCalculationNumber_(Math.abs(sisa), 2, 0) + ' ' + uom
+      );
+    }
+
+    function renderPengirimanList_() {
+      const container = document.getElementById('partialList');
+      if (!container) return;
+
+      if (!pengirimanRows.length) tambahPengirimanRow_();
+      const amounts = computeJadwalAmounts_();
+
+      container.innerHTML = pengirimanRows.map(function(row, index) {
+        const isEtd = index === 0;
+        const isCustom = row.mode === JADWAL_MODE_CUSTOM;
+        const tampilan = row.tanggal ? formatEtdLong_(row.tanggal) : '';
+        const nilaiFull = amounts[index];
+        // Nomor tahap ditulis langsung pada nama kolomnya, jadi tidak perlu
+        // bulatan penanda terpisah. Tahap pertama tetap ditandai ETD karena
+        // tanggalnya yang dipakai sebagai tanggal kirim utama.
+        const judul = 'Tanggal Kirim ' + (index + 1)
+          + (isEtd ? ' <span class="field-label-hint">(ETD)</span>' : '');
+
+        const tombolHapus = isEtd
+          ? ''
+          : `<button type="button" class="jadwal-remove" onclick="hapusPengiriman(${row.id})" title="Hapus tahap ${index + 1}" aria-label="Hapus tahap ${index + 1}">\u2715</button>`;
+
+        // Nilai dan satuannya memakai bentuk input-pair yang sama dengan
+        // Order, Keluar Bahan, dan Jenis Bahan di Data Utama.
+        const kolomNilai = isCustom
+          ? `<input type="number" min="0" step="any" class="field-input" value="${escapeAttr_(row.jumlah)}" placeholder="0" aria-label="Jumlah tahap ${index + 1}" oninput="updatePengiriman(${row.id},'jumlah',this.value)">`
+          : `<input type="text" class="field-input is-readonly" data-jadwal-full="${row.id}" value="${escapeAttr_(nilaiFull === null ? '' : formatCalculationNumber_(nilaiFull, 2, 0))}" placeholder="Ikut Jumlah Order" readonly tabindex="-1" aria-label="Jumlah tahap ${index + 1}, mengikuti sisa order">`;
+
+        // Tombol hapus ditaruh di ujung baris label kolom Nilai, bukan pada
+        // baris judul tersendiri, sehingga tinggi tiap tahap berkurang satu
+        // baris penuh tanpa menggeser kolom isian dari grid Data Utama.
+        return `
+          <article class="jadwal-stage${isEtd ? ' is-etd' : ''}">
+            <div class="form-grid">
+              <div class="form-cell span-2">
+                <label class="field-label">${judul}</label>
+                <input type="text" class="field-input etd-display-input" data-partial-date="${row.id}"
+                  inputmode="numeric" maxlength="20" autocomplete="off" spellcheck="false"
+                  placeholder="6/8" title="Ketik tanggal/bulan, contoh 6/8" value="${escapeAttr_(tampilan)}"
+                  onchange="commitPengirimanTanggal_(${row.id}, this)"
+                  onblur="commitPengirimanTanggal_(${row.id}, this)">
+              </div>
+              <div class="form-cell">
+                <label class="field-label">Jumlah</label>
+                <div class="jadwal-segment" role="group" aria-label="Jumlah tahap ${index + 1}">
+                  <button type="button" class="jadwal-segment-option${isCustom ? '' : ' active'}" aria-pressed="${!isCustom}" onclick="setJadwalMode_(${row.id}, 'FULL')">Full</button>
+                  <button type="button" class="jadwal-segment-option${isCustom ? ' active' : ''}" aria-pressed="${isCustom}" onclick="setJadwalMode_(${row.id}, 'CUSTOM')">Custom</button>
+                </div>
+              </div>
+              <div class="form-cell">
+                <label class="field-label jadwal-label jadwal-label--end">
+                  <span>Nilai</span>
+                  ${tombolHapus}
+                </label>
+                <div class="input-pair">
+                  ${kolomNilai}
+                  <select class="field-input input-pair-uom" aria-label="Satuan tahap ${index + 1}" onchange="updatePengiriman(${row.id},'uom',this.value)">
+                    <option value="">UOM</option>
+                    <option value="PCS"${row.uom === 'PCS' ? ' selected' : ''}>PCS</option>
+                    <option value="KG"${row.uom === 'KG' ? ' selected' : ''}>KG</option>
+                    <option value="ROLL"${row.uom === 'ROLL' ? ' selected' : ''}>ROLL</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      const button = document.getElementById('btnAddPartial');
+      if (button) button.classList.toggle('disabled', pengirimanRows.length >= MAX_PENGIRIMAN);
+      syncEtdFromJadwal_();
+      updatePengirimanSummary_(amounts);
+    }
+
+    // Nilai tahap Full disimpan sebagai angka hasil hitungan, bukan sebagai
+    // penanda saja, supaya pembacanya di Dashboard dan lembar cetak tidak perlu
+    // ikut menghitung ulang. Mode tetap disertakan agar pilihannya kembali utuh
+    // saat SPK dibuka lagi.
+    function buildJadwalPayload_() {
+      const amounts = computeJadwalAmounts_();
+      return pengirimanRows
+        .map(function(row, index) {
+          return {
+            tanggal: row.tanggal,
+            mode: row.mode,
+            jumlah: amounts[index] === null ? '' : amounts[index],
+            uom: row.uom
+          };
+        })
+        .filter(function(entry) { return String(entry.tanggal || '').trim() !== ''; });
+    }
+
+    function setPengirimanRows_(entries) {
+      pengirimanRows = [];
+      pengirimanIdCounter = 0;
+      (Array.isArray(entries) ? entries : [])
+        .slice(0, MAX_PENGIRIMAN)
+        .forEach(function(entry) { tambahPengirimanRow_(entry); });
+      if (!pengirimanRows.length) tambahPengirimanRow_();
+      renderPengirimanList_();
+    }
+
+    // ==========================================
+    // SUBMIT
+    // ==========================================
+    function bindWizardSubmit_() {
+      formEl.addEventListener('submit', function (event) {
+        event.preventDefault();
+        submitDatabase_();
+      });
+    }
+
+    function showSaveSuccess_(message, spk) {
+      const overlay = document.getElementById('saveSuccessOverlay');
+      const printLink = document.getElementById('printSpkLink');
+      document.getElementById('saveSuccessMessage').textContent =
+        'SPK menunggu persetujuan wajib. Cetak dan release akan terbuka otomatis setelah semua tanda tangan lengkap.';
+      document.getElementById('saveSuccessSpk').textContent = spk || '—';
+      printLink.href = printLink.dataset.baseUrl;
+
+      overlay.hidden = false;
+      const root = document.getElementById('spkInputRoot');
+      if (root) root.classList.add('dialog-open');
+      if (typeof window.onSpkInputSaved === 'function') window.onSpkInputSaved(spk);
+
+      window.setTimeout(() => {
+        printLink.focus();
+      }, 0);
+    }
+
+    const SPK_AUTH_STORAGE_KEY_ = 'pgm:spk-auth-v1';
+
+    function approvalRpcPromise_(method) {
+      const args = Array.prototype.slice.call(arguments, 1);
+      return new Promise(function(resolve, reject) {
+        const runner = google.script.run.withSuccessHandler(resolve).withFailureHandler(reject);
+        runner[method].apply(runner, args);
+      });
+    }
+
+    async function ensureCreatorApprovalLogin_() {
+      let saved = null;
+      let savedPermanently = false;
+      try {
+        const localAuth = localStorage.getItem(SPK_AUTH_STORAGE_KEY_);
+        savedPermanently = Boolean(localAuth);
+        saved = JSON.parse(localAuth || sessionStorage.getItem(SPK_AUTH_STORAGE_KEY_) || 'null');
+      } catch (ignore) {}
+      if (saved && saved.token) {
+        try {
+          const current = await approvalRpcPromise_('getApprovalSession', saved.token);
+          if (current && current.status === 'success' && current.user.roleKey === 'admin_ppic') {
+            saved.user = current.user;
+            (savedPermanently ? localStorage : sessionStorage).setItem(SPK_AUTH_STORAGE_KEY_, JSON.stringify(saved));
+            return saved;
+          }
+        } catch (ignore) {}
+        localStorage.removeItem(SPK_AUTH_STORAGE_KEY_);
+        sessionStorage.removeItem(SPK_AUTH_STORAGE_KEY_);
+      }
+
+      const result = await Swal.fire({
+        icon: 'info',
+        title: 'Login Admin PPIC',
+        html: '<p style="font-size:.9rem;color:#5f6670">SPK baru hanya dapat dibuat oleh Admin PPIC. Paraf pembuat akan terisi otomatis.</p>' +
+          '<input id="approvalLoginEmail" class="swal2-input" type="email" autocomplete="username" placeholder="Email">' +
+          '<input id="approvalLoginPassword" class="swal2-input" type="password" autocomplete="current-password" placeholder="Password">' +
+          '<label style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;font-size:.9rem"><input id="approvalLoginRemember" type="checkbox"> Remember me</label>',
+        showCancelButton: true,
+        confirmButtonText: 'Masuk & Lanjutkan',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#202020',
+        showLoaderOnConfirm: true,
+        allowOutsideClick: function() { return !Swal.isLoading(); },
+        preConfirm: async function() {
+          const email = document.getElementById('approvalLoginEmail').value.trim();
+          const password = document.getElementById('approvalLoginPassword').value;
+          if (!email || !password) { Swal.showValidationMessage('Email dan password wajib diisi.'); return false; }
+          try {
+            const remember = document.getElementById('approvalLoginRemember').checked;
+            const response = await approvalRpcPromise_('loginApprovalUser', email, password, remember);
+            if (!response || response.status !== 'success') throw new Error(response && response.message || 'Login gagal.');
+            if (!response.user || response.user.roleKey !== 'admin_ppic') throw new Error('Hanya akun Admin PPIC/pembuat yang dapat membuat SPK.');
+            response.remember = remember;
+            return response;
+          } catch (error) { Swal.showValidationMessage(error.message || 'Login gagal.'); return false; }
+        }
+      });
+      if (!result.isConfirmed || !result.value) return null;
+      const auth = { token: result.value.token, user: result.value.user };
+      localStorage.removeItem(SPK_AUTH_STORAGE_KEY_);
+      sessionStorage.removeItem(SPK_AUTH_STORAGE_KEY_);
+      (result.value.remember ? localStorage : sessionStorage).setItem(SPK_AUTH_STORAGE_KEY_, JSON.stringify(auth));
+      return auth;
+    }
+
+    async function submitDatabase_() {
+      if (!validateAllSteps_()) return;
+
+      const activeTargetState = getActiveTargetSpkState_();
+      if (activeTargetState.duplicate || activeTargetState.state !== 'available') {
+        Swal.fire({
+          icon: 'warning',
+          title: 'SPK Belum Valid',
+          text: 'Pastikan nomor SPK baru sudah diperiksa dan berstatus tersedia.',
+          confirmButtonColor: '#202020',
+          background: '#e0e5ec',
+          customClass: { popup: 'swal2-popup-neumorphic' }
+        });
+        return;
+      }
+
+      const creatorAuth = await ensureCreatorApprovalLogin_();
+      if (!creatorAuth) return;
+
+      completedSteps.add(WIZARD_STEPS.length);
+      updateWizardState_();
+
+      // Kolom ringkasan di Database hanya menyediakan satu tempat per proses,
+      // jadi nilainya diambil dari langkah pertama proses tersebut. Rincian
+      // lengkap tiap langkah tetap utuh pada payload.routingSteps.
+      const submittedSteps = getEffectiveRoutingSteps_();
+      const stepOf = function(key) {
+        return submittedSteps.find(function(step) { return step.key === key; }) || null;
+      };
+      const firstValue = function(key, fieldId) {
+        const step = stepOf(key);
+        return step ? String(stepValue_(step, fieldId) || '') : '';
+      };
+
+      const blowingStep = stepOf('blowing');
+      const cuttingStep = stepOf('cutting');
+
+      const payload = {
+        authToken: creatorAuth.token,
+        spk: getActiveSpkValue_(),
+        spkReferensi: getOrderMode_() === 'repeat' ? spkSebelumnyaField.value.trim().toUpperCase() : '',
+        tanggal: document.getElementById('tanggal').value,
+        jenisOrder: document.getElementById('jenisOrder').value,
+        marketing: document.getElementById('marketing').value,
+        nomorPO: document.getElementById('nomorPO').value,
+        customer: document.getElementById('customer').value,
+        material: document.getElementById('material').value,
+        film: document.getElementById('film').value,
+        artikel: document.getElementById('artikel').value,
+        kodeItem: document.getElementById('kodeItem').value,
+        keteranganWarna: document.getElementById('keteranganWarna').value,
+        keteranganBahan: document.getElementById('keteranganBahan').value,
+        keteranganArtikel: document.getElementById('keteranganArtikel').value,
+        modelKantong: document.getElementById('modelKantong').value,
+        blowingThreat: firstValue('blowing', 'blowingThreat'),
+        blowingModeCetak: firstValue('blowing', 'blowingModeCetak'),
+        printingKodeSilinder: firstValue('printing', 'printingKodeSilinder'),
+        ukuranFolding: firstValue('folding', 'ukuranFolding'),
+        ukuranSlitting: firstValue('slitting', 'ukuranSlitting'),
+        ukuranGusset: firstValue('gusset', 'ukuranGusset'),
+        jenisPacking: firstValue('cutting', 'jenisPacking'),
+        packing: firstValue('cutting', 'packing'),
+        pcsKgMode: document.getElementById('pcsKgMode').value,
+        jenisPotongan: document.getElementById('jenisPotongan').value,
+        poMasuk: document.getElementById('poMasuk').value,
+        stok: document.getElementById('stok').value,
+        ots: document.getElementById('ots').value,
+        wip: document.getElementById('wip').value,
+        toleransiProduksi: document.getElementById('toleransiProduksi').value,
+        bahanLebar: bahanUkuranManual.lebar,
+        bahanPanjang: bahanUkuranManual.panjang,
+        bahanTebal: bahanUkuranManual.tebal,
+        bahanDensity: bahanUkuranManual.density,
+        // Seluruh tahap dikirim apa adanya, termasuk tahap pertama yang
+        // menjadi ETD, supaya jadwalnya tersimpan utuh.
+        pengirimanParsial: buildJadwalPayload_(),
+        routingSteps: submittedSteps.map(function(step) {
+          return { key: step.key, values: step.values };
+        }),
+        ukuranBlow: document.getElementById('ukuranBlow').value,
+        ukuranJadi: document.getElementById('ukuranJadi').value,
+        proses: {},
+        keteranganProses: {},
+        finishing: cuttingStep ? String(stepValue_(cuttingStep, 'finishing') || '-') : '-',
+        handlePm: cuttingStep ? String(stepValue_(cuttingStep, 'handlePm') || '-') : '-',
+        bsPercent: {},
+        jumlahOrder: document.getElementById('jumlahOrder').value,
+        uomOrder: document.getElementById('uomOrder').value,
+        meterRoll: document.getElementById('meterRoll').value,
+        keluarBahan: document.getElementById('keluarBahan').value,
+        uomKB: document.getElementById('uomKB').value,
+        toleransi: document.getElementById('toleransi').value,
+        etd: document.getElementById('etd').value,
+        komposisi: bahanRows.map(row => ({ material: row.material, kg: row.kg, percent: row.percent })),
+        warna: []
+      };
+
+      PROCESS_NOTE_KEYS.forEach(function(key) {
+        payload.keteranganProses[key] = '';
+      });
+      PROSES_LIST.forEach(p => {
+        payload.proses[p.key] = Boolean(stepOf(p.key));
+      });
+
+      // Satu kolom keterangan per proses. Bila prosesnya berulang dan tiap
+      // langkah punya catatan sendiri, semuanya digabung dan diberi nomor
+      // langkah supaya tidak ada yang hilang dari lembar cetak.
+      const noteFieldOf = {};
+      PROSES_LIST.forEach(function(p) {
+        if (p.noteLabel) noteFieldOf[p.key] = 'ket-' + p.key;
+      });
+      const collectedNotes = {};
+      submittedSteps.forEach(function(step, index) {
+        let noteKey = step.key;
+        if (step.key === 'cutting') {
+          noteKey = FINISHING_NOTE_KEY_MAP[
+            String(stepValue_(step, 'finishing') || '-').toUpperCase()
+          ] || '';
+        } else if (!noteFieldOf[step.key]) {
+          noteKey = '';
+        }
+        if (!noteKey || PROCESS_NOTE_KEYS.indexOf(noteKey) === -1) return;
+
+        const note = String(stepValue_(step, 'ket-' + noteKey) || '').trim();
+        if (note === '') return;
+        if (!collectedNotes[noteKey]) collectedNotes[noteKey] = [];
+        collectedNotes[noteKey].push({ position: index + 1, note: note });
+      });
+      Object.keys(collectedNotes).forEach(function(noteKey) {
+        const entries = collectedNotes[noteKey];
+        payload.keteranganProses[noteKey] = entries.length === 1
+          ? entries[0].note
+          : entries.map(function(entry) {
+              return 'Langkah ' + entry.position + ': ' + entry.note;
+            }).join(' | ');
+      });
+
+      // Warna dipakai Printing, atau Blowing bila mode cetaknya Inline.
+      const inlineActive = Boolean(blowingStep) &&
+        String(stepValue_(blowingStep, 'blowingModeCetak') || '').toUpperCase() === 'INLINE';
+      if (payload.proses.printing || inlineActive) {
+        payload.warna = warnaRows.map(row => ({ nama: row.nama, pemakaian: row.pemakaian }));
+      }
+
+      const bsTotals = getAggregatedBsPercent_();
+      BS_LIST.forEach(b => {
+        payload.bsPercent[b.key] = bsTotals[b.key] || 0;
+      });
+
+      btnSubmitEl.disabled = true;
+      btnSubmitEl.dataset.saving = 'true';
+      btnSubmitEl.innerHTML = `
+        <span class="button-spinner"></span>
+        MENYIMPAN...
+      `;
+
+      google.script.run
+        .withSuccessHandler(res => {
+          delete btnSubmitEl.dataset.saving;
+          btnSubmitEl.disabled = false;
+          updateNavigationButtons_();
+
+          const response = res || {
+            status: 'error',
+            message: 'Respons server tidak dikenali. Periksa PPIC sebelum mencoba menyimpan ulang.'
+          };
+
+          if (response.status === 'success') {
+            const currentSnapshot = getFreshSpkExistenceSnapshot_();
+            if (currentSnapshot) {
+              currentSnapshot.add(normalizeClientSpk_(payload.spk));
+              spkExistenceSnapshotAt = Date.now();
+            }
+            showSaveSuccess_(response.message, payload.spk);
+          } else if (response.status === 'duplicate') {
+            const currentSnapshot = getFreshSpkExistenceSnapshot_();
+            if (currentSnapshot) {
+              currentSnapshot.add(normalizeClientSpk_(payload.spk));
+              spkExistenceSnapshotAt = Date.now();
+            }
+            setTargetSpkDuplicate_(getOrderMode_(), getActiveSpkValue_());
+            changeStep_(1, 'backward');
+            Swal.fire({
+              icon: 'warning',
+              title: 'SPK Sudah Ada',
+              text: response.message,
+              confirmButtonColor: '#202020',
+              background: '#e0e5ec',
+              customClass: { popup: 'swal2-popup-neumorphic' }
+            });
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Gagal Menyimpan',
+              text: response.message,
+              confirmButtonColor: '#dc2626',
+              background: '#e0e5ec',
+              customClass: { popup: 'swal2-popup-neumorphic' }
+            });
+          }
+        })
+        .withFailureHandler(err => {
+          delete btnSubmitEl.dataset.saving;
+          btnSubmitEl.disabled = false;
+          updateNavigationButtons_();
+          Swal.fire({
+            icon: 'error',
+            title: 'Kesalahan Sistem',
+            text: err && err.message
+              ? err.message
+              : 'Konfirmasi server tidak dapat dibaca. Periksa PPIC sebelum mencoba menyimpan ulang.',
+            confirmButtonColor: '#dc2626',
+            background: '#e0e5ec',
+            customClass: { popup: 'swal2-popup-neumorphic' }
+          });
+        })
+        .submitDatabase(payload);
+    }
+</script>

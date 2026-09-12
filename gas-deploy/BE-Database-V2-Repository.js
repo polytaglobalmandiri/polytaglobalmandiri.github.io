@@ -65,17 +65,50 @@ function readDatabaseV2RecordsForSpk_(tableKey, spk, spreadsheet) {
   const spkColumn = table.columns.SPK;
   const rowCount = Math.max(0, table.sheet.getLastRow() - table.headerRow);
   if (!rowCount) return [];
-  const matches = table.sheet
-    .getRange(table.headerRow + 1, spkColumn, rowCount, 1)
-    .createTextFinder(key)
-    .matchEntireCell(true)
-    .matchCase(false)
-    .useRegularExpression(false)
-    .findAll();
-  if (!matches || !matches.length) return [];
+
+  // Try to get cached row numbers map for this table
+  const CACHE_PREFIX = 'pgm:spk:rows:v1:';
+  var cacheMap = {};
+  if (typeof CacheService !== 'undefined') {
+    try {
+      var cache = CacheService.getScriptCache();
+      var serialized = cache.get(CACHE_PREFIX + tableKey);
+      cacheMap = serialized ? JSON.parse(serialized) : {};
+    } catch (e) {
+      cacheMap = {};
+    }
+  }
+
+  let rowNumbers = cacheMap[key];
+  if (!rowNumbers) {
+    // Fallback to TextFinder (slow) and then cache the result
+    const matches = table.sheet
+      .getRange(table.headerRow + 1, spkColumn, rowCount, 1)
+      .createTextFinder(key)
+      .matchEntireCell(true)
+      .matchCase(false)
+      .useRegularExpression(false)
+      .findAll();
+    if (!matches || !matches.length) {
+      rowNumbers = [];
+    } else {
+      rowNumbers = matches.map(function (cell) { return cell.getRow(); }).sort(function (a, b) { return a - b; });
+    }
+    // Update cache map (store up to reasonable size)
+    if (typeof CacheService !== 'undefined') {
+      try {
+        cacheMap[key] = rowNumbers;
+        var serialized = JSON.stringify(cacheMap);
+        if (serialized.length < 95000) {
+          cache.put(CACHE_PREFIX + tableKey, serialized, 21600); // 6h
+        }
+      } catch (e) {}
+    }
+  }
+
+  if (!rowNumbers || !rowNumbers.length) return [];
 
   const lastColumn = table.sheet.getLastColumn();
-  const rowNumbers = matches.map(function(cell) { return cell.getRow(); }).sort(function(a, b) { return a - b; });
   const ranges = [];
   let currentStart = rowNumbers[0];
   let currentLength = 1;
@@ -92,11 +125,11 @@ function readDatabaseV2RecordsForSpk_(tableKey, spk, spreadsheet) {
   ranges.push({ start: currentStart, length: currentLength });
 
   const records = [];
-  ranges.forEach(function(range) {
+  ranges.forEach(function (range) {
     const chunkValues = table.sheet.getRange(range.start, 1, range.length, lastColumn).getValues();
-    chunkValues.forEach(function(values) {
+    chunkValues.forEach(function (values) {
       const record = Object.create(null);
-      Object.keys(table.columns).forEach(function(field) {
+      Object.keys(table.columns).forEach(function (field) {
         record[field] = values[table.columns[field] - 1];
       });
       records.push(record);
@@ -104,6 +137,7 @@ function readDatabaseV2RecordsForSpk_(tableKey, spk, spreadsheet) {
   });
   return records;
 }
+
 
 function getDatabaseV2SpkDirectory_() {
   const master = openDatabaseV2Table_('master');

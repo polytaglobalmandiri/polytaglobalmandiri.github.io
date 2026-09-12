@@ -66,22 +66,73 @@ function readDatabaseV2RecordsForSpk_(tableKey, spk, spreadsheet) {
   const rowCount = Math.max(0, table.sheet.getLastRow() - table.headerRow);
   if (!rowCount) return [];
 
-  // Try to get cached row numbers map for this table
-  const CACHE_PREFIX = 'pgm:spk:rows:v1:';
-  var cacheMap = {};
+  // Try to get row numbers from per-table row map cache first
+  const MAP_CACHE_PREFIX = 'pgm:spk:rowmap:';
+  let rowNumbers = null;
   if (typeof CacheService !== 'undefined') {
     try {
-      var cache = CacheService.getScriptCache();
-      var serialized = cache.get(CACHE_PREFIX + tableKey);
-      cacheMap = serialized ? JSON.parse(serialized) : {};
-    } catch (e) {
-      cacheMap = {};
-    }
+      const cache = CacheService.getScriptCache();
+      const serializedMap = cache.get(MAP_CACHE_PREFIX + tableKey);
+      const rowMap = serializedMap ? JSON.parse(serializedMap) : null;
+      if (rowMap && rowMap[key]) {
+        rowNumbers = rowMap[key];
+      }
+    } catch (e) {}
   }
 
-  let rowNumbers = cacheMap[key];
   if (!rowNumbers) {
-    // Fallback to TextFinder (slow) and then cache the result
+    // Cache each SPK's row numbers separately to avoid large map serialization
+    const CACHE_PREFIX = 'pgm:spk:rows:';
+    if (typeof CacheService !== 'undefined') {
+      try {
+        const cache = CacheService.getScriptCache();
+        const serialized = cache.get(CACHE_PREFIX + tableKey + ':' + key);
+        rowNumbers = serialized ? JSON.parse(serialized) : null;
+      } catch (e) {
+        rowNumbers = null;
+      }
+    }
+
+    if (!rowNumbers) {
+      // Fallback: use TextFinder then cache the result
+      const matches = table.sheet
+        .getRange(table.headerRow + 1, spkColumn, rowCount, 1)
+        .createTextFinder(key)
+        .matchEntireCell(true)
+        .matchCase(false)
+        .useRegularExpression(false)
+        .findAll();
+      if (!matches || !matches.length) {
+        rowNumbers = [];
+      } else {
+        rowNumbers = matches.map(function (cell) { return cell.getRow(); }).sort(function (a, b) { return a - b; });
+      }
+      // Store per-SPK cache
+      if (typeof CacheService !== 'undefined') {
+        try {
+          const cache = CacheService.getScriptCache();
+          const serialized = JSON.stringify(rowNumbers);
+          if (serialized.length < 95000) {
+            cache.put(CACHE_PREFIX + tableKey + ':' + key, serialized, 21600);
+          }
+        } catch (e) {}
+      }
+      // Update per-table row map cache
+      if (typeof CacheService !== 'undefined') {
+        try {
+          const cache = CacheService.getScriptCache();
+          // Merge into existing map or create new
+          const newMap = rowMap || {};
+          newMap[key] = rowNumbers;
+          const mapSerialized = JSON.stringify(newMap);
+          if (mapSerialized.length < 95000) {
+            cache.put(MAP_CACHE_PREFIX + tableKey, mapSerialized, 21600);
+          }
+        } catch (e) {}
+      }
+    }
+  }
+    // Fallback: use TextFinder then cache the result
     const matches = table.sheet
       .getRange(table.headerRow + 1, spkColumn, rowCount, 1)
       .createTextFinder(key)
@@ -94,13 +145,12 @@ function readDatabaseV2RecordsForSpk_(tableKey, spk, spreadsheet) {
     } else {
       rowNumbers = matches.map(function (cell) { return cell.getRow(); }).sort(function (a, b) { return a - b; });
     }
-    // Update cache map (store up to reasonable size)
     if (typeof CacheService !== 'undefined') {
       try {
-        cacheMap[key] = rowNumbers;
-        var serialized = JSON.stringify(cacheMap);
+        const cache = CacheService.getScriptCache();
+        const serialized = JSON.stringify(rowNumbers);
         if (serialized.length < 95000) {
-          cache.put(CACHE_PREFIX + tableKey, serialized, 21600); // 6h
+          cache.put(CACHE_PREFIX + tableKey + ':' + key, serialized, 21600);
         }
       } catch (e) {}
     }

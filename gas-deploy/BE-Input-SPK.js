@@ -1,7 +1,7 @@
 // ==========================================
 // KONFIGURASI
 // ==========================================
-const DB_SPREADSHEET_ID = '1GldWp316hXRGKOa-ANJ4Eugdz0HFZSxvFQGy-dcex48';
+const DB_SPREADSHEET_ID = '1bvyTfFQ1vvzw5ZVj-QUn-XGiyWifjK0lG-GPd0FO9Aw';
 // Baris 1 header, baris 2 tipe data, baris 3 sengaja dikosongkan sebagai
 // pemisah. Seluruh pembacaan, penulisan, pengurutan, dan pengindeksan
 // bertumpu pada konstanta ini, sehingga baris 3 tidak pernah tersentuh.

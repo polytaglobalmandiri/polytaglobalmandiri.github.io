@@ -440,15 +440,26 @@ function buildDashboardRevision_(sourceRevision) {
 // aplikasi lain tanpa bergantung pada semua penulis memanggil fungsi cache.
 function readDashboardSourceRevision_() {
   try {
-    var file = Drive.Files.get(DB_SPREADSHEET_ID, {
-      fields: 'version,modifiedTime'
-    });
-    return String(file.version || '') + '@' + String(file.modifiedTime || '');
-  } catch (error) {
-    // Token waktu membuat kegagalan pemeriksaan tidak pernah melegalkan cache
-    // lama. Pembacaan berikutnya akan mencoba Drive lagi.
-    return 'unverified@' + String(Date.now());
-  }
+    if (typeof Drive !== 'undefined' && Drive.Files && typeof Drive.Files.get === 'function') {
+      var file = Drive.Files.get(DB_SPREADSHEET_ID, {
+        fields: 'version,modifiedTime'
+      });
+      if (file && (file.version || file.modifiedTime)) {
+        return String(file.version || '') + '@' + String(file.modifiedTime || '');
+      }
+    }
+  } catch (error) {}
+
+  try {
+    if (typeof DriveApp !== 'undefined' && typeof DriveApp.getFileById === 'function') {
+      var gFile = DriveApp.getFileById(DB_SPREADSHEET_ID);
+      if (gFile) {
+        return 'driveapp@' + gFile.getLastUpdated().getTime();
+      }
+    }
+  } catch (error2) {}
+
+  return 'prop@' + readDashboardRevisionRaw_();
 }
 
 function readDashboardRevisionRaw_() {

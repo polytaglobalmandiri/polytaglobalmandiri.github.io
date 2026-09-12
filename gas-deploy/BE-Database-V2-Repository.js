@@ -72,14 +72,37 @@ function readDatabaseV2RecordsForSpk_(tableKey, spk, spreadsheet) {
     .matchCase(false)
     .useRegularExpression(false)
     .findAll();
-  return matches.map(function(cell) {
-    const values = table.sheet.getRange(cell.getRow(), 1, 1, table.sheet.getLastColumn()).getValues()[0];
-    const record = Object.create(null);
-    Object.keys(table.columns).forEach(function(field) {
-      record[field] = values[table.columns[field] - 1];
+  if (!matches || !matches.length) return [];
+
+  const lastColumn = table.sheet.getLastColumn();
+  const rowNumbers = matches.map(function(cell) { return cell.getRow(); }).sort(function(a, b) { return a - b; });
+  const ranges = [];
+  let currentStart = rowNumbers[0];
+  let currentLength = 1;
+
+  for (let i = 1; i < rowNumbers.length; i++) {
+    if (rowNumbers[i] === currentStart + currentLength) {
+      currentLength++;
+    } else {
+      ranges.push({ start: currentStart, length: currentLength });
+      currentStart = rowNumbers[i];
+      currentLength = 1;
+    }
+  }
+  ranges.push({ start: currentStart, length: currentLength });
+
+  const records = [];
+  ranges.forEach(function(range) {
+    const chunkValues = table.sheet.getRange(range.start, 1, range.length, lastColumn).getValues();
+    chunkValues.forEach(function(values) {
+      const record = Object.create(null);
+      Object.keys(table.columns).forEach(function(field) {
+        record[field] = values[table.columns[field] - 1];
+      });
+      records.push(record);
     });
-    return record;
   });
+  return records;
 }
 
 function getDatabaseV2SpkDirectory_() {

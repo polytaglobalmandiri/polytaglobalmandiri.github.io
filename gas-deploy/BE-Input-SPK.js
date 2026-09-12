@@ -847,17 +847,79 @@ function normalizeKeteranganBahan_(value) {
 }
 
 // ==========================================
+// CACHE DATA SPK DETAIL (REPEAT ORDER & EDIT)
+// ==========================================
+var SPK_DATA_CACHE_PREFIX = 'pgm:spk:data:v1:';
+var SPK_DATA_CACHE_SECONDS = 21600; // 6 jam
+
+function readCachedSpkData_(key) {
+  try {
+    if (typeof CacheService === 'undefined') return null;
+    var cache = CacheService.getScriptCache();
+    if (!cache) return null;
+    var serialized = cache.get(SPK_DATA_CACHE_PREFIX + key);
+    return serialized ? JSON.parse(serialized) : null;
+  } catch (error) {
+    return null;
+  }
+}
+
+function writeCachedSpkData_(key, data) {
+  try {
+    if (typeof CacheService === 'undefined') return;
+    var cache = CacheService.getScriptCache();
+    if (!cache) return;
+    var serialized = JSON.stringify(data);
+    if (serialized.length < 95000) {
+      cache.put(
+        SPK_DATA_CACHE_PREFIX + key,
+        serialized,
+        SPK_DATA_CACHE_SECONDS
+      );
+    }
+  } catch (error) {}
+}
+
+function clearSpkDataCache_(spk) {
+  try {
+    var key = normalizeSpk_(spk);
+    if (!key || typeof CacheService === 'undefined') return;
+    var cache = CacheService.getScriptCache();
+    if (cache) cache.remove(SPK_DATA_CACHE_PREFIX + key);
+  } catch (error) {}
+}
+
+// ==========================================
 // AMBIL DATA SPK UNTUK REPEAT ORDER
 // ==========================================
 function getSpkData(spk) {
+  var startedAt = Date.now();
   try {
-    const key = normalizeSpk_(spk);
+    var key = normalizeSpk_(spk);
     if (!key) return { status: 'not_found', found: false, message: 'Nomor SPK sebelumnya wajib diisi.' };
-    const aggregate = readDatabaseV2Spk_(key);
+
+    var cached = readCachedSpkData_(key);
+    if (cached) {
+      return {
+        status: 'success',
+        found: true,
+        data: cached,
+        performance: { source: 'cache', durationMs: Date.now() - startedAt }
+      };
+    }
+
+    var aggregate = readDatabaseV2Spk_(key);
     if (!aggregate) {
       return { status: 'not_found', found: false, message: "Nomor SPK '" + key + "' tidak ditemukan di Database V2." };
     }
-    return { status: 'success', found: true, data: buildDatabaseV2InputData_(aggregate) };
+    var data = buildDatabaseV2InputData_(aggregate);
+    writeCachedSpkData_(key, data);
+    return {
+      status: 'success',
+      found: true,
+      data: data,
+      performance: { source: 'database-v2', durationMs: Date.now() - startedAt }
+    };
   } catch (error) {
     return { status: 'error', found: false, message: error.message };
   }
@@ -865,17 +927,32 @@ function getSpkData(spk) {
 
 // Jalur ringan khusus modal Edit di halaman PPIC.
 function getSpkEditData(spk, preferredRowNumber) {
+  var startedAt = Date.now();
   try {
-    const key = normalizeSpk_(spk);
+    var key = normalizeSpk_(spk);
     if (!key) return { status: 'not_found', found: false, message: 'Nomor SPK yang akan diedit wajib diisi.' };
-    const aggregate = readDatabaseV2Spk_(key);
-    if (!aggregate) {
-      return { status: 'not_found', found: false, message: "Nomor SPK '" + key + "' tidak ditemukan di Database V2." };
+
+    var data = readCachedSpkData_(key);
+    var source = 'cache';
+    if (!data) {
+      var aggregate = readDatabaseV2Spk_(key);
+      if (!aggregate) {
+        return { status: 'not_found', found: false, message: "Nomor SPK '" + key + "' tidak ditemukan di Database V2." };
+      }
+      data = buildDatabaseV2InputData_(aggregate);
+      writeCachedSpkData_(key, data);
+      source = 'database-v2';
+    } else {
+      data = JSON.parse(JSON.stringify(data));
     }
-    const data = buildDatabaseV2InputData_(aggregate);
     data.rowNumber = 0;
     if (data.uomOrder !== 'ROLL') data.meterRoll = '';
-    return { status: 'success', found: true, data: data };
+    return {
+      status: 'success',
+      found: true,
+      data: data,
+      performance: { source: source, durationMs: Date.now() - startedAt }
+    };
   } catch (error) {
     return { status: 'error', found: false, message: error.message };
   }
@@ -1499,6 +1576,7 @@ function updateSpkFromDashboard(payload) {
     });
     clearDashboardCache_();
     clearKeluarBahanCache_();
+    clearSpkDataCache_(spkKey);
     return {
       status: 'success',
       message: "Data SPK '" + spkKey + "' berhasil diperbarui di Database V2.",
@@ -1627,6 +1705,7 @@ function submitDatabase(payload) {
     clearMarketingOptionsCache_();
     clearDashboardCache_();
     clearKeluarBahanCache_();
+    clearSpkDataCache_(built.spk);
     return {
       status: 'success',
       message: built.jenisOrder === 'Repeat Order'

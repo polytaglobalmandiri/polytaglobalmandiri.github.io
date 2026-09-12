@@ -878,7 +878,7 @@
     }
 
     startProgress('Menghubungi Database V2');
-    fetchAndRender(true, true).then(startRealtime).catch(showError);
+    fetchAndRender(true, false).then(startRealtime).catch(showError);
   }
 
   setPeriodTitle();

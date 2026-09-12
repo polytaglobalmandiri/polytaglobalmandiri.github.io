@@ -202,6 +202,7 @@
       seq: 0,
       loadedSpk: ''
     };
+    const repeatDataMemoryCache_ = Object.create(null);
 
     // Dipasang ulang setiap wizard diinisialisasi, karena pilihan "Tidak"
     // pada halaman penuh membangun ulang seluruh markup form.
@@ -1710,6 +1711,25 @@
         return;
       }
 
+      const normKey = normalizeClientSpk_(value);
+      // Validasi awal: abaikan query jika karakter masih terlalu pendek (< 3 karakter)
+      if (value.length < 3) {
+        setRepeatLookupIdle_();
+        return;
+      }
+
+      // Akselerasi memori klien: jika SPK sudah pernah diambil di sesi ini, terapkan seketika (0 ms)
+      if (repeatDataMemoryCache_[normKey]) {
+        const cached = repeatDataMemoryCache_[normKey];
+        if (cached.found && cached.data) {
+          applyRepeatData_(cached.data);
+          setRepeatLookupFound_(cached.data);
+        } else {
+          setRepeatLookupNotFound_(value, cached.message || 'Nomor SPK tidak ditemukan di Database.');
+        }
+        return;
+      }
+
       setRepeatLookupChecking_();
       repeatLookupState.timer = setTimeout(() => {
         google.script.run
@@ -1717,9 +1737,11 @@
             if (seq !== repeatLookupState.seq) return;
 
             if (res.status === 'success' && res.found) {
+              repeatDataMemoryCache_[normKey] = { found: true, data: res.data };
               applyRepeatData_(res.data);
               setRepeatLookupFound_(res.data);
             } else if (res.status === 'not_found' || (res.status === 'success' && !res.found)) {
+              repeatDataMemoryCache_[normKey] = { found: false, message: res.message || 'Nomor SPK tidak ditemukan di Database.' };
               setRepeatLookupNotFound_(value, res.message || 'Nomor SPK tidak ditemukan di Database.');
             } else {
               setRepeatLookupError_(res.message || 'Data SPK gagal dimuat.');
@@ -1730,7 +1752,7 @@
             setRepeatLookupError_(err.message || 'Data SPK gagal dimuat.');
           })
           .getSpkData(value);
-      }, 450);
+      }, 350);
     }
 
     function resetRepeatLookupVisual_() {

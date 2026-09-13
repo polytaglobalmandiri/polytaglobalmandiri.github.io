@@ -3942,7 +3942,9 @@
 
     .print-login-backdrop { position: fixed; inset: 0; z-index: 10000; display: grid; place-items: center; padding: 20px; background: radial-gradient(circle at 20% 15%,rgba(198,43,49,.22),transparent 28rem),rgba(15,18,22,.78); backdrop-filter: blur(5px); }
     .print-login-backdrop[hidden] { display: none; }
-    .print-login-card { width: min(100%, 760px); overflow: hidden; display: grid; grid-template-columns: minmax(220px,.78fr) minmax(300px,1.22fr); border: 1px solid #8b8e91; border-radius: 18px; background: #f7f7f4; box-shadow: inset 0 1px 0 rgba(255,255,255,.9),0 22px 60px rgba(0,0,0,.48); animation: printLoginIn .24s ease-out both; }
+    .print-login-card { position: relative; width: min(100%, 760px); overflow: hidden; display: grid; grid-template-columns: minmax(220px,.78fr) minmax(300px,1.22fr); border: 1px solid #8b8e91; border-radius: 18px; background: #f7f7f4; box-shadow: inset 0 1px 0 rgba(255,255,255,.9),0 22px 60px rgba(0,0,0,.48); animation: printLoginIn .24s ease-out both; }
+    .print-login-close { position: absolute; z-index: 2; top: 10px; right: 10px; width: 32px; height: 32px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.3); border-radius: 9px; background: rgba(25,27,31,.72); color: #fff; box-shadow: 0 2px 7px rgba(0,0,0,.24); cursor: pointer; font-size: .82rem; transition: background .18s ease, transform .18s ease; }
+    .print-login-close:hover, .print-login-close:focus-visible { background: #c62b31; outline: 0; transform: scale(1.05); }
     .print-login-intro { padding: 34px 28px; display: flex; flex-direction: column; justify-content: center; background: radial-gradient(circle at 5% 8%,rgba(218,43,54,.25),transparent 17rem),repeating-linear-gradient(90deg,rgba(255,255,255,.025) 0 1px,transparent 1px 4px),linear-gradient(145deg,#36383e,#202226 72%); color: #f7f7f5; }
     .print-login-orb { width: 46px; height: 46px; margin-bottom: 18px; display: grid; place-items: center; border: 1px solid #c99797; border-radius: 12px; background: linear-gradient(145deg,#fff0f0,#e3b8b8); color: #c62b31; box-shadow: inset 1px 1px 0 rgba(255,255,255,.9),0 2px 4px rgba(0,0,0,.3); font-size: 1.05rem; }
     .print-login-eyebrow { margin: 0 0 5px; color: #ff8e97; font-size: .61rem; font-weight: 900; letter-spacing: .13em; }
@@ -4135,6 +4137,7 @@
 
   <section id="printLoginView" class="print-login-backdrop" hidden aria-labelledby="printLoginTitle">
     <form id="printLoginForm" class="print-login-card">
+      <button id="printLoginClose" class="print-login-close" type="button" aria-label="Tutup login"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
       <aside class="print-login-intro">
         <span class="print-login-orb" aria-hidden="true"><i class="fa-solid fa-print"></i></span>
         <p class="print-login-eyebrow">AKSES CETAK TERLINDUNGI</p>
@@ -4356,8 +4359,19 @@
       const form = document.getElementById('printLoginForm');
       const button = document.getElementById('printLoginButton');
       const errorBox = document.getElementById('printLoginError');
+      const closeButton = document.getElementById('printLoginClose');
       view.hidden = false;
       printLoginPromise_ = new Promise(function(resolve) {
+        let closed = false;
+        closeButton.onclick = function () {
+          closed = true;
+          view.hidden = true;
+          button.disabled = false;
+          button.textContent = 'Masuk dan Lanjutkan';
+          errorBox.textContent = '';
+          printLoginPromise_ = null;
+          resolve(false);
+        };
         form.addEventListener('submit', async function(event) {
           event.preventDefault();
           if (button.disabled) return;
@@ -4376,6 +4390,7 @@
             if (!response || response.status !== 'success') {
               throw new Error(response && response.message || 'Login gagal.');
             }
+            if (closed) return;
             const auth = JSON.stringify({ token: response.token, user: response.user });
             localStorage.removeItem(PRINT_AUTH_STORAGE_KEY_);
             sessionStorage.removeItem(PRINT_AUTH_STORAGE_KEY_);
@@ -4383,8 +4398,10 @@
             document.getElementById('printLoginPassword').value = '';
             view.hidden = true;
             printAuthReady_ = true;
+            printLoginPromise_ = null;
             resolve(true);
           } catch (error) {
+            if (closed) return;
             errorBox.textContent = error.message || 'Login gagal. Periksa email dan password Anda.';
             button.disabled = false;
             button.textContent = 'Masuk dan Lanjutkan';
@@ -4719,7 +4736,8 @@
       var expired = /sesi login berakhir|silakan login/i.test(String(message || ''));
       if (expired && !EMBED_MODE) {
         printAuthReady_ = false;
-        ensurePrintLogin_().then(function () {
+        ensurePrintLogin_().then(function (authenticated) {
+          if (!authenticated) return;
           setToolbarStatus_('Memuat data SPK...', '');
           printRootEl.innerHTML = `
             <div class="loading-card">

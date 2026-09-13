@@ -4947,13 +4947,61 @@
      berlatar terang, dengan fokus merah yang sama. Sengaja tidak di-scope ke
      #spkInputRoot karena popup SweetAlert berada di luar wizard. */
   .spk-login-popup .swal2-html-container {
-    margin: 15px 6px 2px;
+    margin: 0;
     overflow: visible;
     text-align: left;
   }
+  .spk-login-popup {
+    width: min(760px, calc(100% - 24px)) !important;
+    max-width: 760px !important;
+    padding: 0 !important;
+    overflow: hidden;
+    border: 1px solid #8b8e91;
+    border-radius: 18px;
+    background: #f7f7f4 !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 22px 60px rgba(0,0,0,.48);
+  }
+  .spk-login-popup .swal2-close {
+    position: absolute;
+    z-index: 3;
+    top: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    border: 1px solid rgba(255,255,255,.3);
+    border-radius: 9px;
+    background: rgba(25,27,31,.72);
+    color: #fff;
+    box-shadow: 0 2px 7px rgba(0,0,0,.24);
+    font-size: 1.15rem;
+    line-height: 30px;
+  }
+  .spk-login-popup .swal2-close:hover { background: #c62b31; color: #fff; }
+  .spk-login-layout {
+    display: grid;
+    grid-template-columns: minmax(220px,.78fr) minmax(300px,1.22fr);
+    min-height: 390px;
+  }
+  .spk-login-intro {
+    padding: 34px 28px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: radial-gradient(circle at 5% 8%,rgba(218,43,54,.25),transparent 17rem), repeating-linear-gradient(90deg,rgba(255,255,255,.025) 0 1px,transparent 1px 4px), linear-gradient(145deg,#36383e,#202226 72%);
+    color: #f7f7f5;
+  }
+  .spk-login-orb { width: 46px; height: 46px; margin-bottom: 18px; display: grid; place-items: center; border: 1px solid #c99797; border-radius: 12px; background: linear-gradient(145deg,#fff0f0,#e3b8b8); color: #c62b31; box-shadow: inset 1px 1px 0 rgba(255,255,255,.9),0 2px 4px rgba(0,0,0,.3); font-size: 1.05rem; }
+  .spk-login-eyebrow { margin: 0 0 5px; color: #ff8e97; font-size: .61rem; font-weight: 900; letter-spacing: .13em; }
+  .spk-login-intro h2 { margin: 0; color: #f7f7f5; font-size: 1.25rem; line-height: 1.2; }
+  .spk-login-intro p:not(.spk-login-eyebrow) { margin: 12px 0 0; color: #bdc0c6; font-size: .7rem; line-height: 1.6; }
+  .spk-login-body { min-width: 0; padding: 34px 36px; background: radial-gradient(circle at 100% 0,rgba(198,43,49,.06),transparent 16rem),#f8f8f5; }
+  .spk-login-body .spk-login-heading { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }
+  .spk-login-heading-icon { width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid #c99797; border-radius: 11px; background: linear-gradient(145deg,#fff0f0,#e3b8b8); color: #c62b31; }
+  .spk-login-heading h2 { margin: 0; color: #25272c; font-size: 1.08rem; }
+  .spk-login-heading p { margin: 3px 0 0; color: #73777e; font-size: .67rem; }
   .spk-login-dialog {
     display: grid;
-    gap: 11px;
+    gap: 12px;
   }
   .spk-login-note {
     margin: 0;
@@ -4999,6 +5047,7 @@
     0 0 0 3px rgba(185,35,35,.15),
     0 1px 0 #fff;
   }
+  .spk-login-body .spk-login-field > input { min-height: 42px; padding: 0 11px; border-radius: 8px; }
   .spk-login-remember {
     display: flex;
     align-items: center;
@@ -5016,12 +5065,7 @@
     cursor: pointer;
   }
   .spk-login-popup .swal2-title {
-    padding-top: 0;
-    color: #25272b;
-    font-size: 1.12rem;
-    font-weight: 900;
-    letter-spacing: -.01em;
-    text-shadow: 0 1px 0 rgba(255,255,255,.72);
+    display: none;
   }
   /* Ikon info bawaan SweetAlert berwarna biru langit, satu-satunya unsur dingin
      pada layar yang seluruhnya abu hangat beraksen merah. Warnanya disamakan
@@ -5034,7 +5078,9 @@
      alert lain di halaman ini; yang ditambahkan hanya reliefnya. */
   .spk-login-popup .swal2-actions {
     gap: var(--polyta-control-gap, 6px);
-    margin-top: 19px;
+    margin: 0;
+    padding: 0 36px 28px;
+    justify-content: flex-end;
   }
   .spk-login-popup .swal2-styled {
     min-height: var(--polyta-button-height, 32px);
@@ -5084,6 +5130,12 @@
     color: #7b1b1b;
     font-size: .75rem;
     font-weight: 700;
+  }
+  @media (max-width: 620px) {
+    .spk-login-layout { grid-template-columns: 1fr; }
+    .spk-login-intro { padding: 24px; }
+    .spk-login-body { padding: 26px 22px; }
+    .spk-login-popup .swal2-actions { padding-inline: 22px; }
   }
   .spk-login-popup .swal2-validation-message::before {
     background: #8b1111;
@@ -18389,14 +18441,12 @@
       const result = await Swal.fire({
         icon: 'info',
         title: 'Login Admin PPIC',
-        html: '<div class="spk-login-dialog">' +
-          '<p class="spk-login-note">SPK baru hanya dapat dibuat oleh Admin PPIC. Paraf pembuat akan terisi otomatis.</p>' +
-          '<label class="spk-login-field"><span>Email</span>' +
-          '<input id="approvalLoginEmail" type="email" autocomplete="username" placeholder="nama@perusahaan.com"></label>' +
-          '<label class="spk-login-field"><span>Password</span>' +
-          '<input id="approvalLoginPassword" type="password" autocomplete="current-password" placeholder="Masukkan password"></label>' +
-          '<label class="spk-login-remember"><input id="approvalLoginRemember" type="checkbox"><span>Ingat saya di perangkat ini</span></label>' +
-          '</div>',
+        html: '<div class="spk-login-layout">' +
+          '<aside class="spk-login-intro"><span class="spk-login-orb"><i class="fa-solid fa-print"></i></span><p class="spk-login-eyebrow">AKSES SPK TERLINDUNGI</p><h2>SPK baru siap dibuat setelah akun terverifikasi.</h2><p>Login Admin PPIC diperlukan agar pembuat dan paraf tercatat otomatis.</p></aside>' +
+          '<article class="spk-login-body"><div class="spk-login-heading"><span class="spk-login-heading-icon"><i class="fa-solid fa-key"></i></span><div><h2>Masuk sebagai Admin PPIC</h2><p>Gunakan akun perusahaan Anda.</p></div></div><div class="spk-login-dialog">' +
+          '<label class="spk-login-field"><span>Email</span><input id="approvalLoginEmail" type="email" autocomplete="username" placeholder="nama@perusahaan.com"></label>' +
+          '<label class="spk-login-field"><span>Password</span><input id="approvalLoginPassword" type="password" autocomplete="current-password" placeholder="Masukkan password"></label>' +
+          '<label class="spk-login-remember"><input id="approvalLoginRemember" type="checkbox"><span>Ingat saya di perangkat ini</span></label></div></article></div>',
         target: approvalSwalTarget_(),
         showCancelButton: true,
         confirmButtonText: 'Masuk & Lanjutkan',
@@ -18408,6 +18458,7 @@
           confirmButton: 'spk-login-confirm',
           cancelButton: 'spk-login-cancel'
         },
+        showCloseButton: true,
         focusConfirm: false,
         didOpen: function() {
           const email = document.getElementById('approvalLoginEmail');
@@ -18464,14 +18515,12 @@
       const result = await Swal.fire({
         icon: 'info',
         title: 'Login Portal Polyta',
-        html: '<div class="spk-login-dialog">' +
-          '<p class="spk-login-note">Masuk sekali untuk membuka dashboard, membuat SPK, dan menggunakan persetujuan sesuai jabatan Anda.</p>' +
-          '<label class="spk-login-field"><span>Email</span>' +
-          '<input id="approvalLoginEmail" type="email" autocomplete="username" placeholder="nama@perusahaan.com"></label>' +
-          '<label class="spk-login-field"><span>Password</span>' +
-          '<input id="approvalLoginPassword" type="password" autocomplete="current-password" placeholder="Masukkan password"></label>' +
-          '<label class="spk-login-remember"><input id="approvalLoginRemember" type="checkbox"><span>Ingat saya di perangkat ini</span></label>' +
-          '</div>',
+        html: '<div class="spk-login-layout">' +
+          '<aside class="spk-login-intro"><span class="spk-login-orb"><i class="fa-solid fa-shield-halved"></i></span><p class="spk-login-eyebrow">PORTAL INTERNAL TERLINDUNGI</p><h2>Selamat datang di ruang kerja Polyta.</h2><p>Masuk untuk membuka dashboard, membuat SPK, dan menggunakan persetujuan sesuai jabatan Anda.</p></aside>' +
+          '<article class="spk-login-body"><div class="spk-login-heading"><span class="spk-login-heading-icon"><i class="fa-solid fa-key"></i></span><div><h2>Masuk ke Portal Polyta</h2><p>Gunakan akun perusahaan Anda.</p></div></div><div class="spk-login-dialog">' +
+          '<label class="spk-login-field"><span>Email</span><input id="approvalLoginEmail" type="email" autocomplete="username" placeholder="nama@perusahaan.com"></label>' +
+          '<label class="spk-login-field"><span>Password</span><input id="approvalLoginPassword" type="password" autocomplete="current-password" placeholder="Masukkan password"></label>' +
+          '<label class="spk-login-remember"><input id="approvalLoginRemember" type="checkbox"><span>Ingat saya di perangkat ini</span></label></div></article></div>',
         target: 'body',
         showCancelButton: false,
         confirmButtonText: 'Masuk ke Portal',
@@ -18481,6 +18530,7 @@
           popup: 'swal2-popup-neumorphic spk-login-popup',
           confirmButton: 'spk-login-confirm'
         },
+        showCloseButton: true,
         focusConfirm: false,
         allowOutsideClick: false,
         didOpen: function() {

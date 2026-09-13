@@ -1007,8 +1007,12 @@ function getSpkPrintData(spk, preferredRowNumber, authToken, includeSignatureDat
       approvalProgress: approvalSummary.progress,
       approvals: approvalSummary.approvals,
       signaturesLoaded: !Boolean(printSession) || shouldIncludeSignatures,
-      canPrint: Boolean(printSession && (releaseValue === 'YA' || approvalSummary.complete)),
-      canRelease: Boolean(printSession && printSession.roleKey === 'admin_ppic' && approvalSummary.complete)
+      canPrint: Boolean(printSession && (
+        releaseValue === 'YA' ||
+        approvalSummary.complete ||
+        printSession.roleKey === 'admin_ppic'
+      )),
+      canRelease: Boolean(printSession && printSession.roleKey === 'admin_ppic')
     });
     if (typeof Logger !== 'undefined') Logger.log('getSpkPrintData succeeded for SPK=' + spk);
     return { status: 'success', found: true, data: data };
@@ -1024,11 +1028,11 @@ function getSpkPrintData(spk, preferredRowNumber, authToken, includeSignatureDat
 // tidak saling menunggu.
 function markSpkReleasedForPrint(spk, preferredRowNumber, authToken) {
   try {
-    requireApprovalSession_(authToken, ['admin_ppic']);
+    const session = requireApprovalSession_(authToken, ['admin_ppic']);
     const key = normalizeSpk_(spk);
     if (!key) return { status: 'error', message: 'Nomor SPK untuk dicetak kosong.' };
     const approvalSummary = getSpkApprovalSummary_(key, false);
-    if (!approvalSummary.complete) {
+    if (!approvalSummary.complete && session.roleKey !== 'admin_ppic') {
       return {
         status: 'approval_required',
         message: 'SPK belum dapat diterbitkan. Persetujuan baru ' + approvalSummary.progress.approved +

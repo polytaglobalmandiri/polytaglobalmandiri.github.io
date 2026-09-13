@@ -4298,6 +4298,19 @@
       } catch (ignore) { return ''; }
     }
 
+    async function reloadPrintDataForSession_() {
+      const requested = activeSpk;
+      if (!requested || !hasAppsScriptRuntime_()) return;
+      const response = await printRpc_(
+        'getSpkPrintData',
+        requested,
+        requestedDbRow,
+        getPrintAuthToken_(),
+        !EMBED_MODE
+      );
+      handlePrintDataResponse_(response, requested);
+    }
+
     function printRpc_(method) {
       const args = Array.prototype.slice.call(arguments, 1);
       return new Promise(function(resolve, reject) {
@@ -4421,6 +4434,7 @@
     printButtonEl.addEventListener('click', async function () {
       if (PRINT_MODE !== 'release') return;
       if (!await ensurePrintLogin_()) return;
+      await reloadPrintDataForSession_();
       requestReleaseAndPrint_(true);
     });
 
@@ -4605,6 +4619,10 @@
 
       if (currentPrintData.release === 'YA') {
         if (openPrintDialog) window.print();
+        return;
+      }
+      if (!currentPrintData.canPrint) {
+        setToolbarStatus_('Cetak ditolak: akun ini belum memiliki hak cetak untuk SPK ini.', 'error');
         return;
       }
 

@@ -4431,10 +4431,12 @@
       loadPrintData_();
     });
 
-    printButtonEl.addEventListener('click', async function () {
+    printButtonEl.addEventListener('click', function () {
       if (PRINT_MODE !== 'release') return;
-      if (!await ensurePrintLogin_()) return;
-      await reloadPrintDataForSession_();
+      if (!getPrintAuthToken_()) {
+        showLoadError_('Sesi login berakhir. Silakan login kembali.');
+        return;
+      }
       requestReleaseAndPrint_(true);
     });
 
@@ -4694,27 +4696,52 @@
         </div>
       `;
 
-      // Panel status baku dinaikkan di atas kartu tersebut. Kartunya sendiri
-      // hanya memberi tahu, tanpa jalan keluar; panel inilah yang menyediakan
-      // tombol mencoba lagi. Penjagaan diperlukan karena berkas status hanya
-      // termuat pada versi web, tidak pada versi Apps Script.
+      // Panel status menyediakan login hanya ketika server menyatakan sesi
+      // berakhir. Halaman print tetap terbuka tanpa login.
       if (!window.PolytaStatus) return;
 
-      window.PolytaStatus.loadFailed(
-        'Paket cetak SPK belum dapat disiapkan.',
-        message,
-        function () {
-          setToolbarStatus_('Memuat data SPK...', '');
-          printRootEl.innerHTML = `
-            <div class="loading-card">
-              <div class="spinner" aria-hidden="true"></div>
-              <strong>Menyiapkan paket SPK</strong>
-              <p>PO Produksi dan formulir setiap alur sedang disusun.</p>
-            </div>
-          `;
-          loadPrintData_();
-        }
-      );
+      var expired = /sesi login berakhir|silakan login/i.test(String(message || ''));
+      window.PolytaStatus.show({
+        title: 'Data belum dapat dimuat',
+        message: 'Paket cetak SPK belum dapat disiapkan.',
+        detail: message,
+        actions: expired ? [
+          {
+            label: 'Masuk',
+            primary: true,
+            onClick: async function () {
+              if (!await ensurePrintLogin_()) return;
+              setToolbarStatus_('Memuat data SPK...', '');
+              printRootEl.innerHTML = `
+                <div class="loading-card">
+                  <div class="spinner" aria-hidden="true"></div>
+                  <strong>Menyiapkan paket SPK</strong>
+                  <p>PO Produksi dan formulir setiap alur sedang disusun.</p>
+                </div>
+              `;
+              await reloadPrintDataForSession_();
+            }
+          },
+          { label: 'Batal', href: '/apps/spk-automation/' }
+        ] : [
+          {
+            label: 'Coba lagi',
+            primary: true,
+            onClick: function () {
+              setToolbarStatus_('Memuat data SPK...', '');
+              printRootEl.innerHTML = `
+                <div class="loading-card">
+                  <div class="spinner" aria-hidden="true"></div>
+                  <strong>Menyiapkan paket SPK</strong>
+                  <p>PO Produksi dan formulir setiap alur sedang disusun.</p>
+                </div>
+              `;
+              loadPrintData_();
+            }
+          },
+          { label: 'Batal', href: '/apps/spk-automation/' }
+        ]
+      });
     }
 
     // Satu lembar untuk satu langkah alur. Proses yang dijalankan dua kali

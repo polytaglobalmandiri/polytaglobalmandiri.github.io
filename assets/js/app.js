@@ -423,12 +423,12 @@
     });
     tools.appendChild(sw);
 
-    var logout = el("button", "iconbtn portal-logout", ICON.logout || ICON.exit || "");
+    var logout = el("button", "nav__link portal-logout");
     logout.type = "button";
     logout.setAttribute("data-pgm-logout", "true");
     logout.setAttribute("aria-label", "Keluar");
     logout.title = "Keluar";
-    logout.innerHTML = '<span aria-hidden="true">↪</span>';
+    logout.innerHTML = '<span aria-hidden="true">↪</span><span>Keluar</span>';
     logout.addEventListener("click", function () {
       if (typeof window.PGMLogout === "function") {
         window.PGMLogout();

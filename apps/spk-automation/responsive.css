@@ -933,6 +933,33 @@ body[data-page] :is(.topbar, .app-topbar, .app-header, .print-toolbar) {
     0 14px 30px -12px rgba(40,33,24,.35);
 }
 
+body[data-page] :is(.topnav, .app-nav, .spk-simple-nav) [data-pgm-logout] {
+  min-width: 0 !important;
+  min-height: 34px !important;
+  height: 34px !important;
+  margin-left: 5px !important;
+  padding: 8px 11px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  border: 1px solid rgba(198,43,49,.28) !important;
+  border-radius: 9px !important;
+  background: transparent !important;
+  color: #a51a24 !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  text-decoration: none !important;
+  cursor: pointer !important;
+}
+
+body[data-page] :is(.topnav, .app-nav, .spk-simple-nav) [data-pgm-logout]:hover {
+  border-color: rgba(165,26,36,.55) !important;
+  background: linear-gradient(#fff4f4,#f1d8d8) !important;
+  color: #86131c !important;
+}
+
 body[data-page] :is(.topbar, .app-topbar, .app-header, .print-toolbar)::before {
   position: absolute;
   z-index: 0;

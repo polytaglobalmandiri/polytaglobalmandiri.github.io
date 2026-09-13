@@ -139,12 +139,28 @@ function buildDashboardV2Indexes_(spreadsheet) {
   return { routingBySpk: routingBySpk, trackingBySpk: trackingBySpk };
 }
 
-function getDashboardData(forceRefresh) {
+// Kompresi hanya bila klien menyatakan mampu membukanya. Klien lama tetap kompatibel.
+function getDashboardData(forceRefresh, encoding) {
+  var result = getDashboardDataPayload_(forceRefresh);
+  if (encoding !== 'gzip-base64' || result.error) return result;
+  try {
+    return {
+      encoding: 'gzip-base64',
+      payload: Utilities.base64Encode(Utilities.gzip(
+        Utilities.newBlob(JSON.stringify(result), 'application/json')
+      ).getBytes())
+    };
+  } catch (error) {
+    return result;
+  }
+}
+
+function getDashboardDataPayload_(forceRefresh) {
   var startedAt = Date.now();
   var sourceRevision = readDashboardSourceRevision_();
   if (!forceRefresh) {
     var cached = readDashboardCache_();
-    if (cached && cached.sourceRevision === sourceRevision) {
+    if (cached && sourceRevision.indexOf('unverified@') !== 0 && cached.sourceRevision === sourceRevision) {
       cached.revision = buildDashboardRevision_(sourceRevision);
       cached.performance = { source: 'cache-v2', durationMs: Date.now() - startedAt, rowCount: cached.tableData.length };
       return cached;
@@ -459,7 +475,8 @@ function readDashboardSourceRevision_() {
     }
   } catch (error2) {}
 
-  return 'prop@' + readDashboardRevisionRaw_();
+  // Bila metadata tidak dapat diperiksa, jangan menganggap cache masih mutakhir.
+  return 'unverified@' + Date.now();
 }
 
 function readDashboardRevisionRaw_() {

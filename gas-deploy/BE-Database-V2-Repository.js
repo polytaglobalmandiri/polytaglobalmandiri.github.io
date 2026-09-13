@@ -59,6 +59,120 @@ function readDatabaseV2Spk_(spk, spreadsheet) {
   return result;
 }
 
+// Jalur baca formulir: tiga batch API untuk header, kolom SPK, lalu baris cocok.
+// Tidak menyimpan posisi baris lintas permintaan agar pengurutan sheet tetap aman.
+function readDatabaseV2InputSpk_(spk) {
+  if (typeof Sheets === 'undefined' || !Sheets.Spreadsheets || !Sheets.Spreadsheets.Values) {
+    return readDatabaseV2Spk_(spk);
+  }
+  try {
+    return readDatabaseV2InputSpkBatch_(spk);
+  } catch (error) {
+    // Layanan tambahan dapat sementara tidak tersedia; pertahankan jalur native.
+    console.warn('Pembacaan batch SPK beralih ke SpreadsheetApp: ' + error.message);
+    return readDatabaseV2Spk_(spk);
+  }
+}
+
+function readDatabaseV2InputSpkBatch_(spk) {
+  const key = normalizeDatabaseV2Key_(spk);
+  if (!key) throw new Error('Nomor SPK wajib diisi.');
+  const names = Object.keys(DB_V2_SCHEMA);
+  const quote = function(name) { return "'" + name.replace(/'/g, "''") + "'!"; };
+  const columnName = function(number) {
+    let label = '';
+    while (number > 0) {
+      number--;
+      label = String.fromCharCode(65 + number % 26) + label;
+      number = Math.floor(number / 26);
+    }
+    return label;
+  };
+  const batch = function(ranges, formatted) {
+    const response = Sheets.Spreadsheets.Values.batchGet(DB_SPREADSHEET_ID, {
+      ranges: ranges, majorDimension: 'ROWS',
+      valueRenderOption: formatted ? 'FORMATTED_VALUE' : 'UNFORMATTED_VALUE',
+      dateTimeRenderOption: 'SERIAL_NUMBER'
+    });
+    if (!response.valueRanges || response.valueRanges.length !== ranges.length) {
+      throw new Error('Respons batch spreadsheet tidak lengkap.');
+    }
+    return response.valueRanges.map(function(item) { return item.values || []; });
+  };
+  const headers = batch(names.map(function(name) { return quote(DB_V2_SCHEMA[name].sheet) + '1:10'; }), true);
+  const tables = names.map(function(name, index) {
+    const schema = DB_V2_SCHEMA[name];
+    const rows = headers[index];
+    const header = findDatabaseV2Header_({
+      getLastColumn: function() { return Math.max.apply(null, rows.map(function(row) { return row.length; }).concat([1])); },
+      getLastRow: function() { return rows.length; },
+      getRange: function() { return { getDisplayValues: function() { return rows; } }; }
+    }, schema.fields);
+    if (!header.row || header.duplicates.length) throw new Error('Header V2 tidak valid: ' + schema.sheet);
+    const columns = {};
+    schema.fields.forEach(function(aliases) {
+      const column = findDatabaseV2HeaderIndex_(header.index, aliases);
+      if (!column) throw new Error('Field V2 tidak tersedia: ' + schema.sheet + '.' + aliases[0]);
+      columns[aliases[0]] = column;
+    });
+    return { name: name, schema: schema, headerRow: header.row, columns: columns };
+  });
+  const spkColumns = batch(tables.map(function(table) {
+    const column = columnName(table.columns.SPK);
+    return quote(table.schema.sheet) + column + (table.headerRow + 1) + ':' + column;
+  }), true);
+  const result = {};
+  const selections = [];
+  tables.forEach(function(table, index) {
+    result[table.name] = [];
+    const lastColumn = columnName(Math.max.apply(null, Object.keys(table.columns).map(function(field) { return table.columns[field]; })));
+    spkColumns[index].forEach(function(values, offset) {
+      if (normalizeDatabaseV2Key_(values[0]) !== key) return;
+      const row = table.headerRow + 1 + offset;
+      const previous = selections[selections.length - 1];
+      if (previous && previous.table === table && previous.end + 1 === row) previous.end = row;
+      else selections.push({ table: table, start: row, end: row, lastColumn: lastColumn });
+    });
+  });
+  if (!selections.some(function(item) { return item.table.name === 'master'; })) return null;
+  const records = batch(selections.map(function(item) {
+    return quote(item.table.schema.sheet) + 'A' + item.start + ':' + item.lastColumn + item.end;
+  }), false);
+  let spreadsheetTimeZone = '';
+  const dateFields = { Tanggal: true, ETD: true, 'Tanggal PO Masuk': true, 'Tanggal Kirim': true, 'Tanggal ETA': true };
+  selections.forEach(function(item, index) {
+    if (records[index].length !== item.end - item.start + 1) throw new Error('Baris SPK berubah saat dibaca.');
+    records[index].forEach(function(values) {
+      const record = {};
+      Object.keys(item.table.columns).forEach(function(field) {
+        let value = values[item.table.columns[field] - 1];
+        if (value == null) value = '';
+        // Serial Sheets menyatakan waktu lokal spreadsheet. Pertahankan jam dan
+        // zona waktunya, lalu dateToInput_ memakai zona waktu aplikasi seperti getValues().
+        if (dateFields[field] && typeof value === 'number') {
+          if (!spreadsheetTimeZone) {
+            spreadsheetTimeZone = Sheets.Spreadsheets.get(DB_SPREADSHEET_ID, {
+              fields: 'properties.timeZone'
+            }).properties.timeZone;
+          }
+          const localTime = new Date(Date.UTC(1899, 11, 30) + Math.round(value * 86400000))
+            .toISOString().replace('T', ' ').replace('Z', '');
+          value = Utilities.parseDate(localTime, spreadsheetTimeZone, 'yyyy-MM-dd HH:mm:ss.SSS');
+        }
+        record[field] = value;
+      });
+      if (normalizeDatabaseV2Key_(record.SPK) !== key) throw new Error('Posisi SPK berubah saat dibaca.');
+      result[item.table.name].push(record);
+    });
+  });
+  if (result.master.length !== 1) throw new Error('SPK Master duplikat: ' + key);
+  result.master = result.master[0];
+  names.filter(function(name) { return name !== 'master'; }).forEach(function(name) {
+    result[name].sort(function(a, b) { return (Number(a.Urutan) || 0) - (Number(b.Urutan) || 0); });
+  });
+  return result;
+}
+
 function readDatabaseV2RecordsForSpk_(tableKey, spk, spreadsheet) {
   const table = openDatabaseV2Table_(tableKey, spreadsheet);
   const key = normalizeDatabaseV2Key_(spk);
@@ -66,101 +180,18 @@ function readDatabaseV2RecordsForSpk_(tableKey, spk, spreadsheet) {
   const rowCount = Math.max(0, table.sheet.getLastRow() - table.headerRow);
   if (!rowCount) return [];
 
-  // Try to get row numbers from per-table row map cache first
-  const MAP_CACHE_PREFIX = 'pgm:spk:rowmap:';
-  let rowNumbers = null;
-  let rowMap = null;
-if (typeof CacheService !== 'undefined') {
-  try {
-    const cache = CacheService.getScriptCache();
-    Logger.log('Attempting per-table row map cache for tableKey=' + tableKey);
-    const serializedMap = cache.get(MAP_CACHE_PREFIX + tableKey);
-    rowMap = serializedMap ? JSON.parse(serializedMap) : null;
-    Logger.log('Row map retrieved: ' + JSON.stringify(rowMap));
-    if (rowMap && rowMap[key]) {
-      rowNumbers = rowMap[key];
-      Logger.log('Cache hit for SPK ' + key + ': rows=' + JSON.stringify(rowNumbers));
-    }
-  } catch (e) {
-    Logger.log('Cache lookup error: ' + e);
-  }
-}
-
-  if (!rowNumbers) {
-    // Cache each SPK's row numbers separately to avoid large map serialization
-    const CACHE_PREFIX = 'pgm:spk:rows:';
-    if (typeof CacheService !== 'undefined') {
-      try {
-        const cache = CacheService.getScriptCache();
-        const serialized = cache.get(CACHE_PREFIX + tableKey + ':' + key);
-        rowNumbers = serialized ? JSON.parse(serialized) : null;
-      } catch (e) {
-        rowNumbers = null;
-      }
-    }
-
-    if (!rowNumbers) {
-      // Fallback: use TextFinder then cache the result
-      const matches = table.sheet
-        .getRange(table.headerRow + 1, spkColumn, rowCount, 1)
-        .createTextFinder(key)
-        .matchEntireCell(true)
-        .matchCase(false)
-        .useRegularExpression(false)
-        .findAll();
-      if (!matches || !matches.length) {
-        rowNumbers = [];
-      } else {
-        rowNumbers = matches.map(function (cell) { return cell.getRow(); }).sort(function (a, b) { return a - b; });
-      }
-      // Store per-SPK cache
-      if (typeof CacheService !== 'undefined') {
-        try {
-          const cache = CacheService.getScriptCache();
-          const serialized = JSON.stringify(rowNumbers);
-          if (serialized.length < 95000) {
-            cache.put(CACHE_PREFIX + tableKey + ':' + key, serialized, 21600);
-          }
-        } catch (e) {}
-      }
-      // Update per-table row map cache
-      if (typeof CacheService !== 'undefined') {
-        try {
-          const cache = CacheService.getScriptCache();
-          // Merge into existing map or create new
-          const newMap = rowMap || {};
-          newMap[key] = rowNumbers;
-          const mapSerialized = JSON.stringify(newMap);
-          if (mapSerialized.length < 95000) {
-            cache.put(MAP_CACHE_PREFIX + tableKey, mapSerialized, 21600);
-          }
-        } catch (e) {}
-      }
-    }
-  }
-    // Fallback: use TextFinder then cache the result
-    const matches = table.sheet
-      .getRange(table.headerRow + 1, spkColumn, rowCount, 1)
-      .createTextFinder(key)
-      .matchEntireCell(true)
-      .matchCase(false)
-      .useRegularExpression(false)
-      .findAll();
-    if (!matches || !matches.length) {
-      rowNumbers = [];
-    } else {
-      rowNumbers = matches.map(function (cell) { return cell.getRow(); }).sort(function (a, b) { return a - b; });
-    }
-    if (typeof CacheService !== 'undefined') {
-      try {
-        const cache = CacheService.getScriptCache();
-        const serialized = JSON.stringify(rowNumbers);
-        if (serialized.length < 95000) {
-          cache.put(CACHE_PREFIX + tableKey + ':' + key, serialized, 21600);
-        }
-      } catch (e) {}
-    }
-  }
+  // Cari sekali per tabel. Nomor baris tidak disimpan lintas permintaan:
+  // penyisipan/penghapusan baris di spreadsheet dapat menggesernya.
+  const matches = table.sheet
+    .getRange(table.headerRow + 1, spkColumn, rowCount, 1)
+    .createTextFinder(key)
+    .matchEntireCell(true)
+    .matchCase(false)
+    .useRegularExpression(false)
+    .findAll();
+  const rowNumbers = (matches || []).map(function(cell) {
+    return cell.getRow();
+  }).sort(function(a, b) { return a - b; });
 
   if (!rowNumbers || !rowNumbers.length) return [];
 

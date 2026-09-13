@@ -849,7 +849,7 @@ function normalizeKeteranganBahan_(value) {
 // ==========================================
 // CACHE DATA SPK DETAIL (REPEAT ORDER & EDIT)
 // ==========================================
-var SPK_DATA_CACHE_PREFIX = 'pgm:spk:data:v1:';
+var SPK_DATA_CACHE_PREFIX = 'pgm:spk:data:v4:';
 var SPK_DATA_CACHE_SECONDS = 21600; // 6 jam
 
 function readCachedSpkData_(key) {
@@ -858,18 +858,21 @@ function readCachedSpkData_(key) {
     var cache = CacheService.getScriptCache();
     if (!cache) return null;
     var serialized = cache.get(SPK_DATA_CACHE_PREFIX + key);
-    return serialized ? JSON.parse(serialized) : null;
+    if (!serialized) return null;
+    var entry = JSON.parse(serialized);
+    var revision = readDashboardSourceRevision_();
+    return revision.indexOf('unverified@') !== 0 && entry.revision === revision ? entry.data : null;
   } catch (error) {
     return null;
   }
 }
 
-function writeCachedSpkData_(key, data) {
+function writeCachedSpkData_(key, data, revision) {
   try {
     if (typeof CacheService === 'undefined') return;
     var cache = CacheService.getScriptCache();
     if (!cache) return;
-    var serialized = JSON.stringify(data);
+    var serialized = JSON.stringify({ revision: revision, data: data });
     if (serialized.length < 95000) {
       cache.put(
         SPK_DATA_CACHE_PREFIX + key,
@@ -908,12 +911,13 @@ function getSpkData(spk) {
       };
     }
 
-    var aggregate = readDatabaseV2Spk_(key);
+    var revision = readDashboardSourceRevision_();
+    var aggregate = readDatabaseV2InputSpk_(key);
     if (!aggregate) {
       return { status: 'not_found', found: false, message: "Nomor SPK '" + key + "' tidak ditemukan di Database V2." };
     }
     var data = buildDatabaseV2InputData_(aggregate);
-    writeCachedSpkData_(key, data);
+    writeCachedSpkData_(key, data, revision);
     return {
       status: 'success',
       found: true,
@@ -935,12 +939,13 @@ function getSpkEditData(spk, preferredRowNumber) {
     var data = readCachedSpkData_(key);
     var source = 'cache';
     if (!data) {
-      var aggregate = readDatabaseV2Spk_(key);
+      var revision = readDashboardSourceRevision_();
+      var aggregate = readDatabaseV2InputSpk_(key);
       if (!aggregate) {
         return { status: 'not_found', found: false, message: "Nomor SPK '" + key + "' tidak ditemukan di Database V2." };
       }
       data = buildDatabaseV2InputData_(aggregate);
-      writeCachedSpkData_(key, data);
+      writeCachedSpkData_(key, data, revision);
       source = 'database-v2';
     } else {
       data = JSON.parse(JSON.stringify(data));
@@ -962,18 +967,18 @@ function getSpkEditData(spk, preferredRowNumber) {
 // DATA & STATUS CETAK SPK
 // ==========================================
 function getSpkPrintData(spk, preferredRowNumber, authToken, includeSignatureData) {
-  Logger.log('getSpkPrintData invoked for SPK=' + spk);
+  if (typeof Logger !== 'undefined') Logger.log('getSpkPrintData invoked for SPK=' + spk);
   try {
     let printSession = null;
     if (authToken) printSession = requireApprovalSession_(authToken);
     const key = normalizeSpk_(spk);
     if (!key) {
-      Logger.log('normalizeSpk_ returned falsy for input: ' + spk);
+      if (typeof Logger !== 'undefined') Logger.log('normalizeSpk_ returned falsy for input: ' + spk);
       return { status: 'not_found', found: false, message: 'Nomor SPK untuk dicetak tidak ditemukan.' };
     }
     const aggregate = readDatabaseV2Spk_(key);
     if (!aggregate) {
-      Logger.log('readDatabaseV2Spk_ returned null for key: ' + key);
+      if (typeof Logger !== 'undefined') Logger.log('readDatabaseV2Spk_ returned null for key: ' + key);
       return { status: 'not_found', found: false, message: "Nomor SPK '" + key + "' tidak ditemukan di Database V2." };
     }
     const data = buildDatabaseV2InputData_(aggregate);
@@ -1005,10 +1010,10 @@ function getSpkPrintData(spk, preferredRowNumber, authToken, includeSignatureDat
       canPrint: Boolean(printSession && (releaseValue === 'YA' || approvalSummary.complete)),
       canRelease: Boolean(printSession && printSession.roleKey === 'admin_ppic' && approvalSummary.complete)
     });
-    Logger.log('getSpkPrintData succeeded for SPK=' + spk);
+    if (typeof Logger !== 'undefined') Logger.log('getSpkPrintData succeeded for SPK=' + spk);
     return { status: 'success', found: true, data: data };
   } catch (error) {
-    Logger.log('getSpkPrintData error: ' + error);
+    if (typeof Logger !== 'undefined') Logger.log('getSpkPrintData error: ' + error);
     return { status: 'error', found: false, message: error.message };
   }
 }

@@ -64,7 +64,8 @@ context.readDatabaseV2Table_ = name => ({
   })[name] || []
 });
 
-// Test 1: Deterministic source revision without Drive API available
+context.Drive = { Files: { get: () => ({ version: '1', modifiedTime: '2026-09-13' }) } };
+// Test 1: Same verified source revision is stable
 const rev1 = context.readDashboardSourceRevision_();
 const rev2 = context.readDashboardSourceRevision_();
 assert.equal(rev1, rev2, 'sourceRevision must be deterministic between repeated reads');
@@ -89,3 +90,8 @@ const afterClear = context.getDashboardData(false);
 assert.equal(afterClear.performance.source, 'database-v2');
 
 console.log('PASS: dashboard chunked caching, deterministic revision, and invalidation verified');
+
+context.Drive.Files.get = () => { throw new Error('metadata unavailable'); };
+assert.equal(context.getDashboardData(false).performance.source, 'database-v2');
+assert.equal(context.getDashboardData(false).performance.source, 'database-v2');
+console.log('PASS: failed metadata checks never authorize a stale cache');

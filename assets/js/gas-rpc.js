@@ -293,11 +293,12 @@
     });
   }
 
-  function requestServer(method, args) {
-    // Selama transport iframe masih sehat, tidak ada gunanya menambah
-    // permintaan kedua. Jalur cadangan baru dipakai setelah iframe terbukti
-    // gagal di perangkat ini, dan berhenti dicoba begitu server menolaknya.
-    if (frameTransportBroken && scriptTransport !== "tidak-ada") {
+  function requestTransport(method, args) {
+    // Pembacaan publik langsung memakai JSONP agar tidak menunggu iframe
+    // pihak ketiga. Operasi lain tetap memakai jalur yang sudah tersedia.
+    var publicRead = method === "getDashboardData" || method === "getDashboardDataRevision" ||
+      method === "getDashboardTrackingData" || method === "getSpkData";
+    if ((publicRead || frameTransportBroken) && scriptTransport !== "tidak-ada") {
       return requestViaScript(method, args).catch(function (error) {
         if (error && error.transportCode === "cadangan-belum-ada") {
           return requestViaFrame(method, args);
@@ -306,6 +307,21 @@
       });
     }
     return requestViaFrame(method, args);
+  }
+
+  function requestServer(method, args) {
+    var wireArgs = args;
+    if (method === "getDashboardData" && typeof window.DecompressionStream === "function") {
+      wireArgs = [Boolean(args && args[0]), "gzip-base64"];
+    }
+    return requestTransport(method, wireArgs).then(function (result) {
+      if (!result || result.encoding !== "gzip-base64") return result;
+      var binary = window.atob(result.payload);
+      var bytes = new Uint8Array(binary.length);
+      for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      var stream = new Blob([bytes]).stream().pipeThrough(new window.DecompressionStream("gzip"));
+      return new Response(stream).json();
+    });
   }
 
   // Chrome memblokir cookie pihak ketiga secara bawaan dan frame

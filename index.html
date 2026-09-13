@@ -10,6 +10,21 @@
 <link rel="stylesheet" href="assets/css/skeuo.css?v=20260812-18">
 <link rel="stylesheet" href="assets/css/status.css?v=20260814-4">
 <script src="assets/js/status.js?v=20260815-1"></script>
+<script src="assets/js/gas-rpc.js?v=20260913-3"></script>
+<script src="assets/vendor/sweetalert2/sweetalert2-11.26.25.all.min.js"></script>
+<style>
+  .portal-login-popup .swal2-html-container { margin: 14px 6px 2px; text-align: left; }
+  .portal-login-dialog { display: grid; gap: 11px; }
+  .portal-login-note { margin: 0; color: #5f6670; font-size: .75rem; line-height: 1.5; }
+  .portal-login-field { display: grid; gap: 5px; color: #5f6670; font-size: .69rem; font-weight: 800; }
+  .portal-login-field input { box-sizing: border-box; width: 100%; min-height: 38px; padding: 0 10px; border: 1px solid #9b9da0; border-radius: 8px; background: #fdfdfb; box-shadow: inset 1px 2px 4px rgba(0,0,0,.17), 0 1px 0 #fff; font: inherit; }
+  .portal-login-field input:focus { border-color: #7b1b1b; outline: 0; box-shadow: inset 1px 2px 4px rgba(0,0,0,.17), 0 0 0 3px rgba(185,35,35,.15), 0 1px 0 #fff; }
+  .portal-login-remember { display: flex; align-items: center; gap: 8px; color: #5f6670; font-size: .69rem; font-weight: 700; cursor: pointer; }
+  .portal-login-remember input { width: 14px; height: 14px; accent-color: #7b1b1b; }
+  .portal-login-popup .swal2-title { color: #25272b; font-size: 1.12rem; font-weight: 900; }
+  .portal-login-popup .swal2-styled { min-height: 34px; border-radius: 8px; font-size: .7rem; font-weight: 800; }
+  .portal-login-popup .portal-login-confirm { background: #202020 !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 3px 0 #08090b; }
+</style>
 <script>
   /* Terapkan tema sebelum render untuk mencegah kedip */
   try { var t = JSON.parse(localStorage.getItem('pgm:theme')); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}

@@ -907,13 +907,104 @@
   window.PGM = { ICON: ICON, TYPE_LABEL: TYPE_LABEL };
 
   /* ------------------------------------------------------------ Boot */
-  function init() {
+  function approvalRpc(method) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    return new Promise(function (resolve, reject) {
+      var runner = google.script.run.withSuccessHandler(resolve).withFailureHandler(reject);
+      runner[method].apply(runner, args);
+    });
+  }
+
+  function readApprovalAuth() {
+    try {
+      var local = localStorage.getItem("pgm:spk-auth-v1");
+      return {
+        value: JSON.parse(local || sessionStorage.getItem("pgm:spk-auth-v1") || "null"),
+        permanent: Boolean(local)
+      };
+    } catch (error) {
+      return { value: null, permanent: false };
+    }
+  }
+
+  function saveApprovalAuth(response, remember) {
+    var value = JSON.stringify({ token: response.token, user: response.user });
+    localStorage.removeItem("pgm:spk-auth-v1");
+    sessionStorage.removeItem("pgm:spk-auth-v1");
+    (remember ? localStorage : sessionStorage).setItem("pgm:spk-auth-v1", value);
+  }
+
+  async function ensurePortalLogin() {
+    var saved = readApprovalAuth();
+    if (saved.value && saved.value.token) {
+      try {
+        var session = await approvalRpc("getApprovalSession", saved.value.token);
+        if (session && session.status === "success" && session.user) {
+          saved.value.user = session.user;
+          (saved.permanent ? localStorage : sessionStorage)
+            .setItem("pgm:spk-auth-v1", JSON.stringify(saved.value));
+          return true;
+        }
+      } catch (error) {}
+      localStorage.removeItem("pgm:spk-auth-v1");
+      sessionStorage.removeItem("pgm:spk-auth-v1");
+    }
+
+    var result = await Swal.fire({
+      icon: "info",
+      title: "Login Portal Polyta",
+      html: '<div class="portal-login-dialog">' +
+        '<p class="portal-login-note">Silakan masuk untuk membuka Portal Akses Internal Polyta Global Mandiri.</p>' +
+        '<label class="portal-login-field"><span>Email</span><input id="portalLoginEmail" type="email" autocomplete="username" placeholder="nama@perusahaan.com"></label>' +
+        '<label class="portal-login-field"><span>Password</span><input id="portalLoginPassword" type="password" autocomplete="current-password" placeholder="Masukkan password"></label>' +
+        '<label class="portal-login-remember"><input id="portalLoginRemember" type="checkbox"><span>Ingat saya di perangkat ini</span></label>' +
+        '</div>',
+      showCancelButton: false,
+      confirmButtonText: "Masuk ke Portal",
+      background: "#e0e5ec",
+      customClass: { popup: "swal2-popup-neumorphic portal-login-popup", confirmButton: "portal-login-confirm" },
+      focusConfirm: false,
+      allowOutsideClick: false,
+      didOpen: function () {
+        var email = document.getElementById("portalLoginEmail");
+        if (email) email.focus();
+      },
+      showLoaderOnConfirm: true,
+      preConfirm: async function () {
+        var email = document.getElementById("portalLoginEmail").value.trim();
+        var password = document.getElementById("portalLoginPassword").value;
+        if (!email || !password) {
+          Swal.showValidationMessage("Email dan password wajib diisi.");
+          return false;
+        }
+        try {
+          try { await window.POLYTA_PRIME_GAS_ACCESS(); } catch (ignore) {}
+          var remember = document.getElementById("portalLoginRemember").checked;
+          var response = await approvalRpc("loginApprovalUser", email, password, remember);
+          if (!response || response.status !== "success") {
+            throw new Error(response && response.message || "Login gagal.");
+          }
+          response.remember = remember;
+          return response;
+        } catch (error) {
+          Swal.showValidationMessage(error.message || "Login gagal.");
+          return false;
+        }
+      }
+    });
+    if (!result.isConfirmed || !result.value) return false;
+    saveApprovalAuth(result.value, result.value.remember);
+    return true;
+  }
+
+  async function init() {
     wireStickyHeader();
 
     /* Halaman tanpa atribut data-page — misalnya halaman administrator —
        hanya meminjam pustaka ikon di atas; tidak ada yang perlu dirender. */
     var pageId = document.body.dataset.page;
     if (!pageId) { wirePageTransitions(); return; }
+    if (pageId === "beranda" && !await ensurePortalLogin()) return;
 
     var page = SITE.pages[pageId];
     if (!page) return;

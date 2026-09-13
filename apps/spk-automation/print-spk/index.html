@@ -4130,7 +4130,7 @@
       <label>Password<input id="printLoginPassword" type="password" autocomplete="current-password" placeholder="Masukkan password" required></label>
       <label class="print-login-remember"><input id="printLoginRemember" type="checkbox"><span>Ingat saya di perangkat ini</span></label>
       <p id="printLoginError" class="print-login-error" role="alert"></p>
-      <button id="printLoginButton" class="print-login-button" type="submit">Masuk dan Buka Print</button>
+      <button id="printLoginButton" class="print-login-button" type="submit">Masuk dan Lanjutkan</button>
     </form>
   </section>
 
@@ -4330,7 +4330,7 @@
           } catch (error) {
             errorBox.textContent = error.message || 'Login gagal. Periksa email dan password Anda.';
             button.disabled = false;
-            button.textContent = 'Masuk dan Buka Print';
+            button.textContent = 'Masuk dan Lanjutkan';
           }
         });
         document.getElementById('printLoginEmail').focus();
@@ -4390,8 +4390,8 @@
       });
     }
 
-    document.addEventListener('DOMContentLoaded', async function () {
-      if (await ensurePrintLogin_()) loadPrintData_();
+    document.addEventListener('DOMContentLoaded', function () {
+      loadPrintData_();
     });
 
     printButtonEl.addEventListener('click', async function () {
@@ -4514,8 +4514,7 @@
         notifyEmbedHost_('ready');
       }
       printButtonEl.hidden = PRINT_MODE === 'view';
-      printButtonEl.disabled = PRINT_MODE !== 'release' || !currentPrintData.canPrint ||
-        (currentPrintData.release !== 'YA' && !currentPrintData.canRelease);
+      printButtonEl.disabled = PRINT_MODE !== 'release' || !currentPrintData;
       setToolbarStatus_(
         PRINT_MODE === 'view'
           ? 'Mode Lihat Saja. Status terbit tidak diubah.'
@@ -4580,17 +4579,8 @@
     function requestReleaseAndPrint_(openPrintDialog) {
       if (!currentPrintData || releaseRequestInFlight || PRINT_MODE !== 'release') return;
 
-      if (!currentPrintData.canPrint) {
-        setToolbarStatus_('Cetak ditolak: login diperlukan atau tanda tangan belum lengkap.', 'error');
-        return;
-      }
-
       if (currentPrintData.release === 'YA') {
         if (openPrintDialog) window.print();
-        return;
-      }
-      if (!currentPrintData.canRelease) {
-        setToolbarStatus_('Release ditolak: tanda tangan belum lengkap atau akun bukan Admin PPIC.', 'error');
         return;
       }
 

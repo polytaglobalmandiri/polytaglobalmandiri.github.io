@@ -423,6 +423,19 @@
     });
     tools.appendChild(sw);
 
+    var logout = el("button", "iconbtn portal-logout", ICON.logout || ICON.exit || "");
+    logout.type = "button";
+    logout.setAttribute("data-pgm-logout", "true");
+    logout.setAttribute("aria-label", "Keluar");
+    logout.title = "Keluar";
+    logout.innerHTML = '<span aria-hidden="true">↪</span>';
+    logout.addEventListener("click", function () {
+      localStorage.removeItem("pgm:spk-auth-v1");
+      sessionStorage.removeItem("pgm:spk-auth-v1");
+      window.location.href = link("");
+    });
+    tools.appendChild(logout);
+
     var menuBtn = el("button", "iconbtn nav-toggle", ICON.menu);
     menuBtn.type = "button";
     menuBtn.setAttribute("aria-label", "Buka menu");

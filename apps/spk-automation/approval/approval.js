@@ -323,7 +323,7 @@
     setLoginPasswordVisibility(input.type==='password');
     input.focus();
   }
-  function returnToPortal(){window.location.replace('/apps/spk-automation/');}
+  function returnToPortal(){window.location.replace('/');}
   function showLogin(){returnToPortal();}
   async function login(event){
     event.preventDefault();

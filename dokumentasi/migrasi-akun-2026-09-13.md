@@ -43,7 +43,7 @@ Deployment Versi 1 diterbitkan pada 13 September 2026 dengan akses `Siapa saja`,
 berjalan sebagai `zulfi.polyta@gmail.com`, setelah mendapat persetujuan pengguna.
 
 Endpoint baru:
-`https://script.google.com/macros/s/AKfycbwXTVKAJ0ftVTi-egf6SNN7q0_cLUkSeChsuBzbmPgDuXV-SMMUnum-LJvoAUphqQ/exec`.
+`https://script.google.com/macros/s/AKfycbxG8wlj8giwoPd8hiYIFBVOmgLb4KC28_3_V9ZeQRJtFif11J_GL52sShaNW8OsRsqc_w/exec`.
 
 Perubahan website mengarahkan RPC ke endpoint baru; versi aset RPC dan kunci
 cache dashboard diperbarui agar data perangkat dari database lama tidak dipakai.

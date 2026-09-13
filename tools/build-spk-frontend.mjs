@@ -29,7 +29,7 @@ const outputRoot = !target
 // tidak menyajikan salinan lama. Nilainya harus sama dengan yang tercantum
 // pada halaman yang sedang terbit.
 const assetVersions = {
-  "gas-rpc.js": "20260913-2",
+  "gas-rpc.js": "20260913-3",
   "responsive.css": "20260814-2",
   "routing-accessories.css": "20260812-1",
   "routing-bs.js": "20260812-1",

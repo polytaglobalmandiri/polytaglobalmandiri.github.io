@@ -294,11 +294,20 @@
   }
 
   function requestTransport(method, args) {
-    // Pembacaan publik langsung memakai JSONP agar tidak menunggu iframe
-    // pihak ketiga. Operasi lain tetap memakai jalur yang sudah tersedia.
-    var publicRead = method === "getDashboardData" || method === "getDashboardDataRevision" ||
-      method === "getDashboardTrackingData" || method === "getSpkData";
-    if ((publicRead || frameTransportBroken) && scriptTransport !== "tidak-ada") {
+    // Pembacaan ini tidak membawa kredensial dan aman dicoba ulang. Kegagalan
+    // JSONP sementara tidak boleh mengembalikannya ke iframe yang diblokir.
+    var publicRead = [
+      "getDashboardData", "getDashboardDataRevision", "getDashboardTrackingData",
+      "getSpkData", "getSpkYearPreference", "getInputSpkOptionsFast",
+      "getSpkExistenceSnapshot", "checkSpkExists", "getMasterFormOptions"
+    ].indexOf(method) !== -1;
+    if (publicRead) {
+      return requestViaScript(method, args).catch(function (error) {
+        if (!error || error.transportCode !== "cadangan-belum-ada") throw error;
+        return requestViaScript(method, args);
+      });
+    }
+    if (frameTransportBroken && scriptTransport !== "tidak-ada") {
       return requestViaScript(method, args).catch(function (error) {
         if (error && error.transportCode === "cadangan-belum-ada") {
           return requestViaFrame(method, args);

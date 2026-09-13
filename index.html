@@ -11,19 +11,36 @@
 <link rel="stylesheet" href="assets/css/status.css?v=20260814-4">
 <script src="assets/js/status.js?v=20260815-1"></script>
 <script src="assets/js/gas-rpc.js?v=20260913-3"></script>
-<script src="assets/vendor/sweetalert2/sweetalert2-11.26.25.all.min.js"></script>
 <style>
-  .portal-login-popup .swal2-html-container { margin: 14px 6px 2px; text-align: left; }
-  .portal-login-dialog { display: grid; gap: 11px; }
-  .portal-login-note { margin: 0; color: #5f6670; font-size: .75rem; line-height: 1.5; }
-  .portal-login-field { display: grid; gap: 5px; color: #5f6670; font-size: .69rem; font-weight: 800; }
-  .portal-login-field input { box-sizing: border-box; width: 100%; min-height: 38px; padding: 0 10px; border: 1px solid #9b9da0; border-radius: 8px; background: #fdfdfb; box-shadow: inset 1px 2px 4px rgba(0,0,0,.17), 0 1px 0 #fff; font: inherit; }
-  .portal-login-field input:focus { border-color: #7b1b1b; outline: 0; box-shadow: inset 1px 2px 4px rgba(0,0,0,.17), 0 0 0 3px rgba(185,35,35,.15), 0 1px 0 #fff; }
-  .portal-login-remember { display: flex; align-items: center; gap: 8px; color: #5f6670; font-size: .69rem; font-weight: 700; cursor: pointer; }
-  .portal-login-remember input { width: 14px; height: 14px; accent-color: #7b1b1b; }
-  .portal-login-popup .swal2-title { color: #25272b; font-size: 1.12rem; font-weight: 900; }
-  .portal-login-popup .swal2-styled { min-height: 34px; border-radius: 8px; font-size: .7rem; font-weight: 800; }
-  .portal-login-popup .portal-login-confirm { background: #202020 !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 3px 0 #08090b; }
+  #portalLoginView { width:min(1180px,calc(100% - 2.5rem)); min-height:450px; margin:26px auto 38px; overflow:hidden; display:grid; grid-template-columns:minmax(320px,.94fr) minmax(420px,1.06fr); border:1px solid #8b8e91; border-radius:16px; background:#f7f7f4; box-shadow:inset 0 1px 0 rgba(255,255,255,.85),0 3px 0 #737578,0 10px 22px rgba(0,0,0,.24); }
+  #portalLoginView[hidden] { display:none; }
+  .portal-login-intro { min-height:450px; padding:clamp(27px,3vw,40px); display:flex; flex-direction:column; justify-content:center; border-right:1px solid #111317; background:radial-gradient(circle at 5% 8%,rgba(218,43,54,.2),transparent 18rem),repeating-linear-gradient(90deg,rgba(255,255,255,.025) 0 1px,transparent 1px 4px),linear-gradient(145deg,#36383e,#202226 72%); color:#f7f7f5; }
+  .portal-login-orb { width:46px; height:46px; margin-bottom:19px; display:grid; place-items:center; border:1px solid #c99797; border-radius:12px; background:linear-gradient(145deg,#fff0f0,#e3b8b8); color:#c62b31; font-size:1.1rem; }
+  .portal-login-eyebrow { margin:0 0 4px; color:#ff8e97; font-size:9.6px; font-weight:900; letter-spacing:.11em; }
+  .portal-login-intro h1 { max-width:490px; margin:0; font-size:clamp(1.25rem,1.7vw,1.55rem); line-height:1.2; }
+  .portal-login-intro > p:not(.portal-login-eyebrow) { max-width:520px; margin:13px 0 0; color:#bdc0c6; font-size:.72rem; line-height:1.65; }
+  .portal-login-flow { margin-top:23px; display:grid; gap:8px; }
+  .portal-login-flow span { min-height:42px; padding:8px 11px 8px 8px; display:flex; align-items:center; gap:10px; border:1px solid rgba(255,255,255,.12); border-radius:10px; background:rgba(255,255,255,.065); color:#e4e5e7; font-size:.65rem; font-weight:750; }
+  .portal-login-flow b { width:27px; height:27px; display:grid; place-items:center; border:1px solid #821111; border-radius:7px; background:linear-gradient(180deg,#ed5252,#d83232 46%,#b61d1d 52%,#8b1111); color:#fff; font-size:.53rem; }
+  .portal-login-card { min-width:0; padding:clamp(32px,4.2vw,52px); display:flex; flex-direction:column; justify-content:center; background:radial-gradient(circle at 100% 0,rgba(198,43,49,.045),transparent 18rem),repeating-linear-gradient(0deg,rgba(0,0,0,.01) 0 1px,transparent 1px 4px),#f8f8f5; }
+  .portal-login-card > * { width:min(100%,440px); margin-right:auto; margin-left:auto; }
+  .portal-login-heading { display:flex; align-items:center; gap:11px; margin-bottom:28px; }
+  .portal-login-heading > span { width:42px; height:42px; flex:0 0 42px; display:grid; place-items:center; border:1px solid #c99797; border-radius:12px; background:linear-gradient(145deg,#fff0f0,#e3b8b8); color:#c62b31; }
+  .portal-login-heading p { margin:0 0 4px; color:#9f1d1d; font-size:9.6px; font-weight:900; letter-spacing:.11em; }
+  .portal-login-heading h2 { margin:0; color:#25272c; font-size:1.35rem; letter-spacing:-.025em; }
+  .portal-login-heading small { display:block; margin-top:5px; color:#73777e; font-size:.7rem; }
+  .portal-login-form { display:grid; gap:16px; }
+  .portal-login-form label { display:grid; gap:7px; color:#37393e; font-size:.72rem; font-weight:800; }
+  .portal-login-form input[type=email],.portal-login-form input[type=password] { width:100%; height:42px; min-height:42px; padding:0 12px; border:1px solid #9b9da0; border-top-color:#74777a; border-left-color:#74777a; border-radius:8px; background:#fdfdfb; box-shadow:inset 1px 2px 4px rgba(0,0,0,.2),0 1px 0 rgba(255,255,255,.78); color:#25272c; font-size:13px; }
+  .portal-login-form input:focus { border-color:#b44a51; outline:0; box-shadow:0 0 0 3px rgba(198,43,49,.11),inset 0 1px 2px rgba(0,0,0,.04); }
+  .portal-login-remember { display:flex!important; align-items:center; gap:9px; font-weight:650!important; cursor:pointer; }
+  .portal-login-remember input { width:17px; min-height:17px; height:17px; accent-color:#c62b31; }
+  .portal-login-button { min-height:42px; border:1px solid #80131b; border-radius:8px; background:linear-gradient(180deg,#e84b53,#c62b31 48%,#9d151f 52%,#811019); color:#fff; box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 3px 0 #650b0b; font-size:.72rem; font-weight:800; cursor:pointer; }
+  .portal-login-button:disabled { cursor:wait; opacity:.7; }
+  .portal-login-security { margin-top:18px; color:#73777e; font-size:.65rem; line-height:1.5; }
+  .portal-login-error { min-height:18px; margin:0; color:#a51a24; font-size:.68rem; font-weight:700; }
+  @media(max-width:800px) { #portalLoginView { width:min(100% - 1.25rem,560px); grid-template-columns:1fr; } .portal-login-intro { min-height:0; padding:28px; border-right:0; border-bottom:1px solid #111317; } .portal-login-intro h1 { font-size:1.25rem; } .portal-login-flow { grid-template-columns:repeat(3,1fr); } .portal-login-flow span { min-height:0; display:grid; justify-items:center; padding:8px 4px; gap:5px; text-align:center; } .portal-login-card { padding:30px 24px; } }
+  @media(max-width:480px) { .portal-login-flow { grid-template-columns:1fr; } .portal-login-flow span { display:flex; justify-items:initial; text-align:left; } }
 </style>
 <script>
   /* Terapkan tema sebelum render untuk mencegah kedip */
@@ -32,6 +49,30 @@
 </head>
 <body data-page="beranda">
   <a class="sr-only" href="#konten">Lewati ke konten utama</a>
+  <section id="portalLoginView" hidden aria-labelledby="portalLoginTitle">
+    <aside class="portal-login-intro">
+      <span class="portal-login-orb" aria-hidden="true">🔐</span>
+      <p class="portal-login-eyebrow">AKSES PORTAL TERKENDALI</p>
+      <h1 id="portalLoginTitle">Satu login untuk seluruh aplikasi Polyta Global Mandiri.</h1>
+      <p>Gunakan akun perusahaan Anda untuk membuka dashboard, SPK, persetujuan, dan layanan internal lainnya.</p>
+      <div class="portal-login-flow" aria-label="Alur akses portal">
+        <span><b>01</b> Masuk dengan akun perusahaan</span>
+        <span><b>02</b> Pilih aplikasi yang diperlukan</span>
+        <span><b>03</b> Sesi tersimpan dengan aman</span>
+      </div>
+    </aside>
+    <article class="portal-login-card">
+      <div class="portal-login-heading"><span aria-hidden="true">🔑</span><div><p>LOGIN PENGGUNA</p><h2>Masuk ke Portal</h2><small>Gunakan email dan password akun Anda.</small></div></div>
+      <form id="portalLoginForm" class="portal-login-form">
+        <label>Email<input id="portalLoginEmail" type="email" autocomplete="username" placeholder="nama@perusahaan.com" required></label>
+        <label>Password<input id="portalLoginPassword" type="password" autocomplete="current-password" placeholder="Masukkan password" required></label>
+        <label class="portal-login-remember"><input id="portalLoginRemember" type="checkbox"><span>Ingat saya di perangkat ini</span></label>
+        <p id="portalLoginError" class="portal-login-error" role="alert"></p>
+        <button id="portalLoginButton" class="portal-login-button" type="submit">Masuk ke Portal</button>
+      </form>
+      <p class="portal-login-security">Jangan bagikan password atau akses akun Anda kepada orang lain.</p>
+    </article>
+  </section>
   <main id="konten"></main>
   <noscript>
     <div class="wrap" style="padding:2rem 0">

@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Cetak SPK | Polyta Global Mandiri</title>
-  <link rel="stylesheet" href="/assets/css/status.css?v=20260814-4">
-  <script src="/assets/js/status.js?v=20260815-1"></script>
+  <link rel="stylesheet" href="/assets/css/status.css?v=20260913-2">
+  <script src="/assets/js/status.js?v=20260913-2"></script>
   <script src="/assets/js/ui-labels.js?v=20260815-1" defer></script>
   <meta name="theme-color" content="#20242a">
   <base target="_top">
@@ -3965,6 +3965,18 @@
     .print-login-security { margin: 14px 0 0 !important; color: #73777e; font-size: .62rem !important; }
     @keyframes printLoginIn { from { opacity: 0; transform: translateY(8px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
     @media (max-width: 620px) { .print-login-card { grid-template-columns: 1fr; } .print-login-intro { padding: 24px; } .print-login-intro h2 { font-size: 1.15rem; } .print-login-card-body { padding: 26px 22px; } }
+    .pgm-status-login-form { display: grid; gap: 9px; margin: 15px 0 2px; text-align: left; }
+    .pgm-status-login-form label { display: grid; gap: 4px; color: #37393e; font-size: .68rem; font-weight: 800; }
+    .pgm-status-login-form input[type=email], .pgm-status-login-form input[type=password] { width: 100%; min-height: 34px; padding: 0 9px; border: 1px solid #9b9da0; border-radius: 7px; background: #fdfdfb; color: #25272c; font-size: .75rem; }
+    .pgm-status-login-form input:focus { border-color: #b44a51; outline: 0; box-shadow: 0 0 0 3px rgba(198,43,49,.12); }
+    .pgm-status-login-remember { display: flex !important; grid-template-columns: auto 1fr; align-items: center; gap: 7px; font-weight: 650 !important; cursor: pointer; }
+    .pgm-status-login-remember input { width: 14px; height: 14px; accent-color: #c62b31; }
+    .pgm-status-login-password { position: relative; }
+    .pgm-status-login-password input { padding-right: 34px !important; }
+    .pgm-status-login-password button { position: absolute; right: 3px; bottom: 3px; width: 28px; height: 28px; border: 0; border-radius: 6px; background: transparent; color: #73777e; cursor: pointer; }
+    .pgm-status-login-error { min-height: 14px; margin: 0; color: #a51a24; font-size: .66rem; font-weight: 700; }
+    .pgm-status-button { min-height: 34px !important; padding: 7px 14px !important; border-radius: 8px !important; font-size: .7rem !important; }
+    @media (pointer: coarse) { .pgm-status-button { min-height: 36px !important; } }
 
     </style>
   <script src="/assets/js/gas-rpc.js?v=20260913-3"></script>
@@ -4309,6 +4321,24 @@
         !EMBED_MODE
       );
       handlePrintDataResponse_(response, requested);
+    }
+
+    async function loginPrintCredentials_(email, password, remember) {
+      try {
+        try { await window.POLYTA_PRIME_GAS_ACCESS(); } catch (ignore) {}
+        const response = await printRpc_('loginApprovalUser', email, password, remember);
+        if (!response || response.status !== 'success') {
+          throw new Error(response && response.message || 'Login gagal.');
+        }
+        const auth = JSON.stringify({ token: response.token, user: response.user });
+        localStorage.removeItem(PRINT_AUTH_STORAGE_KEY_);
+        sessionStorage.removeItem(PRINT_AUTH_STORAGE_KEY_);
+        (remember ? localStorage : sessionStorage).setItem(PRINT_AUTH_STORAGE_KEY_, auth);
+        printAuthReady_ = true;
+        return true;
+      } catch (error) {
+        throw error;
+      }
     }
 
     function printRpc_(method) {
@@ -4704,13 +4734,47 @@
       window.PolytaStatus.show({
         title: 'Data belum dapat dimuat',
         message: 'Paket cetak SPK belum dapat disiapkan.',
-        detail: message,
+        detail: expired ? '' : message,
+        decorate: expired ? function () {
+          var form = document.createElement('form');
+          form.className = 'pgm-status-login-form';
+          form.innerHTML =
+            '<label>Email<input name="email" type="email" autocomplete="username" placeholder="nama@perusahaan.com" required></label>' +
+            '<label>Password<span class="pgm-status-login-password"><input name="password" type="password" autocomplete="current-password" placeholder="Masukkan password" required><button type="button" aria-label="Lihat password"><i class="fa-solid fa-eye"></i></button></span></label>' +
+            '<label class="pgm-status-login-remember"><input name="remember" type="checkbox"><span>Ingat saya di perangkat ini</span></label>' +
+            '<p class="pgm-status-login-error" role="alert"></p>';
+          var password = form.elements.password;
+          var toggle = form.querySelector('button');
+          var error = form.querySelector('.pgm-status-login-error');
+          toggle.addEventListener('click', function () {
+            var visible = password.type === 'password';
+            password.type = visible ? 'text' : 'password';
+            toggle.setAttribute('aria-label', visible ? 'Sembunyikan password' : 'Lihat password');
+            toggle.innerHTML = '<i class="fa-solid fa-' + (visible ? 'eye-slash' : 'eye') + '"></i>';
+          });
+          form.addEventListener('submit', function (event) { event.preventDefault(); });
+          return form;
+        } : null,
         actions: expired ? [
           {
             label: 'Masuk',
             primary: true,
             onClick: async function () {
-              if (!await ensurePrintLogin_()) return;
+              var form = document.querySelector('.pgm-status-login-form');
+              if (!form || !form.reportValidity()) return false;
+              var error = form.querySelector('.pgm-status-login-error');
+              var button = document.querySelector('.pgm-status-actions .is-primary');
+              button.disabled = true;
+              button.textContent = 'Memeriksa...';
+              error.textContent = '';
+              try {
+                await loginPrintCredentials_(form.elements.email.value.trim(), form.elements.password.value, form.elements.remember.checked);
+              } catch (loginError) {
+                error.textContent = loginError.message || 'Login gagal.';
+                button.disabled = false;
+                button.textContent = 'Masuk';
+                return false;
+              }
               setToolbarStatus_('Memuat data SPK...', '');
               printRootEl.innerHTML = `
                 <div class="loading-card">
@@ -4720,9 +4784,10 @@
                 </div>
               `;
               await reloadPrintDataForSession_();
+              return true;
             }
           },
-          { label: 'Batal', href: '/apps/spk-automation/' }
+          { label: 'Batal', onClick: function () { return true; } }
         ] : [
           {
             label: 'Coba lagi',

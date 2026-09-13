@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  var API_URL = "https://script.google.com/macros/s/AKfycbwXTVKAJ0ftVTi-egf6SNN7q0_cLUkSeChsuBzbmPgDuXV-SMMUnum-LJvoAUphqQ/exec";
+  var API_URL = "https://script.google.com/macros/s/AKfycbxG8wlj8giwoPd8hiYIFBVOmgLb4KC28_3_V9ZeQRJtFif11J_GL52sShaNW8OsRsqc_w/exec";
   var requestSequence = 0;
   // Operasi autentikasi harus cepat pulih ketika koneksi Apps Script macet.
   // Operasi pengolahan data lain tetap memakai batas lama karena beberapa di

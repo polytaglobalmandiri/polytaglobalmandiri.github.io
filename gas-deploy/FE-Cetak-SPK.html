@@ -4104,9 +4104,90 @@
       } catch (ignore) { return ''; }
     }
 
+    function printRpcPromise_(method) {
+      const args = Array.prototype.slice.call(arguments, 1);
+      return new Promise(function (resolve, reject) {
+        const runner = google.script.run.withSuccessHandler(resolve).withFailureHandler(reject);
+        runner[method].apply(runner, args);
+      });
+    }
+
+    async function ensurePrintAuth_() {
+      // Cek token yang sudah tersimpan
+      let savedPermanently = false;
+      let saved = null;
+      try {
+        const localAuth = localStorage.getItem(PRINT_AUTH_STORAGE_KEY_);
+        savedPermanently = Boolean(localAuth);
+        saved = JSON.parse(localAuth || sessionStorage.getItem(PRINT_AUTH_STORAGE_KEY_) || 'null');
+      } catch (ignore) {}
+
+      if (saved && saved.token) {
+        // Validasi sesi jika Apps Script tersedia
+        if (hasAppsScriptRuntime_()) {
+          try {
+            const current = await printRpcPromise_('getApprovalSession', saved.token);
+            if (current && current.status === 'success' && current.user && current.user.roleKey === 'admin_ppic') {
+              saved.user = current.user;
+              (savedPermanently ? localStorage : sessionStorage).setItem(PRINT_AUTH_STORAGE_KEY_, JSON.stringify(saved));
+              return saved;
+            }
+          } catch (ignore) {}
+          // Token tidak valid, hapus dan minta login ulang
+          localStorage.removeItem(PRINT_AUTH_STORAGE_KEY_);
+          sessionStorage.removeItem(PRINT_AUTH_STORAGE_KEY_);
+        } else {
+          // Mode offline/mobile: pakai token yang tersimpan tanpa validasi server
+          return saved;
+        }
+      }
+
+      // Jika tidak ada runtime (mobile), tidak bisa login – lanjut tanpa auth
+      if (!hasAppsScriptRuntime_()) return null;
+
+      // Tampilkan dialog login
+      const result = await Swal.fire({
+        icon: 'info',
+        title: 'Login Admin PPIC',
+        html: '<p style="font-size:.9rem;color:#5f6670">Masuk untuk melihat dan mencetak dokumen SPK.</p>' +
+          '<input id="printLoginEmail" class="swal2-input" type="email" autocomplete="username" placeholder="Email">' +
+          '<input id="printLoginPassword" class="swal2-input" type="password" autocomplete="current-password" placeholder="Password">' +
+          '<label style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;font-size:.9rem">' +
+          '<input id="printLoginRemember" type="checkbox"> Remember me</label>',
+        showCancelButton: true,
+        confirmButtonText: 'Masuk',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#202020',
+        showLoaderOnConfirm: true,
+        allowOutsideClick: function () { return !Swal.isLoading(); },
+        preConfirm: async function () {
+          const email = document.getElementById('printLoginEmail').value.trim();
+          const password = document.getElementById('printLoginPassword').value;
+          if (!email || !password) { Swal.showValidationMessage('Email dan password wajib diisi.'); return false; }
+          try {
+            const remember = document.getElementById('printLoginRemember').checked;
+            const response = await printRpcPromise_('loginApprovalUser', email, password, remember);
+            if (!response || response.status !== 'success') throw new Error(response && response.message || 'Login gagal.');
+            if (!response.user || response.user.roleKey !== 'admin_ppic') throw new Error('Hanya akun Admin PPIC yang dapat mengakses halaman ini.');
+            response.remember = remember;
+            return response;
+          } catch (error) { Swal.showValidationMessage(error.message || 'Login gagal.'); return false; }
+        }
+      });
+
+      if (!result.isConfirmed || !result.value) return null;
+      const auth = { token: result.value.token, user: result.value.user };
+      localStorage.removeItem(PRINT_AUTH_STORAGE_KEY_);
+      sessionStorage.removeItem(PRINT_AUTH_STORAGE_KEY_);
+      (result.value.remember ? localStorage : sessionStorage).setItem(PRINT_AUTH_STORAGE_KEY_, JSON.stringify(auth));
+      return auth;
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
       initializeFullscreen_();
-      loadPrintData_();
+      ensurePrintAuth_().then(function () {
+        loadPrintData_();
+      });
     });
 
     function initializeFullscreen_() {
@@ -4267,12 +4348,52 @@
         return;
       }
 
-      // ---- Store preview for mobile fallback ----
+      // Store preview for mobile fallback
       try {
         const key = 'spkPreview:' + (response.data.spk || REQUESTED_SPK);
         window.localStorage.setItem(key, JSON.stringify(response));
       } catch (e) {
-        Logger.log('Failed to store preview in localStorage: ' + e);
+        console.warn('Failed to store preview in localStorage:', e);
+      }
+
+      // ---- Guard: ensure data contains expected fields ----
+      if (!response.data || Object.keys(response.data).length === 0) {
+        showLoadError_('Data SPK yang diterima kosong atau tidak lengkap.');
+        return;
+      }
+
+      // ---- Render data ----
+      currentPrintData = response.data;
+      if (currentPrintData.rowNumber) requestedDbRow = currentPrintData.rowNumber;
+
+      renderPrintPack_(currentPrintData);
+
+      const canPrint = currentPrintData.canPrint;
+      const released = currentPrintData.release === 'YA';
+      const canRelease = currentPrintData.canRelease;
+
+      if (PRINT_MODE === 'view') {
+        printButtonEl.hidden = true;
+        setToolbarStatus_('Mode lihat – dokumen tidak dapat dicetak atau dirilis dari halaman ini.', '');
+      } else if (PRINT_MODE === 'release') {
+        printButtonEl.hidden = false;
+        if (released) {
+          printButtonEl.disabled = false;
+          setToolbarStatus_('Dokumen telah ditandai Release = YA.', 'ready');
+        } else if (!canPrint) {
+          printButtonEl.disabled = true;
+          setToolbarStatus_('Cetak ditolak: login diperlukan atau tanda tangan belum lengkap.', 'error');
+        } else if (!canRelease) {
+          printButtonEl.disabled = true;
+          setToolbarStatus_('Release ditolak: tanda tangan belum lengkap atau akun bukan Admin PPIC.', 'error');
+        } else {
+          printButtonEl.disabled = false;
+          setToolbarStatus_('Dokumen siap dicetak dan dirilis.', 'ready');
+        }
+      } else {
+        printButtonEl.hidden = false;
+        printButtonEl.disabled = false;
+        setToolbarStatus_('Data berhasil dimuat.', 'ready');
       }
     }
 

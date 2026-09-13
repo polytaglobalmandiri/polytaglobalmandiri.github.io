@@ -423,23 +423,6 @@
     });
     tools.appendChild(sw);
 
-    var logout = el("button", "nav__link portal-logout");
-    logout.type = "button";
-    logout.setAttribute("data-pgm-logout", "true");
-    logout.setAttribute("aria-label", "Keluar");
-    logout.title = "Keluar";
-    logout.innerHTML = '<span aria-hidden="true">↪</span><span>Keluar</span>';
-    logout.addEventListener("click", function () {
-      if (typeof window.PGMLogout === "function") {
-        window.PGMLogout();
-        return;
-      }
-      localStorage.removeItem("pgm:spk-auth-v1");
-      sessionStorage.removeItem("pgm:spk-auth-v1");
-      window.location.href = link("");
-    });
-    tools.appendChild(logout);
-
     var menuBtn = el("button", "iconbtn nav-toggle", ICON.menu);
     menuBtn.type = "button";
     menuBtn.setAttribute("aria-label", "Buka menu");
@@ -924,88 +907,6 @@
   window.PGM = { ICON: ICON, TYPE_LABEL: TYPE_LABEL };
 
   /* ------------------------------------------------------------ Boot */
-  function approvalRpc(method) {
-    var args = Array.prototype.slice.call(arguments, 1);
-    return new Promise(function (resolve, reject) {
-      var runner = google.script.run.withSuccessHandler(resolve).withFailureHandler(reject);
-      runner[method].apply(runner, args);
-    });
-  }
-
-  function readApprovalAuth() {
-    try {
-      var local = localStorage.getItem("pgm:spk-auth-v1");
-      return {
-        value: JSON.parse(local || sessionStorage.getItem("pgm:spk-auth-v1") || "null"),
-        permanent: Boolean(local)
-      };
-    } catch (error) {
-      return { value: null, permanent: false };
-    }
-  }
-
-  function saveApprovalAuth(response, remember) {
-    var value = JSON.stringify({ token: response.token, user: response.user });
-    localStorage.removeItem("pgm:spk-auth-v1");
-    sessionStorage.removeItem("pgm:spk-auth-v1");
-    (remember ? localStorage : sessionStorage).setItem("pgm:spk-auth-v1", value);
-  }
-
-  async function ensurePortalLogin() {
-    var saved = readApprovalAuth();
-    if (saved.value && saved.value.token) {
-      try {
-        var session = await approvalRpc("getApprovalSession", saved.value.token);
-        if (session && session.status === "success" && session.user) {
-          saved.value.user = session.user;
-          (saved.permanent ? localStorage : sessionStorage)
-            .setItem("pgm:spk-auth-v1", JSON.stringify(saved.value));
-          return true;
-        }
-      } catch (error) {}
-      localStorage.removeItem("pgm:spk-auth-v1");
-      sessionStorage.removeItem("pgm:spk-auth-v1");
-    }
-
-    var view = document.getElementById("portalLoginView");
-    var form = document.getElementById("portalLoginForm");
-    var button = document.getElementById("portalLoginButton");
-    var errorBox = document.getElementById("portalLoginError");
-    view.hidden = false;
-    return new Promise(function (resolve) {
-      form.addEventListener("submit", async function (event) {
-      event.preventDefault();
-      if (button.disabled) return;
-      button.disabled = true;
-      button.textContent = "Memeriksa akses…";
-      errorBox.textContent = "";
-      try {
-        try { await window.POLYTA_PRIME_GAS_ACCESS(); } catch (ignore) {}
-        var remember = document.getElementById("portalLoginRemember").checked;
-        var response = await approvalRpc(
-          "loginApprovalUser",
-          document.getElementById("portalLoginEmail").value.trim(),
-          document.getElementById("portalLoginPassword").value,
-          remember
-        );
-        if (!response || response.status !== "success") {
-          throw new Error(response && response.message || "Login gagal.");
-        }
-        saveApprovalAuth(response, remember);
-        document.getElementById("portalLoginPassword").value = "";
-        view.hidden = true;
-        form.remove();
-        resolve(true);
-      } catch (error) {
-        errorBox.textContent = error.message || "Login gagal. Periksa email dan password Anda.";
-        button.disabled = false;
-        button.textContent = "Masuk ke Portal";
-      }
-      });
-      document.getElementById("portalLoginEmail").focus();
-    });
-  }
-
   async function init() {
     wireStickyHeader();
 
@@ -1013,8 +914,6 @@
        hanya meminjam pustaka ikon di atas; tidak ada yang perlu dirender. */
     var pageId = document.body.dataset.page;
     if (!pageId) { wirePageTransitions(); return; }
-    if (pageId === "beranda" && !await ensurePortalLogin()) return;
-
     var page = SITE.pages[pageId];
     if (!page) return;
 

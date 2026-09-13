@@ -933,7 +933,7 @@ body[data-page] :is(.topbar, .app-topbar, .app-header, .print-toolbar) {
     0 14px 30px -12px rgba(40,33,24,.35);
 }
 
-body[data-page] :is(.topnav, .app-nav, .spk-simple-nav) [data-pgm-logout] {
+body[data-page] :is(.topnav, .app-nav, .spk-simple-nav, .toolbar-actions) [data-pgm-logout] {
   min-width: 0 !important;
   min-height: 34px !important;
   height: 34px !important;
@@ -954,7 +954,7 @@ body[data-page] :is(.topnav, .app-nav, .spk-simple-nav) [data-pgm-logout] {
   cursor: pointer !important;
 }
 
-body[data-page] :is(.topnav, .app-nav, .spk-simple-nav) [data-pgm-logout]:hover {
+body[data-page] :is(.topnav, .app-nav, .spk-simple-nav, .toolbar-actions) [data-pgm-logout]:hover {
   border-color: rgba(165,26,36,.55) !important;
   background: linear-gradient(#fff4f4,#f1d8d8) !important;
   color: #86131c !important;

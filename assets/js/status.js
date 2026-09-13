@@ -238,10 +238,19 @@
     if (action.primary) node.className += " is-primary";
 
     node.addEventListener("click", function (event) {
+      var result;
       if (typeof action.onClick === "function") {
-        action.onClick(event);
+        result = action.onClick(event);
       }
-      if (closeAfter && !action.href) hide();
+      if (closeAfter && !action.href) {
+        if (result && typeof result.then === "function") {
+          result.then(function (shouldClose) {
+            if (shouldClose !== false) hide();
+          });
+        } else if (result !== false) {
+          hide();
+        }
+      }
     });
     return node;
   }
@@ -265,6 +274,13 @@
       var detail = textOf(config.detail, "");
       pageParts.detail.textContent = detail;
       pageParts.detail.hidden = !detail;
+
+      if (pageParts.custom) pageParts.custom.remove();
+      pageParts.custom = null;
+      if (typeof config.decorate === "function") {
+        pageParts.custom = config.decorate(pageParts.plate, pageParts) || null;
+        if (pageParts.custom) pageParts.plate.insertBefore(pageParts.custom, pageParts.actions);
+      }
 
       while (pageParts.actions.firstChild) {
         pageParts.actions.removeChild(pageParts.actions.firstChild);

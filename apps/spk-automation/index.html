@@ -11546,7 +11546,6 @@
         document.addEventListener('DOMContentLoaded', async function () {
             initializeViewControls();
             bindStaticEvents();
-            if (!await ensureInitialApprovalLogin_()) return;
             loadSpkYearPreference();
             loadData();
             startDashboardRealtime();

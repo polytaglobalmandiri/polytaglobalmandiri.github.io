@@ -3940,6 +3940,20 @@
 
     .approval-signature-image { display:block; width:100%; height:100%; max-height:15mm; object-fit:contain; }
 
+    .print-login-backdrop { position: fixed; inset: 0; z-index: 10000; display: grid; place-items: center; padding: 20px; background: rgba(15,18,22,.72); }
+    .print-login-backdrop[hidden] { display: none; }
+    .print-login-card { width: min(100%, 420px); padding: 28px; border: 1px solid #aeb1b2; border-radius: 16px; background: #f7f7f4; box-shadow: 0 18px 55px rgba(0,0,0,.42); }
+    .print-login-card h2 { margin: 0; color: #25272c; font-size: 1.2rem; }
+    .print-login-card p { margin: 7px 0 18px; color: #73777e; font-size: .74rem; line-height: 1.5; }
+    .print-login-form { display: grid; gap: 12px; }
+    .print-login-form label { display: grid; gap: 6px; color: #37393e; font-size: .72rem; font-weight: 800; }
+    .print-login-form input[type=email], .print-login-form input[type=password] { width: 100%; min-height: 40px; padding: 0 10px; border: 1px solid #888b8e; border-radius: 8px; background: #fff; color: #25272c; }
+    .print-login-remember { display: flex !important; grid-template-columns: auto 1fr; align-items: center; gap: 8px; font-weight: 650 !important; cursor: pointer; }
+    .print-login-remember input { width: 16px; height: 16px; accent-color: #c62b31; }
+    .print-login-error { min-height: 16px; margin: 0 !important; color: #a51a24 !important; font-weight: 700; }
+    .print-login-button { min-height: 40px; border: 1px solid #80131b; border-radius: 8px; background: linear-gradient(180deg,#e84b53,#c62b31 48%,#9d151f 52%,#811019); color: #fff; font-weight: 800; cursor: pointer; }
+    .print-login-button:disabled { cursor: wait; opacity: .7; }
+
     </style>
   <script src="/assets/js/gas-rpc.js?v=20260913-3"></script>
   <script src="/assets/js/session.js?v=20260913-2"></script>
@@ -4108,6 +4122,18 @@
 >
   <!-- Lapisan status dimuat dari /assets/css/status.css dan /assets/js/status.js. -->
 
+  <section id="printLoginView" class="print-login-backdrop" hidden aria-labelledby="printLoginTitle">
+    <form id="printLoginForm" class="print-login-card">
+      <h2 id="printLoginTitle">Login untuk Cetak SPK</h2>
+      <p>Masuk terlebih dahulu untuk membuka halaman print dan mencetak SPK.</p>
+      <label>Email<input id="printLoginEmail" type="email" autocomplete="username" placeholder="nama@perusahaan.com" required></label>
+      <label>Password<input id="printLoginPassword" type="password" autocomplete="current-password" placeholder="Masukkan password" required></label>
+      <label class="print-login-remember"><input id="printLoginRemember" type="checkbox"><span>Ingat saya di perangkat ini</span></label>
+      <p id="printLoginError" class="print-login-error" role="alert"></p>
+      <button id="printLoginButton" class="print-login-button" type="submit">Masuk dan Buka Print</button>
+    </form>
+  </section>
+
   <header class="print-toolbar no-print">
     <div class="toolbar-brand">
       <div class="toolbar-mark" aria-hidden="true">
@@ -4238,12 +4264,78 @@
     let signatureInFlightSpk = '';
     const signatureApprovalCache = new Map();
     const PRINT_AUTH_STORAGE_KEY_ = 'pgm:spk-auth-v1';
+    let printAuthReady_ = false;
+    let printLoginPromise_ = null;
 
     function getPrintAuthToken_() {
       try {
         const auth = JSON.parse(localStorage.getItem(PRINT_AUTH_STORAGE_KEY_) || sessionStorage.getItem(PRINT_AUTH_STORAGE_KEY_) || 'null');
         return auth && auth.token ? auth.token : '';
       } catch (ignore) { return ''; }
+    }
+
+    function printRpc_(method) {
+      const args = Array.prototype.slice.call(arguments, 1);
+      return new Promise(function(resolve, reject) {
+        const runner = google.script.run.withSuccessHandler(resolve).withFailureHandler(reject);
+        runner[method].apply(runner, args);
+      });
+    }
+
+    async function ensurePrintLogin_() {
+      if (EMBED_MODE || printAuthReady_) return true;
+      if (getPrintAuthToken_()) {
+        try {
+          const current = await printRpc_('getApprovalSession', getPrintAuthToken_());
+          if (current && current.status === 'success' && current.user) {
+            printAuthReady_ = true;
+            return true;
+          }
+        } catch (ignore) {}
+      }
+      localStorage.removeItem(PRINT_AUTH_STORAGE_KEY_);
+      sessionStorage.removeItem(PRINT_AUTH_STORAGE_KEY_);
+      if (printLoginPromise_) return printLoginPromise_;
+
+      const view = document.getElementById('printLoginView');
+      const form = document.getElementById('printLoginForm');
+      const button = document.getElementById('printLoginButton');
+      const errorBox = document.getElementById('printLoginError');
+      view.hidden = false;
+      printLoginPromise_ = new Promise(function(resolve) {
+        form.addEventListener('submit', async function(event) {
+          event.preventDefault();
+          if (button.disabled) return;
+          button.disabled = true;
+          button.textContent = 'Memeriksa akses...';
+          errorBox.textContent = '';
+          try {
+            try { await window.POLYTA_PRIME_GAS_ACCESS(); } catch (ignore) {}
+            const remember = document.getElementById('printLoginRemember').checked;
+            const response = await printRpc_(
+              'loginApprovalUser',
+              document.getElementById('printLoginEmail').value.trim(),
+              document.getElementById('printLoginPassword').value,
+              remember
+            );
+            if (!response || response.status !== 'success') {
+              throw new Error(response && response.message || 'Login gagal.');
+            }
+            const auth = JSON.stringify({ token: response.token, user: response.user });
+            (remember ? localStorage : sessionStorage).setItem(PRINT_AUTH_STORAGE_KEY_, auth);
+            document.getElementById('printLoginPassword').value = '';
+            view.hidden = true;
+            printAuthReady_ = true;
+            resolve(true);
+          } catch (error) {
+            errorBox.textContent = error.message || 'Login gagal. Periksa email dan password Anda.';
+            button.disabled = false;
+            button.textContent = 'Masuk dan Buka Print';
+          }
+        });
+        document.getElementById('printLoginEmail').focus();
+      });
+      return printLoginPromise_;
     }
 
     // Memuat ulang halaman ini untuk tiap SPK berarti mengurai kembali sekitar
@@ -4298,12 +4390,14 @@
       });
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
-      loadPrintData_();
+    document.addEventListener('DOMContentLoaded', async function () {
+      if (await ensurePrintLogin_()) loadPrintData_();
     });
 
-    printButtonEl.addEventListener('click', function () {
-      if (PRINT_MODE === 'release') requestReleaseAndPrint_(true);
+    printButtonEl.addEventListener('click', async function () {
+      if (PRINT_MODE !== 'release') return;
+      if (!await ensurePrintLogin_()) return;
+      requestReleaseAndPrint_(true);
     });
 
     window.addEventListener('beforeprint', function () {

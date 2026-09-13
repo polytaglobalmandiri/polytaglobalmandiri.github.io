@@ -430,6 +430,10 @@
     logout.title = "Keluar";
     logout.innerHTML = '<span aria-hidden="true">↪</span>';
     logout.addEventListener("click", function () {
+      if (typeof window.PGMLogout === "function") {
+        window.PGMLogout();
+        return;
+      }
       localStorage.removeItem("pgm:spk-auth-v1");
       sessionStorage.removeItem("pgm:spk-auth-v1");
       window.location.href = link("");

@@ -37,6 +37,8 @@
     nav.appendChild(button);
   }
 
+  window.PGMLogout = logout;
+
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", mount);
   } else {

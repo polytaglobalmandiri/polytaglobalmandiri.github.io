@@ -390,6 +390,16 @@ body::after {
   box-shadow: 0 0 8px var(--accent);
 }
 
+.portal-logout {
+  border-color: rgba(198,43,49,.28);
+  color: #a51a24;
+}
+.portal-logout:hover {
+  border-color: rgba(165,26,36,.55);
+  background: linear-gradient(#fff4f4,#f1d8d8);
+  color: #86131c;
+}
+
 /* Kontrol kanan */
 .tools { display: flex; align-items: center; gap: .5rem; }
 

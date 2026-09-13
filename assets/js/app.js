@@ -950,51 +950,43 @@
       sessionStorage.removeItem("pgm:spk-auth-v1");
     }
 
-    var result = await Swal.fire({
-      icon: "info",
-      title: "Login Portal Polyta",
-      html: '<div class="portal-login-dialog">' +
-        '<p class="portal-login-note">Silakan masuk untuk membuka Portal Akses Internal Polyta Global Mandiri.</p>' +
-        '<label class="portal-login-field"><span>Email</span><input id="portalLoginEmail" type="email" autocomplete="username" placeholder="nama@perusahaan.com"></label>' +
-        '<label class="portal-login-field"><span>Password</span><input id="portalLoginPassword" type="password" autocomplete="current-password" placeholder="Masukkan password"></label>' +
-        '<label class="portal-login-remember"><input id="portalLoginRemember" type="checkbox"><span>Ingat saya di perangkat ini</span></label>' +
-        '</div>',
-      showCancelButton: false,
-      confirmButtonText: "Masuk ke Portal",
-      background: "#e0e5ec",
-      customClass: { popup: "swal2-popup-neumorphic portal-login-popup", confirmButton: "portal-login-confirm" },
-      focusConfirm: false,
-      allowOutsideClick: false,
-      didOpen: function () {
-        var email = document.getElementById("portalLoginEmail");
-        if (email) email.focus();
-      },
-      showLoaderOnConfirm: true,
-      preConfirm: async function () {
-        var email = document.getElementById("portalLoginEmail").value.trim();
-        var password = document.getElementById("portalLoginPassword").value;
-        if (!email || !password) {
-          Swal.showValidationMessage("Email dan password wajib diisi.");
-          return false;
+    var view = document.getElementById("portalLoginView");
+    var form = document.getElementById("portalLoginForm");
+    var button = document.getElementById("portalLoginButton");
+    var errorBox = document.getElementById("portalLoginError");
+    view.hidden = false;
+    return new Promise(function (resolve) {
+      form.addEventListener("submit", async function (event) {
+      event.preventDefault();
+      if (button.disabled) return;
+      button.disabled = true;
+      button.textContent = "Memeriksa akses…";
+      errorBox.textContent = "";
+      try {
+        try { await window.POLYTA_PRIME_GAS_ACCESS(); } catch (ignore) {}
+        var remember = document.getElementById("portalLoginRemember").checked;
+        var response = await approvalRpc(
+          "loginApprovalUser",
+          document.getElementById("portalLoginEmail").value.trim(),
+          document.getElementById("portalLoginPassword").value,
+          remember
+        );
+        if (!response || response.status !== "success") {
+          throw new Error(response && response.message || "Login gagal.");
         }
-        try {
-          try { await window.POLYTA_PRIME_GAS_ACCESS(); } catch (ignore) {}
-          var remember = document.getElementById("portalLoginRemember").checked;
-          var response = await approvalRpc("loginApprovalUser", email, password, remember);
-          if (!response || response.status !== "success") {
-            throw new Error(response && response.message || "Login gagal.");
-          }
-          response.remember = remember;
-          return response;
-        } catch (error) {
-          Swal.showValidationMessage(error.message || "Login gagal.");
-          return false;
-        }
+        saveApprovalAuth(response, remember);
+        document.getElementById("portalLoginPassword").value = "";
+        view.hidden = true;
+        form.remove();
+        resolve(true);
+      } catch (error) {
+        errorBox.textContent = error.message || "Login gagal. Periksa email dan password Anda.";
+        button.disabled = false;
+        button.textContent = "Masuk ke Portal";
       }
+      });
+      document.getElementById("portalLoginEmail").focus();
     });
-    if (!result.isConfirmed || !result.value) return false;
-    saveApprovalAuth(result.value, result.value.remember);
-    return true;
   }
 
   async function init() {

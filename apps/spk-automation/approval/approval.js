@@ -258,10 +258,10 @@
   }
   async function init(){
     bind();
-    $('loginView').hidden=true;
+    $('loginView').hidden=false;
     $('setupView').hidden=true;
     var auth=savedAuth();
-    if(!auth.token){returnToPortal();return;}
+    if(!auth.token){await loadBootstrapStatus();return;}
     // Pemulihan sesi berjalan di latar dan TIDAK mengunci formulir. Sebelumnya
     // tombol Masuk dinonaktifkan selama pengecekan ini, sehingga token yang
     // sudah basi membuat form terkunci sampai 20 detik setiap halaman dibuka —
@@ -270,8 +270,8 @@
       var session=await rpc('getApprovalSession',auth.token);
       if(manualLoginStarted)return;
       if(session&&session.status==='success'){saveAuth(auth.token,session.user,auth.remember);await showApp();return;}
-      clearAuth();returnToPortal();
-    }catch(error){if(!manualLoginStarted){clearAuth();returnToPortal();}}
+      clearAuth();showLogin();
+    }catch(error){if(!manualLoginStarted){clearAuth();showLogin();}}
   }
   function bind(){
     setupSignaturePad=createSignaturePad($('setupSignaturePad'),$('clearSetupSignature'));
@@ -324,7 +324,14 @@
     input.focus();
   }
   function returnToPortal(){window.location.replace('/');}
-  function showLogin(){returnToPortal();}
+  function showLogin(){
+    $('loginView').hidden=false;
+    $('setupView').hidden=true;
+    $('appView').hidden=true;
+    $('userbar').hidden=true;
+    loadBootstrapStatus();
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
   async function login(event){
     event.preventDefault();
     // Menandai bahwa pengguna mengambil alih, supaya pemulihan sesi yang masih

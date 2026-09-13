@@ -257,18 +257,11 @@
     catch(error){console.warn('Status aktivasi belum dapat dimuat:',error);}
   }
   async function init(){
-    bind();showLogin();
-    // Apps Script menjalankan skrip milik satu pengguna secara berurutan, dan
-    // jam timeout permintaan sudah berjalan selama ia mengantre. Menembakkan
-    // pengecekan status aktivasi saat halaman dibuka membuat loginApprovalUser
-    // antre di belakangnya dan bisa habis waktunya sebelum sempat dilayani.
-    // Statusnya hanya menentukan tombol aktivasi pertama kali, jadi ia menunggu
-    // sampai jelas pengguna tidak sedang berusaha masuk.
-    window.setTimeout(function(){
-      if(!manualLoginStarted&&!state.token)loadBootstrapStatus();
-    },5000);
+    bind();
+    $('loginView').hidden=true;
+    $('setupView').hidden=true;
     var auth=savedAuth();
-    if(!auth.token)return;
+    if(!auth.token){returnToPortal();return;}
     // Pemulihan sesi berjalan di latar dan TIDAK mengunci formulir. Sebelumnya
     // tombol Masuk dinonaktifkan selama pengecekan ini, sehingga token yang
     // sudah basi membuat form terkunci sampai 20 detik setiap halaman dibuka —
@@ -277,8 +270,8 @@
       var session=await rpc('getApprovalSession',auth.token);
       if(manualLoginStarted)return;
       if(session&&session.status==='success'){saveAuth(auth.token,session.user,auth.remember);await showApp();return;}
-      clearAuth();
-    }catch(error){if(!manualLoginStarted)clearAuth();}
+      clearAuth();returnToPortal();
+    }catch(error){if(!manualLoginStarted){clearAuth();returnToPortal();}}
   }
   function bind(){
     setupSignaturePad=createSignaturePad($('setupSignaturePad'),$('clearSetupSignature'));
@@ -330,7 +323,8 @@
     setLoginPasswordVisibility(input.type==='password');
     input.focus();
   }
-  function showLogin(){$('loginView').hidden=false;$('setupView').hidden=true;$('appView').hidden=true;$('userbar').hidden=true;setLoginPasswordVisibility(false);}
+  function returnToPortal(){window.location.replace('/apps/spk-automation/');}
+  function showLogin(){returnToPortal();}
   async function login(event){
     event.preventDefault();
     // Menandai bahwa pengguna mengambil alih, supaya pemulihan sesi yang masih

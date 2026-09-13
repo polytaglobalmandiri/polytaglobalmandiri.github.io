@@ -11543,9 +11543,10 @@
             ]
         };
 
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', async function () {
             initializeViewControls();
             bindStaticEvents();
+            if (!await ensureInitialApprovalLogin_()) return;
             loadSpkYearPreference();
             loadData();
             startDashboardRealtime();
@@ -18435,6 +18436,89 @@
       sessionStorage.removeItem(SPK_AUTH_STORAGE_KEY_);
       (result.value.remember ? localStorage : sessionStorage).setItem(SPK_AUTH_STORAGE_KEY_, JSON.stringify(auth));
       return auth;
+    }
+
+    async function ensureInitialApprovalLogin_() {
+      let saved = null;
+      let savedPermanently = false;
+      try {
+        const localAuth = localStorage.getItem(SPK_AUTH_STORAGE_KEY_);
+        savedPermanently = Boolean(localAuth);
+        saved = JSON.parse(localAuth || sessionStorage.getItem(SPK_AUTH_STORAGE_KEY_) || 'null');
+      } catch (ignore) {}
+
+      if (saved && saved.token) {
+        try {
+          const current = await approvalRpcPromise_('getApprovalSession', saved.token);
+          if (current && current.status === 'success' && current.user) {
+            saved.user = current.user;
+            (savedPermanently ? localStorage : sessionStorage)
+              .setItem(SPK_AUTH_STORAGE_KEY_, JSON.stringify(saved));
+            return true;
+          }
+        } catch (ignore) {}
+        localStorage.removeItem(SPK_AUTH_STORAGE_KEY_);
+        sessionStorage.removeItem(SPK_AUTH_STORAGE_KEY_);
+      }
+
+      try { await window.POLYTA_PRIME_GAS_ACCESS(); } catch (ignore) {}
+      const result = await Swal.fire({
+        icon: 'info',
+        title: 'Login Portal Polyta',
+        html: '<div class="spk-login-dialog">' +
+          '<p class="spk-login-note">Masuk sekali untuk membuka dashboard, membuat SPK, dan menggunakan persetujuan sesuai jabatan Anda.</p>' +
+          '<label class="spk-login-field"><span>Email</span>' +
+          '<input id="approvalLoginEmail" type="email" autocomplete="username" placeholder="nama@perusahaan.com"></label>' +
+          '<label class="spk-login-field"><span>Password</span>' +
+          '<input id="approvalLoginPassword" type="password" autocomplete="current-password" placeholder="Masukkan password"></label>' +
+          '<label class="spk-login-remember"><input id="approvalLoginRemember" type="checkbox"><span>Ingat saya di perangkat ini</span></label>' +
+          '</div>',
+        target: 'body',
+        showCancelButton: false,
+        confirmButtonText: 'Masuk ke Portal',
+        confirmButtonColor: '#202020',
+        background: '#e0e5ec',
+        customClass: {
+          popup: 'swal2-popup-neumorphic spk-login-popup',
+          confirmButton: 'spk-login-confirm'
+        },
+        focusConfirm: false,
+        allowOutsideClick: false,
+        didOpen: function() {
+          const email = document.getElementById('approvalLoginEmail');
+          if (email) email.focus();
+        },
+        showLoaderOnConfirm: true,
+        preConfirm: async function() {
+          const email = document.getElementById('approvalLoginEmail').value.trim();
+          const password = document.getElementById('approvalLoginPassword').value;
+          if (!email || !password) {
+            Swal.showValidationMessage('Email dan password wajib diisi.');
+            return false;
+          }
+          try {
+            try { await window.POLYTA_PRIME_GAS_ACCESS(); } catch (ignore) {}
+            const remember = document.getElementById('approvalLoginRemember').checked;
+            const response = await approvalRpcPromise_('loginApprovalUser', email, password, remember);
+            if (!response || response.status !== 'success') {
+              throw new Error(response && response.message || 'Login gagal.');
+            }
+            response.remember = remember;
+            return response;
+          } catch (error) {
+            Swal.showValidationMessage(error.message || 'Login gagal.');
+            return false;
+          }
+        }
+      });
+
+      if (!result.isConfirmed || !result.value) return false;
+      const auth = { token: result.value.token, user: result.value.user };
+      localStorage.removeItem(SPK_AUTH_STORAGE_KEY_);
+      sessionStorage.removeItem(SPK_AUTH_STORAGE_KEY_);
+      (result.value.remember ? localStorage : sessionStorage)
+        .setItem(SPK_AUTH_STORAGE_KEY_, JSON.stringify(auth));
+      return true;
     }
 
     async function submitDatabase_() {

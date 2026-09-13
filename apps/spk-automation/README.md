@@ -10,6 +10,12 @@ Antarmuka Otomasi SPK diterbitkan melalui GitHub Pages pada `/apps/spk-automatio
 - Endpoint: https://script.google.com/macros/s/AKfycbwXTVKAJ0ftVTi-egf6SNN7q0_cLUkSeChsuBzbmPgDuXV-SMMUnum-LJvoAUphqQ/exec.
 - Database: `MASTER DATA` (`1bvyTfFQ1vvzw5ZVj-QUn-XGiyWifjK0lG-GPd0FO9Aw`).
 
+Login dilakukan saat portal utama dibuka. Token sesi yang berhasil disimpan pada
+`localStorage` ketika pengguna memilih **Ingat saya**, atau `sessionStorage` untuk
+sesi sementara, lalu dipakai kembali oleh halaman Persetujuan SPK tanpa meminta
+login kedua. Jika sesi sudah tidak berlaku, pengguna diarahkan kembali ke portal
+utama untuk login ulang.
+
 Backend hanya menerima nama fungsi yang dicantumkan dalam allowlist `SPK_RPC_METHODS_` pada `BE-Api.js`. Fungsi lain ditolak.
 
 ## Memperbarui frontend dari GAS

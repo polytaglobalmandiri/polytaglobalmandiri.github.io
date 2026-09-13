@@ -69,16 +69,22 @@ function readDatabaseV2RecordsForSpk_(tableKey, spk, spreadsheet) {
   // Try to get row numbers from per-table row map cache first
   const MAP_CACHE_PREFIX = 'pgm:spk:rowmap:';
   let rowNumbers = null;
-  if (typeof CacheService !== 'undefined') {
-    try {
-      const cache = CacheService.getScriptCache();
-      const serializedMap = cache.get(MAP_CACHE_PREFIX + tableKey);
-      const rowMap = serializedMap ? JSON.parse(serializedMap) : null;
-      if (rowMap && rowMap[key]) {
-        rowNumbers = rowMap[key];
-      }
-    } catch (e) {}
+  let rowMap = null;
+if (typeof CacheService !== 'undefined') {
+  try {
+    const cache = CacheService.getScriptCache();
+    Logger.log('Attempting per-table row map cache for tableKey=' + tableKey);
+    const serializedMap = cache.get(MAP_CACHE_PREFIX + tableKey);
+    rowMap = serializedMap ? JSON.parse(serializedMap) : null;
+    Logger.log('Row map retrieved: ' + JSON.stringify(rowMap));
+    if (rowMap && rowMap[key]) {
+      rowNumbers = rowMap[key];
+      Logger.log('Cache hit for SPK ' + key + ': rows=' + JSON.stringify(rowNumbers));
+    }
+  } catch (e) {
+    Logger.log('Cache lookup error: ' + e);
   }
+}
 
   if (!rowNumbers) {
     // Cache each SPK's row numbers separately to avoid large map serialization

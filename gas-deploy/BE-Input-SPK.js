@@ -962,13 +962,20 @@ function getSpkEditData(spk, preferredRowNumber) {
 // DATA & STATUS CETAK SPK
 // ==========================================
 function getSpkPrintData(spk, preferredRowNumber, authToken, includeSignatureData) {
+  Logger.log('getSpkPrintData invoked for SPK=' + spk);
   try {
     let printSession = null;
     if (authToken) printSession = requireApprovalSession_(authToken);
     const key = normalizeSpk_(spk);
-    if (!key) return { status: 'not_found', found: false, message: 'Nomor SPK untuk dicetak tidak ditemukan.' };
+    if (!key) {
+      Logger.log('normalizeSpk_ returned falsy for input: ' + spk);
+      return { status: 'not_found', found: false, message: 'Nomor SPK untuk dicetak tidak ditemukan.' };
+    }
     const aggregate = readDatabaseV2Spk_(key);
-    if (!aggregate) return { status: 'not_found', found: false, message: "Nomor SPK '" + key + "' tidak ditemukan di Database V2." };
+    if (!aggregate) {
+      Logger.log('readDatabaseV2Spk_ returned null for key: ' + key);
+      return { status: 'not_found', found: false, message: "Nomor SPK '" + key + "' tidak ditemukan di Database V2." };
+    }
     const data = buildDatabaseV2InputData_(aggregate);
     const master = aggregate.master;
     const parsedDimensions = parseCalculationDimensions_(master['Ukuran Blow'], master['Ukuran Jadi']);
@@ -998,8 +1005,10 @@ function getSpkPrintData(spk, preferredRowNumber, authToken, includeSignatureDat
       canPrint: Boolean(printSession && (releaseValue === 'YA' || approvalSummary.complete)),
       canRelease: Boolean(printSession && printSession.roleKey === 'admin_ppic' && approvalSummary.complete)
     });
+    Logger.log('getSpkPrintData succeeded for SPK=' + spk);
     return { status: 'success', found: true, data: data };
   } catch (error) {
+    Logger.log('getSpkPrintData error: ' + error);
     return { status: 'error', found: false, message: error.message };
   }
 }

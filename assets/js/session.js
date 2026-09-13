@@ -19,17 +19,18 @@
   }
 
   function mount() {
+    if (window.PGM_EMBED) return;
     var existing = document.querySelector("#logoutButton, [data-pgm-logout]");
     if (existing) {
       existing.setAttribute("data-pgm-logout", "true");
       return;
     }
 
-    var nav = document.querySelector(".topnav, .nav, .app-nav");
+    var nav = document.querySelector(".topnav, .nav, .app-nav, .toolbar-actions");
     if (!nav) return;
     var button = document.createElement("button");
     button.type = "button";
-    button.className = "nav-link-app app-nav-link nav__link pgm-logout";
+    button.className = "nav-link-app app-nav-link nav__link toolbar-button pgm-logout";
     button.setAttribute("data-pgm-logout", "true");
     button.title = "Keluar";
     button.innerHTML = '<i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i><span>Keluar</span>';

@@ -16,7 +16,6 @@
   <link rel="stylesheet" href="marketing-tier-effects.css?v=20260822-2">
   <script src="/assets/js/status.js?v=20260815-1"></script>
   <script src="/assets/js/gas-rpc.js?v=20260913-3"></script>
-  <script src="/assets/js/session.js?v=20260913-1"></script>
   <script src="/assets/vendor/sweetalert2/sweetalert2-11.26.25.all.min.js"></script>
   <style>
     .dashboard-login-popup .swal2-html-container{margin:14px 6px 2px;text-align:left}
@@ -131,106 +130,6 @@
       <a href="/apps/spk-automation/handover/"><i class="fa-solid fa-clipboard-check"></i><span><strong>Serah Terima</strong><small>Dokumen produksi</small></span></a>
     </section>
   </main>
-  <script>
-    (async function () {
-      'use strict';
-      var AUTH_KEY = 'pgm:spk-auth-v1';
-
-      function rpc(method) {
-        var args = Array.prototype.slice.call(arguments, 1);
-        return new Promise(function (resolve, reject) {
-          var runner = google.script.run.withSuccessHandler(resolve).withFailureHandler(reject);
-          runner[method].apply(runner, args);
-        });
-      }
-
-      function readAuth() {
-        try {
-          var local = localStorage.getItem(AUTH_KEY);
-          return {
-            value: JSON.parse(local || sessionStorage.getItem(AUTH_KEY) || 'null'),
-            permanent: Boolean(local)
-          };
-        } catch (error) {
-          return { value: null, permanent: false };
-        }
-      }
-
-      function saveAuth(response, remember) {
-        var value = JSON.stringify({ token: response.token, user: response.user });
-        localStorage.removeItem(AUTH_KEY);
-        sessionStorage.removeItem(AUTH_KEY);
-        (remember ? localStorage : sessionStorage).setItem(AUTH_KEY, value);
-      }
-
-      async function authenticate() {
-        var saved = readAuth();
-        if (saved.value && saved.value.token) {
-          try {
-            var session = await rpc('getApprovalSession', saved.value.token);
-            if (session && session.status === 'success' && session.user) {
-              saved.value.user = session.user;
-              (saved.permanent ? localStorage : sessionStorage)
-                .setItem(AUTH_KEY, JSON.stringify(saved.value));
-              return true;
-            }
-          } catch (error) {}
-          localStorage.removeItem(AUTH_KEY);
-          sessionStorage.removeItem(AUTH_KEY);
-        }
-
-        var result = await Swal.fire({
-          icon: 'info',
-          title: 'Login Portal Polyta',
-          html: '<div class="dashboard-login-dialog">' +
-            '<p class="dashboard-login-note">Masuk untuk membuka Dashboard PPIC dan aplikasi kerja Polyta Global Mandiri.</p>' +
-            '<label class="dashboard-login-field"><span>Email</span><input id="dashboardLoginEmail" type="email" autocomplete="username" placeholder="nama@perusahaan.com"></label>' +
-            '<label class="dashboard-login-field"><span>Password</span><input id="dashboardLoginPassword" type="password" autocomplete="current-password" placeholder="Masukkan password"></label>' +
-            '<label class="dashboard-login-remember"><input id="dashboardLoginRemember" type="checkbox"><span>Ingat saya di perangkat ini</span></label>' +
-            '</div>',
-          showCancelButton: false,
-          confirmButtonText: 'Masuk ke Portal',
-          background: '#e0e5ec',
-          customClass: { popup: 'swal2-popup-neumorphic dashboard-login-popup', confirmButton: 'dashboard-login-confirm' },
-          focusConfirm: false,
-          allowOutsideClick: false,
-          didOpen: function () {
-            var email = document.getElementById('dashboardLoginEmail');
-            if (email) email.focus();
-          },
-          showLoaderOnConfirm: true,
-          preConfirm: async function () {
-            var email = document.getElementById('dashboardLoginEmail').value.trim();
-            var password = document.getElementById('dashboardLoginPassword').value;
-            if (!email || !password) {
-              Swal.showValidationMessage('Email dan password wajib diisi.');
-              return false;
-            }
-            try {
-              try { await window.POLYTA_PRIME_GAS_ACCESS(); } catch (ignore) {}
-              var remember = document.getElementById('dashboardLoginRemember').checked;
-              var response = await rpc('loginApprovalUser', email, password, remember);
-              if (!response || response.status !== 'success') {
-                throw new Error(response && response.message || 'Login gagal.');
-              }
-              response.remember = remember;
-              return response;
-            } catch (error) {
-              Swal.showValidationMessage(error.message || 'Login gagal.');
-              return false;
-            }
-          }
-        });
-        if (!result.isConfirmed || !result.value) return false;
-        saveAuth(result.value, result.value.remember);
-        return true;
-      }
-
-      if (!await authenticate()) return;
-      var script = document.createElement('script');
-      script.src = 'otd-dashboard.js?v=20260825-2';
-      document.body.appendChild(script);
-    }());
-  </script>
+  <script src="otd-dashboard.js?v=20260825-2"></script>
 </body>
 </html>

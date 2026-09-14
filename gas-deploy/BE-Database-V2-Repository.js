@@ -356,6 +356,7 @@ function buildDatabaseV2InputData_(aggregate) {
   PROSES_KEYS.forEach(function(key) { proses[key] = false; });
   const notes = {};
   const bsPercent = {};
+  const legacyBsSeen = {};
   BS_KEYS.forEach(function(key) { bsPercent[key] = ''; });
   const details = {};
   ROUTING_DETAIL_COLUMNS.forEach(function(item) { details[item.key] = ''; });
@@ -373,7 +374,12 @@ function buildDatabaseV2InputData_(aggregate) {
     const key = String(routing['Kode Proses'] || '').trim().toLowerCase();
     if (Object.prototype.hasOwnProperty.call(proses, key)) proses[key] = true;
     let payload = {};
-    try { payload = JSON.parse(String(routing['Payload JSON'] || '{}')); } catch (error) {}
+    try { payload = JSON.parse(String(routing['Payload JSON'] || '{}')); }
+    catch (error) { throw new Error('Payload routing ' + key + ' rusak. Periksa data BS dan rincian pada sumber.'); }
+    if (!payload || typeof payload !== 'object' || Array.isArray(payload) ||
+        (payload.values != null && (typeof payload.values !== 'object' || Array.isArray(payload.values)))) {
+      throw new Error('Payload routing ' + key + ' tidak valid. Periksa data sumber.');
+    }
     const values = payload && payload.values && typeof payload.values === 'object'
       ? Object.assign({}, payload.values)
       : {};
@@ -385,11 +391,16 @@ function buildDatabaseV2InputData_(aggregate) {
       if (!notes[noteKey]) notes[noteKey] = processNotes[noteKey];
     });
     if (routing.Keterangan && !notes[key]) notes[key] = routing.Keterangan;
-    const targetBs = values.targetBs && typeof values.targetBs === 'object' ? values.targetBs : {};
-    Object.keys(targetBs).forEach(function(bsKey) { bsPercent[bsKey] = percentToInput_(targetBs[bsKey]); });
-    if (!Object.keys(targetBs).length && BS_KEYS.indexOf(key) > -1) {
-      bsPercent[key] = percentToInput_(routing['Target BS %']);
-    }
+    const bs = readDatabaseV2RoutingBs_(key, values, routing['Target BS %']);
+    const entries = bs ? bs.entries.filter(function(entry) {
+      // targetBs lama adalah ringkasan SPK yang bisa disalin ke routing berulang.
+      if (bs.aggregate && legacyBsSeen[entry.key]) return false;
+      if (bs.aggregate) legacyBsSeen[entry.key] = true;
+      bsPercent[entry.key] = (Number(bsPercent[entry.key]) || 0) + entry.value;
+      return true;
+    }) : [];
+    values['bsDaftar-' + key] = JSON.stringify(entries);
+    entries.forEach(function(entry) { values['bs-' + entry.key] = String(entry.value); });
     ROUTING_DETAIL_COLUMNS.forEach(function(item) {
       if (!details[item.key] && values[item.key] != null) details[item.key] = values[item.key];
     });

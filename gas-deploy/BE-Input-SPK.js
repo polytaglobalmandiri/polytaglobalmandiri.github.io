@@ -779,8 +779,13 @@ function parseRoutingStepsCell_(cellValue) {
       Object.keys(source).forEach(function(fieldId) {
         const value = source[fieldId];
         if (value === null || value === undefined) return;
-        const maxLength = fieldId.indexOf('aksesorisData-') === 0 ? 6000 : 400;
-        values[fieldId] = String(value).slice(0, maxLength);
+        const isBsData = fieldId.indexOf('bsDaftar-') === 0 || fieldId === 'targetBs';
+        const maxLength = fieldId.indexOf('aksesorisData-') === 0 || isBsData ? 6000 : 400;
+        const text = fieldId === 'targetBs' && typeof value === 'object' ? JSON.stringify(value) : String(value);
+        if (isBsData && text.length > maxLength) {
+          throw new Error('Data BS terlalu panjang. Kurangi rincian sebelum menyimpan.');
+        }
+        values[fieldId] = text.slice(0, maxLength);
       });
       return { key: key, values: values };
     })
@@ -793,12 +798,8 @@ function serializeRoutingSteps_(steps) {
   if (!clean.length) return '';
 
   const encoded = JSON.stringify(clean);
-  // Sel Spreadsheet menampung 50.000 karakter. Bila terlampaui, urutan
-  // disimpan tanpa detail supaya minimal alurnya tidak hilang.
   if (encoded.length <= ROUTING_STEPS_MAX_LENGTH) return encoded;
-  return JSON.stringify(clean.map(function(step) {
-    return { key: step.key, values: {} };
-  }));
+  throw new Error('Rincian routing melebihi kapasitas penyimpanan. Data belum disimpan.');
 }
 
 // Hanya mengisi teks header/tipe bila selnya masih kosong. Kolom DR tidak
@@ -849,7 +850,7 @@ function normalizeKeteranganBahan_(value) {
 // ==========================================
 // CACHE DATA SPK DETAIL (REPEAT ORDER & EDIT)
 // ==========================================
-var SPK_DATA_CACHE_PREFIX = 'pgm:spk:data:v4:';
+var SPK_DATA_CACHE_PREFIX = 'pgm:spk:data:v5:';
 var SPK_DATA_CACHE_SECONDS = 21600; // 6 jam
 
 function readCachedSpkData_(key) {
@@ -1129,8 +1130,8 @@ function getEtaBeliBahanFromRow_(row) {
   });
 }
 
-var KELUAR_BAHAN_CACHE_META_KEY = 'keluar-bahan-v4-native-v2-meta';
-var KELUAR_BAHAN_CACHE_CHUNK_PREFIX = 'keluar-bahan-v4-native-v2-part-';
+var KELUAR_BAHAN_CACHE_META_KEY = 'keluar-bahan-v5-native-v2-meta';
+var KELUAR_BAHAN_CACHE_CHUNK_PREFIX = 'keluar-bahan-v5-native-v2-part-';
 // Umur panjang aman karena setiap mutasi memanggil clearKeluarBahanCache_().
 var KELUAR_BAHAN_CACHE_SECONDS = 21600;
 var KELUAR_BAHAN_CACHE_CHUNK_SIZE = 75000;
@@ -1694,6 +1695,25 @@ function buildDatabaseV2CandidatesFromInput_(payload) {
   const candidates = createDatabaseV2CandidateBuckets_();
   const warnings = [];
   buildDatabaseV2CandidatesForRow_(row, 0, spk, candidates, warnings);
+  const storedBs = {};
+  BS_KEYS.forEach(function(key) { storedBs[key] = 0; });
+  candidates.routing.forEach(function(routing) {
+    const values = JSON.parse(routing['Payload JSON']).values;
+    const bs = readDatabaseV2RoutingBs_(routing['Kode Proses'], values);
+    bs.entries.forEach(function(entry) { storedBs[entry.key] += entry.value; });
+  });
+  Object.keys(payload.bsPercent || {}).forEach(function(key) {
+    const raw = payload.bsPercent[key];
+    if (raw === '' || raw == null) return;
+    const value = parseCalculationNumber_(raw);
+    if (BS_KEYS.indexOf(key) === -1 || value === null || value < 0 ||
+        Math.abs(value - storedBs[key]) > 0.0000001 * Math.max(1, value)) {
+      throw new Error('Ringkasan BS ' + key + ' tidak sesuai rincian routing. Periksa BS sebelum menyimpan.');
+    }
+  });
+  candidates.master[0]['Total BS'] = databaseV2PercentFraction_(
+    BS_KEYS.reduce(function(total, key) { return total + storedBs[key]; }, 0)
+  );
   return { spk: spk, spkReferensi: spkReferensi, jenisOrder: jenisOrder, candidates: candidates, warnings: warnings };
 }
 

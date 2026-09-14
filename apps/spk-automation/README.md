@@ -23,6 +23,37 @@ Kegagalan pemuatan tidak diganti dengan data contoh pada dashboard/cetak atau sa
 bahan bawaan yang lama. Bahan & Tinta menampilkan pesan gagal dan menyediakan tombol
 segarkan. Kecepatan respons tetap bergantung pada backend Apps Script dan jaringan.
 
+## Penyimpanan BS
+
+BS per SPK disimpan pada tabel V2 yang sudah ada, bukan pada tabel baru:
+
+- `SPK Routing`: `Payload JSON` menyimpan daftar lengkap jenis/nilai BS per langkah
+  melalui `values["bsDaftar-<kode proses>"]`. Angka dalam JSON memakai poin persen:
+  `2` berarti **2%**. `values.targetBs` tetap tersedia untuk kompatibilitas.
+- `SPK Routing`: `Target BS %` menyimpan total BS langkah sebagai pecahan sel
+  Spreadsheet, misalnya `0.02` untuk **2%**. Pada record lama kolom ini bisa hanya
+  memuat jenis BS utama, sehingga rincian JSON didahulukan saat pembacaan.
+- `SPK Master`: `Total BS` untuk SPK baru dihitung dari rincian routing yang
+  benar-benar disimpan. Ringkasan kiriman formulir yang berbeda ditolak, bukan
+  disimpan sebagian.
+
+Seluruh 12 jenis BS didukung, termasuk beberapa jenis pada satu langkah dan
+jenis yang sama pada langkah berulang. Nilai nol dipertahankan. Daftar BS tidak
+lagi dipotong pada 400 karakter; rincian rusak/terlalu panjang ditolak dengan pesan
+kesalahan agar aplikasi tidak terlihat berhasil menyimpan data yang hilang.
+
+Record lama dengan `targetBs` dibaca sebagai poin persen tanpa dikalikan 100 lagi.
+Daftar BS juga dipulihkan untuk Repeat Order, cetak, dan rincian bahan. Data yang
+masih tersimpan dalam JSON tidak perlu dihapus atau dimigrasi hanya untuk
+memperbaiki pembacaan. Rincian yang sudah terpotong/hilang perlu diperiksa terhadap
+Spreadsheet atau cadangan lama; jangan mengisi BS dengan angka perkiraan.
+
+Perbaikan berada pada `BE-Input-SPK.js`, `BE-Database-V2-Mapping.js`, dan
+`BE-Database-V2-Repository.js`. Ketiganya harus diperbarui bersama di Apps Script
+dan deployment yang sama harus diarahkan ke versi baru. Push ke GitHub Pages saja
+tidak menerapkan perbaikan backend. Kunci cache detail SPK dan bahan dinaikkan agar
+respons lama yang salah tidak digunakan setelah deployment.
+
 ## Pengujian lokal
 
 Dari akar repositori, gunakan Node.js 22 atau lebih baru:

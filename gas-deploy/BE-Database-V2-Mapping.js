@@ -24,8 +24,9 @@ function buildDatabaseV2CandidatesForRow_(row, rowNumber, spk, candidates, warni
   candidates.master.push(buildDatabaseV2MasterCandidate_(row, spk));
 
   const routingSteps = getDatabaseV2RoutingSteps_(row);
+  const assignedFallbackBs = {};
   routingSteps.forEach(function(step, stepIndex) {
-    candidates.routing.push(buildDatabaseV2RoutingCandidate_(row, spk, step, stepIndex));
+    candidates.routing.push(buildDatabaseV2RoutingCandidate_(row, spk, step, stepIndex, assignedFallbackBs));
   });
 
   getDatabaseV2MaterialItems_(row).forEach(function(item, index) {
@@ -219,12 +220,91 @@ function getDatabaseV2RoutingSteps_(row) {
   return steps;
 }
 
-function buildDatabaseV2RoutingCandidate_(row, spk, step, stepIndex) {
+function readDatabaseV2RoutingBs_(processKey, values, columnValue) {
+  const source = values || {};
+  const has = function(key) { return Object.prototype.hasOwnProperty.call(source, key); };
+  const normalize = function(entries, aggregate) {
+    const seen = {};
+    return {
+      aggregate: Boolean(aggregate),
+      entries: entries.map(function(entry) {
+        const key = String(entry && entry.key || '').trim();
+        const value = parseCalculationNumber_(entry && entry.value);
+        if (BS_KEYS.indexOf(key) === -1 || seen[key] || value === null || value < 0) {
+          throw new Error('Data BS routing ' + processKey + ' tidak valid. Periksa jenis dan nilai BS.');
+        }
+        seen[key] = true;
+        return { key: key, value: value };
+      })
+    };
+  };
+  const listId = 'bsDaftar-' + processKey;
+  if (has(listId)) {
+    let entries;
+    try { entries = JSON.parse(String(source[listId])); }
+    catch (error) { throw new Error('Daftar BS routing ' + processKey + ' rusak atau terpotong. Periksa data sumber.'); }
+    if (!Array.isArray(entries) || entries.length > BS_KEYS.length) {
+      throw new Error('Daftar BS routing ' + processKey + ' tidak valid.');
+    }
+    return normalize(entries, false);
+  }
+  const selectedKey = String(source['bsJenis-' + processKey] || '').trim();
+  if (selectedKey) {
+    return normalize([{ key: selectedKey, value: source['bsNilai-' + processKey] }], false);
+  }
+  const fields = BS_KEYS.filter(function(key) {
+    return has('bs-' + key) && source['bs-' + key] !== '' && source['bs-' + key] != null;
+  });
+  if (fields.length) {
+    return normalize(fields.map(function(key) { return { key: key, value: source['bs-' + key] }; }), false);
+  }
+  if (has('targetBs')) {
+    let target = source.targetBs;
+    if (typeof target === 'string') {
+      try { target = JSON.parse(target); }
+      catch (error) { throw new Error('Target BS routing ' + processKey + ' tidak dapat dibaca. Periksa data sumber.'); }
+    }
+    if (!target || typeof target !== 'object' || Array.isArray(target)) {
+      throw new Error('Target BS routing ' + processKey + ' tidak valid.');
+    }
+    // Writer V2 lama menyimpan targetBs sebagai poin persen, bukan pecahan sel.
+    return normalize(Object.keys(target).filter(function(key) {
+      return target[key] !== '' && target[key] != null;
+    }).map(function(key) { return { key: key, value: target[key] }; }), true);
+  }
+  if (columnValue !== '' && columnValue != null) {
+    if (BS_KEYS.indexOf(processKey) === -1) {
+      if (Number(columnValue) !== 0) {
+        throw new Error('Jenis BS routing ' + processKey + ' tidak tersedia. Periksa data sumber.');
+      }
+      return { entries: [], aggregate: false };
+    }
+    return normalize([{ key: processKey, value: percentToInput_(columnValue) }], true);
+  }
+  return null;
+}
+
+function buildDatabaseV2RoutingCandidate_(row, spk, step, stepIndex, assignedFallbackBs) {
   const values = Object.assign(
     {},
     getDatabaseV2FallbackRoutingParameters_(row, step.key),
     step.values && typeof step.values === 'object' ? step.values : {}
   );
+  let bs = readDatabaseV2RoutingBs_(step.key, step.values || {});
+  if (!bs) {
+    bs = readDatabaseV2RoutingBs_(step.key, getDatabaseV2FallbackRoutingParameters_(row, step.key));
+    if (bs && assignedFallbackBs) {
+      bs.entries = bs.entries.filter(function(entry) {
+        if (assignedFallbackBs[entry.key]) return false;
+        assignedFallbackBs[entry.key] = true;
+        return true;
+      });
+    }
+  }
+  const entries = bs ? bs.entries : [];
+  values.targetBs = {};
+  entries.forEach(function(entry) { values.targetBs[entry.key] = entry.value; });
+  values['bsDaftar-' + step.key] = JSON.stringify(entries);
   const machine = findDatabaseV2PayloadValue_(values, ['mesin', 'machine']);
   const parameters = {};
   Object.keys(values).sort().forEach(function(key) {
@@ -232,14 +312,6 @@ function buildDatabaseV2RoutingCandidate_(row, spk, step, stepIndex) {
     if (/mesin|machine/i.test(key)) return;
     parameters[key] = values[key];
   });
-  const bsIndex = BS_KEYS.indexOf(step.key);
-  const targetBs = values.targetBs && typeof values.targetBs === 'object'
-    ? values.targetBs
-    : {};
-  const primaryBsKey = Object.keys(targetBs).filter(function(key) {
-    return targetBs[key] !== '' && targetBs[key] !== null && targetBs[key] !== undefined;
-  })[0] || '';
-  const primaryBsIndex = primaryBsKey ? BS_KEYS.indexOf(primaryBsKey) : bsIndex;
   const processNotes = getProcessNotesFromRow_(row);
   return {
     'Routing ID': databaseV2DetailId_(spk, 'R', stepIndex + 1),
@@ -249,8 +321,8 @@ function buildDatabaseV2RoutingCandidate_(row, spk, step, stepIndex) {
     'Nama Proses': PROSES_LABELS[step.key] || String(step.key || '').toUpperCase(),
     'Mesin': machine,
     'Ukuran / Parameter': Object.keys(parameters).length ? JSON.stringify(parameters) : '',
-    'Target BS %': primaryBsIndex > -1
-      ? databaseV2PercentFraction_(percentToInput_(row[DB_COL.BS_START - 1 + primaryBsIndex]))
+    'Target BS %': entries.length
+      ? databaseV2PercentFraction_(entries.reduce(function(total, entry) { return total + entry.value; }, 0))
       : '',
     'Keterangan': valueOrEmpty_(processNotes[step.key]),
     'Status': 'AKTIF',
@@ -298,8 +370,9 @@ function getDatabaseV2FallbackRoutingParameters_(row, processKey) {
 }
 
 function getDatabaseV2RoutingBsKeys_(processKey) {
+  if (processKey === 'folding' || processKey === 'gusset') return [processKey, 'sheet'];
   if (processKey === 'slitting') return ['slitting', 'sheet', 'sheetSlitting'];
-  if (processKey === 'cutting') return ['pon', 'tshirt', 'bottomSeal', 'sideSeal', 'handle'];
+  if (processKey === 'cutting') return ['pon', 'tshirt', 'bottomSeal', 'sideSeal', 'handle', 'sheetSlitting'];
   return BS_KEYS.indexOf(processKey) > -1 ? [processKey] : [];
 }
 

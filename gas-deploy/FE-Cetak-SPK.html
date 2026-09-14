@@ -4245,11 +4245,7 @@
         return;
       }
 
-      handlePrintDataResponse_({
-        status: 'success',
-        found: true,
-        data: getLocalPreviewData_()
-      });
+      showLoadError_('Koneksi aplikasi belum tersedia. Muat ulang halaman untuk mencoba kembali.');
     }
 
     function handlePrintDataResponse_(response) {
@@ -4300,8 +4296,7 @@
       }
 
       if (!hasAppsScriptRuntime_()) {
-        applyReleaseToUi_('YA');
-        if (openPrintDialog) window.print();
+        setToolbarStatus_('Koneksi aplikasi belum tersedia. Status terbit belum diperbarui.', 'error');
         return;
       }
 
@@ -5581,95 +5576,6 @@
         .replace(/'/g, '&#039;');
     }
 
-    function getLocalPreviewData_() {
-      return {
-        spk: 'G26.125',
-        tanggal: '2026-07-26',
-        jenisOrder: 'New Order',
-        marketing: 'MARKETING 01',
-        nomorPO: 'PO-2026-0781',
-        customer: 'CUSTOMER CONTOH',
-        material: 'LLDPE SUSU',
-        film: 'TUBE',
-        artikel: 'KANTONG INDUSTRI 63 X 100',
-        modelKantong: 'BOTTOM SEAL + HANDLE',
-        ukuranBlow: '126 X 0.08',
-        ukuranJadi: '63 X 100 X 0.08',
-        ukuranKomponen: {
-          lebar: '63',
-          panjang: '100',
-          tebal: '0.08',
-          lebarBahan: '126',
-          tebalBlow: '0.08'
-        },
-        density: 0.92,
-        pcsPerKg: 10.801587,
-        meterPerKg: 10.78383,
-        meterRoll: 1500,
-        kodeItem: 'FOOD GRADE',
-        keteranganWarna: '1+0',
-        spkReferensi: 'G26.081',
-        blowingThreat: 'NON THREAT',
-        blowingModeCetak: 'INLINE',
-        printingKodeSilinder: 'SIL-2026-014',
-        ukuranSlitting: '63 X 0.08',
-        ukuranFolding: '63 + 10 LIDAH X 0.08',
-        ukuranGusset: '63 / 20 X 0.08',
-        jenisPacking: 'KARUNG',
-        packing: '1 OUTER 50 PCS / 1 BALL 1500 PCS',
-        proses: {
-          mixer: true,
-          blowing: true,
-          printing: true,
-          slitting: true,
-          folding: true,
-          gusset: true
-        },
-        keteranganProses: {
-          mixer: 'Campurkan bahan sesuai komposisi dan pastikan warna tercampur merata.',
-          blowing: 'Ketebalan film harus merata dan sesuai sampel.',
-          printing: 'Gunakan artwork revisi terakhir dan periksa register warna.',
-          slitting: 'Lebar hasil slitting mengikuti ukuran dan toleransi SPK.',
-          folding: 'Periksa ukuran lipatan pada awal dan setiap pergantian roll.',
-          gusset: 'Cek kedalaman gusset pada awal roll.',
-          bottomSeal: 'Seal harus rata, kuat, dan tidak berkerut.',
-          sideSeal: '',
-          tshirt: ''
-        },
-        finishing: 'BOTTOM SEAL',
-        handlePm: 'HANDLE',
-        bsPercent: {
-          blowing: 1,
-          printing: 3,
-          slitting: 1,
-          folding: 1,
-          gusset: 1,
-          sheet: 0,
-          pon: 0,
-          tshirt: 0,
-          bottomSeal: 1,
-          sideSeal: 0,
-          handle: 1,
-          sheetSlitting: 0
-        },
-        totalBs: 9,
-        jumlahOrder: 15000,
-        uomOrder: 'PCS',
-        keluarBahan: 350,
-        uomKB: 'KG',
-        toleransi: 5,
-        etd: '2026-08-01',
-        komposisi: [
-          { material: 'LLDPE A', kg: 210, percent: 60 },
-          { material: 'LLDPE B', kg: 105, percent: 30 },
-          { material: 'MASTERBATCH WHITE', kg: 35, percent: 10 }
-        ],
-        totalKomposisiKg: 350,
-        totalKomposisiPercent: 100,
-        spkReferensi: '',
-        release: 'Tidak'
-      };
-    }
   </script>
 </body>
 </html>

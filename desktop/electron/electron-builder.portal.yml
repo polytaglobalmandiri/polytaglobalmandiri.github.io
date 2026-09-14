@@ -1,5 +1,9 @@
 appId: com.polytaglobalmandiri.portal
 productName: Polyta Portal
+extraMetadata:
+  name: polyta-portal
+  productName: Polyta Portal
+publish: null
 artifactName: Polyta-Portal-${version}-${os}-${arch}.${ext}
 directories:
   output: release/portal

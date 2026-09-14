@@ -87,7 +87,7 @@
   <pre id="out">Siap. Mulai dari "Uji transport".</pre>
 </main>
 
-<script src="/assets/js/gas-rpc.js?v=20260913-3"></script>
+<script src="/assets/js/gas-rpc.js?v=20260914-1"></script>
 <script>
 (function () {
   'use strict';
@@ -150,91 +150,14 @@
   }
 
   // ---------------------------------------------------------------- lapis 2
-  // Meniru persis cara gas-rpc mengirim: form POST ke iframe tersembunyi.
-  // Dua hal dicatat terpisah — apakah iframe pernah selesai memuat (POST-nya
-  // sampai), dan apakah ada pesan yang kembali sama sekali. Itulah yang
-  // membedakan "permintaan tidak terkirim" dari "jawaban tidak pernah datang".
-  function probeTransport() {
-    return new Promise(function (resolve) {
-      var started = Date.now();
-      var frameLoaded = false;
-      var messages = [];
-      var settled = false;
-
-      var name = 'diagFrame-' + Date.now().toString(36);
-      var iframe = document.createElement('iframe');
-      var form = document.createElement('form');
-      var input = document.createElement('input');
-
-      iframe.name = name;
-      iframe.style.display = 'none';
-      form.method = 'POST';
-      form.action = API;
-      form.target = name;
-      form.style.display = 'none';
-      input.type = 'hidden';
-      input.name = 'payload';
-      input.value = JSON.stringify({
-        requestId: 'diag-' + Date.now().toString(36),
-        method: 'getApprovalBootstrapStatus',
-        args: []
-      });
-      form.appendChild(input);
-
-      function onMessage(event) {
-        var d = event.data;
-        var shape = d && typeof d === 'object' ? (d.source || '(tanpa source)') : typeof d;
-        messages.push({ ms: Date.now() - started, origin: event.origin, shape: shape });
-      }
-
-      iframe.addEventListener('load', function () {
-        frameLoaded = true;
-        log('    iframe selesai memuat pada ' + secs(Date.now() - started) + ' — POST sampai ke server.');
-      });
-
-      window.addEventListener('message', onMessage);
-      document.body.appendChild(iframe);
-      document.body.appendChild(form);
-
-      log('[' + stamp() + '] lapis 2 — form POST ke iframe tersembunyi');
-      form.submit();
-
-      window.setTimeout(function () {
-        if (settled) return;
-        settled = true;
-        window.removeEventListener('message', onMessage);
-
-        log('');
-        log('    HASIL LAPIS 2 setelah 60 detik');
-        log('    iframe memuat      : ' + (frameLoaded ? 'ya' : 'TIDAK'));
-        log('    pesan diterima     : ' + messages.length);
-        messages.slice(0, 6).forEach(function (m) {
-          log('      +' + secs(m.ms) + ' dari ' + m.origin + ' source=' + m.shape);
-        });
-
-        log('');
-        if (!frameLoaded && messages.length === 0) {
-          log('    KESIMPULAN: POST tidak pernah selesai. Permintaannya tidak sampai,');
-          log('    atau jawabannya ditahan sebelum tiba. Curigai proxy, firewall,');
-          log('    antivirus penyaring web, atau ekstensi peramban.');
-        } else if (frameLoaded && messages.length === 0) {
-          log('    KESIMPULAN: server menjawab, tetapi tidak ada satu pun postMessage');
-          log('    yang kembali. Masalahnya di sisi Apps Script atau pada iframe');
-          log('    bersarang googleusercontent.com yang diblokir peramban.');
-        } else if (!messages.some(function (m) { return m.shape === 'polyta-spk-gas-rpc'; })) {
-          log('    KESIMPULAN: ada pesan yang kembali, tetapi tidak satu pun berasal');
-          log('    dari jembatan kita. Kode server kemungkinan tidak mengirim balasan');
-          log('    dengan bentuk yang diharapkan.');
-        } else {
-          log('    KESIMPULAN: transport sehat. Kalau login tetap gagal, penyebabnya');
-          log('    ada pada fungsi loginApprovalUser itu sendiri.');
-        }
-
-        if (form.parentNode) form.parentNode.removeChild(form);
-        if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
-        resolve();
-      }, 60000);
-    });
+  async function probeTransport() {
+    log('[' + stamp() + '] lapis 2 — POST JSON tanpa iframe melalui transport aplikasi');
+    var result = await call('getApprovalBootstrapStatus');
+    var state = window.POLYTA_GAS_TRANSPORT();
+    log('    status POST: ' + state.post);
+    log(result.ok
+      ? '    KESIMPULAN: POST JSON berhasil tanpa cookie pihak ketiga.'
+      : '    KESIMPULAN: periksa pesan kegagalan POST di atas; tidak ada frame yang digunakan.');
   }
 
   // ---------------------------------------------------------------- lapis 3
@@ -249,7 +172,9 @@
           var ms = Date.now() - started;
           log('[' + stamp() + '] <- ' + method + ' BERHASIL dalam ' + secs(ms));
           try {
-            var peek = JSON.stringify(result);
+            var peek = JSON.stringify(method === 'loginApprovalUser'
+              ? { status: result && result.status, message: result && result.message }
+              : result);
             log('    jawaban: ' + (peek.length > 200 ? peek.slice(0, 200) + '…' : peek));
           } catch (ignore) {
             log('    jawaban: (tidak dapat dibaca)');

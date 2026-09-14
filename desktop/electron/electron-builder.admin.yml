@@ -1,5 +1,9 @@
 appId: com.polytaglobalmandiri.admin
 productName: Polyta Administrator
+extraMetadata:
+  name: polyta-administrator
+  productName: Polyta Administrator
+publish: null
 artifactName: Polyta-Administrator-${version}-${os}-${arch}.${ext}
 directories:
   output: release/admin

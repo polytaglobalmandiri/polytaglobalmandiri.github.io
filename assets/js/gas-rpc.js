@@ -9,11 +9,6 @@
   var REQUEST_TIMEOUTS = {
     getApprovalBootstrapStatus: 20000,
     getApprovalSession: 20000,
-    // Apps Script sendiri menunggu 390 detik sebelum memutus callback, jadi
-    // masih ada ruang. Login menanggung cold start plus dua perjalanan penuh:
-    // POST ke /exec mengembalikan halaman shell, dan halaman itu baru
-    // memanggil fungsinya lewat google.script.run. Batas 75 detik terbukti
-    // masih terlalu rapat untuk itu.
     loginApprovalUser: 180000
   };
   var CACHE_DATABASE = "polyta-spk-client-cache";
@@ -99,40 +94,8 @@
     }).catch(function () {});
   }
 
-  // Bentuk jawaban Apps Script menentukan apa saja yang bisa gagal di sini.
-  // POST ke /exec dibalas halaman shell di script.google.com, dan shell itu
-  // menyisipkan iframe kedua dari *.googleusercontent.com. Iframe kedualah yang
-  // menjalankan window.parent.parent.postMessage berisi hasilnya. Jadi ada dua
-  // kegagalan yang sama sekali berbeda dan selama ini tertukar: POST yang tidak
-  // pernah selesai, dan balasan yang tidak pernah dikirim balik karena frame
-  // googleusercontent tidak boleh jalan. Yang kedua tidak ada hubungannya
-  // dengan kecepatan server, jadi menunggu lebih lama tidak menolong sama
-  // sekali — pesan "server belum merespons" justru menyesatkan.
-  var REPLY_GRACE = 15000;
-  var TRANSPORT_MEMO_KEY = "polyta-gas-frame-broken";
-  var TRANSPORT_MEMO_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
-
-  // Mesin yang frame balasannya ditahan akan ditahan lagi pada muat halaman
-  // berikutnya. Tanpa ingatan ini setiap kunjungan membayar ulang lima belas
-  // detik hanya untuk sampai pada kesimpulan yang sama. Ingatan itu diberi
-  // umur, dan dibuang begitu sebuah balasan benar-benar sampai, supaya
-  // pemblokiran yang sudah dicabut tidak terus dianggap berlaku.
-  function readTransportMemo() {
-    try {
-      var raw = window.localStorage.getItem(TRANSPORT_MEMO_KEY);
-      return Boolean(raw) && Date.now() - Number(raw) < TRANSPORT_MEMO_MAX_AGE;
-    } catch (error) { return false; }
-  }
-
-  function writeTransportMemo(broken) {
-    try {
-      if (broken) window.localStorage.setItem(TRANSPORT_MEMO_KEY, String(Date.now()));
-      else window.localStorage.removeItem(TRANSPORT_MEMO_KEY);
-    } catch (error) {}
-  }
-
-  var frameTransportBroken = readTransportMemo();
-  var scriptTransport = "belum-diuji"; // belum-diuji | ada | tidak-ada
+  var scriptTransport = "belum-diuji";
+  var postTransport = "belum-diuji";
 
   function transportError(code, message) {
     var error = new Error(message);
@@ -140,107 +103,46 @@
     return error;
   }
 
-  function requestViaFrame(method, args) {
-    return new Promise(function (resolve, reject) {
-      requestSequence += 1;
-      var requestId = "spk-" + Date.now().toString(36) + "-" + requestSequence.toString(36);
-      var frameName = "polytaGasRpcFrame-" + requestId;
-      var iframe = document.createElement("iframe");
-      var form = document.createElement("form");
-      var input = document.createElement("input");
-      var host = document.body || document.documentElement;
-      var settled = false;
-      var replyTimer = 0;
-      var loadCount = 0;
-      var submittedAt = 0;
-
-      iframe.name = frameName;
-      iframe.title = "";
-      iframe.hidden = true;
-      iframe.setAttribute("aria-hidden", "true");
-
-      form.method = "POST";
-      form.action = API_URL;
-      form.target = frameName;
-      form.hidden = true;
-
-      input.type = "hidden";
-      input.name = "payload";
-      input.value = JSON.stringify({ requestId: requestId, method: method, args: args });
-      form.appendChild(input);
-
-      function cleanup() {
-        window.removeEventListener("message", receiveMessage);
-        window.clearTimeout(timeoutId);
-        window.clearTimeout(replyTimer);
-        if (form.parentNode) form.parentNode.removeChild(form);
-        if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+  // JSON mentah dikirim sebagai text/plain agar tidak memerlukan preflight.
+  // doPost sudah membalas ContentService JSON untuk badan ini. Kredensial
+  // tetap di badan POST; tidak masuk URL dan tidak membutuhkan iframe/cookie.
+  // Jangan mencoba ulang otomatis: server mungkin sudah menyimpan transaksi
+  // walaupun koneksi terputus sebelum balasannya diterima.
+  function requestViaPost(method, args) {
+    if (typeof window.fetch !== "function" || typeof window.AbortController !== "function") {
+      return Promise.reject(transportError("browser-tidak-didukung", "Perbarui peramban agar dapat terhubung ke aplikasi."));
+    }
+    var controller = new window.AbortController();
+    var timeoutId = window.setTimeout(function () { controller.abort(); }, REQUEST_TIMEOUTS[method] || 360000);
+    return window.fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=UTF-8" },
+      body: JSON.stringify({ method: method, args: args }),
+      credentials: "omit",
+      redirect: "follow",
+      signal: controller.signal
+    }).then(function (response) {
+      if (!response.ok) throw new Error("Server mengembalikan HTTP " + response.status + ".");
+      return response.json();
+    }).catch(function (error) {
+      postTransport = "gagal";
+      var message = error && error.name === "AbortError"
+        ? "Waktu tunggu balasan server habis."
+        : "Balasan server tidak dapat diterima. Periksa koneksi lalu muat ulang data.";
+      if (MUTATING_METHODS[method] || /^(save|submit|update|mark|approve|begin|extract|cancel|bootstrap|acknowledge)/.test(method)) {
+        message += " Periksa hasil transaksi sebelum mengirim ulang; proses di server mungkin sudah berjalan.";
       }
-
-      function fail(code, message) {
-        if (settled) return;
-        settled = true;
-        frameTransportBroken = true;
-        writeTransportMemo(true);
-        cleanup();
-        reject(transportError(code, message));
+      throw transportError("post-gagal", message);
+    }).then(function (payload) {
+      postTransport = "sehat";
+      if (!payload || payload.ok !== true) {
+        throw new Error(payload && payload.error && payload.error.message || "Permintaan ke GAS gagal.");
       }
-
-      function receiveMessage(event) {
-        var data = event.data;
-        if (settled || !data ||
-            data.source !== "polyta-spk-gas-rpc" || data.requestId !== requestId) return;
-
-        settled = true;
-        cleanup();
-        if (frameTransportBroken) { frameTransportBroken = false; writeTransportMemo(false); }
-        var payload = data.payload;
-        if (!payload || payload.ok !== true) {
-          reject(new Error(payload && payload.error && payload.error.message
-            ? payload.error.message
-            : "Permintaan ke GAS gagal."));
-          return;
-        }
-        resolve(payload.result);
-      }
-
-      // Iframe menyala berarti POST-nya sampai dan Apps Script sudah menjawab;
-      // sisa penantian tinggal frame googleusercontent mengirim balik, dan itu
-      // hitungan detik. Chrome membangkitkan satu load untuk about:blank saat
-      // iframe disisipkan, jadi load pertama yang datang seketika diabaikan.
-      // Setiap load menyetel ulang tenggat, sehingga urutan yang tidak terduga
-      // pun tetap aman.
-      iframe.addEventListener("load", function () {
-        loadCount += 1;
-        if (settled) return;
-        if (loadCount < 2 && Date.now() - submittedAt < 1500) return;
-        window.clearTimeout(replyTimer);
-        replyTimer = window.setTimeout(function () {
-          fail("balasan-diblokir",
-            "Server sudah menjawab, tetapi balasannya tidak sampai ke halaman ini. " +
-            "Peramban menahan frame googleusercontent.com milik Apps Script.");
-        }, REPLY_GRACE);
-      });
-
-      var timeoutId = window.setTimeout(function () {
-        fail("tanpa-jawaban",
-          "Permintaan tidak pernah selesai dikirim ke server. Sambungan, proxy, " +
-          "atau antivirus menahan script.google.com.");
-      }, REQUEST_TIMEOUTS[method] || 360000);
-
-      window.addEventListener("message", receiveMessage);
-      host.appendChild(iframe);
-      host.appendChild(form);
-      submittedAt = Date.now();
-      form.submit();
-    });
+      return payload.result;
+    }).finally(function () { window.clearTimeout(timeoutId); });
   }
 
-  // Jalur cadangan: <script> JSONP. Muatan <script> tidak menyentuh cookie
-  // pihak ketiga dan tidak butuh frame sama sekali, jadi tetap hidup di mesin
-  // yang menutup googleusercontent.com. Backend harus punya cabang doGet yang
-  // membalas JSONP; selama belum ada, percobaan pertama gagal cepat lalu jalur
-  // ini tidak dicoba lagi sepanjang sesi.
+  // Pembacaan publik menggunakan callback JSONP yang dibatasi backend.
   function requestViaScript(method, args) {
     return new Promise(function (resolve, reject) {
       requestSequence += 1;
@@ -307,15 +209,7 @@
         return requestViaScript(method, args);
       });
     }
-    if (frameTransportBroken && scriptTransport !== "tidak-ada") {
-      return requestViaScript(method, args).catch(function (error) {
-        if (error && error.transportCode === "cadangan-belum-ada") {
-          return requestViaFrame(method, args);
-        }
-        throw error;
-      });
-    }
-    return requestViaFrame(method, args);
+    return requestViaPost(method, args);
   }
 
   function requestServer(method, args) {
@@ -333,18 +227,10 @@
     });
   }
 
-  // Chrome memblokir cookie pihak ketiga secara bawaan dan frame
-  // googleusercontent milik Apps Script ikut terkena. requestStorageAccessFor
-  // adalah satu-satunya tuas yang dimiliki halaman induk untuk memintanya
-  // kembali, dan hanya sah dipanggil sewaktu ada interaksi pengguna — jadi
-  // pemanggilnya adalah penangan klik tombol, bukan kode pemuatan halaman.
+  // Kompatibilitas untuk halaman lama yang memanggil helper sebelum login.
+  // Transport POST/JSONP tidak membutuhkan izin penyimpanan pihak ketiga.
   function primeThirdPartyAccess() {
-    if (typeof document.requestStorageAccessFor !== "function") {
-      return Promise.resolve(false);
-    }
-    return document.requestStorageAccessFor("https://script.google.com")
-      .then(function () { return true; })
-      .catch(function () { return false; });
+    return Promise.resolve(true);
   }
 
   function requestAndCacheDashboard(method, args) {
@@ -420,6 +306,6 @@
   window.POLYTA_SPK_API_URL = API_URL;
   window.POLYTA_PRIME_GAS_ACCESS = primeThirdPartyAccess;
   window.POLYTA_GAS_TRANSPORT = function () {
-    return { frame: frameTransportBroken ? "gagal" : "sehat", cadangan: scriptTransport };
+    return { frame: "tidak-digunakan", post: postTransport, cadangan: scriptTransport };
   };
 })();

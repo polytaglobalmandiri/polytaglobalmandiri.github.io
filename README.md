@@ -4,7 +4,7 @@ Situs statis pengganti/kloning dari `sites.google.com/view/polytaglobalmandiri`,
 dengan tema **skeuomorphism** modern: permukaan logam sikat, panel timbul (emboss), tombol
 mengkilap dengan pantulan, tipografi terukir, serta sekrup dan LED indikator.
 
-Tanpa framework, tanpa dependensi, tanpa proses build — cukup HTML, CSS, dan JavaScript murni.
+Portal utama memakai HTML, CSS, dan JavaScript. Aplikasi SPK memakai pustaka lokal dan backend Google Apps Script; aplikasi desktop memakai Electron.
 
 ---
 
@@ -13,12 +13,12 @@ Tanpa framework, tanpa dependensi, tanpa proses build — cukup HTML, CSS, dan J
 ```
 .
 ├── index.html          # BERANDA — direktori departemen + indeks seluruh tautan
-├── marketing/index.html    # /marketing/
-├── ppic/index.html         # /ppic/
-├── purchasing/index.html   # /purchasing/
-├── produksi/index.html     # /produksi/
-├── finance/index.html      # /finance/
-├── bantuan/index.html      # /bantuan/  — panduan + FAQ
+├── pages/marketing/index.html    # /marketing/
+├── pages/ppic/index.html         # /ppic/
+├── pages/purchasing/index.html   # /purchasing/
+├── pages/production/index.html     # /produksi/
+├── pages/finance/index.html      # /finance/
+├── pages/support/index.html      # /bantuan/  — panduan + FAQ
 ├── assets/
 │   ├── css/skeuo.css   # Seluruh sistem desain skeuomorphic
 │   ├── js/data.js      # ★ SEMUA KONTEN & TAUTAN DIATUR DI SINI
@@ -40,8 +40,7 @@ di-render oleh `assets/js/app.js` berdasarkan atribut `data-page` pada `<body>`.
 
 ## Cara Mengisi Tautan
 
-Semua tombol saat ini masih berstatus **"URL belum diatur"** karena tautan asli pada
-Google Sites bersifat privat dan tidak dapat dibaca dari luar.
+Tautan yang sudah dikonfigurasi tersedia di `assets/js/data.js`. Lengkapi hanya entri yang URL-nya masih kosong.
 
 Buka [assets/js/data.js](assets/js/data.js), lalu isi properti `url`:
 
@@ -91,9 +90,7 @@ menambah objek pada array `sections`. Tidak ada file lain yang perlu disentuh.
 
 ## Menjalankan Secara Lokal
 
-Klik ganda `index.html` — situs berjalan langsung dari `file://` tanpa server.
-
-Bila ingin menggunakan server lokal (opsional):
+Jalankan server dari akar repositori agar rute dan aset absolut bekerja:
 
 ```powershell
 # Python
@@ -170,26 +167,16 @@ halaman [`/dokumentasi/`](dokumentasi/index.html).
 ## Publikasi ke GitHub
 
 > 📘 Panduan lengkap beserta pemecahan masalah tersedia di
-> **[PANDUAN-GITHUB.md](PANDUAN-GITHUB.md)** — termasuk pengaturan identitas git,
+> **[GITHUB-GUIDE.md](GITHUB-GUIDE.md)** — termasuk pengaturan identitas git,
 > autentikasi token, dan penanganan konflik saat push pertama.
 >
 > 🌐 Untuk merapikan alamat situs — baik yang gratis
 > (`polytaglobalmandiri.github.io`) maupun domain perusahaan sendiri
-> (`portal.polytaglobalmandiri.com`) — lihat **[PANDUAN-DOMAIN.md](PANDUAN-DOMAIN.md)**.
+> (`portal.polytaglobalmandiri.com`) — lihat **[DOMAIN-GUIDE.md](DOMAIN-GUIDE.md)**.
 
-Repositori lokal sudah diinisialisasi dan commit pertama sudah dibuat.
-Langkah berikutnya:
+Repositori sudah terhubung ke GitHub dan diterbitkan melalui GitHub Pages.
 
-1. Buat repositori kosong baru di <https://github.com/new> (jangan centang
-   "Add a README file" agar tidak bentrok).
-2. Hubungkan dan kirim:
-
-```powershell
-git remote add origin https://github.com/<username>/<nama-repo>.git
-git push -u origin main
-```
-
-Setelah itu, alur kerja harian:
+Alur kerja harian:
 
 ```powershell
 git pull              # ambil perubahan terbaru
@@ -213,12 +200,8 @@ Situs akan tersedia di `https://<username>.github.io/<nama-repo>/`.
 
 ---
 
-## Catatan OneDrive
+## Aplikasi SPK
 
-Folder proyek ini berada di dalam OneDrive. Git tetap berjalan normal, namun bila
-sinkronisasi terasa mengganggu (file terkunci saat commit), pertimbangkan memindahkan
-repositori ke luar folder OneDrive, misalnya `C:\Projects\polyta-portal`.
-
----
+Lihat [panduan SPK](apps/spk-automation/README.md) untuk transport, backend, dan batasan membangun ulang frontend. Folder rute lama tetap dipertahankan agar tautan yang sudah dibagikan dapat digunakan.
 
 Dikembangkan dan dikelola oleh: Team POLYTA GLOBAL MANDIRI

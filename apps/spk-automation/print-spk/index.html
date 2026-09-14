@@ -3969,7 +3969,7 @@
     @media (max-width: 620px) { .print-login-card { grid-template-columns: 1fr; } .print-login-intro { padding: 24px; } .print-login-intro h2 { font-size: 1.15rem; } .print-login-card-body { padding: 26px 22px; } }
 
     </style>
-  <script src="/assets/js/gas-rpc.js?v=20260913-3"></script>
+  <script src="/assets/js/gas-rpc.js?v=20260914-1"></script>
 
   <style>
     .polyta-portal-home {
@@ -4304,31 +4304,17 @@
     async function reloadPrintDataForSession_() {
       const requested = activeSpk;
       if (!requested || !hasAppsScriptRuntime_()) return;
-      const response = await printRpc_(
-        'getSpkPrintData',
-        requested,
-        requestedDbRow,
-        getPrintAuthToken_(),
-        !EMBED_MODE
-      );
-      handlePrintDataResponse_(response, requested);
-    }
-
-    async function loginPrintCredentials_(email, password, remember) {
       try {
-        try { await window.POLYTA_PRIME_GAS_ACCESS(); } catch (ignore) {}
-        const response = await printRpc_('loginApprovalUser', email, password, remember);
-        if (!response || response.status !== 'success') {
-          throw new Error(response && response.message || 'Login gagal.');
-        }
-        const auth = JSON.stringify({ token: response.token, user: response.user });
-        localStorage.removeItem(PRINT_AUTH_STORAGE_KEY_);
-        sessionStorage.removeItem(PRINT_AUTH_STORAGE_KEY_);
-        (remember ? localStorage : sessionStorage).setItem(PRINT_AUTH_STORAGE_KEY_, auth);
-        printAuthReady_ = true;
-        return true;
+        const response = await printRpc_(
+          'getSpkPrintData',
+          requested,
+          requestedDbRow,
+          getPrintAuthToken_(),
+          !EMBED_MODE
+        );
+        handlePrintDataResponse_(response, requested);
       } catch (error) {
-        throw error;
+        showLoadError_(error && error.message ? error.message : 'Data SPK gagal dimuat.');
       }
     }
 
@@ -4360,19 +4346,24 @@
       const button = document.getElementById('printLoginButton');
       const errorBox = document.getElementById('printLoginError');
       const closeButton = document.getElementById('printLoginClose');
+      button.disabled = false;
+      button.textContent = 'Masuk dan Lanjutkan';
+      errorBox.textContent = '';
       view.hidden = false;
       printLoginPromise_ = new Promise(function(resolve) {
         let closed = false;
         closeButton.onclick = function () {
           closed = true;
           view.hidden = true;
+          form.onsubmit = null;
+          document.getElementById('printLoginPassword').value = '';
           button.disabled = false;
           button.textContent = 'Masuk dan Lanjutkan';
           errorBox.textContent = '';
           printLoginPromise_ = null;
           resolve(false);
         };
-        form.addEventListener('submit', async function(event) {
+        form.onsubmit = async function(event) {
           event.preventDefault();
           if (button.disabled) return;
           button.disabled = true;
@@ -4380,6 +4371,7 @@
           errorBox.textContent = '';
           try {
             try { await window.POLYTA_PRIME_GAS_ACCESS(); } catch (ignore) {}
+            if (closed) return;
             const remember = document.getElementById('printLoginRemember').checked;
             const response = await printRpc_(
               'loginApprovalUser',
@@ -4397,6 +4389,8 @@
             (remember ? localStorage : sessionStorage).setItem(PRINT_AUTH_STORAGE_KEY_, auth);
             document.getElementById('printLoginPassword').value = '';
             view.hidden = true;
+            form.onsubmit = null;
+            closeButton.onclick = null;
             printAuthReady_ = true;
             printLoginPromise_ = null;
             resolve(true);
@@ -4406,7 +4400,7 @@
             button.disabled = false;
             button.textContent = 'Masuk dan Lanjutkan';
           }
-        });
+        };
         document.getElementById('printLoginEmail').focus();
       });
       return printLoginPromise_;
@@ -4517,6 +4511,10 @@
 
     function loadPrintData_(spkOverride) {
       const requested = spkOverride || activeSpk;
+      if (!requested) {
+        showLoadError_('Nomor SPK tidak tersedia pada tautan cetak.');
+        return;
+      }
       const cached = packCache.get(requested);
       if (cached) {
         if (requested === activeSpk) applyPrintData_(cached);
@@ -4525,11 +4523,6 @@
       if (inFlightSpk === requested) return;
 
       if (hasAppsScriptRuntime_()) {
-        if (!requested) {
-          showLoadError_('Nomor SPK tidak tersedia pada tautan cetak.');
-          return;
-        }
-
         google.script.run
           .withSuccessHandler(function (response) {
             if (inFlightSpk === requested) inFlightSpk = '';
@@ -4550,11 +4543,7 @@
         return;
       }
 
-      handlePrintDataResponse_({
-        status: 'success',
-        found: true,
-        data: getLocalPreviewData_()
-      });
+      showLoadError_('Koneksi aplikasi belum tersedia. Muat ulang halaman untuk mencoba kembali.');
     }
 
     // Paket yang sudah pernah diambil disimpan per nomor SPK. Satu panggilan
@@ -4666,8 +4655,7 @@
       }
 
       if (!hasAppsScriptRuntime_()) {
-        applyReleaseToUi_('YA');
-        if (openPrintDialog) window.print();
+        setToolbarStatus_('Koneksi aplikasi belum tersedia. Status terbit belum diperbarui.', 'error');
         return;
       }
 
@@ -6229,95 +6217,6 @@
         .replace(/'/g, '&#039;');
     }
 
-    function getLocalPreviewData_() {
-      return {
-        spk: 'G26.125',
-        tanggal: '2026-07-26',
-        jenisOrder: 'New Order',
-        marketing: 'MARKETING 01',
-        nomorPO: 'PO-2026-0781',
-        customer: 'CUSTOMER CONTOH',
-        material: 'LLDPE SUSU',
-        film: 'TUBE',
-        artikel: 'KANTONG INDUSTRI 63 X 100',
-        modelKantong: 'BOTTOM SEAL + HANDLE',
-        ukuranBlow: '126 X 0.08',
-        ukuranJadi: '63 X 100 X 0.08',
-        ukuranKomponen: {
-          lebar: '63',
-          panjang: '100',
-          tebal: '0.08',
-          lebarBahan: '126',
-          tebalBlow: '0.08'
-        },
-        density: 0.92,
-        pcsPerKg: 10.801587,
-        meterPerKg: 10.78383,
-        meterRoll: 1500,
-        kodeItem: 'FOOD GRADE',
-        keteranganWarna: '1+0',
-        spkReferensi: 'G26.081',
-        blowingThreat: 'NON THREAT',
-        inline: 'YA',
-        printingKodeSilinder: 'SIL-2026-014',
-        ukuranSlitting: '63 X 0.08',
-        ukuranFolding: '63 + 10 LIDAH X 0.08',
-        ukuranGusset: '63 / 20 X 0.08',
-        jenisPacking: 'KARUNG',
-        packing: '1 OUTER 50 PCS / 1 BALL 1500 PCS',
-        proses: {
-          mixer: true,
-          blowing: true,
-          printing: true,
-          slitting: true,
-          folding: true,
-          gusset: true
-        },
-        keteranganProses: {
-          mixer: 'Campurkan bahan sesuai komposisi dan pastikan warna tercampur merata.',
-          blowing: 'Ketebalan film harus merata dan sesuai sampel.',
-          printing: 'Gunakan artwork revisi terakhir dan periksa register warna.',
-          slitting: 'Lebar hasil slitting mengikuti ukuran dan toleransi SPK.',
-          folding: 'Periksa ukuran lipatan pada awal dan setiap pergantian roll.',
-          gusset: 'Cek kedalaman gusset pada awal roll.',
-      bottomSeal: 'Segel harus rata, kuat, dan tidak berkerut.',
-          sideSeal: '',
-          tshirt: ''
-        },
-        finishing: 'BOTTOM SEAL',
-        handlePm: 'HANDLE',
-        bsPercent: {
-          blowing: 1,
-          printing: 3,
-          slitting: 1,
-          folding: 1,
-          gusset: 1,
-          sheet: 0,
-          pon: 0,
-          tshirt: 0,
-          bottomSeal: 1,
-          sideSeal: 0,
-          handle: 1,
-          sheetSlitting: 0
-        },
-        totalBs: 9,
-        jumlahOrder: 15000,
-        uomOrder: 'PCS',
-        keluarBahan: 350,
-        uomKB: 'KG',
-        toleransi: 5,
-        etd: '2026-08-01',
-        komposisi: [
-          { material: 'LLDPE A', kg: 210, percent: 60 },
-          { material: 'LLDPE B', kg: 105, percent: 30 },
-          { material: 'MASTERBATCH WHITE', kg: 35, percent: 10 }
-        ],
-        totalKomposisiKg: 350,
-        totalKomposisiPercent: 100,
-        spkReferensi: '',
-        release: 'Tidak'
-      };
-    }
   </script>
   <script src="../modal-scroll-lock.js?v=20260812-1"></script>
   <script src="../responsive-header.js?v=20260812-3"></script>

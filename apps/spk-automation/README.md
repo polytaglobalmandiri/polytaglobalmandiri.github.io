@@ -5,18 +5,54 @@ Antarmuka Otomasi SPK diterbitkan melalui GitHub Pages pada `/apps/spk-automatio
 ## Arsitektur
 
 - Frontend: halaman-halaman statis SPK, termasuk Serah Terima, di folder ini.
-- Transport: `assets/js/gas-rpc.js` menyesuaikan pemanggilan `google.script.run` menjadi HTTP `POST`.
+- Transport: `assets/js/gas-rpc.js` menyesuaikan pemanggilan `google.script.run` melalui JSONP untuk pembacaan publik serta POST JSON tanpa iframe untuk operasi lainnya; respons dashboard dapat dikompresi.
 - Backend: project GAS `1X4f-lJts_2H_rQBP6Q7G61FVeAPOuO5O0SLw_HvWUlP2UE9ePputw156`.
 - Endpoint: https://script.google.com/macros/s/AKfycbxG8wlj8giwoPd8hiYIFBVOmgLb4KC28_3_V9ZeQRJtFif11J_GL52sShaNW8OsRsqc_w/exec.
 - Database: `MASTER DATA` (`1bvyTfFQ1vvzw5ZVj-QUn-XGiyWifjK0lG-GPd0FO9Aw`).
 
-Login dilakukan saat portal utama dibuka. Token sesi yang berhasil disimpan pada
-`localStorage` ketika pengguna memilih **Ingat saya**, atau `sessionStorage` untuk
-sesi sementara, lalu dipakai kembali oleh halaman Persetujuan SPK tanpa meminta
-login kedua. Jika sesi sudah tidak berlaku, pengguna diarahkan kembali ke portal
-utama untuk login ulang.
+Portal utama dapat dibuka tanpa login. Login diperlukan pada halaman Persetujuan dan saat menjalankan proses cetak yang memerlukan sesi. Token sesi disimpan pada `localStorage` ketika pengguna memilih **Ingat saya**, atau `sessionStorage` untuk sesi sementara. Sesi kedaluwarsa meminta login kembali pada alur terkait.
 
 Backend hanya menerima nama fungsi yang dicantumkan dalam allowlist `SPK_RPC_METHODS_` pada `BE-Api.js`. Fungsi lain ditolak.
+
+POST mengirim JSON dengan `Content-Type: text/plain;charset=UTF-8` agar tidak memerlukan
+preflight. Password dan token tetap berada dalam badan POST, bukan URL. Operasi simpan
+tidak dicoba ulang otomatis: jika respons terputus, periksa hasil transaksi sebelum
+mengirim ulang. Halaman diagnostik menguji transport POST yang sama.
+
+Kegagalan pemuatan tidak diganti dengan data contoh pada dashboard/cetak atau salinan
+bahan bawaan yang lama. Bahan & Tinta menampilkan pesan gagal dan menyediakan tombol
+segarkan. Kecepatan respons tetap bergantung pada backend Apps Script dan jaringan.
+
+## Pengujian lokal
+
+Dari akar repositori, gunakan Node.js 22 atau lebih baru:
+
+```sh
+node --test tools/test-*.cjs
+```
+
+Tes ini mencakup logika backend dengan layanan Google yang disimulasikan, transport,
+login cetak, integritas JavaScript/tautan HTML lokal, serta wrapper desktop. Tidak ada
+transaksi produksi yang dijalankan.
+
+Pengujian Chrome memerlukan server lokal, Chrome terpasang, dan Playwright. Contoh
+di Linux, jalankan server di terminal pertama:
+
+```sh
+python3 -m http.server 5517 --bind 127.0.0.1
+```
+
+Di terminal kedua:
+
+```sh
+npm install --prefix .cache/browser-tools --no-audit --no-fund playwright
+NODE_PATH="$PWD/.cache/browser-tools/node_modules" node tools/browser-smoke.cjs
+```
+
+`CHROME_PATH` dapat diisi dengan lokasi Chrome selain `/usr/bin/google-chrome`.
+`TEST_BASE_URL` hanya menerima server localhost. Skrip memblokir layanan eksternal
+dan mensimulasikan seluruh RPC, termasuk simpan bahan, serah terima, login, dan
+penandaan cetak. Kelulusan simulasi tidak menggantikan UAT dengan akun berizin.
 
 ## Memperbarui frontend dari GAS
 

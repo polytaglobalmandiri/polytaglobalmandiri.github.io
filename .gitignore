@@ -20,3 +20,7 @@ installer/.build/
 tools/.build-spk/
 .cache/
 *.log
+
+# Salinan repositori dan worktree lokal
+/copilot-worktrees/
+/polytaglobalmandiri.github.io/

@@ -5868,33 +5868,7 @@
             { key: 'sheetSlitting', label: 'Sheet Slitting' }
         ];
 
-        var mockDashboardData = {
-            totalSPK: 10,
-            volumeKgBySpk: {
-                "G26.001": 486.25,
-                "G26.002": 1095.4,
-                "E26.136": 241.8,
-                "E26.137": 68.5,
-                "G26.005": 1320.75,
-                "G26.006": 714.2,
-                "G26.007": 902.1,
-                "E26.140": 2500,
-                "G26.009": 675.3,
-                "G26.010": 1184.6
-            },
-            tableData: [
-                ["G26.001", "16-07-2026", "Repeat Order", "MICHELLE", "CITRA INDAH BUSANA", "Shopping Bag", "Jadi: 35 × 45 | Blow: 72 × 0.05", "PE SUSU", 30000, "PCS", "YA", "14-08-2026"],
-                ["G26.002", "17-07-2026", "New Order", "MICHELLE", "AISYALINA", "Inner Bag", "Jadi: 30 × 40 | Blow: 62 × 0.04", "PE SUSU", 75000, "PCS", "Tidak", "30-07-2026"],
-                ["E26.136", "06-06-2026", "Repeat Order", "MUTIARA", "MUSTIKA CITRA RASA", "Plastik Roti", "Jadi: 20 × 30", "HD POLOS", 15000, "PCS", "", "20-06-2026"],
-                ["E26.137", "08-06-2026", "Sample", "SRI YAMTINAH", "TOKO MAJU JAYA", "Sample PP", "Jadi: 18 × 25", "PP CLEAR", 5000, "PCS", "YA", "25-06-2026"],
-                ["G26.005", "18-07-2026", "New Order", "ANDI", "PT ANGKASA RAYA", "Outer Bag", "Jadi: 45 × 60", "OPP PLAST", 120000, "PCS", "Tidak", "10-09-2026"],
-                ["G26.006", "19-07-2026", "Repeat Order", "MUTIARA", "BINTANG LAUT", "Packaging PE", "Jadi: 32 × 48", "PE SUSU", 45000, "PCS", "Tidak", "01-08-2026"],
-                ["G26.007", "20-07-2026", "New Order", "MICHELLE", "NUSANTARA PACK", "Printed Bag", "Jadi: 28 × 42", "HD PRINT", 65000, "PCS", "YA", "28-07-2026"],
-                ["E26.140", "21-07-2026", "Sample", "ANDI", "KARYA SENTOSA", "Trial Sheet", "Blow: 55 × 0.03", "PP CLEAR", 2500, "KG", "", ""],
-                ["G26.009", "22-07-2026", "Repeat Order", "MUTIARA", "MITRA ABADI", "Black Liner", "Jadi: 30 × 50", "PE HITAM", 42000, "PCS", "Tidak", "02-08-2026"],
-                ["G26.010", "23-07-2026", "New Order", "SRI YAMTINAH", "SEJAHTERA PLASTIK", "OPP Bag", "Jadi: 40 × 55", "OPP PLAST", 88000, "PCS", "Tidak", "15-08-2026"]
-            ]
-        };
+
 
         document.addEventListener('DOMContentLoaded', function () {
             initializeViewControls();
@@ -6341,11 +6315,9 @@
                     // memintanya setelah mutasi data tertentu.
                     .getDashboardData(Boolean(forceRefresh));
             } else {
-                window.setTimeout(function () {
-                    renderData(mockDashboardData, silent);
-                    setRealtimeStatus_('live', 'Realtime demo aktif');
-                    finishLoading();
-                }, silent ? 150 : 550);
+                setRealtimeStatus_('offline', 'Koneksi tidak tersedia');
+                showError('Koneksi aplikasi belum tersedia. Muat ulang halaman untuk mencoba kembali.');
+                finishLoading();
             }
         }
 

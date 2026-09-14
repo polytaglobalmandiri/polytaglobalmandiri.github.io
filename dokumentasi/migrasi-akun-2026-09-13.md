@@ -48,3 +48,7 @@ Endpoint baru:
 Perubahan website mengarahkan RPC ke endpoint baru; versi aset RPC dan kunci
 cache dashboard diperbarui agar data perangkat dari database lama tidak dipakai.
 Project, deployment, dan database lama tetap dipertahankan.
+
+## Catatan pemeliharaan 14 September 2026
+
+Modul eksperimen `BE-Cache-Layer.js` yang disebut dalam catatan historis di atas telah dihapus dari repositori karena tidak digunakan. Cache aktif tetap berada pada modul backend utama.

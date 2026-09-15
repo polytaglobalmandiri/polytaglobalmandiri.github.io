@@ -6,9 +6,22 @@ Antarmuka Otomasi SPK diterbitkan melalui GitHub Pages pada `/apps/spk-automatio
 
 - Frontend: halaman-halaman statis SPK, termasuk Serah Terima, di folder ini.
 - Transport: `assets/js/gas-rpc.js` menyesuaikan pemanggilan `google.script.run` melalui JSONP untuk pembacaan publik serta POST JSON tanpa iframe untuk operasi lainnya; respons dashboard dapat dikompresi.
-- Backend: project GAS `1X4f-lJts_2H_rQBP6Q7G61FVeAPOuO5O0SLw_HvWUlP2UE9ePputw156`.
+- Backend website yang terverifikasi pada 15 September 2026: project GAS
+  `1LwIFRTK8TttF9uIAQcaEOfKPhVPVnIKXtIC5kma_vRqSQ3mg8CK4tpQS`
+  (`PROJECT GAS POLYTA (Dev-z)`), deployment versi 439.
 - Endpoint: https://script.google.com/macros/s/AKfycbxG8wlj8giwoPd8hiYIFBVOmgLb4KC28_3_V9ZeQRJtFif11J_GL52sShaNW8OsRsqc_w/exec.
-- Database: `MASTER DATA` (`1bvyTfFQ1vvzw5ZVj-QUn-XGiyWifjK0lG-GPd0FO9Aw`).
+- Konfigurasi database pada kode aktif project tersebut:
+  `1GldWp316hXRGKOa-ANJ4Eugdz0HFZSxvFQGy-dcex48`.
+
+**Perhatian deployment:** salinan `gas-deploy/` di repositori mengarah ke
+`MASTER DATA` (`1bvyTfFQ1vvzw5ZVj-QUn-XGiyWifjK0lG-GPd0FO9Aw`), bukan database
+di atas. Project `POLYTA SPK — MASTER DATA`
+(`1X4f-lJts_2H_rQBP6Q7G61FVeAPOuO5O0SLw_HvWUlP2UE9ePputw156`) memiliki deployment
+aktif versi 5 dengan ID berbeda:
+`AKfycbwXTVKAJ0ftVTi-egf6SNN7q0_cLUkSeChsuBzbmPgDuXV-SMMUnum-LJvoAUphqQ`.
+Pemeriksaan langsung ini mengoreksi keterkaitan endpoint dalam catatan migrasi
+sebelumnya. Jangan menimpa project produksi dengan seluruh salinan lokal atau
+mengganti ID database tanpa memastikan database tujuan dan kelengkapan datanya.
 
 Portal utama dapat dibuka tanpa login. Login diperlukan pada halaman Persetujuan dan saat menjalankan proses cetak yang memerlukan sesi. Token sesi disimpan pada `localStorage` ketika pengguna memilih **Ingat saya**, atau `sessionStorage` untuk sesi sementara. Sesi kedaluwarsa meminta login kembali pada alur terkait.
 
@@ -24,6 +37,11 @@ bahan bawaan yang lama. Bahan & Tinta menampilkan pesan gagal dan menyediakan to
 segarkan. Kecepatan respons tetap bergantung pada backend Apps Script dan jaringan.
 
 ## Penyimpanan BS
+
+Bagian ini menjelaskan perbaikan kode di repositori. Pada pemeriksaan endpoint
+website tanggal 15 September 2026, perbaikan belum diterapkan: sampel `A24.004`
+masih mengembalikan BS blowing `200`, bukan `2`. Deployment ditunda untuk memastikan
+database tujuan; tidak ada sel produksi yang diubah dalam pemeriksaan ini.
 
 BS per SPK disimpan pada tabel V2 yang sudah ada, bukan pada tabel baru:
 

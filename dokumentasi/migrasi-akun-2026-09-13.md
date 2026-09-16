@@ -61,5 +61,9 @@ adalah catatan historis migrasi 13 September. Versi aset RPC dan kunci cache
 dashboard dinaikkan agar perangkat tidak memakai konfigurasi atau data lama.
 Pemeriksaan endpoint baru melalui JSONP dan POST dengan sesi kosong berhasil
 (HTTP 200, respons permintaan login yang diharapkan). Tidak ada transaksi data.
-Konfigurasi frontend disiapkan untuk penerbitan GitHub Pages. Pembaruan sumber
-backend masih memerlukan identifikasi proyek editor deployment baru.
+Frontend diterbitkan ke GitHub Pages pada commit `9906c6c`.
+Proyek editor dikonfirmasi pengguna sebagai
+`1X4f-lJts_2H_rQBP6Q7G61FVeAPOuO5O0SLw_HvWUlP2UE9ePputw156`.
+Konstanta `DB_SPREADSHEET_ID` pada `BE-Input-SPK.gs` diperbarui dan disimpan.
+Deployment dengan URL di atas berhasil diperbarui dari Versi 6 ke Versi 7
+pada 16 September 2026 pukul 21.51, dengan URL dan pengaturan akses tetap.

@@ -67,3 +67,9 @@ Proyek editor dikonfirmasi pengguna sebagai
 Konstanta `DB_SPREADSHEET_ID` pada `BE-Input-SPK.gs` diperbarui dan disimpan.
 Deployment dengan URL di atas berhasil diperbarui dari Versi 6 ke Versi 7
 pada 16 September 2026 pukul 21.51, dengan URL dan pengaturan akses tetap.
+
+Verifikasi setelah Versi 7: endpoint merespons HTTP 200, tetapi metadata
+database menghasilkan revisi `unverified` dan uji baca `checkSpkExists`
+mengembalikan `Tabel V2 tidak tersedia: SPK Master`. Struktur/akses spreadsheet
+tujuan perlu diperiksa sebelum alur SPK dapat dianggap siap. Tidak ada
+transaksi atau perubahan struktur spreadsheet pada pemeriksaan ini.

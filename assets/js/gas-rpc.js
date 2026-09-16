@@ -18,7 +18,7 @@
   // atau karena pemanggilan yang mengubah data; perubahan kode tidak
   // menyentuhnya sama sekali, jadi nomor versi pada kunci inilah yang wajib
   // dinaikkan setiap bentuk muatannya berubah.
-  var DASHBOARD_CACHE_KEY = "dashboard-data-v6";
+  var DASHBOARD_CACHE_KEY = "dashboard-data-v7";
   var DASHBOARD_CACHE_MAX_AGE = 6 * 60 * 60 * 1000;
   var MUTATING_METHODS = {
     saveSpkYearPreference: true,

@@ -73,3 +73,11 @@ database menghasilkan revisi `unverified` dan uji baca `checkSpkExists`
 mengembalikan `Tabel V2 tidak tersedia: SPK Master`. Struktur/akses spreadsheet
 tujuan perlu diperiksa sebelum alur SPK dapat dianggap siap. Tidak ada
 transaksi atau perubahan struktur spreadsheet pada pemeriksaan ini.
+
+## Koreksi ID spreadsheet 16 September 2026
+
+Pengguna mengoreksi ID tujuan menjadi
+`1bvyTfFQ1vvzw5ZVj-QUn-XGiyWifjK0lG-GPd0FO9Aw` (MASTER DATA semula).
+Konfigurasi backend dan repositori dikembalikan ke ID ini. Deployment yang sama
+berhasil diperbarui ke Versi 8 pada 16 September 2026 pukul 21.58.
+URL endpoint tetap; versi aset RPC dan cache dashboard klien dinaikkan.

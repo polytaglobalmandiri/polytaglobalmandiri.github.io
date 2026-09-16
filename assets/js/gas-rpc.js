@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  var API_URL = "https://script.google.com/macros/s/AKfycbxG8wlj8giwoPd8hiYIFBVOmgLb4KC28_3_V9ZeQRJtFif11J_GL52sShaNW8OsRsqc_w/exec";
+  var API_URL = "https://script.google.com/macros/s/AKfycbwgMIuKAdI8PpXyrTgXaNbbpoCi6JXlxCTxuScwEShcv2fCkIjv8NhmVio1tikASSYg/exec";
   var requestSequence = 0;
   // Operasi autentikasi harus cepat pulih ketika koneksi Apps Script macet.
   // Operasi pengolahan data lain tetap memakai batas lama karena beberapa di
@@ -18,7 +18,7 @@
   // atau karena pemanggilan yang mengubah data; perubahan kode tidak
   // menyentuhnya sama sekali, jadi nomor versi pada kunci inilah yang wajib
   // dinaikkan setiap bentuk muatannya berubah.
-  var DASHBOARD_CACHE_KEY = "dashboard-data-v5";
+  var DASHBOARD_CACHE_KEY = "dashboard-data-v7";
   var DASHBOARD_CACHE_MAX_AGE = 6 * 60 * 60 * 1000;
   var MUTATING_METHODS = {
     saveSpkYearPreference: true,

@@ -52,3 +52,32 @@ Project, deployment, dan database lama tetap dipertahankan.
 ## Catatan pemeliharaan 14 September 2026
 
 Modul eksperimen `BE-Cache-Layer.js` yang disebut dalam catatan historis di atas telah dihapus dari repositori karena tidak digunakan. Cache aktif tetap berada pada modul backend utama.
+
+## Pembaruan konfigurasi 16 September 2026
+
+Konfigurasi lokal kini memakai endpoint `https://script.google.com/macros/s/AKfycbwgMIuKAdI8PpXyrTgXaNbbpoCi6JXlxCTxuScwEShcv2fCkIjv8NhmVio1tikASSYg/exec` dan spreadsheet
+`1tbjwKCkO6pCRpP8oAjNFDdqW2MvUQoUYLUSsKZRn6iM` sesuai informasi pengguna. Nilai pada bagian sebelumnya
+adalah catatan historis migrasi 13 September. Versi aset RPC dan kunci cache
+dashboard dinaikkan agar perangkat tidak memakai konfigurasi atau data lama.
+Pemeriksaan endpoint baru melalui JSONP dan POST dengan sesi kosong berhasil
+(HTTP 200, respons permintaan login yang diharapkan). Tidak ada transaksi data.
+Frontend diterbitkan ke GitHub Pages pada commit `9906c6c`.
+Proyek editor dikonfirmasi pengguna sebagai
+`1X4f-lJts_2H_rQBP6Q7G61FVeAPOuO5O0SLw_HvWUlP2UE9ePputw156`.
+Konstanta `DB_SPREADSHEET_ID` pada `BE-Input-SPK.gs` diperbarui dan disimpan.
+Deployment dengan URL di atas berhasil diperbarui dari Versi 6 ke Versi 7
+pada 16 September 2026 pukul 21.51, dengan URL dan pengaturan akses tetap.
+
+Verifikasi setelah Versi 7: endpoint merespons HTTP 200, tetapi metadata
+database menghasilkan revisi `unverified` dan uji baca `checkSpkExists`
+mengembalikan `Tabel V2 tidak tersedia: SPK Master`. Struktur/akses spreadsheet
+tujuan perlu diperiksa sebelum alur SPK dapat dianggap siap. Tidak ada
+transaksi atau perubahan struktur spreadsheet pada pemeriksaan ini.
+
+## Koreksi ID spreadsheet 16 September 2026
+
+Pengguna mengoreksi ID tujuan menjadi
+`1bvyTfFQ1vvzw5ZVj-QUn-XGiyWifjK0lG-GPd0FO9Aw` (MASTER DATA semula).
+Konfigurasi backend dan repositori dikembalikan ke ID ini. Deployment yang sama
+berhasil diperbarui ke Versi 8 pada 16 September 2026 pukul 21.58.
+URL endpoint tetap; versi aset RPC dan cache dashboard klien dinaikkan.

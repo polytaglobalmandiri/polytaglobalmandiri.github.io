@@ -52,3 +52,14 @@ Project, deployment, dan database lama tetap dipertahankan.
 ## Catatan pemeliharaan 14 September 2026
 
 Modul eksperimen `BE-Cache-Layer.js` yang disebut dalam catatan historis di atas telah dihapus dari repositori karena tidak digunakan. Cache aktif tetap berada pada modul backend utama.
+
+## Pembaruan konfigurasi 16 September 2026
+
+Konfigurasi lokal kini memakai endpoint `https://script.google.com/macros/s/AKfycbwgMIuKAdI8PpXyrTgXaNbbpoCi6JXlxCTxuScwEShcv2fCkIjv8NhmVio1tikASSYg/exec` dan spreadsheet
+`1tbjwKCkO6pCRpP8oAjNFDdqW2MvUQoUYLUSsKZRn6iM` sesuai informasi pengguna. Nilai pada bagian sebelumnya
+adalah catatan historis migrasi 13 September. Versi aset RPC dan kunci cache
+dashboard dinaikkan agar perangkat tidak memakai konfigurasi atau data lama.
+Pemeriksaan endpoint baru melalui JSONP dan POST dengan sesi kosong berhasil
+(HTTP 200, respons permintaan login yang diharapkan). Tidak ada transaksi data.
+Konfigurasi frontend disiapkan untuk penerbitan GitHub Pages. Pembaruan sumber
+backend masih memerlukan identifikasi proyek editor deployment baru.

@@ -44,7 +44,7 @@
           <div class="pagehead__id">
             <nav class="crumb" aria-label="Remah jejak"><i class="dot-led"></i><a href="../">Beranda</a><span class="crumb__sep">/</span><span class="crumb__now">Dokumentasi</span></nav>
             <h1 class="pagehead__title engrave">Dokumentasi Aplikasi Desktop</h1>
-            <p class="pagehead__sub">Panduan memasang, membuka, memperbarui, dan menghapus aplikasi POLYTA pada Windows, Linux, dan macOS.</p>
+            <p class="pagehead__sub">Panduan memasang, membuka, memperbarui, dan menghapus aplikasi POLYTA pada Windows, Linux, macOS, dan Android.</p>
           </div>
           <a class="resource-button" href="../unduh/">Buka Halaman Download</a>
         </div>
@@ -68,7 +68,7 @@
         <div class="doc-content">
           <section id="pilihan-aplikasi" class="plate doc-card">
             <h2>Pilih aplikasi yang sesuai</h2>
-            <p>Tersedia dua aplikasi terpisah. Keduanya dapat dipasang pada komputer yang sama dan tersedia untuk Windows, Linux, serta macOS.</p>
+            <p>Tersedia dua aplikasi terpisah. Keduanya dapat dipasang pada komputer yang sama dan tersedia untuk Windows, Linux, macOS, serta Android.</p>
             <ul>
               <li><strong>Portal Akses Internal</strong> digunakan oleh seluruh pengguna untuk membuka beranda dan layanan operasional perusahaan.</li>
               <li><strong>Panel Administrator</strong> digunakan oleh pengelola berwenang untuk menambah, mengubah, menghapus, dan menerbitkan susunan menu portal.</li>
@@ -95,6 +95,12 @@
             <ol>
               <li>Rilis saat ini mendukung Mac Apple Silicon (M1 atau lebih baru). Unduh paket <code>.dmg</code>, buka berkas tersebut, lalu seret aplikasi Polyta ke folder Applications.</li>
               <li>Buka Polyta dari Applications. macOS mungkin meminta konfirmasi karena paket belum dinotariskan.</li>
+            </ol>
+            <h3>Android</h3>
+            <ol>
+              <li>Unduh berkas <code>.apk</code> Portal atau Administrator dari halaman Unduh. Berkas terunduh langsung tanpa melalui halaman perantara.</li>
+              <li>Buka berkas hasil unduhan, lalu izinkan pemasangan aplikasi dari sumber ini bila Android memintanya.</li>
+              <li>Buka Polyta melalui daftar aplikasi. Aplikasi memerlukan koneksi internet dan meminta izin kamera hanya ketika halaman portal membutuhkannya.</li>
             </ol>
           </section>
 
@@ -134,6 +140,7 @@
               <li><strong>Windows:</strong> buka Settings &gt; Apps, cari Polyta Portal atau Polyta Administrator, lalu pilih Uninstall.</li>
               <li><strong>Linux:</strong> hapus paket melalui pengelola aplikasi; untuk AppImage cukup hapus berkasnya.</li>
               <li><strong>macOS:</strong> pindahkan aplikasi Polyta dari folder Applications ke Trash.</li>
+              <li><strong>Android:</strong> tekan lama ikon Polyta pada daftar aplikasi, lalu pilih Uninstall.</li>
             </ul>
             <p>Penghapusan aplikasi desktop tidak menghapus data portal yang tersimpan di server.</p>
           </section>
@@ -141,7 +148,7 @@
           <section id="keamanan" class="plate doc-card">
             <h2>Keamanan dan pemeriksaan berkas</h2>
             <p>Paket saat ini belum ditandatangani dengan sertifikat perusahaan. Windows SmartScreen atau macOS Gatekeeper dapat meminta konfirmasi tambahan. Paket macOS juga belum melalui notarization Apple.</p>
-            <p>Unduh hanya dari domain <strong>polytaglobalmandiri.github.io</strong> atau halaman Releases milik repositori <strong>polytaglobalmandiri/polytaglobalmandiri.github.io</strong>. Paket Electron resmi saat ini adalah versi 3.0.1. Nilai SHA-256 berikut berlaku khusus untuk pemasang Windows klasik versi 2.0:</p>
+            <p>Unduh hanya dari domain <strong>polytaglobalmandiri.github.io</strong> atau halaman Releases milik repositori <strong>polytaglobalmandiri/polytaglobalmandiri.github.io</strong>. Paket Electron resmi saat ini adalah versi 3.0.2. Nilai SHA-256 berikut berlaku khusus untuk pemasang Windows klasik versi 2.0:</p>
             <div class="hash-list">
               <div class="hash-row"><strong>Portal</strong><span class="hash-code">33A2DE87DFAF2A627B5E906C45502B688118AAE452C66B261E5D2CCA6079D20D</span></div>
               <div class="hash-row"><strong>Administrator</strong><span class="hash-code">ABC1E4CF67CD85DC8C97C19615E574614870A453B76F8E0F733A52255282751B</span></div>

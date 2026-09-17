@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="portal_origin" translatable="false">https://polytaglobalmandiri.github.io</string>
+    <string name="offline_title">Portal belum dapat dibuka</string>
+    <string name="offline_message">Periksa koneksi internet, lalu coba kembali.</string>
+    <string name="offline_retry">Coba lagi</string>
+    <string name="file_chooser_title">Pilih berkas</string>
+</resources>

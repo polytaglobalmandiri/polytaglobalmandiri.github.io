@@ -162,6 +162,13 @@ Pengguna dapat mengunduh pemasang melalui halaman [`/unduh/`](unduh/index.html),
 sedangkan petunjuk pemasangan dan pemecahan masalah tersedia terpisah pada
 halaman [`/dokumentasi/`](dokumentasi/index.html).
 
+## Aplikasi Android
+
+Paket APK untuk Portal dan Administrator dibangun dari [`android/`](android/) dan
+diterbitkan otomatis sebagai aset Release pada tag `desktop-v*`. Tombol Android di
+halaman [`/unduh/`](unduh/index.html) menautkan berkas APK secara langsung. Petunjuk
+build, penandatanganan, dan pengujian tersedia di [`android/README.md`](android/README.md).
+
 ---
 
 ## Publikasi ke GitHub

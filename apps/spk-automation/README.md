@@ -32,7 +32,7 @@ node --test tools/test-*.cjs
 ```
 
 Tes ini mencakup logika backend dengan layanan Google yang disimulasikan, transport,
-login cetak, integritas JavaScript/tautan HTML lokal, serta wrapper desktop. Tidak ada
+login cetak, integritas JavaScript/tautan HTML lokal, serta wrapper desktop dan Android. Tidak ada
 transaksi produksi yang dijalankan.
 
 Pengujian Chrome memerlukan server lokal, Chrome terpasang, dan Playwright. Contoh

@@ -149,8 +149,8 @@ test('download release versions and packaged local fallback files are consistent
   const html = fs.readFileSync(path.join(root, 'unduh/index.html'), 'utf8');
   const links = [...html.matchAll(/href="([^"]+)"/g)].map(match => match[1]);
   const released = links.filter(url => url.includes('/releases/download/'));
-  assert.equal(released.length, 8);
-  assert.equal(new Set(released).size, 8);
+  assert.equal(released.length, 10);
+  assert.equal(new Set(released).size, 10);
   for (const url of released) {
     assert.ok(url.includes(`/desktop-v${manifest.version}/`), url);
     assert.ok(url.includes(`-${manifest.version}-`), url);

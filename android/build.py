@@ -2,6 +2,7 @@
 """Build two signed APKs using the official Android SDK and JDK (no Gradle dependencies)."""
 import argparse
 import os
+import shutil
 from pathlib import Path
 import subprocess
 import zipfile
@@ -13,8 +14,8 @@ parser.add_argument('--build-tools', type=Path, required=True)
 parser.add_argument('--android-jar', type=Path, required=True)
 parser.add_argument('--keystore', type=Path, required=True)
 parser.add_argument('--alias', default='polyta-android')
-parser.add_argument('--version', default='1.0.0')
-parser.add_argument('--version-code', type=int, default=1)
+parser.add_argument('--version', default='1.1.0')
+parser.add_argument('--version-code', type=int, default=2)
 args = parser.parse_args()
 if not os.environ.get('POLYTA_KEYSTORE_PASSWORD'):
     parser.error('Set POLYTA_KEYSTORE_PASSWORD; the release key must never be stored in this repository.')
@@ -29,9 +30,11 @@ release = ROOT / 'release'
 build.mkdir(exist_ok=True)
 release.mkdir(exist_ok=True)
 classes = build / 'classes'
-classes.mkdir(exist_ok=True)
+if classes.exists():
+    shutil.rmtree(classes)
+classes.mkdir()
 run('javac', '--release', '8', '-classpath', args.android_jar,
-    '-d', classes, ROOT / 'src/com/polyta/mobile/MainActivity.java')
+    '-d', classes, *sorted((ROOT / 'src/com/polyta/mobile').glob('*.java')))
 run('jar', 'cf', build / 'classes.jar', '-C', classes, '.')
 run(args.build_tools / 'd8', '--min-api', '23', '--lib', args.android_jar,
     '--output', build, build / 'classes.jar')
@@ -42,10 +45,15 @@ for flavor, label, suffix in [('portal', 'Polyta Portal', 'Portal'), ('admin', '
     manifest.write_text(f'''<manifest xmlns:android="http://schemas.android.com/apk/res/android"
         package="com.polyta.mobile.{flavor}" android:versionCode="{args.version_code}" android:versionName="{args.version}">
       <uses-sdk android:minSdkVersion="23" android:targetSdkVersion="35" />
-      <application android:label="{label}" android:icon="@drawable/polyta"
+      <uses-permission android:name="android.permission.INTERNET" />
+      <uses-permission android:name="android.permission.CAMERA" />
+      <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
+      <uses-feature android:name="android.hardware.camera" android:required="false" />
+      <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+      <application android:label="{label}" android:icon="@mipmap/ic_launcher"
           android:allowBackup="false" android:usesCleartextTraffic="false"
-          android:theme="@android:style/Theme.Material.Light.NoActionBar">
-        <activity android:name="com.polyta.mobile.MainActivity" android:exported="true">
+          android:theme="@style/PolytaTheme" android:enableOnBackInvokedCallback="true">
+        <activity android:name="com.polyta.mobile.MainActivity" android:exported="true" android:configChanges="orientation|screenSize|keyboardHidden" android:windowSoftInputMode="adjustResize">
           <intent-filter>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
@@ -57,7 +65,7 @@ for flavor, label, suffix in [('portal', 'Polyta Portal', 'Portal'), ('admin', '
     aligned = build / (flavor + '-aligned.apk')
     output = release / f'Polyta-{suffix}-{args.version}-android.apk'
     run(args.build_tools / 'aapt2', 'link', '-o', unsigned, '-I', args.android_jar,
-        '--manifest', manifest, build / 'resources.zip')
+        '--manifest', manifest, '-A', ROOT / 'assets', build / 'resources.zip')
     with zipfile.ZipFile(unsigned, 'a', zipfile.ZIP_DEFLATED) as apk:
         apk.write(build / 'classes.dex', 'classes.dex')
     run(args.build_tools / 'zipalign', '-f', '4', unsigned, aligned)

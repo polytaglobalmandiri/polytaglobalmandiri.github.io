@@ -1,16 +1,44 @@
-# Aplikasi Android Polyta
+# Aplikasi Android Polyta 1.1.0
 
-Dua APK universal versi 1.0.0 untuk Android 6.0 (API 23) atau lebih baru:
+Dua APK universal untuk Android 6.0 (API 23) atau lebih baru. Portal dan
+Administrator mempertahankan identitas paket `com.polyta.mobile.portal` dan
+`com.polyta.mobile.admin`, serta sertifikat versi 1.0.0. Version code naik ke 2.
 
-- `com.polyta.mobile.portal`: membuka `https://polytaglobalmandiri.github.io/`.
-- `com.polyta.mobile.admin`: membuka `https://polytaglobalmandiri.github.io/pages/admin/`.
+## Antarmuka
 
-Aplikasi memakai protokol Android Custom Tabs. Browser yang mendukung menampilkan
-portal dengan bilah judul Polyta; browser lain membuka tab biasa. Browser menangani
-login, kamera, unggahan, unduhan, dan koneksi HTTPS. APK tidak menyimpan kredensial,
-tidak memasang JavaScript bridge, dan tidak meminta izin kamera atau penyimpanan.
-Hak administrator tetap ditentukan oleh portal. Aplikasi memerlukan internet dan
-browser aktif; bukan salinan offline atau aplikasi dari Google Play.
+Versi 1.1.0 mengganti peluncur Custom Tabs dengan Activity Android sendiri:
+
+- Beranda native dengan kartu Dashboard SPK, Buat SPK, Persetujuan, Bahan & tinta,
+  Serah terima, Portal lengkap, Download, dan Bantuan/Administrator.
+- Toolbar, navigasi bawah, tombol kembali, menu aplikasi, progres muat, serta
+  layar gagal muat dengan tombol coba lagi dibuat menggunakan widget Android.
+- Halaman operasional berjalan dalam WebView, tanpa bilah alamat browser.
+  CSS khusus yang dibundel memperhalus tampilan layar kecil; CSS cetak tetap asli.
+- Ikon adaptif Android, insets untuk status bar/keyboard, dan penanganan rotasi.
+- Beranda tersedia tanpa jaringan; data SPK tetap membutuhkan koneksi internet.
+
+Ini adalah aplikasi hybrid: beranda dan navigasi native, formulir operasional
+memakai website yang sama dengan portal. Layar konfirmasi pemasangan dikelola
+oleh Android; tampilan aplikasi berlaku setelah pemasangan selesai.
+
+## Fitur perangkat dan batasan
+
+WebView mempertahankan sesi aplikasi sendiri melalui cookies/storage. Sesi Chrome
+versi 1.0.0 tidak diimpor, sehingga pengguna perlu login kembali. Hak akses tetap
+berasal dari backend; memasang paket Administrator tidak memberi izin tambahan.
+
+Kamera diminta saat halaman portal memerlukan video untuk pemindaian, hanya untuk
+origin HTTPS portal dan setelah izin Android diberikan. Mikrofon tidak diizinkan.
+Pemilih berkas memakai Android Storage Access Framework. Unduhan HTTPS memakai
+DownloadManager; izin penyimpanan hanya diminta pada Android 6–9 saat mengunduh.
+Unduhan `blob:`/`data:` tidak didukung. Print halaman tersedia dari menu
+**Cetak / Simpan PDF** dan permintaan `window.print()` pada halaman portal.
+
+Navigasi internal dibatasi ke origin portal HTTPS; tautan eksternal yang didukung
+meminta konfirmasi sebelum membuka aplikasi lain. OAuth Google pada tautan luar
+menggunakan browser dan tidak otomatis berbagi sesi dengan WebView. Tidak ada
+JavaScript bridge. Akses file lokal dan mixed content dimatikan; galat TLS tidak
+dilewati. Android System WebView perlu diperbarui untuk kompatibilitas.
 
 ## Build dan tanda tangan
 
@@ -45,19 +73,20 @@ Setelah build, periksa manifest, tanda tangan, checksum, dan uji instalasi pada
 perangkat Android. Ganti tautan unduh hanya setelah APK tersedia. Pengujian paket
 di komputer tidak menggantikan uji login, kamera, dan unduhan pada ponsel nyata.
 
-Referensi: [Android Custom Tabs](https://developer.chrome.com/docs/android/custom-tabs/guide-get-started)
+Referensi: [WebView Android](https://developer.android.com/develop/ui/views/layout/webapps/webview),
+[WebChromeClient](https://developer.android.com/reference/android/webkit/WebChromeClient),
 dan [build command line](https://developer.android.com/build/building-cmdline).
 
-## Validasi rilis 1.0.0
+## Validasi rilis 1.1.0
 
-- Kedua APK lulus verifikasi signature v1/v2/v3 dan alignment.
-- Tes artefak memeriksa checksum, identitas paket, activity launcher, Android minimum,
-  tujuan portal/admin, protokol Custom Tabs, dan tidak adanya izin tambahan.
-- Pemeriksaan integritas proyek dan regresi desktop lulus (dua tes paket desktop
-  dilewati karena artefak Linux tidak tersedia). Halaman unduh diperiksa di browser.
-- Instalasi, login, dan kamera pada ponsel/emulator Android belum diuji.
-
-Jalankan pemeriksaan paket dengan:
+- APK diverifikasi memakai signature v1/v2/v3 dan alignment.
+- Tes paket memeriksa checksum, identitas/versi, launcher, WebView, aset mobile,
+  izin, tidak adanya JavaScript bridge, serta sertifikat yang sama dengan 1.0.0.
+- Tes JVM mencakup navigasi internal, tautan luar, spoofing host, userinfo, port,
+  skema lokal, dan URL rusak.
+- Pemeriksaan integritas HTML/JavaScript dan tautan unduh dijalankan terpisah.
+- Instalasi, layout native, keyboard, login, kamera, unggahan, dan cetak pada
+  perangkat/emulator Android belum diuji; pemeriksaan paket bukan pengujian UAT.
 
 ```sh
 python3 tools/test-android.py --build-tools /lokasi/sdk/build-tools/35.0.0

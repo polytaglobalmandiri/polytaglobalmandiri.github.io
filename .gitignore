@@ -20,6 +20,11 @@ installer/.build/
 tools/.build-spk/
 .cache/
 *.log
+/android/.build/
+*.apk.idsig
+*.jks
+*.keystore
+*.p12
 
 # Salinan repositori dan worktree lokal
 /copilot-worktrees/

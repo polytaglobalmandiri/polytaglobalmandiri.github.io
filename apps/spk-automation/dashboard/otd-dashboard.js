@@ -24,7 +24,7 @@
 
   var state = { rows: [], filtered: [], meta: null, cache: {}, signature: '' };
   var marketingYear = 0;
-  var REALTIME_INTERVAL_MS = 5000;
+  var REALTIME_INTERVAL_MS = 15000;
   var realtimeTimer = null;
   var realtimeInFlight = false;
   var realtimeSkipCycles = 0;

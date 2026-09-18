@@ -386,7 +386,10 @@ function buildDatabaseV2InputData_(aggregate) {
     });
     if (routing.Keterangan && !notes[key]) notes[key] = routing.Keterangan;
     const targetBs = values.targetBs && typeof values.targetBs === 'object' ? values.targetBs : {};
-    Object.keys(targetBs).forEach(function(bsKey) { bsPercent[bsKey] = percentToInput_(targetBs[bsKey]); });
+    Object.keys(targetBs).forEach(function(bsKey) {
+      // Payload routing menyimpan BS dalam satuan persen, bukan pecahan.
+      bsPercent[bsKey] = numberOrEmptyForClient_(targetBs[bsKey]);
+    });
     if (!Object.keys(targetBs).length && BS_KEYS.indexOf(key) > -1) {
       bsPercent[key] = percentToInput_(routing['Target BS %']);
     }

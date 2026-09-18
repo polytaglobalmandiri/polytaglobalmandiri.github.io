@@ -151,6 +151,15 @@ assert.equal(inputData.komposisi.length, 2);
 assert.equal(inputData.warna[0].nama, 'MERAH');
 assert.equal(inputData.etd, '2026-09-30');
 assert.equal(inputData.keteranganProses.blowing, '');
+const bsPayloadData = context.buildDatabaseV2InputData_({
+  master: Object.assign({}, built.candidates.master[0]),
+  routing: [{
+    'Kode Proses': 'cutting',
+    'Payload JSON': JSON.stringify({ values: { targetBs: { bottomSeal: 1 } } })
+  }],
+  material: [], color: [], delivery: [], eta: [], accessory: [], tracking: []
+});
+assert.equal(bsPayloadData.bsPercent.bottomSeal, 1, '1% BS payload must stay 1%, not become 100%');
 const editAggregate = {
   master: Object.assign({}, built.candidates.master[0], { Release: 'Tidak' }),
   routing: built.candidates.routing.slice(), material: built.candidates.material.slice(),

@@ -1,4 +1,4 @@
-const ROOT_FOLDER_ID = '1VTEPgxnBbPX0AfUyKUprtqrNtXQfC5gA';
+const ROOT_FOLDER_ID = '1WTtXUVBjpSlW1nJZpcMdjjk-LHQlOH4E';
 
 // doGet function has been moved to BE-Dashboard.js to handle routing centrally
 

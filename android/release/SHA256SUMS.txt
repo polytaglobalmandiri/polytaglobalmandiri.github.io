@@ -1,2 +1,2 @@
-7a5e35b68b3108d0c838c23cedb7e19015994b5f97a855da483a60d5a5793118  Polyta-Portal-1.1.0-android.apk
-6e65ed1757417218bc8e348067d4a49bb5bf2e79825138cb1e89462701daae8f  Polyta-Administrator-1.1.0-android.apk
+d7421b6434e5441c4a5ac84bc80eb8632d7155f4978ab840d01d6245b0946e66  Polyta-Portal-1.2.0-android.apk
+f74248503b3c94a8b73c76fb77c2c86d68103d4820969daf0020da48e8120b7d  Polyta-Administrator-1.2.0-android.apk

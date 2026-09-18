@@ -196,7 +196,7 @@ public final class MainActivity extends Activity {
             LinearLayout.LayoutParams lineParams = new LinearLayout.LayoutParams(-1, -2);
             lineParams.bottomMargin = dp(12); page.addView(line, lineParams);
         }
-        TextView note = text("POLYTA GLOBAL MANDIRI\nVersi 1.1.0 · Terhubung ke portal perusahaan", 12, MUTED, false);
+        TextView note = text("POLYTA GLOBAL MANDIRI\nVersi 1.2.0 · Terhubung ke portal perusahaan", 12, MUTED, false);
         note.setPadding(0, dp(16), 0, 0); note.setGravity(Gravity.CENTER); page.addView(note);
         home.addView(page); content.addView(home, new FrameLayout.LayoutParams(-1, -1));
     }
@@ -239,7 +239,7 @@ public final class MainActivity extends Activity {
         settings.setUseWideViewPort(true); settings.setLoadWithOverviewMode(true);
         settings.setBuiltInZoomControls(true); settings.setDisplayZoomControls(false);
         settings.setSupportMultipleWindows(true); settings.setJavaScriptCanOpenWindowsAutomatically(false);
-        settings.setUserAgentString(settings.getUserAgentString() + " PolytaAndroid/1.1.0");
+        settings.setUserAgentString(settings.getUserAgentString() + " PolytaAndroid/1.2.0");
         CookieManager.getInstance().setAcceptCookie(true);
         CookieManager.getInstance().setAcceptThirdPartyCookies(web, false);
         web.setWebViewClient(new WebViewClient() {
@@ -406,7 +406,7 @@ public final class MainActivity extends Activity {
             if (label.equals("Muat ulang")) web.reload();
             else if (label.equals("Cetak / Simpan PDF")) printPage();
             else if (label.equals("Download aplikasi")) open("/unduh/", "Download", 1);
-            else new AlertDialog.Builder(this).setTitle("Polyta Android 1.1.0")
+            else new AlertDialog.Builder(this).setTitle("Polyta Android 1.2.0")
                     .setMessage("Portal pekerjaan POLYTA GLOBAL MANDIRI.\n\nHalaman operasional ditampilkan di dalam aplikasi dan memerlukan internet.")
                     .setPositiveButton("Tutup", null).show();
             return true;

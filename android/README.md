@@ -1,12 +1,16 @@
-# Aplikasi Android Polyta 1.1.0
+# Aplikasi Android Polyta 1.2.0
 
 Dua APK universal untuk Android 6.0 (API 23) atau lebih baru. Portal dan
 Administrator mempertahankan identitas paket `com.polyta.mobile.portal` dan
-`com.polyta.mobile.admin`, serta sertifikat versi 1.0.0. Version code naik ke 2.
+`com.polyta.mobile.admin`, serta sertifikat versi 1.0.0. Version code naik ke 3.
 
 ## Antarmuka
 
-Versi 1.1.0 mengganti peluncur Custom Tabs dengan Activity Android sendiri:
+Versi 1.1.0 mengganti peluncur Custom Tabs dengan Activity Android sendiri, dan
+versi 1.2.0 menyelaraskan tampilannya dengan tema portal web:
+
+- Warna aksen, substrat, panel, radius, dan gradasi tombol mengikuti token
+  desain web (`assets/css/skeuo.css`), termasuk toolbar bergaya pelat logam.
 
 - Beranda native dengan kartu Dashboard SPK, Buat SPK, Persetujuan, Bahan & tinta,
   Serah terima, Portal lengkap, Download, dan Bantuan/Administrator.
@@ -77,7 +81,7 @@ Referensi: [WebView Android](https://developer.android.com/develop/ui/views/layo
 [WebChromeClient](https://developer.android.com/reference/android/webkit/WebChromeClient),
 dan [build command line](https://developer.android.com/build/building-cmdline).
 
-## Validasi rilis 1.1.0
+## Validasi rilis 1.2.0
 
 - APK diverifikasi memakai signature v1/v2/v3 dan alignment.
 - Tes paket memeriksa checksum, identitas/versi, launcher, WebView, aset mobile,

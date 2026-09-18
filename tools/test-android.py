@@ -16,7 +16,7 @@ checksums = dict(line.split()[::-1] for line in (release / 'SHA256SUMS.txt').rea
 html = (root / 'unduh/index.html').read_text()
 certificates = []
 for product, package in [('Portal', 'portal'), ('Administrator', 'admin')]:
-    apk = release / f'Polyta-{product}-1.1.0-android.apk'
+    apk = release / f'Polyta-{product}-1.2.0-android.apk'
     assert hashlib.sha256(apk.read_bytes()).hexdigest() == checksums[apk.name]
     assert f'href="../android/release/{apk.name}" download' in html
     with zipfile.ZipFile(apk) as archive:
@@ -28,12 +28,12 @@ for product, package in [('Portal', 'portal'), ('Administrator', 'admin')]:
         assert b'android.support.customtabs.extra.SESSION' not in dex
         assert b'Landroid/webkit/WebView;' in dex
         assert b'addJavascriptInterface' not in dex
-        assert b'PolytaAndroid/1.1.0' in dex
+        assert b'PolytaAndroid/1.2.0' in dex
         assert 'assets/mobile.css' in archive.namelist()
         assert not any(name.startswith('lib/') for name in archive.namelist())
     metadata = subprocess.check_output([str(args.build_tools / 'aapt2'), 'dump', 'badging', str(apk)], text=True)
     assert f"name='com.polyta.mobile.{package}'" in metadata
-    assert "versionCode='2'" in metadata and "minSdkVersion:'23'" in metadata
+    assert "versionCode='3'" in metadata and "minSdkVersion:'23'" in metadata
     assert "targetSdkVersion:'35'" in metadata
     assert "launchable-activity: name='com.polyta.mobile.MainActivity'" in metadata
     assert "android.permission.INTERNET" in metadata

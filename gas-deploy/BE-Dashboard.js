@@ -142,17 +142,37 @@ function buildDashboardV2Indexes_(spreadsheet) {
 // Kompresi hanya bila klien menyatakan mampu membukanya. Klien lama tetap kompatibel.
 function getDashboardData(forceRefresh, encoding) {
   var result = getDashboardDataPayload_(forceRefresh);
-  if (encoding !== 'gzip-base64' || result.error) return result;
+  if ((encoding !== 'gzip-base64' && encoding !== 'gzip-base64-chunks') || result.error) return result;
   try {
-    return {
-      encoding: 'gzip-base64',
-      payload: Utilities.base64Encode(Utilities.gzip(
-        Utilities.newBlob(JSON.stringify(result), 'application/json')
-      ).getBytes())
-    };
+    var payload = Utilities.base64Encode(Utilities.gzip(
+      Utilities.newBlob(JSON.stringify(result), 'application/json')
+    ).getBytes());
+    if (encoding === 'gzip-base64') return { encoding: encoding, payload: payload };
+    var token = Utilities.getUuid();
+    var size = 80000;
+    var count = Math.ceil(payload.length / size);
+    var chunks = {};
+    for (var index = 1; index < count; index++) {
+      chunks['dashboard-wire:' + token + ':' + index] = payload.slice(index * size, (index + 1) * size);
+    }
+    if (count > 1) CacheService.getScriptCache().putAll(chunks, 300);
+    return { encoding: encoding, token: token, count: count, firstChunk: payload.slice(0, size) };
   } catch (error) {
+    if (encoding === 'gzip-base64-chunks') return { error: 'Data sementara belum dapat disiapkan. Silakan coba lagi.' };
     return result;
   }
+}
+
+// Potongan hanya berasal dari snapshot dashboard publik yang sama, sehingga
+// perubahan spreadsheet saat transfer tidak mencampurkan dua versi data.
+function getDashboardDataChunk(token, index) {
+  if (!/^[a-f0-9-]{36}$/i.test(String(token || '')) ||
+      typeof index !== 'number' || index !== Math.floor(index) || index < 1 || index > 200) {
+    throw new Error('Permintaan potongan dashboard tidak valid.');
+  }
+  var payload = CacheService.getScriptCache().get('dashboard-wire:' + token + ':' + index);
+  if (typeof payload !== 'string') throw new Error('Data sementara sudah kedaluwarsa. Silakan muat ulang.');
+  return { index: index, payload: payload };
 }
 
 function getDashboardDataPayload_(forceRefresh) {

@@ -2,6 +2,7 @@
 // Hanya fungsi yang tercantum di bawah yang boleh dipanggil dari browser.
 var SPK_RPC_METHODS_ = {
   getDashboardData: getDashboardData,
+  getDashboardDataChunk: getDashboardDataChunk,
   getDashboardDataRevision: getDashboardDataRevision,
   getDashboardTrackingData: getDashboardTrackingData,
   getDatabaseV2Readiness: getDatabaseV2Readiness,

@@ -27,6 +27,7 @@
   var REALTIME_INTERVAL_MS = 5000;
   var realtimeTimer = null;
   var realtimeInFlight = false;
+  var realtimeSkipCycles = 0;
 
   var DATABASE_TABLE_COL = {
     SPK: 0,
@@ -883,16 +884,21 @@
   }
 
   function syncRealtime() {
-    if (realtimeInFlight || !hasRuntime()) return;
+    if (realtimeInFlight || !hasRuntime() || document.hidden) return;
+    if (realtimeSkipCycles > 0) { realtimeSkipCycles -= 1; return; }
     realtimeInFlight = true;
     requestRevision().then(function(revision) {
       var currentRevision = state.meta && state.meta.revision
         ? String(state.meta.revision)
         : '';
+      realtimeSkipCycles = 0;
       if (!revision || revision === currentRevision) return null;
 
       return syncChangedDatabase();
     }).catch(function(error) {
+      // Apps Script yang sedang tertekan hanya bertambah lambat bila terus
+      // ditanyai pada irama yang sama.
+      realtimeSkipCycles = Math.min(realtimeSkipCycles ? realtimeSkipCycles * 2 : 2, 24);
       if (window.console && window.console.warn) window.console.warn('Sinkronisasi realtime tertunda:', error);
     }).then(function() {
       realtimeInFlight = false;
@@ -902,6 +908,11 @@
   function startRealtime() {
     if (realtimeTimer || !hasRuntime()) return;
     realtimeTimer = window.setInterval(syncRealtime, REALTIME_INTERVAL_MS);
+    document.addEventListener('visibilitychange', function() {
+      if (document.hidden) return;
+      realtimeSkipCycles = 0;
+      syncRealtime();
+    });
   }
 
   function load() {

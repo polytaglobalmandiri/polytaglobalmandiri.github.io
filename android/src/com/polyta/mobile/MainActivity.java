@@ -21,8 +21,9 @@ import java.io.ByteArrayOutputStream;
 
 /** Native Android shell with an in-app WebView for live operational pages. */
 public final class MainActivity extends Activity {
-    private static final int RED = 0xffdb3046, INK = 0xff202938, MUTED = 0xff687588;
-    private static final int BG = 0xfff3f5f9, FILE_PICK = 41, CAMERA = 42, STORAGE = 43;
+    private static final int RED = 0xffc8102e, RED_HI = 0xffe63b52, INK = 0xff15151a, MUTED = 0xff7c7c88;
+    private static final int BG = 0xffe3e3e8, PANEL = 0xfffafafb, PANEL_EDGE = 0xffbfbfc8;
+    private static final int FILE_PICK = 41, CAMERA = 42, STORAGE = 43;
     private WebView web;
     private FrameLayout content;
     private ScrollView home;
@@ -63,7 +64,7 @@ public final class MainActivity extends Activity {
         setContentView(root);
         root.requestApplyInsets();
         LinearLayout toolbar = row();
-        toolbar.setBackgroundColor(Color.WHITE);
+        toolbar.setBackground(metal());
         toolbar.setPadding(dp(8), dp(4), dp(8), dp(4));
         back = action("‹", "Kembali", v -> goBack());
         toolbar.addView(back, new LinearLayout.LayoutParams(dp(48), dp(48)));
@@ -84,7 +85,7 @@ public final class MainActivity extends Activity {
         makeHome();
         makeError();
         LinearLayout navigation = row();
-        navigation.setBackgroundColor(Color.WHITE);
+        navigation.setBackground(panel());
         navigation.setPadding(dp(12), dp(8), dp(12), dp(8));
         String[] labels = {"Beranda", "SPK", isAdmin ? "Admin" : "Persetujuan"};
         int[] icons = {android.R.drawable.ic_menu_view, android.R.drawable.ic_menu_agenda,
@@ -130,7 +131,7 @@ public final class MainActivity extends Activity {
             int color = i == selected ? RED : MUTED;
             tabs[i].setTextColor(color);
             tabs[i].getCompoundDrawables()[1].setTint(color);
-            tabs[i].setBackground(ripple(i == selected ? 0xffffedf0 : Color.WHITE, 16));
+            tabs[i].setBackground(ripple(i == selected ? 0xffffe8ec : PANEL, 10));
         }
     }
     private void makeHome() {
@@ -143,8 +144,8 @@ public final class MainActivity extends Activity {
         hero.setOrientation(LinearLayout.VERTICAL);
         hero.setPadding(dp(24), dp(24), dp(24), dp(24));
         hero.setBackground(new GradientDrawable(GradientDrawable.Orientation.TL_BR,
-                new int[]{0xffb92039, 0xffed5261}));
-        ((GradientDrawable) hero.getBackground()).setCornerRadius(dp(24));
+                new int[]{RED_HI, RED, 0xff8a0b1f}));
+        ((GradientDrawable) hero.getBackground()).setCornerRadius(dp(20));
         ImageView logo = new ImageView(this);
         logo.setImageResource(getResources().getIdentifier("polyta", "drawable", getPackageName()));
         hero.addView(logo, new LinearLayout.LayoutParams(dp(52), dp(52)));
@@ -176,7 +177,7 @@ public final class MainActivity extends Activity {
                 LinearLayout card = new LinearLayout(this);
                 card.setOrientation(LinearLayout.VERTICAL);
                 card.setPadding(dp(16), dp(18), dp(12), dp(18));
-                card.setBackground(ripple(Color.WHITE, 20));
+                card.setBackground(ripplePanel(14));
                 card.setElevation(dp(1));
                 ImageView icon = new ImageView(this);
                 icon.setImageResource(icons[j]); icon.setImageTintList(ColorStateList.valueOf(RED));
@@ -208,7 +209,7 @@ public final class MainActivity extends Activity {
         TextView detail = text("Periksa koneksi internet Anda, lalu coba lagi.", 15, MUTED, false);
         detail.setGravity(Gravity.CENTER); detail.setPadding(0, dp(12), 0, dp(24)); errorPanel.addView(detail);
         Button retry = new Button(this); retry.setText("Coba lagi"); retry.setAllCaps(false);
-        retry.setTextColor(Color.WHITE); retry.setBackgroundTintList(ColorStateList.valueOf(RED));
+        retry.setTextColor(Color.WHITE); retry.setBackground(raisedButton());
         retry.setOnClickListener(v -> { failed = false; errorPanel.setVisibility(View.GONE); web.loadUrl(lastUrl); });
         errorPanel.addView(retry); content.addView(errorPanel, new FrameLayout.LayoutParams(-1, -1));
         errorPanel.setVisibility(View.GONE);
@@ -438,7 +439,27 @@ public final class MainActivity extends Activity {
     private LinearLayout row() { LinearLayout row = new LinearLayout(this); row.setOrientation(LinearLayout.HORIZONTAL); row.setGravity(Gravity.CENTER_VERTICAL); return row; }
     private GradientDrawable round(int color, int radius) { GradientDrawable shape = new GradientDrawable(); shape.setColor(color); shape.setCornerRadius(dp(radius)); return shape; }
     private android.graphics.drawable.Drawable ripple(int color, int radius) {
-        return new android.graphics.drawable.RippleDrawable(ColorStateList.valueOf(0x22db3046), round(color, radius), null);
+        return new android.graphics.drawable.RippleDrawable(ColorStateList.valueOf(0x22c8102e), round(color, radius), null);
+    }
+    private android.graphics.drawable.Drawable ripplePanel(int radius) {
+        GradientDrawable shape = new GradientDrawable(GradientDrawable.Orientation.TL_BR,
+                new int[]{0xffffffff, PANEL});
+        shape.setCornerRadius(dp(radius)); shape.setStroke(dp(1), PANEL_EDGE);
+        return new android.graphics.drawable.RippleDrawable(ColorStateList.valueOf(0x22c8102e), shape, null);
+    }
+    private GradientDrawable panel() {
+        GradientDrawable shape = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                new int[]{0xffffffff, 0xffececef});
+        shape.setStroke(dp(1), PANEL_EDGE); return shape;
+    }
+    private GradientDrawable metal() {
+        return new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                new int[]{0xfff8f8fa, 0xffe4e4e9, 0xffc8c8d1, 0xffe4e4e9});
+    }
+    private GradientDrawable raisedButton() {
+        GradientDrawable shape = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                new int[]{RED_HI, RED, 0xff8a0b1f});
+        shape.setCornerRadius(dp(8)); return shape;
     }
     private TextView text(String label, int size, int color, boolean bold) {
         TextView view = new TextView(this); view.setText(label); view.setTextSize(size); view.setTextColor(color);
@@ -446,7 +467,7 @@ public final class MainActivity extends Activity {
     }
     private TextView action(String label, String description, View.OnClickListener listener) {
         TextView button = text(label, 30, INK, false); button.setGravity(Gravity.CENTER);
-        button.setBackground(ripple(Color.WHITE, 24));
+        button.setBackground(ripple(Color.TRANSPARENT, 10));
         button.setContentDescription(description); button.setOnClickListener(listener); button.setFocusable(true); return button;
     }
     private void toast(String message) { Toast.makeText(this, message, Toast.LENGTH_LONG).show(); }

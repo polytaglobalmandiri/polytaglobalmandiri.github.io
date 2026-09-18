@@ -1,12 +1,12 @@
 <resources>
-    <color name="launcher_background">#FFFFFF</color>
+    <color name="launcher_background">#FAFAFB</color>
     <style name="PolytaTheme" parent="android:style/Theme.Material.Light.NoActionBar">
         <item name="android:fontFamily">sans</item>
-        <item name="android:colorAccent">#DB3046</item>
+        <item name="android:colorAccent">#C8102E</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:statusBarColor">#FFFFFF</item>
         <item name="android:navigationBarColor">#FFFFFF</item>
-        <item name="android:windowBackground">#F3F5F9</item>
+        <item name="android:windowBackground">#E3E3E8</item>
         <item name="android:windowActionModeOverlay">true</item>
     </style>
 </resources>

@@ -3,8 +3,8 @@
   html { -webkit-text-size-adjust: 100%; }
   body { font-family: Roboto, "Segoe UI", sans-serif !important; }
   .screw, .screw--tl, .screw--tr, .screw--bl, .screw--br { display: none !important; }
-  .plate, .download-card, .resource-panel { border-radius: 18px !important; box-shadow: 0 2px 8px #0000000a !important; }
-  .resource-button, .nav__link, .btn { border-radius: 12px !important; text-shadow: none !important; }
+  .plate, .download-card, .resource-panel { border-radius: 14px !important; box-shadow: 0 2px 8px #0000000a !important; }
+  .resource-button, .nav__link, .btn { border-radius: 8px !important; text-shadow: none !important; }
   .brand__plate { box-shadow: none !important; }
   .engrave { text-shadow: none !important; }
   .foot { display: none !important; }

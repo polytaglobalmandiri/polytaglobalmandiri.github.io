@@ -103,6 +103,14 @@
     return error;
   }
 
+  // Satu-satunya penentu boleh tidaknya sebuah panggilan diulang. Dipakai
+  // bersama oleh pesan kegagalan dan keputusan coba ulang agar keduanya tidak
+  // pernah berbeda pendapat.
+  function isMutating(method) {
+    return Boolean(MUTATING_METHODS[method]) ||
+      /^(save|submit|update|mark|approve|begin|extract|cancel|bootstrap|acknowledge)/.test(method);
+  }
+
   // JSON mentah dikirim sebagai text/plain agar tidak memerlukan preflight.
   // doPost sudah membalas ContentService JSON untuk badan ini. Kredensial
   // tetap di badan POST; tidak masuk URL dan tidak membutuhkan iframe/cookie.
@@ -129,7 +137,7 @@
       var message = error && error.name === "AbortError"
         ? "Waktu tunggu balasan server habis."
         : "Balasan server tidak dapat diterima. Periksa koneksi lalu muat ulang data.";
-      if (MUTATING_METHODS[method] || /^(save|submit|update|mark|approve|begin|extract|cancel|bootstrap|acknowledge)/.test(method)) {
+      if (isMutating(method)) {
         message += " Periksa hasil transaksi sebelum mengirim ulang; proses di server mungkin sudah berjalan.";
       }
       throw transportError("post-gagal", message);
@@ -209,7 +217,15 @@
         return requestViaScript(method, args);
       });
     }
-    return requestViaPost(method, args);
+    // Hop kedua Apps Script (script.googleusercontent.com) sesekali membalas
+    // halaman 404 Drive walau skripnya sendiri berhasil, terutama ketika
+    // eksekusinya lambat. Pembacaan tidak mengubah apa pun, jadi diberi satu
+    // kesempatan kedua seperti jalur JSONP. Transaksi tetap tidak diulang.
+    return requestViaPost(method, args).catch(function (error) {
+      if (isMutating(method)) throw error;
+      if (!error || error.transportCode !== "post-gagal") throw error;
+      return requestViaPost(method, args);
+    });
   }
 
   function requestServer(method, args) {

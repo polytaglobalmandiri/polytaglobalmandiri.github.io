@@ -69,6 +69,19 @@ function client(fetch) {
     const broken = client(failure);
     await assert.rejects(broken.rpc('submitDatabase', { spk: 'TEST.001' }), /Periksa hasil transaksi sebelum mengirim ulang/);
     assert.equal(broken.calls.length, 1, 'An uncertain mutation must never be retried');
+    const readOnly = client(failure);
+    await assert.rejects(readOnly.rpc('getApprovalQueue', 'test-token'), /Balasan server|Waktu tunggu/);
+    assert.equal(readOnly.calls.length, 2, 'A read must get one extra attempt when the transport fails');
   }
-  console.log('PASS: backend raw POST contract, credentialed POST without frames/URL secrets, reads and writes, application/network/HTTP/JSON/timeout errors, no mutation retries');
+  let firstReadAttempt = true;
+  const flaky = client(async () => {
+    if (firstReadAttempt) { firstReadAttempt = false; return { ok: false, status: 404 }; }
+    return { ok: true, json: async () => ({ ok: true, result: { status: 'success' } }) };
+  });
+  assert.equal((await flaky.rpc('getApprovalSession', 'test-token')).status, 'success');
+  assert.equal(flaky.calls.length, 2, 'A retried read must recover from the Apps Script 404 hop');
+  const rejectedRead = client(async () => ({ ok: true, json: async () => ({ ok: false, error: { message: 'Sesi berakhir' } }) }));
+  await assert.rejects(rejectedRead.rpc('getApprovalQueue', 'test-token'), /Sesi berakhir/);
+  assert.equal(rejectedRead.calls.length, 1, 'Application errors must not be retried');
+  console.log('PASS: backend raw POST contract, credentialed POST without frames/URL secrets, reads and writes, application/network/HTTP/JSON/timeout errors, no mutation retries, one retry for reads');
 })().catch(error => { console.error(error); process.exitCode = 1; });

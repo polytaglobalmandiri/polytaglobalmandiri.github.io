@@ -652,7 +652,10 @@
     // Galat tanpa keterangan tidak memberi tindakan apa pun kepada pengguna.
     if (!normalized) return true;
 
-    if (error && String(error.name || "").toLowerCase() === "aborterror") return true;
+    if (error && (
+      String(error.name || "").toLowerCase() === "aborterror" ||
+      String(error.originalErrorName || "").toLowerCase() === "aborterror"
+    )) return true;
 
     if (normalized.indexOf("resizeobserver loop") !== -1 ||
         normalized === "script error." ||

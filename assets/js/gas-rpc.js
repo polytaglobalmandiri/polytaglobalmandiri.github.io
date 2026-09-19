@@ -97,9 +97,14 @@
   var scriptTransport = "belum-diuji";
   var postTransport = "belum-diuji";
 
-  function transportError(code, message) {
+  function transportError(code, message, originalError) {
     var error = new Error(message);
     error.transportCode = code;
+    // Pertahankan jenis error asli. Pembatalan fetch saat navigasi halaman
+    // bukan gangguan aplikasi dan perlu dikenali oleh lapisan status.
+    if (originalError && originalError.name) {
+      error.originalErrorName = String(originalError.name);
+    }
     return error;
   }
 
@@ -140,7 +145,7 @@
       if (isMutating(method)) {
         message += " Periksa hasil transaksi sebelum mengirim ulang; proses di server mungkin sudah berjalan.";
       }
-      throw transportError("post-gagal", message);
+      throw transportError("post-gagal", message, error);
     }).then(function (payload) {
       postTransport = "sehat";
       if (!payload || payload.ok !== true) {

@@ -24,7 +24,7 @@ Semua tabel detail memakai `SPK` sebagai foreign key. Aksesoris dan tracking dap
 - Writer memeriksa konflik sebelum menulis dan membaca kembali setiap perubahan sebelum transaksi dinyatakan berhasil.
 - Repeat Order, Cetak, Dashboard, Approval, dan Serah Terima membaca agregat V2 berdasarkan ID bisnis, bukan nomor baris.
 - Record baru bertanda sumber `APLIKASI NATIVE V2`.
-- Riwayat commit native dicatat pada sheet `Native Write SPK V2`; sheet itu merupakan audit, bukan sumber data aplikasi.
+- Riwayat commit native dicatat pada sheet `Log Aktivitas`; sheet itu merupakan audit, bukan sumber data aplikasi.
 
 ## Aturan pengembangan
 

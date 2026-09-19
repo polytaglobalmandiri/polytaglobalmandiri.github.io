@@ -21,7 +21,7 @@ Cutover Database SPK V2 telah selesai. Seluruh alur operasional utama menggunaka
 - Menghapus accessor sheet kompatibilitas dan helper nomor baris lama.
 - Menghapus penulis/formatter ekstraksi menuju tabel lama.
 - Mengganti modul menjadi `BE-Database-V2-Mapping.js` dan `BE-Database-V2-Writer.js`.
-- Mengganti lembar audit tulis menjadi `Native Write SPK V2` tanpa mengubah riwayatnya.
+- Mengganti lembar audit tulis menjadi `Log Aktivitas` tanpa mengubah riwayatnya.
 - Menghapus lembar log `Migrasi SPK V2` yang tidak lagi dipakai alur aplikasi; salinannya tetap ada di backup cutover.
 - Menambahkan audit call graph agar RPC aktif tidak dapat kembali bergantung pada sheet lama.
 

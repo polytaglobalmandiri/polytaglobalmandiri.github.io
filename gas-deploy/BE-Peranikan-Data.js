@@ -2865,11 +2865,32 @@ function extractData(targetFolderId, jobId, resumeIndex, resumeStats, targetFile
           throw new Error('Nomor SPK pada F7 kosong.');
         }
 
-        const spkStr = normalizeSourceSpk_(spk);
+        let spkStr = normalizeSourceSpk_(spk);
         if (spkStr === '') {
           throw new Error(
             "Format SPK pada F7 tidak valid. Gunakan format seperti 'G26.001'."
           );
+        }
+
+        // Beberapa file sumber membagi satu nomor SPK menjadi varian B, C, D,
+        // dan seterusnya pada nama file, sementara F7 masih berisi nomor induk.
+        // Bila nomor induknya sama, pertahankan varian nama file sebagai kunci
+        // agar tiap file ditarik sebagai data terpisah dan tidak dianggap duplikat.
+        if (sourceFile.spkHint && sourceFile.spkHint !== spkStr) {
+          const hintBase = String(sourceFile.spkHint).match(/^[A-Z]\d{2}\.\d{3}/);
+          const cellBase = String(spkStr).match(/^[A-Z]\d{2}\.\d{3}/);
+          const hintHasVariant = /^[A-Z]\d{2}\.\d{3}\s+[B-Z]$/.test(sourceFile.spkHint);
+          const cellHasVariant = /^[A-Z]\d{2}\.\d{3}\s+[B-Z]$/.test(spkStr);
+
+          if (
+            hintHasVariant &&
+            !cellHasVariant &&
+            hintBase &&
+            cellBase &&
+            hintBase[0] === cellBase[0]
+          ) {
+            spkStr = sourceFile.spkHint;
+          }
         }
 
         // Jika nama file tidak memberikan petunjuk yang dapat dipakai,

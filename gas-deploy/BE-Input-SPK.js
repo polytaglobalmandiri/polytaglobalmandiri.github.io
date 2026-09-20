@@ -580,7 +580,14 @@ function normalizeSpk_(value) {
 // lewat Input SPK sementara penarikan berjalan.
 function normalizeSourceSpk_(value) {
   const normalized = normalizeSpk_(value);
-  const matches = normalized.match(/[A-Z]\d{2}\.\d{3}/g) || [];
+  const matches = [];
+  const pattern = /(?:^|[^A-Z0-9])([A-Z]\d{2}\.\d{3})(?:\s+([B-Z])(?=\s|[-_]|\.|$))?/g;
+  let match;
+
+  while ((match = pattern.exec(normalized)) !== null) {
+    matches.push(match[1] + (match[2] ? ' ' + match[2] : ''));
+  }
+
   const uniqueMatches = Array.from(new Set(matches));
 
   return uniqueMatches.length === 1 ? uniqueMatches[0] : '';

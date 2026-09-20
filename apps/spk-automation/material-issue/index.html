@@ -3418,7 +3418,10 @@
       dataBody.addEventListener('keydown', handleTableKeydown_);
       dataBody.addEventListener('pointerover', handleDetailPrefetchIntent_);
       dataBody.addEventListener('focusin', handleDetailPrefetchIntent_);
-      loadManagerData_(false);
+      // Nilai Keluar Bahan/UOM dapat diubah langsung pada spreadsheet.
+      // Pemuatan awal harus melewati cache agar status pending selalu sesuai
+      // dengan data terbaru, termasuk setelah perubahan manual.
+      loadManagerData_(true);
     });
 
     function debounce_(callback, waitMs) {

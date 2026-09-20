@@ -37,6 +37,7 @@ var SPK_RPC_METHODS_ = {
   submitDatabase: submitDatabase,
   getKeluarBahanManagerData: getKeluarBahanManagerData,
   getProductionMixerData: getProductionMixerData,
+  saveProductionMixerEntry: saveProductionMixerEntry,
   getKeluarBahanManagerDetail: getKeluarBahanManagerDetail,
   getKeluarBahanManagerDetailBatch: getKeluarBahanManagerDetailBatch,
   saveEtaBeliBahanScheduleByManager: saveEtaBeliBahanScheduleByManager,

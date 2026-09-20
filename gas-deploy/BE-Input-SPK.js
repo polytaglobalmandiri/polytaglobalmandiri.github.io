@@ -1373,6 +1373,10 @@ function getProductionMixerData(forceRefresh) {
       .map(function(routing) {
         const master = masterBySpk[normalizeDatabaseV2Key_(routing.SPK)];
         const spk = normalizeDatabaseV2Key_(master.SPK);
+        let production = {};
+        try {
+          production = JSON.parse(String(routing['Payload JSON'] || '{}')).production || {};
+        } catch (error) {}
         return {
           spk: spk,
           tanggal: dateToInput_(master.Tanggal),
@@ -1388,10 +1392,10 @@ function getProductionMixerData(forceRefresh) {
           statusRouting: valueOrEmpty_(routing.Status),
           operator: valueOrEmpty_(routing.Operator),
           keterangan: valueOrEmpty_(routing.Keterangan),
-          hasilSebelumnya: '',
-          hasilProduksi: '',
-          pemakaianBahan: [],
-          status: 'pending'
+          hasilSebelumnya: numberOrEmptyForClient_(production.hasilSebelumnya),
+          hasilProduksi: numberOrEmptyForClient_(production.hasilProduksi),
+          pemakaianBahan: Array.isArray(production.pemakaianBahan) ? production.pemakaianBahan : [],
+          status: String(routing.Status || '').trim().toUpperCase() === 'SELESAI' ? 'done' : 'pending'
         };
       });
     data.sort(function(a, b) {
@@ -1400,6 +1404,54 @@ function getProductionMixerData(forceRefresh) {
     return { status: 'success', data: data, summary: { total: data.length, pending: data.length, done: 0 } };
   } catch (error) {
     return { status: 'error', data: [], summary: { total: 0, pending: 0, done: 0 }, message: error.message };
+  }
+}
+
+function saveProductionMixerEntry(payload) {
+  try {
+    const spk = normalizeSpk_(payload && payload.spk);
+    const routingId = String(payload && payload.routingId || '').trim();
+    const hasilProduksi = parseCalculationNumber_(payload && payload.hasilProduksi);
+    const mesin = String(payload && payload.mesin || '').trim();
+    const shift = String(payload && payload.shift || '').trim();
+    const operator = String(payload && payload.operator || '').trim();
+    const pemakaianBahan = String(payload && payload.pemakaianBahan || '').trim();
+    const keterangan = String(payload && payload.keterangan || '').trim();
+    if (!spk || !routingId) return { status: 'error', message: 'SPK dan routing Mixer wajib diisi.' };
+    if (!(hasilProduksi >= 0)) return { status: 'error', message: 'Hasil produksi wajib berupa angka 0 atau lebih.' };
+    if (!shift) return { status: 'error', message: 'Shift wajib diisi.' };
+
+    const result = mutateDatabaseV2Spk_(spk, 'PRODUCTION_MIXER_NATIVE', function(aggregate) {
+      const routing = aggregate.routing.find(function(item) {
+        return String(item['Routing ID'] || '').trim() === routingId;
+      });
+      if (!routing) throw new Error('Routing Mixer tidak ditemukan untuk SPK tersebut.');
+      let payloadJson = {};
+      try { payloadJson = JSON.parse(String(routing['Payload JSON'] || '{}')); } catch (error) {}
+      payloadJson.production = {
+        hasilSebelumnya: payloadJson.production && payloadJson.production.hasilProduksi != null
+          ? payloadJson.production.hasilProduksi
+          : '',
+        hasilProduksi: hasilProduksi,
+        mesin: mesin,
+        shift: shift,
+        operator: operator,
+        pemakaianBahan: pemakaianBahan ? pemakaianBahan.split(/\n|;/).map(function(item) { return item.trim(); }).filter(Boolean) : [],
+        keterangan: keterangan,
+        updatedAt: new Date().toISOString()
+      };
+      routing['Payload JSON'] = JSON.stringify(payloadJson);
+      routing.Mesin = mesin || routing.Mesin;
+      routing.Operator = operator;
+      routing.Status = 'SELESAI';
+      routing.Mulai = routing.Mulai || new Date();
+      routing.Selesai = new Date();
+      return true;
+    });
+    if (result.status === 'NOT_FOUND') return { status: 'not_found', message: "SPK '" + spk + "' tidak ditemukan." };
+    return { status: 'success', message: "Hasil produksi Mixer SPK '" + spk + "' berhasil disimpan.", data: { spk: spk, routingId: routingId, hasilProduksi: hasilProduksi, status: 'done', database: result } };
+  } catch (error) {
+    return { status: 'error', message: error.message };
   }
 }
 

@@ -10,6 +10,7 @@ var APPROVAL_SESSION_PREFIX_ = 'spk-auth-v1-';
 var APPROVAL_SESSION_SECONDS_ = 21600;
 var APPROVAL_REMEMBER_SECONDS_ = 2592000;
 var APPROVAL_BOOTSTRAP_CODE_PROPERTY_ = 'APPROVAL_BOOTSTRAP_CODE';
+var APPROVAL_SIGNATURE_FOLDER_ID_ = '1hHcBx2ris478lg24Zah1obaC0dnx3FVF';
 
 var APPROVAL_USER_HEADERS_ = [
   'User ID', 'Email', 'Password Hash', 'Password Salt',
@@ -161,9 +162,16 @@ function saveApprovalUser(token, payload) {
   var lock = LockService.getScriptLock();
   lock.waitLock(30000);
   try {
-    requireApprovalSession_(token, ['admin_ppic']);
+    var session = requireApprovalSession_(token, ['admin_ppic']);
     var sheet = ensureApprovalSheets_().users;
     var user = createOrUpdateApprovalUser_(sheet, payload && payload.userId, payload || {});
+    // Mengubah password/jabatan/status menaikkan tokenVersion. Jika yang
+    // diubah adalah akun admin yang sedang aktif, sinkronkan sesi yang sama
+    // dengan versi terbaru agar penyimpanan berhasil tanpa memutus admin dari
+    // halaman manajemen user.
+    if (user.userId === session.userId && user.active && user.roleKey === 'admin_ppic') {
+      refreshApprovalSessionForUser_(token, session, user);
+    }
     return {
       status: 'success',
       message: 'Data pengguna berhasil disimpan.',
@@ -176,9 +184,34 @@ function saveApprovalUser(token, payload) {
   }
 }
 
+function refreshApprovalSessionForUser_(token, session, user) {
+  var updated = Object.assign({}, session, {
+    email: user.email,
+    name: user.name,
+    roleKey: user.roleKey,
+    roleLabel: user.roleLabel,
+    department: user.department,
+    tokenVersion: user.tokenVersion
+  });
+  var raw = JSON.stringify(updated);
+  var sessionKey = approvalSessionKey_(token);
+  CacheService.getScriptCache().put(sessionKey, raw, APPROVAL_SESSION_SECONDS_);
+  if (updated.persistent) {
+    PropertiesService.getScriptProperties().setProperty(sessionKey, raw);
+  }
+}
+
 function getApprovalQueue(token) {
   try {
     var session = requireApprovalSession_(token);
+    var queueCacheKey = 'approval-queue-v2-' + session.roleKey;
+    var cachedQueue = CacheService.getScriptCache().get(queueCacheKey);
+    if (cachedQueue) {
+      var cached = JSON.parse(cachedQueue);
+      cached.user = session;
+      cached.signatureReady = Boolean(getApprovalUserById_(session.userId).signatureFileId);
+      return cached;
+    }
     var logSheet = ensureApprovalSheets_().approvals;
     var rows = readApprovalRows_(logSheet).filter(function(item) {
       return item.roleKey === session.roleKey;
@@ -186,9 +219,15 @@ function getApprovalQueue(token) {
     var spkKeys = {};
     rows.forEach(function(item) { spkKeys[item.spk] = true; });
     var dbDetails = getApprovalSpkDetails_(spkKeys);
-    var summaryCache = {};
+    var grouped = {};
+    rows.forEach(function(item) {
+      if (!grouped[item.spk]) grouped[item.spk] = [];
+      grouped[item.spk].push(item);
+    });
     var items = rows.map(function(item) {
-      if (!summaryCache[item.spk]) summaryCache[item.spk] = getSpkApprovalSummary_(item.spk, false);
+      var group = grouped[item.spk];
+      var approved = group.filter(function(entry) { return entry.status === 'DISETUJUI'; }).length;
+      var complete = group.length > 0 && approved === group.length;
       var detail = dbDetails[item.spk] || {};
       return {
         spk: item.spk,
@@ -201,8 +240,8 @@ function getApprovalQueue(token) {
         article: detail.article || '',
         orderDate: detail.orderDate || '',
         routing: detail.routing || [],
-        progress: summaryCache[item.spk].progress,
-        approvalStatus: summaryCache[item.spk].status
+        progress: { approved: approved, required: group.length },
+        approvalStatus: complete ? 'SIAP_RELEASE' : 'MENUNGGU_TTD'
       };
     });
     items.sort(function(a, b) {
@@ -210,7 +249,7 @@ function getApprovalQueue(token) {
       return String(b.spk).localeCompare(String(a.spk));
     });
     var signatureReady = Boolean(getApprovalUserById_(session.userId).signatureFileId);
-    return {
+    var result = {
       status: 'success',
       user: session,
       signatureReady: signatureReady,
@@ -220,6 +259,10 @@ function getApprovalQueue(token) {
         approved: items.filter(function(item) { return item.status === 'DISETUJUI'; }).length
       }
     };
+    CacheService.getScriptCache().put(queueCacheKey, JSON.stringify({
+      status: result.status, items: result.items, counts: result.counts
+    }), 30);
+    return result;
   } catch (error) {
     return { status: 'error', message: error.message };
   }
@@ -250,6 +293,7 @@ function approveSpk(token, spk) {
       user.signatureFileId, user.signatureUrl, target.createdAt || now
     ]]);
     sheet.getRange(target.rowNumber, 13).setValue(now);
+    CacheService.getScriptCache().remove('approval-queue-v2-' + session.roleKey);
     return {
       status: 'success',
       message: "SPK '" + key + "' berhasil disetujui dan diparaf.",
@@ -324,10 +368,19 @@ function initializeSpkApprovals_(spk, rowNumber, payload, creatorSession) {
 function getSpkApprovalSummary_(spk, includeSignatureData) {
   var key = normalizeSpk_(spk);
   var rows = readApprovalRowsForSpk_(ensureApprovalSheets_().approvals, key);
+  var currentUsers = readApprovalUsers_(ensureApprovalSheets_().users);
+  var currentUserById = {};
+  currentUsers.forEach(function(user) { currentUserById[user.userId] = user; });
+  // Approval log menyimpan snapshot ID file saat paraf dilakukan. Untuk
+  // cetak SPK, gunakan tanda tangan terbaru dari akun yang sama agar penggantian
+  // paraf di Database Users langsung tercermin tanpa mengubah histori approval.
+  var effectiveSignatureFileIds = rows.map(function(item) {
+    if (item.status !== 'DISETUJUI') return '';
+    var signer = currentUserById[item.signerUserId];
+    return signer && signer.signatureFileId ? signer.signatureFileId : item.signatureFileId;
+  });
   var signatureDataByFileId = includeSignatureData
-    ? getApprovalSignatureDataMap_(rows.map(function(item) {
-        return item.status === 'DISETUJUI' ? item.signatureFileId : '';
-      }))
+    ? getApprovalSignatureDataMap_(effectiveSignatureFileIds)
     : {};
   var approved = rows.filter(function(item) { return item.status === 'DISETUJUI'; }).length;
   var complete = rows.length > 0 && approved === rows.length;
@@ -337,7 +390,9 @@ function getSpkApprovalSummary_(spk, includeSignatureData) {
     complete: complete,
     progress: { approved: approved, required: rows.length },
     approvals: rows.map(function(item) {
-      var signatureData = signatureDataByFileId[item.signatureFileId] || '';
+      var signatureIndex = rows.indexOf(item);
+      var signatureFileId = effectiveSignatureFileIds[signatureIndex] || item.signatureFileId;
+      var signatureData = signatureDataByFileId[signatureFileId] || '';
       return {
         roleKey: item.roleKey,
         roleLabel: item.roleLabel,
@@ -487,12 +542,10 @@ function saveApprovalSignature_(dataUrl, fileName, current) {
 
 function getApprovalSignatureFolder_() {
   var properties = PropertiesService.getScriptProperties();
-  var id = properties.getProperty('SPK_APPROVAL_SIGNATURE_FOLDER_ID');
-  if (id) {
-    try { return DriveApp.getFolderById(id); } catch (ignore) {}
-  }
-  var folder = DriveApp.createFolder('SPK Approval Signatures');
-  properties.setProperty('SPK_APPROVAL_SIGNATURE_FOLDER_ID', folder.getId());
+  var folder = DriveApp.getFolderById(APPROVAL_SIGNATURE_FOLDER_ID_);
+  // Sinkronkan property lama agar konfigurasi lama tidak mengarahkan upload
+  // berikutnya ke folder sebelumnya.
+  properties.setProperty('SPK_APPROVAL_SIGNATURE_FOLDER_ID', APPROVAL_SIGNATURE_FOLDER_ID_);
   return folder;
 }
 

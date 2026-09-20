@@ -897,6 +897,7 @@
       if (url.origin !== location.origin || (url.pathname === location.pathname && url.search === location.search)) return;
       if (document.startViewTransition) return;
       e.preventDefault();
+      document.documentElement.setAttribute("data-pgm-navigating", "true");
       document.body.classList.add("is-page-leaving");
       setTimeout(function () { location.href = url.href; }, 165);
     });

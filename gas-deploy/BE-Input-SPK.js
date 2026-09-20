@@ -985,7 +985,10 @@ function getSpkPrintData(spk, preferredRowNumber, authToken, includeSignatureDat
     const master = aggregate.master;
     const parsedDimensions = parseCalculationDimensions_(master['Ukuran Blow'], master['Ukuran Jadi']);
     const releaseValue = String(master.Release || '').trim().toUpperCase() === 'YA' ? 'YA' : 'Tidak';
-    const shouldIncludeSignatures = Boolean(printSession) && includeSignatureData !== false;
+    // Paraf adalah bagian dari tampilan SPK, sehingga tetap dimuat pada mode
+    // lihat/cetak tanpa login. Sesi login tetap wajib untuk otorisasi cetak
+    // dan release, bukan untuk menampilkan gambar tanda tangan.
+    const shouldIncludeSignatures = includeSignatureData !== false;
     const approvalSummary = getSpkApprovalSummary_(key, shouldIncludeSignatures);
     Object.assign(data, {
       rowNumber: 0,

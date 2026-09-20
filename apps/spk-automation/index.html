@@ -7,7 +7,7 @@
     <base target="_top">
     <title>PO &amp; SPK | Polyta Global Mandiri</title>
   <link rel="stylesheet" href="/assets/css/status.css?v=20260814-4">
-  <script src="/assets/js/status.js?v=20260920-1"></script>
+  <script src="/assets/js/status.js?v=20260920-2"></script>
   <script src="/assets/js/ui-labels.js?v=20260815-1" defer></script>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='22' fill='%23f4f4f1'/%3E%3Cpath fill='%23111216' d='M14 12h50v43h42v53h-8V63H64v45H14V55h42V20H14z'/%3E%3Crect x='15' y='22' width='41' height='12' rx='6' fill='%234563b3'/%3E%3Crect x='22' y='63' width='34' height='37' fill='%23ef2631'/%3E%3Crect x='84' y='64' width='11' height='44' rx='5.5' fill='%2340b84e'/%3E%3C/svg%3E">
 
@@ -4730,7 +4730,7 @@
     flex: 0 0 46px;
     display: grid;
     place-items: center;
-    padding: 4px;
+    padding: 8px;
     border: 1px solid #74787d;
     border-radius: 12px;
     background:
@@ -4811,10 +4811,6 @@
     border: 1px solid #777a7d;
     border-radius: 20px;
     background:
-    radial-gradient(circle at 15px 15px, #55585b 0 1px, #c8c9c7 2px 4px, #777 5px, transparent 6px),
-    radial-gradient(circle at calc(100% - 15px) 15px, #55585b 0 1px, #c8c9c7 2px 4px, #777 5px, transparent 6px),
-    radial-gradient(circle at 15px calc(100% - 15px), #55585b 0 1px, #c8c9c7 2px 4px, #777 5px, transparent 6px),
-    radial-gradient(circle at calc(100% - 15px) calc(100% - 15px), #55585b 0 1px, #c8c9c7 2px 4px, #777 5px, transparent 6px),
     repeating-linear-gradient(90deg, rgba(255,255,255,.11) 0, rgba(255,255,255,.11) 1px, rgba(0,0,0,.018) 2px, transparent 4px),
     linear-gradient(145deg, #eeeeeb, #d7d8d5);
     box-shadow:
@@ -6802,7 +6798,7 @@
     border: 0;
     border-radius: 0;
     background: transparent;
-    box-shadow: none;
+    box-shadow: 0 2px 6px rgba(31,33,36,.07);
   }
 
   #spkInputRoot .input-pair > .field-input:first-child {
@@ -6954,6 +6950,13 @@
   #spkInputRoot .calc-fold-summary::-webkit-details-marker {
     display: none;
   }
+  #spkInputRoot .routing-collapse-summary {
+    cursor: pointer;
+    list-style: none;
+  }
+  #spkInputRoot .routing-collapse-summary::-webkit-details-marker {
+    display: none;
+  }
   #spkInputRoot .calc-fold-title {
     font-size: .68rem;
     font-weight: 900;
@@ -6961,6 +6964,17 @@
     text-transform: uppercase;
     color: #33353a;
     text-shadow: 0 1px 0 #fff;
+  }
+  #spkInputRoot .calc-fold-icon {
+    display: inline-flex;
+    width: 17px;
+    height: 17px;
+    flex: 0 0 17px;
+    color: #8d1515;
+  }
+  #spkInputRoot .calc-fold-icon svg {
+    width: 100%;
+    height: 100%;
   }
   #spkInputRoot .calc-fold-status {
     margin-left: auto;
@@ -6988,6 +7002,40 @@
   #spkInputRoot .calc-fold .calculation-sheet,
   #spkInputRoot .calc-fold .calculation-message {
     margin: 0 11px 11px;
+  }
+  #spkInputRoot .calc-fold .calculation-sheet {
+    border-color: #b8bec6;
+    box-shadow: 0 1px 2px rgba(31,35,40,.08);
+  }
+  #spkInputRoot .calc-fold .calculation-sheet-row,
+  #spkInputRoot .calc-fold .calculation-sheet-result-row {
+    grid-template-columns: 150px minmax(0, 1fr);
+  }
+  #spkInputRoot .calc-fold .calculation-sheet-label,
+  #spkInputRoot .calc-fold .calculation-sheet-value,
+  #spkInputRoot .calc-fold .calculation-sheet-result-label,
+  #spkInputRoot .calc-fold .calculation-sheet-result-value {
+    min-height: 42px;
+    box-sizing: border-box;
+  }
+  #spkInputRoot .calc-fold {
+    box-shadow: inset 0 1px 0 #fff, 0 2px 0 #a9abac, 0 4px 8px rgba(0,0,0,.1);
+  }
+  #spkInputRoot .calc-fold .calculation-sheet-info {
+    min-height: 58px;
+    box-sizing: border-box;
+  }
+  #spkInputRoot .calc-fold .calculation-sheet-info:nth-child(odd) {
+    border-left: 0;
+  }
+  #spkInputRoot .calc-fold .calculation-sheet-info:nth-child(n + 3) {
+    border-top: 1px solid #d7dbe1;
+  }
+  @media (max-width: 767px) {
+    #spkInputRoot .calc-fold .calculation-sheet-row,
+    #spkInputRoot .calc-fold .calculation-sheet-result-row {
+      grid-template-columns: 1fr;
+    }
   }
   /* ==========================================================
      POLISH DATA UTAMA & ROUTING
@@ -8233,6 +8281,176 @@
     padding: 2px 7px;
     font-size: .54rem;
   }
+
+  /* Tata letak akhir Perhitungan Bahan. */
+  #spkInputRoot .calc-fold[open] {
+    padding-bottom: 10px;
+  }
+
+  #spkInputRoot .calc-fold[open] .calc-fold-summary {
+    margin-bottom: 10px;
+    border-bottom: 1px solid #d0d3d3;
+    background: linear-gradient(180deg, #fafbf9, #eceeeb);
+  }
+
+  #spkInputRoot .calc-fold .calculation-sheet {
+    margin: 0 10px;
+    border: 1px solid #c4c9cf;
+    border-radius: 10px;
+    background: #fafbf9;
+    box-shadow: 0 2px 6px rgba(31,33,36,.07);
+  }
+
+  #spkInputRoot .calc-fold .calculation-sheet-header {
+    justify-content: center;
+    min-height: 44px;
+    padding: 9px 12px;
+    border-bottom-color: #c5ccd5;
+    background: linear-gradient(180deg, #e8eef5, #dce5ef);
+    text-align: center;
+  }
+
+  #spkInputRoot .calc-fold .calculation-sheet-header small {
+    padding: 3px 8px;
+    border: 1px solid #bcc7d4;
+    border-radius: 999px;
+    background: rgba(255,255,255,.55);
+    white-space: nowrap;
+  }
+
+  #spkInputRoot .calc-fold .calculation-sheet-row,
+  #spkInputRoot .calc-fold .calculation-sheet-result-row {
+    grid-template-columns: minmax(145px, 25%) minmax(0, 1fr);
+  }
+
+  #spkInputRoot .calc-fold .calculation-sheet-label,
+  #spkInputRoot .calc-fold .calculation-sheet-result-label {
+    justify-content: center;
+    padding: 10px 12px;
+    background: rgba(238,240,238,.72);
+  }
+
+  #spkInputRoot .calc-fold .calculation-sheet-value,
+  #spkInputRoot .calc-fold .calculation-sheet-result-value {
+    justify-content: center;
+    padding: 10px 14px;
+    text-align: center;
+  }
+
+  #spkInputRoot .calc-fold .calculation-sheet-result-row {
+    min-height: 52px;
+    border-top: 1px solid #b7d2bb;
+    border-bottom: 0;
+  }
+
+  #spkInputRoot .calc-fold .calculation-sheet-result-value {
+    font-size: .88rem;
+    letter-spacing: .015em;
+  }
+
+  #spkInputRoot .calc-fold .calculation-sheet-reference {
+    padding: 9px 12px;
+    border-top: 1px solid #d7dbe1;
+    background: #f5f6f4;
+    text-align: center;
+  }
+
+  #spkInputRoot .calc-fold .calculation-sheet-reference + .calculation-sheet-reference {
+    border-top: 1px dashed #d3b88d;
+    background: #fff8e9;
+    color: #765522;
+  }
+
+  #spkInputRoot .calc-fold .calculation-sheet-info-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+    padding: 1px;
+    border-top: 1px solid #cfd4d9;
+    background: #cfd4d9;
+  }
+
+  #spkInputRoot .calc-fold .calculation-sheet-info,
+  #spkInputRoot .calc-fold .calculation-sheet-info + .calculation-sheet-info,
+  #spkInputRoot .calc-fold .calculation-sheet-info:nth-child(n + 3) {
+    min-height: 66px;
+    padding: 10px 12px;
+    border: 0;
+    background: #f8f9f7;
+    text-align: center;
+  }
+
+  #spkInputRoot .calc-fold .calculation-sheet-info:last-child:nth-child(3n + 1) {
+    grid-column: 1 / -1;
+  }
+
+  #spkInputRoot .calc-fold .calculation-sheet-info span {
+    margin-bottom: 5px;
+    color: #747a82;
+    font-size: .56rem;
+    letter-spacing: .045em;
+  }
+
+  #spkInputRoot .calc-fold .calculation-sheet-info strong {
+    margin: 0;
+    color: #292d32;
+    font-size: .72rem;
+    line-height: 1.35;
+  }
+
+  #spkInputRoot .calc-fold .calculation-message {
+    margin: 9px 10px 0;
+    padding: 8px 10px;
+    border-left: 3px solid #aeb3b8;
+    border-radius: 0 6px 6px 0;
+    background: rgba(255,255,255,.48);
+    text-align: center;
+  }
+
+  @media (max-width: 760px) {
+    #spkInputRoot .calc-fold .calculation-sheet-header {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    #spkInputRoot .calc-fold .calculation-sheet-row,
+    #spkInputRoot .calc-fold .calculation-sheet-result-row {
+      grid-template-columns: 1fr;
+    }
+
+    #spkInputRoot .calc-fold .calculation-sheet-label,
+    #spkInputRoot .calc-fold .calculation-sheet-result-label {
+      min-height: auto;
+      padding-bottom: 5px;
+      border-right: 0;
+      border-bottom: 1px solid #d7dbe1;
+    }
+
+    #spkInputRoot .calc-fold .calculation-sheet-value,
+    #spkInputRoot .calc-fold .calculation-sheet-result-value {
+      min-height: 40px;
+      padding-top: 8px;
+    }
+
+    #spkInputRoot .calc-fold .calculation-sheet-info-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #spkInputRoot .calc-fold .calculation-sheet-info:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 480px) {
+    #spkInputRoot .calc-fold .calculation-sheet-info-grid {
+      grid-template-columns: 1fr;
+    }
+
+    #spkInputRoot .calc-fold .calculation-sheet-info {
+      grid-column: auto !important;
+    }
+  }
+
 
   #spkInputRoot .wizard-navigation {
     gap: 8px;
@@ -9486,6 +9704,151 @@
       justify-self: stretch;
     }
     </style>
+<style>
+  #spkInputRoot .calc-fold .calculation-sheet {
+    display: grid;
+    grid-template-columns: minmax(0, .95fr) minmax(0, 1.45fr);
+    gap: 12px;
+    row-gap: 3px;
+    padding: 4px;
+    box-sizing: border-box;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  #spkInputRoot .calc-fold .calculation-block {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid #c4c9cf;
+    border-radius: 13px;
+    background: #fafbf9;
+    box-shadow: 0 2px 6px rgba(31,33,36,.07);
+  }
+  #spkInputRoot .calc-fold .calculation-block--logic { grid-column: 1; grid-row: 1; }
+  #spkInputRoot .calc-fold .calculation-block--detail { grid-column: 2; grid-row: 1; }
+  #spkInputRoot .calc-fold .calculation-sheet-note {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    margin: 0;
+    padding: 8px 12px;
+    border-top: 1px solid #d7dbe1;
+    background: #f5f6f4;
+    color: inherit;
+    text-align: center;
+  }
+  #spkInputRoot .calc-fold #calcOrderTypeNote {
+    grid-row: 3;
+    border-top: 1px dashed #d3b88d;
+    border-radius: 0 0 8px 8px;
+    background: #fff8e9;
+    color: #765522;
+  }
+  #spkInputRoot .calc-fold .calculation-block-title {
+    padding: 13px 12px;
+    border-bottom: 1px solid #c5ccd5;
+    background: linear-gradient(180deg, #e8eef5, #dce5ef);
+    color: #303943;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-align: center;
+  }
+  #spkInputRoot .calc-fold .calculation-sheet-info-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  #spkInputRoot .calc-fold .calculation-sheet-info {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    min-height: 52px;
+    text-align: left;
+  }
+  #spkInputRoot .calc-fold .calculation-sheet-info span { margin: 0; text-align: left; }
+  #spkInputRoot .calc-fold .calculation-sheet-info strong { text-align: right; }
+  #spkInputRoot .calc-fold .calculation-sheet-info:last-child:nth-child(3n + 1) { grid-column: auto; }
+  #spkInputRoot .calc-fold .calculation-block--logic {
+    display: grid;
+    grid-template-rows: auto repeat(3, minmax(0, 1fr));
+  }
+  #spkInputRoot .calc-fold .calculation-block--detail {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  #spkInputRoot .calc-fold .calculation-block--detail .calculation-sheet-info-grid {
+    height: 100%;
+    grid-auto-rows: minmax(0, 1fr);
+  }
+  #spkInputRoot .calc-fold .calculation-block--detail .calculation-sheet-reference:first-of-type {
+    border-top: 0;
+  }
+  @media (max-width: 760px) {
+    #spkInputRoot .calc-fold .calculation-sheet { grid-template-columns: 1fr; }
+    #spkInputRoot .calc-fold .calculation-block--logic,
+    #spkInputRoot .calc-fold .calculation-block--detail,
+    #spkInputRoot .calc-fold .calculation-sheet-note { grid-column: 1; }
+    #spkInputRoot .calc-fold .calculation-block--logic { grid-row: 1; }
+    #spkInputRoot .calc-fold .calculation-block--detail { grid-row: 2; }
+    #spkInputRoot .calc-fold .calculation-sheet-note { grid-row: 3; }
+    #spkInputRoot .calc-fold #calcReferenceDetail { grid-row: 3; }
+    #spkInputRoot .calc-fold #calcOrderTypeNote { grid-row: 4; }
+    #spkInputRoot .calc-fold .calculation-sheet-info-grid { grid-template-columns: 1fr; }
+  }
+</style>
+<style>
+  #spkInputRoot .calc-fold .calculation-sheet-note,
+  #spkInputRoot .calc-fold .calculation-message {
+    font-size: .72rem;
+    font-weight: 400;
+    line-height: 1.45;
+    letter-spacing: 0;
+  }
+  #spkInputRoot .calc-fold .calculation-message {
+    margin: 0 10px;
+    padding: 2px 12px 6px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+  }
+  #spkInputRoot .calc-fold .calculation-sheet-note,
+  #spkInputRoot .calc-fold #calcOrderTypeNote {
+    padding-top: 3px;
+    padding-bottom: 3px;
+    line-height: 1.3;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    text-align: left;
+  }
+</style>
+<style>
+  #spkInputRoot .calc-fold #calculationMessage {
+    grid-column: 1 / -1;
+    grid-row: 4;
+  }
+  @media (max-width: 760px) {
+    #spkInputRoot .calc-fold #calculationMessage { grid-row: 5; }
+  }
+</style>
+<style>
+  .toolbar-actions {
+    align-self: end;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+  .toolbar-actions .filter-reset {
+    width: 100%;
+    height: 34px !important;
+    min-height: 34px !important;
+    margin: 0;
+    position: relative;
+    top: -2px;
+  }
+</style>
 </head>
 <body
     class="tw:min-h-screen tw:text-polyta-ink selection:tw:bg-polyta-brand-soft selection:tw:text-polyta-brand"
@@ -9591,7 +9954,7 @@
                         <span class="realtime-dot" aria-hidden="true"></span>
                         <span id="realtimeStatusText">Mengaktifkan pembaruan waktu nyata</span>
                     </span>
-                    <span id="lastUpdated" class="updated-at">Menunggu sinkronisasi data</span>
+                    <span id="lastUpdated" class="updated-at">Wait for me</span>
                 </div>
             </div>
         </section>
@@ -9757,7 +10120,6 @@
 
                 <div class="filter-summary">
                     <span id="filterSummaryText">Menampilkan seluruh data produksi.</span>
-                    <button id="clearFiltersInline" class="clear-link" type="button" hidden>Hapus semua penyaring</button>
                 </div>
 
                 <div class="table-scroll">
@@ -10645,14 +11007,14 @@
       <!-- ==========================================================
            ROUTING (PROSES PRODUKSI)
            ========================================================== -->
-      <div class="form-group-card routing-card">
-        <div class="form-group-head">
+      <details class="form-group-card routing-card routing-collapse">
+        <summary class="form-group-head routing-collapse-summary">
           <span class="form-group-icon" aria-hidden="true">
             <svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 6.878V6a2.25 2.25 0 012.25-2.25h7.5A2.25 2.25 0 0118 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 004.5 9v.878m13.5-3A2.25 2.25 0 0119.5 9v.878m0 0a2.246 2.246 0 00-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0121 12v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6c0-.98.626-1.813 1.5-2.122"></path></svg>
           </span>
           <span class="form-group-title">Urutan Proses Produksi</span>
           <span class="form-group-hint">Susun urutan bebas &mdash; satu proses boleh dipakai berkali-kali</span>
-        </div>
+        </summary>
 
         <div class="routing-tabs-shell">
           <div id="routingProcessTabs" class="routing-process-tabs" role="tablist" aria-label="Pilih proses produksi"></div>
@@ -11057,7 +11419,7 @@
           <div class="routing-saved-head">
             <div>
               <span class="routing-saved-eyebrow">Urutan tersusun</span>
-              <h3 id="routingSavedTitle">Rincian Proses Produksi</h3>
+              <h3 id="routingSavedTitle">Urutan Proses Produksi</h3>
             </div>
             <span class="routing-saved-count"><span id="routingSavedCount">0</span> langkah</span>
           </div>
@@ -11066,7 +11428,7 @@
           </div>
           <div id="routingSavedList" class="routing-saved-list"></div>
         </section>
-      </div>
+      </details>
 
       <!-- Satu blok BS Sheet, dipindahkan ke panel Folding/Slitting/Gusset
            yang sedang dibuka. BS Sheet berlaku untuk ketiganya namun nilainya
@@ -11102,12 +11464,16 @@
            ========================================================== -->
       <details class="calc-fold" id="rawMaterialCalculation">
         <summary class="calc-fold-summary">
+          <span class="form-group-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2.5" width="14" height="19" rx="2"></rect><rect x="8" y="5.5" width="8" height="3"></rect><path d="M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01M16 16h.01"></path></svg>
+          </span>
           <span class="calc-fold-title">Perhitungan bahan</span>
           <span id="calculationStatus" class="calc-fold-status">Belum lengkap</span>
         </summary>
 
         <div class="calculation-sheet">
-          <div class="calculation-sheet-header">
+          <section class="calculation-block calculation-block--logic" aria-labelledby="calcSheetTitle">
+          <div class="calculation-sheet-header calculation-block-header">
             <span id="calcSheetTitle">Logika Perhitungan</span>
             <small id="calcSheetCategory">Kategori &mdash;</small>
           </div>
@@ -11123,8 +11489,11 @@
             <div class="calculation-sheet-result-label">Hasil</div>
             <strong id="calcResult" class="calculation-sheet-result-value">&mdash;</strong>
           </div>
-          <div id="calcReferenceDetail" class="calculation-sheet-reference">Lengkapi jenis bahan, ukuran, dan pesanan.</div>
-          <div id="calcOrderTypeNote" class="calculation-sheet-reference">Catatan: OPP - CPP - Kirim Roll, mohon atur ukuran panjang sesuai kebutuhan meter!</div>
+          </section>
+          <div id="calcReferenceDetail" class="calculation-sheet-reference calculation-sheet-note">Lengkapi jenis bahan, ukuran, dan pesanan.</div>
+          <div id="calcOrderTypeNote" class="calculation-sheet-reference calculation-sheet-note">Catatan: OPP - CPP - Kirim Roll, mohon atur ukuran panjang sesuai kebutuhan meter!</div>
+          <section class="calculation-block calculation-block--detail" aria-labelledby="calcDetailHeading">
+          <div class="calculation-block-title" id="calcDetailHeading">Detail Perhitungan</div>
           <div class="calculation-sheet-info-grid">
             <div class="calculation-sheet-info">
               <span>Ukuran Blowing</span>
@@ -11135,16 +11504,24 @@
               <strong id="calcJenisFilm">&mdash;</strong>
             </div>
             <div class="calculation-sheet-info">
-              <span>Massa Jenis</span>
-              <strong id="calcDensity">&mdash;</strong>
-            </div>
-            <div class="calculation-sheet-info">
               <span>Meter/KG</span>
               <strong id="calcMeterPerKg">&mdash;</strong>
             </div>
+            <div class="calculation-sheet-info">
+              <span>KG/Roll Nyata</span>
+              <strong id="calcTargetKgRoll">&mdash;</strong>
+            </div>
+            <div class="calculation-sheet-info">
+              <span>Estimasi Meter/Roll</span>
+              <strong id="calcEstimatedMeterRoll">&mdash;</strong>
+            </div>
+            <div class="calculation-sheet-info">
+              <span>Estimasi Roll</span>
+              <strong id="calcEstimatedRoll">&mdash;</strong>
+            </div>
           </div>
+          </section>
         </div>
-        <p id="calculationMessage" class="calculation-message">Lengkapi jenis bahan, ukuran, dan pesanan.</p>
       </details>
 
       <!-- ==========================================================
@@ -11513,6 +11890,7 @@
         var SUMMARY_PREFERENCE_KEY = 'polyta-dashboard-summary-collapsed';
         var selectedSpkYear = '';
         var selectedSpkCategory = '';
+        var quickSearchQuery = '';
         var availableSpkYears = [];
         var spkPeriodInitialized = false;
         // Pilihan tahun yang tersimpan di server untuk pengguna ini.
@@ -11683,7 +12061,6 @@
                 if (dashboardTable) dashboardTable.draw();
             });
             document.getElementById('clearFilters').addEventListener('click', clearFilters);
-            document.getElementById('clearFiltersInline').addEventListener('click', clearFilters);
             document.getElementById('detailRetryButton').addEventListener('click', function () {
                 if (activeDetailRow) requestDetailData(activeDetailRow);
             });
@@ -11704,12 +12081,14 @@
 
             document.getElementById('globalSearch').addEventListener('input', debounce(function (event) {
                 if (!dashboardTable) return;
-                dashboardTable.search(event.target.value.trim()).draw();
+                quickSearchQuery = String(event.target.value || '').trim();
+                dashboardTable.search('').draw();
             }, 160));
 
             document.getElementById('globalSearch').addEventListener('keydown', function (event) {
                 if (event.key !== 'Escape' || !event.currentTarget.value) return;
                 event.currentTarget.value = '';
+                quickSearchQuery = '';
                 if (dashboardTable) dashboardTable.search('').draw();
             });
 
@@ -12181,15 +12560,50 @@
 
             $.fn.dataTable.ext.search.push(function (settings, searchData, dataIndex, rowData) {
                 if (!settings || !settings.nTable || settings.nTable.id !== 'dataTable') return true;
+                var sourceRow = Array.isArray(rowData) ? rowData : rawTableData[dataIndex];
+
+                // Pencarian cepat selalu menjangkau seluruh data yang dimuat,
+                // tanpa dibatasi pilihan tahun/kategori pada dashboard.
+                if (quickSearchQuery) return rowMatchesQuickSearch_(sourceRow, quickSearchQuery);
                 if (!selectedSpkYear && !selectedSpkCategory) return true;
 
-                var sourceRow = Array.isArray(rowData) ? rowData : rawTableData[dataIndex];
                 var period = parseSpkPeriod(sourceRow && sourceRow[TABLE_COL.SPK]);
                 if (!period) return false;
                 if (selectedSpkYear && period.year !== Number(selectedSpkYear)) return false;
                 return !selectedSpkCategory || period.category === selectedSpkCategory;
             });
             spkPeriodFilterRegistered = true;
+        }
+
+        function normalizeQuickSearch_(value) {
+            var text = String(value === null || value === undefined ? '' : value);
+            if (text.normalize) text = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            return text
+                .toLowerCase()
+                .replace(/[‐‑‒–—]/g, '-')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        function rowMatchesQuickSearch_(row, query) {
+            if (!Array.isArray(row)) return false;
+            var normalizedQuery = normalizeQuickSearch_(query);
+            if (!normalizedQuery) return true;
+
+            var searchableValues = row.map(function (value) {
+                if (value && typeof value === 'object') {
+                    try { return JSON.stringify(value); } catch (error) { return String(value); }
+                }
+                return String(value === null || value === undefined ? '' : value);
+            });
+            var haystack = normalizeQuickSearch_(searchableValues.join(' '));
+            var compactHaystack = haystack.replace(/[^a-z0-9]/g, '');
+
+            return normalizedQuery.split(' ').filter(Boolean).every(function (token) {
+                var compactToken = token.replace(/[^a-z0-9]/g, '');
+                return haystack.indexOf(token) > -1 ||
+                    (compactToken && compactHaystack.indexOf(compactToken) > -1);
+            });
         }
 
         function initializeDataTable(rows) {
@@ -12310,6 +12724,7 @@
 
         function clearFilters() {
             document.getElementById('globalSearch').value = '';
+            quickSearchQuery = '';
             document.getElementById('filterDate').value = '';
             document.getElementById('filterOrderType').value = '';
             document.getElementById('filterMaterial').value = '';
@@ -12467,17 +12882,14 @@
             }
 
             var summary = document.getElementById('filterSummaryText');
-            var clearButton = document.getElementById('clearFiltersInline');
             var resetButton = document.getElementById('clearFilters');
 
             if (filters.length) {
                 summary.textContent = 'Menampilkan ' + numberFormatter.format(visible) + ' dari ' +
                     numberFormatter.format(total) + ' data · Penyaring: ' + filters.join(', ');
-                clearButton.hidden = false;
                 resetButton.disabled = false;
             } else {
                 summary.textContent = 'Menampilkan seluruh ' + numberFormatter.format(total) + ' data produksi.';
-                clearButton.hidden = true;
                 resetButton.disabled = true;
             }
         }
@@ -14382,6 +14794,7 @@
       return Number.isFinite(number) ? number : null;
     }
 
+
     function extractFirstCalculationNumber_(value) {
       const match = String(value === null || value === undefined ? '' : value)
         .match(/-?\d+(?:[.,]\d+)?/);
@@ -14461,6 +14874,20 @@
           ((lebar / 100) * (tebal * 1000) * filmLayerFactor) /
           1000
         );
+    }
+
+    const ROLL_WIDTH_TARGETS_ = [
+      [10, 15], [15, 20], [20, 25], [25, 30], [30, 40],
+      [35, 45], [40, 50], [45, 50], [50, 60], [55, 60],
+      [60, 70], [65, 70], [70, 75], [75, 75], [80, 80],
+      [85, 80], [90, 90], [95, 90], [100, 100]
+    ];
+
+    function getTargetKgPerRoll_(width) {
+      if (!(width > 0)) return null;
+      return ROLL_WIDTH_TARGETS_.reduce(function(best, entry) {
+        return !best || Math.abs(entry[0] - width) < Math.abs(best[0] - width) ? entry : best;
+      }, null)[1];
     }
 
     function classifyRawMaterial_(material, uomOrder, customer) {
@@ -14561,7 +14988,7 @@
       const orderSetelahStok = jumlahOrder === null
         ? null
         : Math.max(0, jumlahOrder - (stok === null ? 0 : stok));
-      const meterRoll = uomOrder === 'ROLL'
+      let meterRoll = uomOrder === 'ROLL'
         ? parseCalculationNumber_(document.getElementById('meterRoll').value)
         : null;
       const dimensions = getEffectiveDimensions_();
@@ -14574,10 +15001,24 @@
         density,
         filmLayerFactor
       );
+      const rollWidth = String(film || '').toUpperCase() === 'TUBE'
+        ? dimensions.lebar
+        : dimensions.lebarBahan;
+      const targetKgPerRoll = getTargetKgPerRoll_(rollWidth);
       const totalBs = getTotalBs_();
       const orderAfterBs = orderSetelahStok === null
         ? null
         : orderSetelahStok * (1 + (totalBs / 100));
+      const estimatedMeterRoll = targetKgPerRoll && meterPerKg
+        ? Math.max(100, Math.round((targetKgPerRoll * meterPerKg) / 100) * 100)
+        : null;
+      if (estimatedMeterRoll > 0) meterRoll = estimatedMeterRoll;
+      const actualKgPerRoll = estimatedMeterRoll && meterPerKg
+        ? estimatedMeterRoll / meterPerKg
+        : null;
+      const estimatedRoll = actualKgPerRoll && orderSetelahStok !== null
+        ? Math.ceil(orderAfterBs / actualKgPerRoll)
+        : null;
       let pcsPerKg = null;
       let up = null;
 
@@ -14613,6 +15054,10 @@
         meterPerKg,
         up,
         meterRoll,
+        targetKgPerRoll,
+        estimatedMeterRoll,
+        actualKgPerRoll,
+        estimatedRoll,
         stok,
         ots,
         wip,
@@ -14921,12 +15366,15 @@
           : '—',
         referenceLine: references.length
           ? references.join(' · ')
-          : 'Kategori ditentukan dari Bahan dan UOM Pesanan.',
+          : 'Kategori ditentukan dari Bahan dan UOM Order.',
         orderTypeNote: getCalculationOrderTypeNote_(),
         ukuranBlowing: document.getElementById('ukuranBlow').value.trim() || '—',
         jenisFilm: document.getElementById('film').value.trim() || '—',
         density: formatCalculationNumber_(result.density, 2),
-        meterPerKg: formatCalculationNumber_(result.meterPerKg, 2)
+        meterPerKg: formatCalculationNumber_(result.meterPerKg, 2),
+        targetKgRoll: result.actualKgPerRoll ? formatCalculationNumber_(result.actualKgPerRoll, 2) + ' KG' : '—',
+        estimatedMeterRoll: result.estimatedMeterRoll ? formatCalculationNumber_(result.estimatedMeterRoll, 0) + ' M' : '—',
+        estimatedRoll: result.estimatedRoll ? formatCalculationNumber_(result.estimatedRoll, 0) + ' ROLL' : '—'
       };
     }
 
@@ -14939,7 +15387,7 @@
       card.classList.toggle('is-ready', Boolean(result.ok));
       card.classList.toggle('is-error', Boolean(!result.ok && result.error));
       status.textContent = result.ok ? 'Siap' : (result.error ? 'Periksa isian' : 'Belum lengkap');
-      message.textContent = result.message || 'Lengkapi data perhitungan.';
+      if (message) message.textContent = result.message || 'Lengkapi data perhitungan.';
 
       setCalculationMetric_('calcSheetTitle', sheetView.title);
       setCalculationMetric_('calcSheetCategory', sheetView.categoryText);
@@ -14953,6 +15401,9 @@
       setCalculationMetric_('calcJenisFilm', sheetView.jenisFilm);
       setCalculationMetric_('calcDensity', sheetView.density);
       setCalculationMetric_('calcMeterPerKg', sheetView.meterPerKg);
+      setCalculationMetric_('calcTargetKgRoll', sheetView.targetKgRoll);
+      setCalculationMetric_('calcEstimatedMeterRoll', sheetView.estimatedMeterRoll);
+      setCalculationMetric_('calcEstimatedRoll', sheetView.estimatedRoll);
     }
 
     // Rumus PCS/KG di Database: 5444 / panjang / tebal / lebar (kolom M-O).
@@ -17138,6 +17589,23 @@
             values[fieldId] = String(value === null || value === undefined ? '' : value);
           });
 
+          // Database V2 menyimpan BS routing sebagai targetBs, sedangkan
+          // kalkulasi modal membaca daftar BS per langkah (bsDaftar-*).
+          // Konversi di titik restore agar data Repeat dan data lama tetap
+          // masuk ke state routing yang sama.
+          const targetBs = source.targetBs && typeof source.targetBs === 'object'
+            ? source.targetBs
+            : null;
+          const bsListField = 'bsDaftar-' + key;
+          if (targetBs && key !== 'mixer' && !Object.prototype.hasOwnProperty.call(values, bsListField)) {
+            const targetEntries = BS_LIST.map(function(item) {
+              const raw = targetBs[item.key];
+              if (raw === undefined || raw === null || String(raw).trim() === '') return null;
+              return { key: item.key, value: String(raw) };
+            }).filter(Boolean);
+            if (targetEntries.length) values[bsListField] = JSON.stringify(targetEntries);
+          }
+
           normalizeRoutingBsValues_(key, values, {
             preserveExplicitEmpty: Object.prototype.hasOwnProperty.call(source, 'bsDaftar-' + key)
           });
@@ -18100,7 +18568,11 @@
         tanggal: String(entry && entry.tanggal ? entry.tanggal : ''),
         mode: mode,
         jumlah: entry && entry.jumlah !== null && entry.jumlah !== undefined ? entry.jumlah : '',
-        uom: String(entry && entry.uom ? entry.uom : '').toUpperCase()
+        uom: String(
+          entry && entry.uom
+            ? entry.uom
+            : (getFieldValue_('uomOrder') || 'PCS')
+        ).toUpperCase()
       });
     }
 
@@ -18126,6 +18598,15 @@
       row[field] = value;
       refreshJadwalComputed_();
       updateWizardState_();
+    }
+
+    function handleJadwalJumlahInput_(id, input) {
+      if (!input) return;
+      const raw = String(input.value || '').replace(/[^0-9,.-]/g, '');
+      const value = parseCalculationNumber_(raw);
+      const display = value === null ? raw : formatCalculationNumber_(value, 2, 0);
+      input.value = display;
+      updatePengiriman(id, 'jumlah', display);
     }
 
     function setJadwalMode_(id, mode) {
@@ -18293,8 +18774,8 @@
         // Nilai dan satuannya memakai bentuk input-pair yang sama dengan
         // Order, Keluar Bahan, dan Jenis Bahan di Data Utama.
         const kolomNilai = isCustom
-          ? `<input type="number" min="0" step="any" class="field-input" value="${escapeAttr_(row.jumlah)}" placeholder="0" aria-label="Jumlah tahap ${index + 1}" oninput="updatePengiriman(${row.id},'jumlah',this.value)">`
-          : `<input type="text" class="field-input is-readonly" data-jadwal-full="${row.id}" value="${escapeAttr_(nilaiFull === null ? '' : formatCalculationNumber_(nilaiFull, 2, 0))}" placeholder="Ikut Jumlah Pesanan" readonly tabindex="-1" aria-label="Jumlah tahap ${index + 1}, mengikuti sisa order">`;
+          ? `<input type="text" inputmode="decimal" class="field-input" value="${escapeAttr_(row.jumlah ? formatCalculationNumber_(parseCalculationNumber_(row.jumlah), 2, 0) : '')}" placeholder="0" aria-label="Jumlah tahap ${index + 1}" oninput="handleJadwalJumlahInput_(${row.id}, this)">`
+          : `<input type="text" class="field-input is-readonly" data-jadwal-full="${row.id}" value="${escapeAttr_(nilaiFull === null ? '' : formatCalculationNumber_(nilaiFull, 2, 0))}" placeholder="Sesuai Order" readonly tabindex="-1" aria-label="Jumlah tahap ${index + 1}, sesuai order">`;
 
         // Tombol hapus ditaruh di ujung baris label kolom Nilai, bukan pada
         // baris judul tersendiri, sehingga tinggi tiap tahap berkurang satu
@@ -19153,3 +19634,4 @@
     <script src="footer-reveal.js?v=20260813-1"></script>
 </body>
 </html>
+    text-align: center;

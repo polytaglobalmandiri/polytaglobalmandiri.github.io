@@ -93,6 +93,7 @@
   var BANNER_TEXT_ERROR = "Terjadi kendala — sebagian fitur mungkin tidak berjalan";
 
   var root = document.documentElement;
+  var pageStartedAt = Date.now();
   var bannerEl = null;
   var bannerTextEl = null;
   var bannerTimer = null;
@@ -638,6 +639,23 @@
     return "";
   }
 
+  function isIntentionalPageTransition() {
+    if (document.documentElement.getAttribute("data-pgm-navigating") === "true") return true;
+
+    // Ketika halaman aplikasi baru dibuka dari portal PPIC, browser dapat
+    // menyelesaikan pembatalan resource milik dokumen sebelumnya sesaat
+    // setelah dokumen baru mulai dirakit. Kegagalan data yang nyata tetap
+    // ditangani oleh PolytaStatus.loadFailed setelah fase awal ini.
+    if (Date.now() - pageStartedAt > 2500 || !document.referrer) return false;
+    try {
+      var referrer = new URL(document.referrer);
+      return referrer.origin === window.location.origin &&
+        /\/pages\/ppic\/?$/i.test(referrer.pathname);
+    } catch (error) {
+      return false;
+    }
+  }
+
   /**
    * Peringatan dari ResizeObserver dapat dikirim sebagai galat global oleh
    * Chromium/WebView2 ketika tata letak masih berubah pada saat halaman
@@ -646,6 +664,8 @@
    * Pembatalan proses oleh peramban juga diperlakukan sama.
    */
   function isBenignError(error, event) {
+    if (isIntentionalPageTransition()) return true;
+
     var detail = describeError(error);
     var normalized = detail.toLowerCase();
 

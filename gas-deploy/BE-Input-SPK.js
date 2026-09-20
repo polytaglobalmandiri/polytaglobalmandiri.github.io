@@ -1426,6 +1426,9 @@ function saveProductionMixerEntry(payload) {
         return String(item['Routing ID'] || '').trim() === routingId;
       });
       if (!routing) throw new Error('Routing Mixer tidak ditemukan untuk SPK tersebut.');
+      if (String(routing.Status || '').trim().toUpperCase() === 'SELESAI') {
+        throw new Error('Hasil produksi Mixer yang sudah selesai tidak dapat diubah.');
+      }
       let payloadJson = {};
       try { payloadJson = JSON.parse(String(routing['Payload JSON'] || '{}')); } catch (error) {}
       payloadJson.production = {

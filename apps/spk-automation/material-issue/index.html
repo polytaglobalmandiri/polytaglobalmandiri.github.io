@@ -3558,6 +3558,11 @@
       clearEtaModalValidation_();
       setEtaModalSaving_(false);
       syncEtaModalVisual_();
+      modal.dataset.locked = record.complete ? 'true' : 'false';
+      document.getElementById('etaSaveScheduleButton').disabled = Boolean(record.complete);
+      document.getElementById('etaSaveScheduleButton').innerHTML = record.complete
+        ? '<i class="fa-solid fa-lock" aria-hidden="true"></i><span>Terkunci</span>'
+        : '<i class="fa-solid fa-floppy-disk" aria-hidden="true"></i><span>Simpan Jadwal ETA</span>';
 
       modal.hidden = false;
       document.body.classList.add('eta-dialog-open');
@@ -3585,6 +3590,7 @@
     }
 
     function renderEtaScheduleRows_(record) {
+      const locked = Boolean(record && record.complete);
       return normalizeEtaEntries_(record).map(function(entry, index) {
         const hasQuantity = index < 5;
         const uom = entry.uom || '';
@@ -3604,6 +3610,7 @@
                 type="date"
                 value="${escapeAttr_(entry.eta)}"
                 aria-label="Tanggal ETA ${index + 1}"
+                ${locked ? 'disabled' : ''}
               >
             </label>
             <label class="eta-field">
@@ -3617,6 +3624,7 @@
                 placeholder="${hasQuantity ? 'Masukkan QTY' : '—'}"
                 aria-label="QTY ETA ${index + 1}"
                 ${hasQuantity ? '' : 'disabled'}
+                ${locked ? 'disabled' : ''}
               >
             </label>
             <label class="eta-field">
@@ -3775,7 +3783,7 @@
     }
 
     function saveEtaSchedule_() {
-      if (!etaModalRecord) return;
+      if (!etaModalRecord || etaModalRecord.complete) return;
       const schedule = readEtaModalSchedule_();
       if (!validateEtaModalSchedule_(schedule)) return;
 

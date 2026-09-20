@@ -1431,6 +1431,13 @@ function saveEtaBeliBahanScheduleByManager(payload) {
     if (!spk) return { status: 'error', message: 'Nomor SPK tidak valid.' };
     const normalized = normalizeDatabaseV2EtaSchedule_(payload);
     const result = mutateDatabaseV2Spk_(spk, 'ETA_SCHEDULE_NATIVE', function(aggregate) {
+      const currentRaw = String(aggregate.master['Keluar Bahan'] == null ? '' : aggregate.master['Keluar Bahan']).trim();
+      const currentNumber = numberOrEmptyForClient_(aggregate.master['Keluar Bahan']);
+      const currentUom = enumForClient_(aggregate.master['UOM KB'], ['KG', 'ROLL'], '');
+      if (/^AMBIL\s+STOK$/i.test(currentRaw) ||
+          (currentUom !== '' && currentNumber !== '' && Number(currentNumber) > 0)) {
+        throw new Error('Jadwal ETA untuk Keluar Bahan yang sudah lengkap tidak dapat diubah.');
+      }
       aggregate.eta = normalized.entries.map(function(entry) {
         return databaseV2EtaRecord_(spk, entry, normalized.keterangan);
       });
@@ -1468,6 +1475,13 @@ function updateEtaBeliBahanByManager(payload) {
       entry = { index: index, eta: eta, qty: qty, uom: uom, hasQuantity: true };
     }
     const result = mutateDatabaseV2Spk_(spk, 'ETA_SINGLE_NATIVE', function(aggregate) {
+      const currentRaw = String(aggregate.master['Keluar Bahan'] == null ? '' : aggregate.master['Keluar Bahan']).trim();
+      const currentNumber = numberOrEmptyForClient_(aggregate.master['Keluar Bahan']);
+      const currentUom = enumForClient_(aggregate.master['UOM KB'], ['KG', 'ROLL'], '');
+      if (/^AMBIL\s+STOK$/i.test(currentRaw) ||
+          (currentUom !== '' && currentNumber !== '' && Number(currentNumber) > 0)) {
+        throw new Error('Jadwal ETA untuk Keluar Bahan yang sudah lengkap tidak dapat diubah.');
+      }
       const existing = aggregate.eta.find(function(item) { return Number(item.Urutan) === index; });
       const note = existing ? valueOrEmpty_(existing.Keterangan) : '';
       aggregate.eta = aggregate.eta.filter(function(item) { return Number(item.Urutan) !== index; });

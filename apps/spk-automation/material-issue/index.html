@@ -5049,8 +5049,9 @@
 
     function renderRow_(item) {
       const statusClass = item.complete ? 'complete' : 'pending';
+      const isStockPickup = String(item.keluarBahan || '').trim().toUpperCase() === 'AMBIL STOK';
       const statusIcon = item.complete ? 'fa-circle-check' : 'fa-clock';
-      const statusLabel = item.complete ? 'Sudah lengkap' : 'Menunggu';
+      const statusLabel = isStockPickup ? 'Ambil Stok' : item.complete ? 'Sudah lengkap' : 'Menunggu';
       const uom = item.uomKB || '';
 
       return `
@@ -5085,12 +5086,13 @@
             <div class="editor">
               <input
                 class="editor-input js-keluar-bahan"
-                type="number"
+                type="${isStockPickup ? 'text' : 'number'}"
                 step="any"
                 min="0"
                 value="${escapeAttr_(item.keluarBahan)}"
                 placeholder="Jumlah"
                 aria-label="Jumlah keluar bahan untuk ${escapeAttr_(item.spk)}"
+                ${isStockPickup ? 'disabled title="Status dari file sumber: Ambil Stok"' : ''}
               >
               <select class="editor-select js-uom-kb" aria-label="UOM keluar bahan untuk ${escapeAttr_(item.spk)}">
                 <option value="" ${uom === '' ? 'selected' : ''}>UOM</option>
@@ -5103,7 +5105,7 @@
             ${renderEtaScheduleButton_(item)}
           </td>
           <td>
-            <button class="button save-button js-save-row" type="button">
+            <button class="button save-button js-save-row" type="button" ${isStockPickup ? 'disabled title="Status Ambil Stok berasal dari file sumber"' : ''}>
               <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
               <span>Simpan</span>
             </button>

@@ -1311,10 +1311,13 @@ function getKeluarBahanManagerData(forceRefresh) {
     let complete = 0;
     const data = masters.map(function(master) {
       const spk = normalizeDatabaseV2Key_(master.SPK);
-      const keluar = numberOrEmptyForClient_(master['Keluar Bahan']);
+      const keluarRaw = String(master['Keluar Bahan'] == null ? '' : master['Keluar Bahan']).trim();
+      const keluar = /^AMBIL\s+STOK$/i.test(keluarRaw)
+        ? 'Ambil Stok'
+        : numberOrEmptyForClient_(master['Keluar Bahan']);
       const uom = enumForClient_(master['UOM KB'], ['KG', 'ROLL'], '');
       const done = uom !== '' && (
-        Number(keluar) === 0 || (keluar !== '' && Number(keluar) > 0)
+        keluar === 'Ambil Stok' || (keluar !== '' && Number(keluar) > 0)
       );
       if (done) complete++; else pending++;
       const etaAggregate = { eta: etaBySpk[spk] || [] };

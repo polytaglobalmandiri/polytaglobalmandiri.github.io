@@ -138,7 +138,9 @@ function buildDatabaseV2MasterCandidate_(row, spk) {
     'Ukuran Jadi': valueOrEmpty_(row[DB_COL.UKURAN_JADI - 1]),
     'Jumlah Order': numberOrEmptyForClient_(row[DB_COL.JUMLAH_ORDER - 1]),
     'UOM Order': valueOrEmpty_(row[DB_COL.UOM_ORDER - 1]),
-    'Keluar Bahan': numberOrEmptyForClient_(row[DB_COL.KELUAR_BAHAN - 1]),
+    'Keluar Bahan': /^AMBIL\s+STOK$/i.test(String(row[DB_COL.KELUAR_BAHAN - 1] || '').trim())
+      ? 'Ambil Stok'
+      : numberOrEmptyForClient_(row[DB_COL.KELUAR_BAHAN - 1]),
     'UOM KB': valueOrEmpty_(row[DB_COL.UOM_KB - 1]),
     'Toleransi Order': databaseV2PercentFraction_(percentToInput_(row[DB_COL.TOLERANSI - 1])),
     'ETD': databaseV2DateInput_(row[DB_COL.ETD - 1]),

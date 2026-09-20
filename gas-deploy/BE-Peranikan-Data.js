@@ -1269,8 +1269,8 @@ function findKeluarBahanUOM(sheet) {
         .concat(displayData[r].slice(c + 1, Math.min(c + 13, displayData[r].length)))
         .map(function(value) { return normalizeKey(value); });
       if (nearbyText.some(function(value) { return value === 'AMBILSTOK'; })) {
-        // Ambil Stok hanya menandakan jumlah KB = 0. UOM tetap dibaca dari
-        // kolom UOM pada baris sumber yang sama.
+        // Ambil Stok adalah status teks. UOM tetap dibaca dari kolom UOM pada
+        // baris sumber yang sama; jangan mengubah status ini menjadi angka 0.
         let stockUom = '';
         for (let u = c + 1; u < Math.min(c + 13, data[r].length); u++) {
           const uomText = String(
@@ -1285,7 +1285,7 @@ function findKeluarBahanUOM(sheet) {
           }
         }
         candidates.push({
-          qty: 0,
+          qty: 'Ambil Stok',
           uom: stockUom,
           score: 120 - (r / 10000) - (c / 1000),
           row: r,

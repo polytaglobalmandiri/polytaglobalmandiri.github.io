@@ -581,11 +581,14 @@ function normalizeSpk_(value) {
 function normalizeSourceSpk_(value) {
   const normalized = normalizeSpk_(value);
   const matches = [];
-  const pattern = /(?:^|[^A-Z0-9])([A-Z]\d{2}\.\d{3})(?:\s+([B-Z])(?=\s|[-_]|\.|$))?/g;
+  const pattern = /(?:^|[^A-Z0-9])(?:(SMT|R\s*&\s*D)\s+)?([A-Z]\d{2}\.\d{3})(?:\s+([B-Z])(?=\s|[-_]|\.|$))?/g;
   let match;
 
   while ((match = pattern.exec(normalized)) !== null) {
-    matches.push(match[1] + (match[2] ? ' ' + match[2] : ''));
+    const prefix = match[1]
+      ? (match[1].replace(/\s+/g, '') === 'R&D' ? 'R & D ' : 'SMT ')
+      : '';
+    matches.push(prefix + match[2] + (match[3] ? ' ' + match[3] : ''));
   }
 
   const uniqueMatches = Array.from(new Set(matches));

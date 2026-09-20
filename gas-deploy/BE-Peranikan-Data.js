@@ -2877,14 +2877,14 @@ function extractData(targetFolderId, jobId, resumeIndex, resumeStats, targetFile
         // Bila nomor induknya sama, pertahankan varian nama file sebagai kunci
         // agar tiap file ditarik sebagai data terpisah dan tidak dianggap duplikat.
         if (sourceFile.spkHint && sourceFile.spkHint !== spkStr) {
-          const hintBase = String(sourceFile.spkHint).match(/^[A-Z]\d{2}\.\d{3}/);
-          const cellBase = String(spkStr).match(/^[A-Z]\d{2}\.\d{3}/);
-          const hintHasVariant = /^[A-Z]\d{2}\.\d{3}\s+[B-Z]$/.test(sourceFile.spkHint);
-          const cellHasVariant = /^[A-Z]\d{2}\.\d{3}\s+[B-Z]$/.test(spkStr);
+          const hintBase = String(sourceFile.spkHint).match(/[A-Z]\d{2}\.\d{3}/);
+          const cellBase = String(spkStr).match(/[A-Z]\d{2}\.\d{3}/);
+          const hintHasQualifier = sourceFile.spkHint !== (hintBase ? hintBase[0] : '');
+          const cellHasQualifier = spkStr !== (cellBase ? cellBase[0] : '');
 
           if (
-            hintHasVariant &&
-            !cellHasVariant &&
+            hintHasQualifier &&
+            !cellHasQualifier &&
             hintBase &&
             cellBase &&
             hintBase[0] === cellBase[0]

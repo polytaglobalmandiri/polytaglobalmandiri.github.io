@@ -5049,8 +5049,9 @@
 
     function renderRow_(item) {
       const statusClass = item.complete ? 'complete' : 'pending';
+      const isStockPickup = item.uomKB === 'STOK';
       const statusIcon = item.complete ? 'fa-circle-check' : 'fa-clock';
-      const statusLabel = item.complete ? 'Sudah lengkap' : 'Menunggu';
+      const statusLabel = isStockPickup ? 'Ambil Stok' : item.complete ? 'Sudah lengkap' : 'Menunggu';
       const uom = item.uomKB || '';
 
       return `
@@ -5096,6 +5097,7 @@
                 <option value="" ${uom === '' ? 'selected' : ''}>UOM</option>
                 <option value="KG" ${uom === 'KG' ? 'selected' : ''}>KG</option>
                 <option value="ROLL" ${uom === 'ROLL' ? 'selected' : ''}>ROLL</option>
+                <option value="STOK" ${uom === 'STOK' ? 'selected' : ''}>Ambil Stok</option>
               </select>
             </div>
           </td>
@@ -5103,7 +5105,7 @@
             ${renderEtaScheduleButton_(item)}
           </td>
           <td>
-            <button class="button save-button js-save-row" type="button">
+            <button class="button save-button js-save-row" type="button" ${isStockPickup ? 'disabled title="Ambil Stok sudah ditetapkan dari file sumber"' : ''}>
               <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
               <span>Simpan</span>
             </button>

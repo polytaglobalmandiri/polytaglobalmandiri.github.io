@@ -1262,6 +1262,17 @@ function findKeluarBahanUOM(sheet) {
       const labelKey = normalizeKey(data[r][c]);
       if (!acceptedLabels[labelKey]) continue;
 
+      // "Ambil Stok" adalah instruksi yang valid, bukan KB yang belum diatur.
+      // Simpan sebagai UOM khusus agar informasi ini tidak hilang saat ekstraksi.
+      const nearbyText = data[r]
+        .slice(c + 1, Math.min(c + 13, data[r].length))
+        .concat(displayData[r].slice(c + 1, Math.min(c + 13, displayData[r].length)))
+        .map(function(value) { return normalizeKey(value); });
+      if (nearbyText.some(function(value) { return value === 'AMBILSTOK'; })) {
+        candidates.push({ qty: 0, uom: 'STOK', score: 120 - (r / 10000) - (c / 1000), row: r, col: c });
+        continue;
+      }
+
       const parsed = parseQtyUOMFromRow(
         data[r],
         displayData[r],

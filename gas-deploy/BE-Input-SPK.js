@@ -1312,8 +1312,10 @@ function getKeluarBahanManagerData(forceRefresh) {
     const data = masters.map(function(master) {
       const spk = normalizeDatabaseV2Key_(master.SPK);
       const keluar = numberOrEmptyForClient_(master['Keluar Bahan']);
-      const uom = enumForClient_(master['UOM KB'], ['KG', 'ROLL', 'STOK'], '');
-      const done = uom === 'STOK' || (keluar !== '' && Number(keluar) > 0 && uom !== '');
+      const uom = enumForClient_(master['UOM KB'], ['KG', 'ROLL'], '');
+      const done = uom !== '' && (
+        Number(keluar) === 0 || (keluar !== '' && Number(keluar) > 0)
+      );
       if (done) complete++; else pending++;
       const etaAggregate = { eta: etaBySpk[spk] || [] };
       const etaEntries = getDatabaseV2EtaEntries_(etaAggregate);

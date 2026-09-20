@@ -1269,7 +1269,28 @@ function findKeluarBahanUOM(sheet) {
         .concat(displayData[r].slice(c + 1, Math.min(c + 13, displayData[r].length)))
         .map(function(value) { return normalizeKey(value); });
       if (nearbyText.some(function(value) { return value === 'AMBILSTOK'; })) {
-        candidates.push({ qty: 0, uom: 'STOK', score: 120 - (r / 10000) - (c / 1000), row: r, col: c });
+        // Ambil Stok hanya menandakan jumlah KB = 0. UOM tetap dibaca dari
+        // kolom UOM pada baris sumber yang sama.
+        let stockUom = '';
+        for (let u = c + 1; u < Math.min(c + 13, data[r].length); u++) {
+          const uomText = String(
+            displayData[r][u] !== null && displayData[r][u] !== undefined &&
+            String(displayData[r][u]).trim() !== ''
+              ? displayData[r][u]
+              : data[r][u]
+          ).trim();
+          if (isLikelyUOM(uomText)) {
+            stockUom = cleanUOM(uomText);
+            break;
+          }
+        }
+        candidates.push({
+          qty: 0,
+          uom: stockUom,
+          score: 120 - (r / 10000) - (c / 1000),
+          row: r,
+          col: c
+        });
         continue;
       }
 

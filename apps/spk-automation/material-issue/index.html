@@ -5053,6 +5053,7 @@
       const statusIcon = item.complete ? 'fa-circle-check' : 'fa-clock';
       const statusLabel = isStockPickup ? 'Ambil Stok' : item.complete ? 'Sudah lengkap' : 'Menunggu';
       const uom = item.uomKB || '';
+      const locked = item.complete;
 
       return `
         <tr
@@ -5092,9 +5093,9 @@
                 value="${escapeAttr_(item.keluarBahan)}"
                 placeholder="Jumlah"
                 aria-label="Jumlah keluar bahan untuk ${escapeAttr_(item.spk)}"
-                ${isStockPickup ? 'disabled title="Status dari file sumber: Ambil Stok"' : ''}
+                ${locked ? 'disabled title="Keluar Bahan sudah lengkap"' : ''}
               >
-              <select class="editor-select js-uom-kb" aria-label="UOM keluar bahan untuk ${escapeAttr_(item.spk)}">
+              <select class="editor-select js-uom-kb" aria-label="UOM keluar bahan untuk ${escapeAttr_(item.spk)}" ${locked ? 'disabled' : ''}>
                 <option value="" ${uom === '' ? 'selected' : ''}>UOM</option>
                 <option value="KG" ${uom === 'KG' ? 'selected' : ''}>KG</option>
                 <option value="ROLL" ${uom === 'ROLL' ? 'selected' : ''}>ROLL</option>
@@ -5105,9 +5106,9 @@
             ${renderEtaScheduleButton_(item)}
           </td>
           <td>
-            <button class="button save-button js-save-row" type="button" ${isStockPickup ? 'disabled title="Status Ambil Stok berasal dari file sumber"' : ''}>
-              <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
-              <span>Simpan</span>
+            <button class="button save-button js-save-row" type="button" ${locked ? 'disabled title="Keluar Bahan sudah lengkap"' : ''}>
+              <i class="fa-solid ${locked ? 'fa-lock' : 'fa-floppy-disk'}" aria-hidden="true"></i>
+              ${locked ? '' : '<span>Simpan</span>'}
             </button>
           </td>
         </tr>

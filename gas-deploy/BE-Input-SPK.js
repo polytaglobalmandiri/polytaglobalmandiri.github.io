@@ -1309,7 +1309,11 @@ function getKeluarBahanManagerData(forceRefresh) {
     });
     let pending = 0;
     let complete = 0;
-    const data = masters.map(function(master) {
+    const data = masters
+      .filter(function(master) {
+        return String(master.Tracking || '').trim().toUpperCase() === 'Q';
+      })
+      .map(function(master) {
       const spk = normalizeDatabaseV2Key_(master.SPK);
       const keluarRaw = String(master['Keluar Bahan'] == null ? '' : master['Keluar Bahan']).trim();
       const keluar = /^AMBIL\s+STOK$/i.test(keluarRaw)
@@ -1492,6 +1496,12 @@ function updateKeluarBahanByManager(payload) {
     if (!(keluarBahan > 0)) return { status: 'error', message: 'Keluar Bahan wajib berupa angka lebih dari 0.' };
     if (['KG', 'ROLL'].indexOf(uomKB) === -1) return { status: 'error', message: 'UOM Keluar Bahan harus KG atau ROLL.' };
     const result = mutateDatabaseV2Spk_(spk, 'KELUAR_BAHAN_NATIVE', function(aggregate) {
+      const currentRaw = String(aggregate.master['Keluar Bahan'] == null ? '' : aggregate.master['Keluar Bahan']).trim();
+      const currentNumber = numberOrEmptyForClient_(aggregate.master['Keluar Bahan']);
+      const currentUom = enumForClient_(aggregate.master['UOM KB'], ['KG', 'ROLL'], '');
+      const alreadyComplete = /^AMBIL\s+STOK$/i.test(currentRaw) ||
+        (currentUom !== '' && currentNumber !== '' && Number(currentNumber) > 0);
+      if (alreadyComplete) throw new Error('Keluar Bahan yang sudah lengkap tidak dapat diubah.');
       aggregate.master['Keluar Bahan'] = keluarBahan;
       aggregate.master['UOM KB'] = uomKB;
       if (aggregate.material.length === 1 && !aggregate.material[0].KG) aggregate.material[0].KG = keluarBahan;

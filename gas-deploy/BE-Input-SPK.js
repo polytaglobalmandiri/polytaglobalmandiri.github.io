@@ -1415,7 +1415,16 @@ function saveProductionMixerEntry(payload) {
     const mesin = String(payload && payload.mesin || '').trim();
     const shift = String(payload && payload.shift || '').trim();
     const operator = String(payload && payload.operator || '').trim();
-    const pemakaianBahan = String(payload && payload.pemakaianBahan || '').trim();
+    const pemakaianBahan = Array.isArray(payload && payload.pemakaianBahan)
+      ? payload.pemakaianBahan.map(function(item) {
+        return {
+          nama: String(item && item.nama || '').trim(),
+          resin: String(item && item.resin || '').trim(),
+          kode: String(item && item.kode || '').trim(),
+          kg: parseCalculationNumber_(item && item.kg)
+        };
+      }).filter(function(item) { return item.nama || item.resin || item.kode || item.kg > 0; })
+      : String(payload && payload.pemakaianBahan || '').trim();
     const keterangan = String(payload && payload.keterangan || '').trim();
     if (!spk || !routingId) return { status: 'error', message: 'SPK dan routing Mixer wajib diisi.' };
     if (!(hasilProduksi >= 0)) return { status: 'error', message: 'Hasil produksi wajib berupa angka 0 atau lebih.' };
@@ -1439,7 +1448,9 @@ function saveProductionMixerEntry(payload) {
         mesin: mesin,
         shift: shift,
         operator: operator,
-        pemakaianBahan: pemakaianBahan ? pemakaianBahan.split(/\n|;/).map(function(item) { return item.trim(); }).filter(Boolean) : [],
+        pemakaianBahan: Array.isArray(pemakaianBahan)
+          ? pemakaianBahan
+          : pemakaianBahan ? pemakaianBahan.split(/\n|;/).map(function(item) { return item.trim(); }).filter(Boolean) : [],
         keterangan: keterangan,
         updatedAt: new Date().toISOString()
       };

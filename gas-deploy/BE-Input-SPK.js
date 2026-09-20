@@ -1353,6 +1353,56 @@ function getKeluarBahanManagerData(forceRefresh) {
   }
 }
 
+function getProductionMixerData(forceRefresh) {
+  try {
+    const book = SpreadsheetApp.openById(DB_SPREADSHEET_ID);
+    const masters = readDatabaseV2Table_('master', book).records;
+    const routings = readDatabaseV2Table_('routing', book).records;
+    const masterBySpk = {};
+    masters.forEach(function(master) {
+      const spk = normalizeDatabaseV2Key_(master.SPK);
+      if (spk) masterBySpk[spk] = master;
+    });
+    const data = routings
+      .filter(function(routing) {
+        const process = String(routing['Kode Proses'] || routing['Nama Proses'] || '').trim().toUpperCase();
+        const master = masterBySpk[normalizeDatabaseV2Key_(routing.SPK)];
+        return master && String(master.Tracking || '').trim().toUpperCase() === 'Q' &&
+          /MIX|MIXER/.test(process);
+      })
+      .map(function(routing) {
+        const master = masterBySpk[normalizeDatabaseV2Key_(routing.SPK)];
+        const spk = normalizeDatabaseV2Key_(master.SPK);
+        return {
+          spk: spk,
+          tanggal: dateToInput_(master.Tanggal),
+          customer: valueOrEmpty_(master.Customer),
+          artikel: valueOrEmpty_(master.Artikel),
+          material: valueOrEmpty_(master.Material),
+          ukuran: valueOrEmpty_(master['Ukuran Jadi'] || master['Ukuran Blow']),
+          jumlahOrder: numberOrEmptyForClient_(master['Jumlah Order']),
+          uomOrder: valueOrEmpty_(master['UOM Order']),
+          routingId: valueOrEmpty_(routing['Routing ID']),
+          urutan: Number(routing.Urutan) || 0,
+          mesin: valueOrEmpty_(routing.Mesin),
+          statusRouting: valueOrEmpty_(routing.Status),
+          operator: valueOrEmpty_(routing.Operator),
+          keterangan: valueOrEmpty_(routing.Keterangan),
+          hasilSebelumnya: '',
+          hasilProduksi: '',
+          pemakaianBahan: [],
+          status: 'pending'
+        };
+      });
+    data.sort(function(a, b) {
+      return buildSpkSortKey_(a.spk, 0).localeCompare(buildSpkSortKey_(b.spk, 0)) || a.urutan - b.urutan;
+    });
+    return { status: 'success', data: data, summary: { total: data.length, pending: data.length, done: 0 } };
+  } catch (error) {
+    return { status: 'error', data: [], summary: { total: 0, pending: 0, done: 0 }, message: error.message };
+  }
+}
+
 function getKeluarBahanManagerDetail(spk, preferredRowNumber) {
   try {
     const startedAt = Date.now();

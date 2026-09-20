@@ -990,12 +990,6 @@
       font-size: .7rem;
     }
 
-    .mode-toggle-danger {
-      border-color: #b85d5d;
-      background: linear-gradient(180deg, #fff4f2, #efd3cf);
-      color: #6f1717;
-    }
-
     .action-button {
       width: 100%;
       min-height: 47px;
@@ -2048,17 +2042,10 @@
           </div>
 
           <label class="mode-toggle" for="modeLengkapi">
-            <input type="checkbox" id="modeLengkapi" onchange="handleExtractionModeChange_('backfill')">
+            <input type="checkbox" id="modeLengkapi" onchange="syncExtractionControls_()">
             <span>
               <strong>Mode Lengkapi Data Lama</strong>
               Isi warna tinta, keterangan artikel, keterangan divisi, dan kode barang untuk SPK yang sudah ada di Basis Data. Hanya sel yang masih kosong yang diisi; kolom lain dan hasil sunting manual tidak disentuh.
-            </span>
-          </label>
-          <label class="mode-toggle mode-toggle-danger" for="modeBangunUlang">
-            <input type="checkbox" id="modeBangunUlang" onchange="handleExtractionModeChange_('rebuild')">
-            <span>
-              <strong>Mode Bangun Ulang Database</strong>
-              Buat cadangan spreadsheet, kosongkan seluruh tabel SPK V2, lalu tarik ulang semua berkas dalam direktori ini. Gunakan hanya untuk pembangunan ulang penuh.
             </span>
           </label>
           <button id="btnTarik" class="action-button" type="button" onclick="ekstrakDataFolder()" disabled>
@@ -2587,29 +2574,15 @@
       return Boolean(toggle && toggle.checked);
     }
 
-    function isRebuildMode_() {
-      const toggle = document.getElementById('modeBangunUlang');
-      return Boolean(toggle && toggle.checked);
-    }
-
-    function handleExtractionModeChange_(mode) {
-      const backfill = document.getElementById('modeLengkapi');
-      const rebuild = document.getElementById('modeBangunUlang');
-      if (mode === 'rebuild' && rebuild.checked) backfill.checked = false;
-      if (mode === 'backfill' && backfill.checked) rebuild.checked = false;
-      syncExtractionControls_();
-    }
-
     function syncExtractionControls_() {
       const busy = Boolean(currentExtractionJobId);
       const backfill = isBackfillMode_();
-      const rebuild = isRebuildMode_();
       const folderButton = document.getElementById('btnTarik');
       folderButton.disabled = busy || pathHistory.length === 0;
 
       document.querySelectorAll('.source-file-action').forEach(button => {
         const inDatabase = button.dataset.inDatabase === 'true';
-        button.disabled = busy || rebuild || (backfill ? !inDatabase : inDatabase);
+        button.disabled = busy || (backfill ? !inDatabase : inDatabase);
 
         if (backfill && inDatabase) {
           button.title = 'Lengkapi data lama SPK ini (isi kolom baru yang masih kosong)';
@@ -2771,40 +2744,17 @@
     }
 
     function ekstrakDataFolder() {
-      if (!isRebuildMode_()) {
-        beginExtraction_('', '', '');
-        return;
-      }
-
-      Swal.fire({
-        icon: 'warning',
-        title: 'Bangun Ulang Seluruh Database?',
-        html: 'Spreadsheet akan dicadangkan terlebih dahulu, lalu seluruh tabel SPK V2 dikosongkan dan diisi ulang dari direktori ini.<br><br>Ketik <strong>BANGUN ULANG DATABASE</strong> untuk melanjutkan.',
-        input: 'text',
-        inputPlaceholder: 'BANGUN ULANG DATABASE',
-        showCancelButton: true,
-        confirmButtonText: 'Cadangkan dan Bangun Ulang',
-        cancelButtonText: 'Batal',
-        preConfirm: value => {
-          if (String(value || '').trim().toUpperCase() !== 'BANGUN ULANG DATABASE') {
-            Swal.showValidationMessage('Teks konfirmasi belum sesuai.');
-            return false;
-          }
-          return String(value).trim().toUpperCase();
-        }
-      }).then(result => {
-        if (result.isConfirmed) beginExtraction_('', '', result.value);
-      });
+      beginExtraction_('', '');
     }
 
     function ekstrakDataFile(fileId, fileName) {
       const safeFileId = String(fileId || '').trim();
       if (!safeFileId) return;
 
-      beginExtraction_(safeFileId, String(fileName || 'Berkas SPK'), '');
+      beginExtraction_(safeFileId, String(fileName || 'Berkas SPK'));
     }
 
-    function beginExtraction_(targetFileId, targetFileName, rebuildConfirmation) {
+    function beginExtraction_(targetFileId, targetFileName) {
       if (!pathHistory.length) return;
 
       const currentFolderId = pathHistory[pathHistory.length - 1].id;
@@ -2869,8 +2819,7 @@
             currentFolderId,
             requestedJobId,
             safeFileId || null,
-            isRebuildMode_() ? 'rebuild' : (isBackfillMode_() ? 'backfill' : 'sync'),
-            rebuildConfirmation || ''
+            isBackfillMode_() ? 'backfill' : 'sync'
           );
       } else {
         startProgress(currentExtractionJobId);

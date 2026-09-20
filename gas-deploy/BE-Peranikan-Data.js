@@ -1,5 +1,4 @@
 const ROOT_FOLDER_ID = '1WTtXUVBjpSlW1nJZpcMdjjk-LHQlOH4E';
-const EXTRACTION_REBUILD_CONFIRMATION_ = 'BANGUN ULANG DATABASE';
 
 // doGet function has been moved to BE-Dashboard.js to handle routing centrally
 
@@ -2060,68 +2059,17 @@ function getActiveExtractionJob() {
   }
 }
 
-function backupAndClearDatabaseV2ForRebuild_() {
-  const spreadsheet = SpreadsheetApp.openById(DB_SPREADSHEET_ID);
-  const sourceFile = DriveApp.getFileById(DB_SPREADSHEET_ID);
-  const timestamp = Utilities.formatDate(
-    new Date(),
-    Session.getScriptTimeZone() || 'Asia/Jakarta',
-    'yyyy-MM-dd_HH-mm-ss'
-  );
-  const backupName = 'BACKUP Database SPK sebelum bangun ulang ' + timestamp;
-  const parents = sourceFile.getParents();
-  const backupFile = parents.hasNext()
-    ? sourceFile.makeCopy(backupName, parents.next())
-    : sourceFile.makeCopy(backupName);
-  const cleared = {};
-
-  Object.keys(DB_V2_SCHEMA).forEach(function(tableKey) {
-    const table = openDatabaseV2Table_(tableKey, spreadsheet);
-    const rowCount = Math.max(0, table.sheet.getLastRow() - table.headerRow);
-    cleared[table.schema.sheet] = rowCount;
-    if (rowCount > 0) {
-      table.sheet
-        .getRange(table.headerRow + 1, 1, rowCount, table.sheet.getLastColumn())
-        .clearContent();
-    }
-  });
-
-  SpreadsheetApp.flush();
-  if (typeof clearDashboardCache_ === 'function') clearDashboardCache_();
-  if (typeof clearKeluarBahanCache_ === 'function') clearKeluarBahanCache_();
-  if (typeof clearMarketingOptionsCache_ === 'function') clearMarketingOptionsCache_();
-
-  return {
-    fileId: backupFile.getId(),
-    fileName: backupFile.getName(),
-    fileUrl: backupFile.getUrl(),
-    cleared: cleared
-  };
-}
-
-function beginExtractionJob(targetFolderId, requestedJobId, targetFileId, extractionMode, rebuildConfirmation) {
+function beginExtractionJob(targetFolderId, requestedJobId, targetFileId, extractionMode) {
   let registrationLock = null;
 
   try {
     const folderId = String(targetFolderId || '').trim();
     const jobId = normalizeExtractionJobId_(requestedJobId);
     const fileId = String(targetFileId || '').trim();
-    const requestedMode = String(extractionMode || '').trim().toLowerCase();
-    const mode = requestedMode === 'backfill'
-      ? 'backfill'
-      : (requestedMode === 'rebuild' ? 'rebuild' : 'sync');
+    const mode = String(extractionMode || '').trim() === 'backfill' ? 'backfill' : 'sync';
 
     if (folderId === '') throw new Error('ID Folder tidak ditemukan.');
     if (jobId === '') throw new Error('ID proses penarikan tidak valid.');
-    if (mode === 'rebuild' && fileId !== '') {
-      throw new Error('Bangun Ulang Database hanya dapat dijalankan untuk seluruh folder.');
-    }
-    if (
-      mode === 'rebuild' &&
-      String(rebuildConfirmation || '').trim().toUpperCase() !== EXTRACTION_REBUILD_CONFIRMATION_
-    ) {
-      throw new Error('Konfirmasi Bangun Ulang Database tidak valid.');
-    }
 
     const existingResponse = getActiveExtractionJob();
     if (
@@ -2160,12 +2108,6 @@ function beginExtractionJob(targetFolderId, requestedJobId, targetFileId, extrac
     const folder = DriveApp.getFolderById(folderId);
     const selectedSources = selectExtractionSourceFiles_(folder, fileId);
     const selectedFile = fileId === '' ? null : selectedSources[0];
-    if (mode === 'rebuild' && selectedSources.length === 0) {
-      throw new Error('Folder tidak memiliki file SPK yang dapat ditarik. Database tidak diubah.');
-    }
-    const rebuildBackup = mode === 'rebuild'
-      ? backupAndClearDatabaseV2ForRebuild_()
-      : null;
     const nowIso = new Date().toISOString();
     const job = saveActiveExtractionJob_({
       jobId: jobId,
@@ -2175,8 +2117,6 @@ function beginExtractionJob(targetFolderId, requestedJobId, targetFileId, extrac
       extractionMode: mode,
       fileId: selectedFile ? selectedFile.id : '',
       fileName: selectedFile ? selectedFile.name : '',
-      backupFileId: rebuildBackup ? rebuildBackup.fileId : '',
-      backupFileName: rebuildBackup ? rebuildBackup.fileName : '',
       status: 'preparing',
       nextIndex: 0,
       resumeStats: null,
@@ -2197,9 +2137,7 @@ function beginExtractionJob(targetFolderId, requestedJobId, targetFileId, extrac
       currentFile: selectedFile ? selectedFile.name : '',
       message: selectedFile
         ? 'Menyiapkan file ' + selectedFile.name + '...'
-        : (mode === 'rebuild'
-          ? 'Cadangan dibuat. Memindai ulang seluruh file sumber...'
-          : 'Memindai file sumber...')
+        : 'Memindai file sumber...'
     };
 
     updateExtractionProgress_(jobId, initialProgress);
@@ -2727,10 +2665,9 @@ function extractData(targetFolderId, jobId, resumeIndex, resumeStats, targetFile
       }
 
       effectiveFileId = registeredFileId;
-      const registeredMode = String(registeredJob.extractionMode || '');
-      effectiveMode = registeredMode === 'backfill'
+      effectiveMode = String(registeredJob.extractionMode || '') === 'backfill'
         ? 'backfill'
-        : (registeredMode === 'rebuild' ? 'rebuild' : 'sync');
+        : 'sync';
     }
 
     if (!registeredJob || registeredJob.jobId !== safeJobId) {

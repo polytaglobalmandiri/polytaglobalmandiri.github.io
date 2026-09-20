@@ -1395,6 +1395,9 @@ function getProductionMixerData(forceRefresh) {
           hasilSebelumnya: numberOrEmptyForClient_(production.hasilSebelumnya),
           hasilProduksi: numberOrEmptyForClient_(production.hasilProduksi),
           pemakaianBahan: Array.isArray(production.pemakaianBahan) ? production.pemakaianBahan : [],
+          totalPemakaian: Array.isArray(production.pemakaianBahan)
+            ? production.pemakaianBahan.reduce(function(total, item) { return total + (Number(item && item.kg) || 0); }, 0)
+            : 0,
           status: String(routing.Status || '').trim().toUpperCase() === 'SELESAI' ? 'done' : 'pending'
         };
       });

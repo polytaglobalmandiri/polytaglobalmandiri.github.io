@@ -28,6 +28,9 @@ var APPROVAL_LOG_HEADERS_ = [
 
 var APPROVAL_ROLES_ = {
   admin_ppic: { label: 'Admin PPIC / Pembuat', department: 'PPIC' },
+  admin_produksi: { label: 'Admin Produksi', department: 'Produksi' },
+  operator_produksi: { label: 'Operator Produksi', department: 'Produksi' },
+  head_mixer: { label: 'Kepala Mixer', department: 'Mixer' },
   head_blowing: { label: 'Kepala Blowing', department: 'Blowing' },
   head_printing: { label: 'Kepala Printing', department: 'Printing' },
   head_slitting: { label: 'Kepala Slitting', department: 'Slitting' },

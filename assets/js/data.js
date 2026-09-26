@@ -108,6 +108,7 @@ const SITE = {
             { label: "Persetujuan SPK", url: "/apps/spk-automation/approval/", type: "script", icon: "check" },
             { label: "Bahan & Tinta", url: "/apps/spk-automation/material-management/", type: "script", icon: "flask" },
             { label: "Keluar Bahan", url: "/apps/spk-automation/material-issue/", type: "script", icon: "truck" },
+            { label: "Schedule Produksi", url: "/apps/spk-automation/schedule/", type: "script", icon: "calendar" },
             { label: "Produksi", url: "/apps/spk-automation/production/", type: "script", icon: "factory" },
             { label: "Penarikan Data", url: "/apps/spk-automation/data-retrieval/", type: "script", icon: "download" },
             { label: "Serah Terima", url: "/apps/spk-automation/handover/", type: "script", icon: "clipboard" }

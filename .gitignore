@@ -20,6 +20,7 @@ installer/.build/
 tools/.build-spk/
 .cache/
 *.log
+/gas-deploy/.clasp.json
 /android/.build/
 *.apk.idsig
 *.jks

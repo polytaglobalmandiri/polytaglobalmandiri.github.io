@@ -1394,6 +1394,7 @@ function getProductionMixerData(forceRefresh) {
           keterangan: valueOrEmpty_(routing.Keterangan),
           hasilSebelumnya: numberOrEmptyForClient_(production.hasilSebelumnya),
           hasilProduksi: numberOrEmptyForClient_(production.hasilProduksi),
+          riwayatProduksi: Array.isArray(production.riwayatProduksi) ? production.riwayatProduksi : [],
           pemakaianBahan: Array.isArray(production.pemakaianBahan) ? production.pemakaianBahan : [],
           totalPemakaian: Array.isArray(production.pemakaianBahan)
             ? production.pemakaianBahan.reduce(function(total, item) { return total + (Number(item && item.kg) || 0); }, 0)
@@ -1443,6 +1444,19 @@ function saveProductionMixerEntry(payload) {
       }
       let payloadJson = {};
       try { payloadJson = JSON.parse(String(routing['Payload JSON'] || '{}')); } catch (error) {}
+      const previousProduction = payloadJson.production || {};
+      const history = Array.isArray(previousProduction.riwayatProduksi)
+        ? previousProduction.riwayatProduksi.slice(-49)
+        : [];
+      history.push({
+        waktu: new Date().toISOString(),
+        hasilProduksi: hasilProduksi,
+        mesin: mesin,
+        shift: shift,
+        operator: operator,
+        pemakaianBahan: Array.isArray(pemakaianBahan) ? pemakaianBahan : [],
+        keterangan: keterangan
+      });
       payloadJson.production = {
         hasilSebelumnya: payloadJson.production && payloadJson.production.hasilProduksi != null
           ? payloadJson.production.hasilProduksi
@@ -1455,6 +1469,7 @@ function saveProductionMixerEntry(payload) {
           ? pemakaianBahan
           : pemakaianBahan ? pemakaianBahan.split(/\n|;/).map(function(item) { return item.trim(); }).filter(Boolean) : [],
         keterangan: keterangan,
+        riwayatProduksi: history,
         updatedAt: new Date().toISOString()
       };
       routing['Payload JSON'] = JSON.stringify(payloadJson);
@@ -1470,6 +1485,154 @@ function saveProductionMixerEntry(payload) {
   } catch (error) {
     return { status: 'error', message: error.message };
   }
+}
+
+function getProductionBlowingData(forceRefresh) {
+  try {
+    const book = SpreadsheetApp.openById(DB_SPREADSHEET_ID);
+    const masters = readDatabaseV2Table_('master', book).records;
+    const routings = readDatabaseV2Table_('routing', book).records;
+    const masterBySpk = {};
+    masters.forEach(function(master) {
+      const spk = normalizeDatabaseV2Key_(master.SPK);
+      if (spk) masterBySpk[spk] = master;
+    });
+    const data = routings.filter(function(routing) {
+      const process = String(routing['Kode Proses'] || routing['Nama Proses'] || '').trim().toUpperCase();
+      const master = masterBySpk[normalizeDatabaseV2Key_(routing.SPK)];
+      return master && String(master.Tracking || '').trim().toUpperCase() === 'Q' && /BLOW/.test(process);
+    }).map(function(routing) {
+      const master = masterBySpk[normalizeDatabaseV2Key_(routing.SPK)];
+      const spk = normalizeDatabaseV2Key_(master.SPK);
+      let production = {};
+      try { production = JSON.parse(String(routing['Payload JSON'] || '{}')).production || {}; } catch (error) {}
+      return {
+        spk: spk,
+        tanggal: dateToInput_(master.Tanggal),
+        customer: valueOrEmpty_(master.Customer),
+        artikel: valueOrEmpty_(master.Artikel),
+        material: valueOrEmpty_(master.Material),
+        ukuran: valueOrEmpty_(master['Ukuran Jadi'] || master['Ukuran Blow']),
+        jumlahOrder: numberOrEmptyForClient_(master['Jumlah Order']),
+        uomOrder: valueOrEmpty_(master['UOM Order']),
+        routingId: valueOrEmpty_(routing['Routing ID']),
+        urutan: Number(routing.Urutan) || 0,
+        mesin: valueOrEmpty_(routing.Mesin),
+        statusRouting: valueOrEmpty_(routing.Status),
+        operator: valueOrEmpty_(routing.Operator),
+        hasilSebelumnya: numberOrEmptyForClient_(production.hasilSebelumnya),
+        hasilProduksi: numberOrEmptyForClient_(production.hasilProduksi),
+        bs: numberOrEmptyForClient_(production.bs),
+        bsDetail: production.bsDetail && typeof production.bsDetail === 'object' ? production.bsDetail : {},
+        downtime: production.downtime && typeof production.downtime === 'object' ? production.downtime : {},
+        statusProses: valueOrEmpty_(production.statusProses),
+        riwayatProduksi: Array.isArray(production.riwayatProduksi) ? production.riwayatProduksi : [],
+        status: String(routing.Status || '').trim().toUpperCase() === 'SELESAI' ? 'done' : 'pending'
+      };
+    });
+    data.sort(function(a, b) {
+      return buildSpkSortKey_(a.spk, 0).localeCompare(buildSpkSortKey_(b.spk, 0)) || a.urutan - b.urutan;
+    });
+    return { status: 'success', data: data, summary: { total: data.length, pending: data.filter(function(x) { return x.status === 'pending'; }).length, done: data.filter(function(x) { return x.status === 'done'; }).length } };
+  } catch (error) {
+    return { status: 'error', data: [], summary: { total: 0, pending: 0, done: 0 }, message: error.message };
+  }
+}
+
+function saveProductionBlowingEntry(payload) {
+  try {
+    const spk = normalizeSpk_(payload && payload.spk);
+    const routingId = String(payload && payload.routingId || '').trim();
+    const hasilProduksi = parseCalculationNumber_(payload && payload.hasilProduksi);
+    const bs = parseCalculationNumber_(payload && payload.bs);
+    const bsDetail = payload && payload.bsDetail && typeof payload.bsDetail === 'object' ? payload.bsDetail : {};
+    const mesin = String(payload && payload.mesin || '').trim();
+    const shift = String(payload && payload.shift || '').trim();
+    const operator = String(payload && payload.operator || '').trim();
+    const keterangan = String(payload && payload.keterangan || '').trim();
+    const statusProses = String(payload && payload.statusProses || 'SELESAI').trim().toUpperCase();
+    const downtime = payload && payload.downtime && typeof payload.downtime === 'object' ? payload.downtime : {};
+    if (!spk || !routingId) return { status: 'error', message: 'SPK dan routing Blowing wajib diisi.' };
+    if (!(hasilProduksi >= 0) || !(bs >= 0)) return { status: 'error', message: 'Hasil produksi dan BS wajib berupa angka 0 atau lebih.' };
+    if (!shift) return { status: 'error', message: 'Shift wajib diisi.' };
+    const result = mutateDatabaseV2Spk_(spk, 'PRODUCTION_BLOWING_NATIVE', function(aggregate) {
+      const routing = aggregate.routing.find(function(item) { return String(item['Routing ID'] || '').trim() === routingId; });
+      if (!routing) throw new Error('Routing Blowing tidak ditemukan untuk SPK tersebut.');
+      if (String(routing.Status || '').trim().toUpperCase() === 'SELESAI') throw new Error('Hasil produksi Blowing yang sudah selesai tidak dapat diubah.');
+      let payloadJson = {};
+      try { payloadJson = JSON.parse(String(routing['Payload JSON'] || '{}')); } catch (error) {}
+      const old = payloadJson.production || {};
+      const categories = ['tarikan', 'inline', 'sheet', 'cucian', 'listrikMati', 'bahanBasah', 'afkiran', 'bekuan'];
+      const normalizedBsDetail = {};
+      categories.forEach(function(key) { normalizedBsDetail[key] = parseCalculationNumber_(bsDetail[key]); });
+      const detailTotal = categories.reduce(function(total, key) { return total + normalizedBsDetail[key]; }, 0);
+      const normalizedDowntime = {
+        jenis: String(downtime.jenis || '').trim(),
+        mulai: String(downtime.mulai || '').trim(),
+        selesai: String(downtime.selesai || '').trim(),
+        menit: parseCalculationNumber_(downtime.menit),
+        keterangan: String(downtime.keterangan || '').trim()
+      };
+      const history = Array.isArray(old.riwayatProduksi) ? old.riwayatProduksi.slice(-49) : [];
+      history.push({ waktu: new Date().toISOString(), hasilProduksi: hasilProduksi, bs: detailTotal > 0 ? detailTotal : bs, bsDetail: normalizedBsDetail, downtime: normalizedDowntime, mesin: mesin, shift: shift, operator: operator, keterangan: keterangan });
+      payloadJson.production = { hasilSebelumnya: old.hasilProduksi != null ? old.hasilProduksi : '', hasilProduksi: hasilProduksi, bs: detailTotal > 0 ? detailTotal : bs, bsDetail: normalizedBsDetail, downtime: normalizedDowntime, statusProses: statusProses, mesin: mesin, shift: shift, operator: operator, keterangan: keterangan, riwayatProduksi: history, updatedAt: new Date().toISOString() };
+      routing['Payload JSON'] = JSON.stringify(payloadJson);
+      routing.Mesin = mesin || routing.Mesin; routing.Operator = operator; routing.Status = 'SELESAI';
+      routing.Mulai = routing.Mulai || new Date(); routing.Selesai = new Date(); return true;
+    });
+    return { status: 'success', message: "Hasil produksi Blowing SPK '" + spk + "' berhasil disimpan.", data: { spk: spk, routingId: routingId, hasilProduksi: hasilProduksi, status: 'done', database: result } };
+  } catch (error) { return { status: 'error', message: error.message }; }
+}
+
+function getProductionPrintingData(forceRefresh) {
+  try {
+    const book = SpreadsheetApp.openById(DB_SPREADSHEET_ID);
+    const masters = readDatabaseV2Table_('master', book).records;
+    const routings = readDatabaseV2Table_('routing', book).records;
+    const masterBySpk = {};
+    masters.forEach(function(master) { const key = normalizeDatabaseV2Key_(master.SPK); if (key) masterBySpk[key] = master; });
+    const data = routings.filter(function(routing) {
+      const process = String(routing['Kode Proses'] || routing['Nama Proses'] || '').trim().toUpperCase();
+      const master = masterBySpk[normalizeDatabaseV2Key_(routing.SPK)];
+      return master && String(master.Tracking || '').trim().toUpperCase() === 'Q' && /PRINT/.test(process);
+    }).map(function(routing) {
+      const master = masterBySpk[normalizeDatabaseV2Key_(routing.SPK)];
+      let production = {};
+      try { production = JSON.parse(String(routing['Payload JSON'] || '{}')).production || {}; } catch (error) {}
+      return { spk: normalizeDatabaseV2Key_(master.SPK), tanggal: dateToInput_(master.Tanggal), customer: valueOrEmpty_(master.Customer), artikel: valueOrEmpty_(master.Artikel), material: valueOrEmpty_(master.Material), ukuran: valueOrEmpty_(master['Ukuran Jadi'] || master['Ukuran Blow']), jumlahOrder: numberOrEmptyForClient_(master['Jumlah Order']), uomOrder: valueOrEmpty_(master['UOM Order']), routingId: valueOrEmpty_(routing['Routing ID']), urutan: Number(routing.Urutan) || 0, mesin: valueOrEmpty_(routing.Mesin), operator: valueOrEmpty_(routing.Operator), hasilSebelumnya: numberOrEmptyForClient_(production.hasilSebelumnya), hasilProduksi: numberOrEmptyForClient_(production.hasilProduksi), status: String(routing.Status || '').trim().toUpperCase() === 'SELESAI' ? 'done' : 'pending' };
+    });
+    data.sort(function(a, b) { return buildSpkSortKey_(a.spk, 0).localeCompare(buildSpkSortKey_(b.spk, 0)) || a.urutan - b.urutan; });
+    return { status: 'success', data: data, summary: { total: data.length, pending: data.filter(function(x) { return x.status === 'pending'; }).length, done: data.filter(function(x) { return x.status === 'done'; }).length } };
+  } catch (error) { return { status: 'error', data: [], summary: { total: 0, pending: 0, done: 0 }, message: error.message }; }
+}
+
+function saveProductionPrintingEntry(payload) {
+  try {
+    const spk = normalizeSpk_(payload && payload.spk);
+    const routingId = String(payload && payload.routingId || '').trim();
+    const hasilProduksi = parseCalculationNumber_(payload && payload.hasilProduksi);
+    const waste = parseCalculationNumber_(payload && payload.waste);
+    const mesin = String(payload && payload.mesin || '').trim();
+    const shift = String(payload && payload.shift || '').trim();
+    const operator = String(payload && payload.operator || '').trim();
+    const keterangan = String(payload && payload.keterangan || '').trim();
+    if (!spk || !routingId) return { status: 'error', message: 'SPK dan routing Printing wajib diisi.' };
+    if (!(hasilProduksi >= 0) || !(waste >= 0)) return { status: 'error', message: 'Hasil produksi dan waste wajib berupa angka 0 atau lebih.' };
+    if (!shift) return { status: 'error', message: 'Shift wajib diisi.' };
+    const result = mutateDatabaseV2Spk_(spk, 'PRODUCTION_PRINTING_NATIVE', function(aggregate) {
+      const routing = aggregate.routing.find(function(item) { return String(item['Routing ID'] || '').trim() === routingId; });
+      if (!routing) throw new Error('Routing Printing tidak ditemukan untuk SPK tersebut.');
+      if (String(routing.Status || '').trim().toUpperCase() === 'SELESAI') throw new Error('Hasil produksi Printing yang sudah selesai tidak dapat diubah.');
+      let payloadJson = {};
+      try { payloadJson = JSON.parse(String(routing['Payload JSON'] || '{}')); } catch (error) {}
+      const old = payloadJson.production || {};
+      const history = Array.isArray(old.riwayatProduksi) ? old.riwayatProduksi.slice(-49) : [];
+      history.push({ waktu: new Date().toISOString(), hasilProduksi: hasilProduksi, waste: waste, mesin: mesin, shift: shift, operator: operator, keterangan: keterangan });
+      payloadJson.production = { hasilSebelumnya: old.hasilProduksi != null ? old.hasilProduksi : '', hasilProduksi: hasilProduksi, waste: waste, mesin: mesin, shift: shift, operator: operator, keterangan: keterangan, riwayatProduksi: history, updatedAt: new Date().toISOString() };
+      routing['Payload JSON'] = JSON.stringify(payloadJson); routing.Mesin = mesin || routing.Mesin; routing.Operator = operator; routing.Status = 'SELESAI'; routing.Mulai = routing.Mulai || new Date(); routing.Selesai = new Date(); return true;
+    });
+    return { status: 'success', message: "Hasil produksi Printing SPK '" + spk + "' berhasil disimpan.", data: { spk: spk, routingId: routingId, hasilProduksi: hasilProduksi, status: 'done', database: result } };
+  } catch (error) { return { status: 'error', message: error.message }; }
 }
 
 function getKeluarBahanManagerDetail(spk, preferredRowNumber) {

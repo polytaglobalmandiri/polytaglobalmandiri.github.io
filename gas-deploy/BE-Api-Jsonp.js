@@ -29,6 +29,10 @@ function serveSpkRpcJsonp_(e) {
   try {
     var request = parseSpkRpcRequest_(e);
     var method = String(request.method || '');
+    // Modul schedule/hasil selalu membawa sesi dan hanya tersedia melalui POST.
+    if (/^(getProductionScheduleData|saveProductionSchedule|releaseProductionSchedule|cancelProductionSchedule|getProductionWorkData|saveProductionEntry|verifyProductionEntry|rejectProductionEntry)$/.test(method)) {
+      throw new Error('Metode produksi memerlukan POST.');
+    }
     var action = SPK_RPC_METHODS_[method];
 
     if (typeof action !== 'function') {

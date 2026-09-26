@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Schedule Produksi | PPIC</title>
+  <style>
+    :root{font-family:Inter,system-ui,sans-serif;color:#25292c;background:#e8ebe8}*{box-sizing:border-box}body{margin:0}
+    main{max-width:1320px;margin:auto;padding:24px}.top,.panel,.stat{background:#f8f9f7;border:1px solid #c6cbc7;border-radius:12px}
+    .top{padding:20px;display:flex;justify-content:space-between;gap:18px;align-items:center}.top h1{font-size:1.5rem;margin:0}.top p{margin:5px 0 0;color:#656d6a;font-size:.84rem}
+    .actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.button{border:1px solid #981721;background:#af1b26;color:#fff;border-radius:7px;padding:9px 13px;font:inherit;font-size:.82rem;font-weight:700;cursor:pointer}.button.secondary{background:#fff;color:#303638;border-color:#b9c0bb}.button:disabled{opacity:.55;cursor:not-allowed}
+    .message{min-height:36px;padding:10px 0;font-size:.84rem;color:#5a635e}.message.error{color:#a2121e}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:15px}.stat{padding:13px}.stat small{display:block;color:#69716d}.stat strong{display:block;margin-top:4px;font-size:1.3rem}
+    .panel{overflow:hidden}.panel-head{padding:14px 16px;display:flex;gap:10px;align-items:center;justify-content:space-between}.panel-head h2{font-size:1rem;margin:0}.panel-head input{max-width:300px;width:100%;padding:8px;border:1px solid #bdc4be;border-radius:6px}
+    .table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:950px}th,td{padding:10px 12px;border-top:1px solid #d9deda;text-align:left;font-size:.78rem}th{background:#303638;color:white;font-size:.7rem;text-transform:uppercase}td small{display:block;color:#737b76;margin-top:3px}.tag{display:inline-block;border-radius:20px;padding:4px 8px;font-size:.7rem;font-weight:700;background:#e8e7cc;color:#655a07}.tag.released{background:#d7ede0;color:#176837}
+    dialog{width:min(620px,calc(100% - 24px));border:1px solid #b7c0ba;border-radius:12px;padding:0;box-shadow:0 25px 65px #0005}dialog::backdrop{background:#17211b99}dialog form{padding:20px}dialog h2{margin:0 0 16px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:grid;gap:5px;font-size:.78rem;font-weight:700}.field.full{grid-column:1/-1}.field input,.field select,.field textarea{padding:9px;border:1px solid #b8c1ba;border-radius:6px;font:inherit;font-weight:400;min-width:0}.field textarea{min-height:65px}.dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+    @media(max-width:720px){main{padding:12px}.top{align-items:flex-start;flex-direction:column}.stats{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}.field.full{grid-column:auto}}
+  </style>
+</head>
+<body>
+<main>
+  <header class="top"><div><h1>Schedule Produksi</h1><p>Rencanakan routing SPK per mesin, lalu rilis pekerjaan ke produksi.</p></div><div class="actions"><a class="button secondary" href="/apps/spk-automation/approval/">Login PPIC</a><button id="refresh" class="button secondary" type="button">Muat ulang</button><button id="new" class="button" type="button" disabled>+ Buat jadwal</button></div></header>
+  <div id="message" class="message" role="status">Memeriksa sesi PPIC...</div>
+  <section class="stats" aria-label="Ringkasan jadwal"><div class="stat"><small>Routing siap</small><strong id="candidateCount">0</strong></div><div class="stat"><small>Draf</small><strong id="draftCount">0</strong></div><div class="stat"><small>Dirilis</small><strong id="releasedCount">0</strong></div><div class="stat"><small>Mesin terjadwal</small><strong id="machineCount">0</strong></div></section>
+  <section class="panel"><div class="panel-head"><h2>Daftar jadwal</h2><input id="search" type="search" placeholder="Cari SPK, proses, mesin..." aria-label="Cari jadwal"></div><div class="table-wrap"><table><thead><tr><th>SPK / Routing</th><th>Proses</th><th>Mesin</th><th>Mulai</th><th>Selesai</th><th>Target</th><th>Aktual terverifikasi</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="scheduleRows"><tr><td colspan="9">Belum ada data.</td></tr></tbody></table></div></section>
+</main>
+<dialog id="editor"><form id="scheduleForm"><h2 id="editorTitle">Buat jadwal</h2><div class="grid"><label class="field full">SPK / routing<select id="routing" required></select></label><label class="field">Mesin<input id="machine" required maxlength="50"></label><label class="field">Urutan mesin<input id="sequence" type="number" min="1" step="1" value="1" required></label><label class="field">Mulai rencana<input id="start" type="datetime-local" required></label><label class="field">Selesai rencana<input id="finish" type="datetime-local" required></label><label class="field">Target<input id="target" type="number" min="0.001" step="any" required></label><label class="field">Satuan<select id="uom"><option>KG</option><option>PCS</option><option>ROLL</option><option>METER</option></select></label><label class="field full">Catatan<textarea id="note" maxlength="1000"></textarea></label></div><div class="dialog-actions"><button id="cancel" class="button secondary" type="button">Batal</button><button id="save" class="button" type="submit">Simpan draf</button></div></form></dialog>
+<script src="/assets/js/gas-rpc.js?v=20260926-1"></script>
+<script>
+(() => {
+  'use strict';
+  const $=id=>document.getElementById(id);
+  const escape=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  const authKey='pgm:spk-auth-v1';
+  const data={token:'',candidates:[],schedules:[],editing:null,requestId:''};
+  function status(message,error){$('message').textContent=message;$('message').classList.toggle('error',Boolean(error));}
+  function rpc(method,...args){return new Promise((resolve,reject)=>google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)[method](...args));}
+  function storedToken(){for(const storage of [sessionStorage,localStorage]){try{const item=JSON.parse(storage.getItem(authKey)||'null');if(item&&item.token)return item.token;}catch(error){}}return '';}
+  function candidateFor(routingId){return data.candidates.find(item=>item.routingId===routingId);}
+  function render(){
+    const q=$('search').value.trim().toUpperCase();
+    const rows=data.schedules.filter(item=>!q||[item.spk,item.routingId,item.proses,item.mesin].join(' ').toUpperCase().includes(q));
+    $('scheduleRows').innerHTML=rows.map(item=>`<tr><td>${escape(item.spk)}<small>${escape(item.routingId)}</small></td><td>${escape(item.proses)}</td><td>${escape(item.mesin)}</td><td>${escape(item.mulai.replace('T',' '))}</td><td>${escape(item.selesai.replace('T',' '))}</td><td>${escape(item.target)} ${escape(item.uomTarget)}</td><td>${escape(item.hasilTerverifikasi||0)} ${escape(item.uomTarget)}</td><td><span class="tag ${item.status==='RELEASED'?'released':''}" title="${escape(item.alasanStatus||'')}">${escape(item.status)}</span></td><td>${item.status==='DRAFT'?`<button class="button secondary" data-edit="${escape(item.scheduleId)}" type="button">Edit</button> <button class="button" data-release="${escape(item.scheduleId)}" type="button">Rilis</button> `:''}${['DRAFT','RELEASED'].includes(item.status)?`<button class="button secondary" data-cancel="${escape(item.scheduleId)}" type="button">Batalkan</button>`:'—'}</td></tr>`).join('')||'<tr><td colspan="9">Belum ada jadwal yang cocok.</td></tr>';
+    $('candidateCount').textContent=data.candidates.length;
+    $('draftCount').textContent=data.schedules.filter(item=>item.status==='DRAFT').length;
+    $('releasedCount').textContent=data.schedules.filter(item=>item.status==='RELEASED').length;
+    $('machineCount').textContent=new Set(data.schedules.filter(item=>item.status==='RELEASED').map(item=>item.mesin)).size;
+  }
+  async function load(){
+    data.token=storedToken();
+    if(!data.token){status('Login sebagai PPIC melalui halaman Persetujuan SPK, lalu kembali ke sini.',true);$('new').disabled=true;return;}
+    status('Memuat data schedule...');$('new').disabled=true;
+    try{
+      const result=await rpc('getProductionScheduleData',data.token);
+      if(!result||result.status!=='success')throw new Error(result&&result.message||'Gagal memuat jadwal.');
+      data.candidates=result.candidates||[];data.schedules=result.schedules||[];
+      $('routing').innerHTML='<option value="">Pilih SPK / routing</option>'+data.candidates.map(item=>`<option value="${escape(item.routingId)}">${escape(item.spk)} · ${escape(item.proses)} · ${escape(item.customer)}</option>`).join('');
+      $('new').disabled=!data.candidates.length;
+      render();status(`${data.candidates.length} routing siap dijadwalkan.`);
+    }catch(error){status(error&&error.message||'Gagal menghubungi server.',true);}
+  }
+  function edit(item){
+    data.editing=item||null;
+    data.requestId=item?'':(crypto.randomUUID?crypto.randomUUID():String(Date.now())+'-'+Math.random());
+    $('scheduleForm').reset();$('editorTitle').textContent=item?'Ubah jadwal draf':'Buat jadwal';
+    $('routing').value=item?item.routingId:'';$('routing').disabled=Boolean(item);
+    $('machine').value=item?item.mesin:'';$('sequence').value=item?item.urutan:1;
+    $('start').value=item?item.mulai:'';$('finish').value=item?item.selesai:'';
+    $('target').value=item?item.target:'';$('uom').value=item?item.uomTarget:'KG';
+    $('note').value=item?item.catatan:'';$('editor').showModal();
+  }
+  $('routing').addEventListener('change',()=>{const candidate=candidateFor($('routing').value);if(candidate){$('machine').value=candidate.mesinSpk||'';if(['KG','PCS','ROLL','METER'].includes(candidate.uomOrder))$('uom').value=candidate.uomOrder;}});
+  $('scheduleForm').addEventListener('submit',async event=>{
+    event.preventDefault();const candidate=candidateFor($('routing').value);
+    if(!candidate){status('Pilih routing SPK yang masih aktif.',true);return;}
+    const payload={scheduleId:data.editing&&data.editing.scheduleId||'',requestId:data.requestId,spk:candidate.spk,routingId:candidate.routingId,mesin:$('machine').value,mulai:$('start').value,selesai:$('finish').value,urutan:$('sequence').value,target:$('target').value,uomTarget:$('uom').value,catatan:$('note').value,versi:data.editing&&data.editing.versi||0};
+    $('save').disabled=true;
+    try{const result=await rpc('saveProductionSchedule',data.token,payload);if(!result||result.status!=='success')throw new Error(result&&result.message||'Gagal menyimpan jadwal.');$('editor').close();await load();status('Draf jadwal tersimpan. Rilis agar muncul pada antrean produksi.');}
+    catch(error){status(error&&error.message||'Gagal menyimpan jadwal.',true);}
+    finally{$('save').disabled=false;}
+  });
+  $('scheduleRows').addEventListener('click',async event=>{
+    const editButton=event.target.closest('[data-edit]');
+    if(editButton){const item=data.schedules.find(row=>row.scheduleId===editButton.dataset.edit);if(item)edit(item);return;}
+    const cancelButton=event.target.closest('[data-cancel]');
+    if(cancelButton){const item=data.schedules.find(row=>row.scheduleId===cancelButton.dataset.cancel);if(!item)return;const reason=prompt(`Alasan pembatalan jadwal ${item.spk}:`);if(reason===null)return;if(!reason.trim()){status('Alasan pembatalan wajib diisi.',true);return;}cancelButton.disabled=true;try{const result=await rpc('cancelProductionSchedule',data.token,item.scheduleId,item.versi,reason);if(!result||result.status!=='success')throw new Error(result&&result.message||'Gagal membatalkan jadwal.');await load();status('Jadwal dibatalkan.');}catch(error){status(error&&error.message||'Gagal membatalkan jadwal.',true);cancelButton.disabled=false;}return;}
+    const releaseButton=event.target.closest('[data-release]');
+    if(!releaseButton)return;
+    const item=data.schedules.find(row=>row.scheduleId===releaseButton.dataset.release);
+    if(!item||!confirm(`Rilis jadwal ${item.spk} / ${item.proses} di ${item.mesin}?`))return;
+    releaseButton.disabled=true;
+    try{const result=await rpc('releaseProductionSchedule',data.token,item.scheduleId,item.versi);if(!result||result.status!=='success')throw new Error(result&&result.message||'Gagal merilis jadwal.');await load();status('Jadwal berhasil dirilis.');}
+    catch(error){status(error&&error.message||'Gagal merilis jadwal.',true);releaseButton.disabled=false;}
+  });
+  $('new').onclick=()=>edit(null);$('cancel').onclick=()=>$('editor').close();$('refresh').onclick=load;$('search').oninput=render;
+  load();
+})();
+</script>
+</body>
+</html>

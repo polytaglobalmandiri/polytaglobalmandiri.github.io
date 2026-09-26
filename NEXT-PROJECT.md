@@ -1,5 +1,9 @@
 # Project Handoff — Halaman Produksi
 
+> Pembaruan alur: SPK masuk ke Schedule Produksi sebelum pekerjaan muncul pada halaman Produksi. Rancangan sistem yang menjadi acuan pengembangan berikutnya ada di `dokumentasi/sistem-produksi.md`. Contoh Excel adalah referensi kerja lapangan, bukan format database aplikasi. Prototipe Mixer di bawah belum siap dipakai untuk transaksi operasional karena satu kali simpan langsung menutup routing.
+
+> Pilot lokal baru telah ditambahkan di `apps/spk-automation/schedule/` dan halaman `apps/spk-automation/production/` telah diganti dengan pencatatan hasil berulang. Backend baru ada di `gas-deploy/BE-Production-Schedule.js` dan `BE-Production-Entries.js`. Belum ada deployment atau perubahan spreadsheet produksi.
+
 Dokumen ini menjadi titik mulai untuk pengembangan berikutnya pada project POLYTA GLOBAL MANDIRI.
 
 ## Tujuan berikutnya

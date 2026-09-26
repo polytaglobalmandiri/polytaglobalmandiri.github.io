@@ -29,18 +29,7 @@ function serveSpkRpcJsonp_(e) {
   try {
     var request = parseSpkRpcRequest_(e);
     var method = String(request.method || '');
-    // Modul schedule/hasil selalu membawa sesi dan hanya tersedia melalui POST.
-    if (/^(getProductionScheduleData|saveProductionSchedule|releaseProductionSchedule|cancelProductionSchedule|getProductionWorkData|saveProductionEntry|verifyProductionEntry|rejectProductionEntry)$/.test(method)) {
-      throw new Error('Metode produksi memerlukan POST.');
-    }
-    var action = SPK_RPC_METHODS_[method];
-
-    if (typeof action !== 'function') {
-      throw new Error('Fungsi API tidak diizinkan: ' + method);
-    }
-
-    var args = Array.isArray(request.args) ? request.args : [];
-    payload = { ok: true, result: action.apply(null, args) };
+    throw new Error('JSONP dinonaktifkan. Gunakan POST untuk menjaga sesi pengguna.');
   } catch (error) {
     console.error('SPK RPC JSONP gagal', error);
     payload = {

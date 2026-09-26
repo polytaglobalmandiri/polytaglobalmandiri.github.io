@@ -69,6 +69,60 @@ var SPK_RPC_METHODS_ = {
   cancelExtractionJob: cancelExtractionJob
 };
 
+var SPK_RPC_PUBLIC_ = ['getApprovalBootstrapStatus', 'bootstrapApprovalAdmin', 'loginApprovalUser', 'getApprovalSession', 'logoutApprovalUser'];
+var SPK_RPC_PPIC_ = ['admin_ppic', 'asmen_ppic', 'manager_ppic'];
+var SPK_RPC_PRODUCTION_ = ['admin_produksi', 'operator_produksi', 'head_mixer', 'head_blowing', 'head_printing', 'head_slitting', 'head_folding', 'head_gusset', 'head_finishing'];
+var SPK_RPC_MANAGEMENT_ = ['senior_manager', 'general_manager'];
+var SPK_RPC_ROLE_MAP_ = {};
+function assignSpkRpcRoles_(methods, roles) {
+  methods.forEach(function (method) { SPK_RPC_ROLE_MAP_[method] = roles; });
+}
+assignSpkRpcRoles_([
+  'getDashboardData', 'getDashboardDataChunk', 'getDashboardDataRevision',
+  'getDashboardTrackingData', 'getOtdDashboardData', 'getSpkYearPreference',
+  'getSpkApprovalStatus', 'getSpkApprovalSignatures'
+], SPK_RPC_PPIC_.concat(SPK_RPC_MANAGEMENT_));
+assignSpkRpcRoles_([
+  'getDatabaseV2Readiness', 'getDatabaseV2CutoverAudit', 'saveSpkYearPreference',
+  'getSpkEditData', 'updateSpkFromDashboard', 'getMasterFormOptions',
+  'saveCustomerMaster', 'saveBrandMaster', 'getMaterialMasterData',
+  'saveMaterialMaster', 'getInputSpkOptionsFast', 'getSpkExistenceSnapshot',
+  'checkSpkExists', 'getSpkData', 'submitDatabase', 'getFolderData',
+  'getActiveExtractionJob', 'getExtractionProgress', 'beginExtractionJob',
+  'extractData', 'acknowledgeExtractionJob', 'cancelExtractionJob'
+], SPK_RPC_PPIC_);
+assignSpkRpcRoles_(['getSpkPrintData'], SPK_RPC_PPIC_);
+assignSpkRpcRoles_(['markSpkReleasedForPrint', 'listApprovalUsers', 'saveApprovalUser'], ['admin_ppic']);
+assignSpkRpcRoles_(['getApprovalQueue', 'approveSpk'], null);
+assignSpkRpcRoles_([
+  'getKeluarBahanManagerData', 'getKeluarBahanManagerDetail',
+  'getKeluarBahanManagerDetailBatch', 'saveEtaBeliBahanScheduleByManager',
+  'updateEtaBeliBahanByManager', 'updateKeluarBahanByManager'
+], ['asmen_ppic', 'manager_ppic']);
+assignSpkRpcRoles_([
+  'getProductionMixerData', 'saveProductionMixerEntry',
+  'getProductionBlowingData', 'saveProductionBlowingEntry',
+  'getProductionPrintingData', 'saveProductionPrintingEntry',
+  'getProductionWorkData', 'saveProductionEntry', 'verifyProductionEntry',
+  'rejectProductionEntry'
+], SPK_RPC_PRODUCTION_.concat(SPK_RPC_PPIC_));
+assignSpkRpcRoles_([
+  'getProductionScheduleData', 'saveProductionSchedule',
+  'releaseProductionSchedule', 'cancelProductionSchedule'
+], SPK_RPC_PPIC_);
+assignSpkRpcRoles_([
+  'getHandoverPageData', 'getHandoverOverview', 'getHandoverSpkDetails',
+  'saveHandover', 'saveHandoverByRouting'
+], SPK_RPC_PPIC_.concat(SPK_RPC_PRODUCTION_));
+
+function requireSpkRpcAccess_(request, method) {
+  if (SPK_RPC_PUBLIC_.indexOf(method) !== -1) return;
+  if (!Object.prototype.hasOwnProperty.call(SPK_RPC_ROLE_MAP_, method)) {
+    throw new Error('Aturan akses API belum ditetapkan: ' + method);
+  }
+  requireApprovalSession_(request && request.authToken, SPK_RPC_ROLE_MAP_[method]);
+}
+
 function doPost(e) {
   var requestId = '';
   try {
@@ -80,6 +134,8 @@ function doPost(e) {
     if (typeof action !== 'function') {
       throw new Error('Fungsi API tidak diizinkan: ' + method);
     }
+
+    requireSpkRpcAccess_(request, method);
 
     var args = Array.isArray(request.args) ? request.args : [];
     var result = action.apply(null, args);

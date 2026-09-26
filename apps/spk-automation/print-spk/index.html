@@ -3969,7 +3969,7 @@
     @media (max-width: 620px) { .print-login-card { grid-template-columns: 1fr; } .print-login-intro { padding: 24px; } .print-login-intro h2 { font-size: 1.15rem; } .print-login-card-body { padding: 26px 22px; } }
 
     </style>
-  <script src="/assets/js/gas-rpc.js?v=20260916-2"></script>
+  <script src="/assets/js/gas-rpc.js?v=20260926-2"></script>
 
   <style>
     .polyta-portal-home {
@@ -4119,6 +4119,7 @@
       body.is-embedded .print-page { display: block !important; }
     }
   </style>
+  <script src="/assets/js/portal-auth.js?v=20260926-1"></script>
 </head>
 <body
   class="tw:min-h-screen tw:text-polyta-ink selection:tw:bg-polyta-brand-soft selection:tw:text-polyta-brand"
@@ -4135,31 +4136,7 @@
 >
   <!-- Lapisan status dimuat dari /assets/css/status.css dan /assets/js/status.js. -->
 
-  <section id="printLoginView" class="print-login-backdrop" hidden aria-labelledby="printLoginTitle">
-    <form id="printLoginForm" class="print-login-card">
-      <button id="printLoginClose" class="print-login-close" type="button" aria-label="Tutup login"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
-      <aside class="print-login-intro">
-        <span class="print-login-orb" aria-hidden="true"><i class="fa-solid fa-print"></i></span>
-        <p class="print-login-eyebrow">AKSES CETAK TERLINDUNGI</p>
-        <h2>SPK siap dicetak setelah akun terverifikasi.</h2>
-        <p>Login diperlukan hanya untuk menandai status Terbit dan melanjutkan proses cetak dokumen.</p>
-      </aside>
-      <article class="print-login-card-body">
-        <div class="print-login-heading">
-          <span class="print-login-heading-icon" aria-hidden="true"><i class="fa-solid fa-key"></i></span>
-          <div><h3 id="printLoginTitle">Masuk untuk mencetak</h3><p>Gunakan akun perusahaan Anda.</p></div>
-        </div>
-        <div class="print-login-form">
-          <label>Email<input id="printLoginEmail" type="email" autocomplete="username" placeholder="nama@perusahaan.com" required></label>
-          <label>Password<input id="printLoginPassword" type="password" autocomplete="current-password" placeholder="Masukkan password" required></label>
-          <label class="print-login-remember"><input id="printLoginRemember" type="checkbox"><span>Ingat saya di perangkat ini</span></label>
-          <p id="printLoginError" class="print-login-error" role="alert"></p>
-          <button id="printLoginButton" class="print-login-button" type="submit">Masuk dan Lanjutkan</button>
-        </div>
-        <p class="print-login-security"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Sesi digunakan untuk validasi cetak SPK.</p>
-      </article>
-    </form>
-  </section>
+
 
   <header class="print-toolbar no-print">
     <div class="toolbar-brand">
@@ -4328,82 +4305,22 @@
 
     async function ensurePrintLogin_() {
       if (EMBED_MODE || printAuthReady_) return true;
-      if (getPrintAuthToken_()) {
-        try {
-          const current = await printRpc_('getApprovalSession', getPrintAuthToken_());
-          if (current && current.status === 'success' && current.user) {
-            printAuthReady_ = true;
-            return true;
-          }
-        } catch (ignore) {}
+      const token = getPrintAuthToken_();
+      if (!token) {
+        window.location.assign('/login/?next=' + encodeURIComponent(window.location.pathname + window.location.search));
+        return false;
       }
-      localStorage.removeItem(PRINT_AUTH_STORAGE_KEY_);
-      sessionStorage.removeItem(PRINT_AUTH_STORAGE_KEY_);
-      if (printLoginPromise_) return printLoginPromise_;
-
-      const view = document.getElementById('printLoginView');
-      const form = document.getElementById('printLoginForm');
-      const button = document.getElementById('printLoginButton');
-      const errorBox = document.getElementById('printLoginError');
-      const closeButton = document.getElementById('printLoginClose');
-      button.disabled = false;
-      button.textContent = 'Masuk dan Lanjutkan';
-      errorBox.textContent = '';
-      view.hidden = false;
-      printLoginPromise_ = new Promise(function(resolve) {
-        let closed = false;
-        closeButton.onclick = function () {
-          closed = true;
-          view.hidden = true;
-          form.onsubmit = null;
-          document.getElementById('printLoginPassword').value = '';
-          button.disabled = false;
-          button.textContent = 'Masuk dan Lanjutkan';
-          errorBox.textContent = '';
-          printLoginPromise_ = null;
-          resolve(false);
-        };
-        form.onsubmit = async function(event) {
-          event.preventDefault();
-          if (button.disabled) return;
-          button.disabled = true;
-          button.textContent = 'Memeriksa akses...';
-          errorBox.textContent = '';
-          try {
-            try { await window.POLYTA_PRIME_GAS_ACCESS(); } catch (ignore) {}
-            if (closed) return;
-            const remember = document.getElementById('printLoginRemember').checked;
-            const response = await printRpc_(
-              'loginApprovalUser',
-              document.getElementById('printLoginEmail').value.trim(),
-              document.getElementById('printLoginPassword').value,
-              remember
-            );
-            if (!response || response.status !== 'success') {
-              throw new Error(response && response.message || 'Login gagal.');
-            }
-            if (closed) return;
-            const auth = JSON.stringify({ token: response.token, user: response.user });
-            localStorage.removeItem(PRINT_AUTH_STORAGE_KEY_);
-            sessionStorage.removeItem(PRINT_AUTH_STORAGE_KEY_);
-            (remember ? localStorage : sessionStorage).setItem(PRINT_AUTH_STORAGE_KEY_, auth);
-            document.getElementById('printLoginPassword').value = '';
-            view.hidden = true;
-            form.onsubmit = null;
-            closeButton.onclick = null;
-            printAuthReady_ = true;
-            printLoginPromise_ = null;
-            resolve(true);
-          } catch (error) {
-            if (closed) return;
-            errorBox.textContent = error.message || 'Login gagal. Periksa email dan password Anda.';
-            button.disabled = false;
-            button.textContent = 'Masuk dan Lanjutkan';
-          }
-        };
-        document.getElementById('printLoginEmail').focus();
-      });
-      return printLoginPromise_;
+      try {
+        const current = await printRpc_('getApprovalSession', token);
+        if (!current || current.status !== 'success' || !current.user) throw new Error('Sesi berakhir.');
+        printAuthReady_ = true;
+        return true;
+      } catch (error) {
+        localStorage.removeItem(PRINT_AUTH_STORAGE_KEY_);
+        sessionStorage.removeItem(PRINT_AUTH_STORAGE_KEY_);
+        window.location.assign('/login/?next=' + encodeURIComponent(window.location.pathname + window.location.search));
+        return false;
+      }
     }
 
     // Memuat ulang halaman ini untuk tiap SPK berarti mengurai kembali sekitar

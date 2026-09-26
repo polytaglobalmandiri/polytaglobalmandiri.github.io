@@ -8,56 +8,26 @@ function includePartial(fileName, appUrl) {
 }
 
 function doGet(e) {
-  // Permintaan JSONP dari frontend statis dijawab lebih dulu. Sisanya jatuh
-  // melewati blok ini dan tetap melayani halaman seperti sebelumnya.
+  // Jalur JSONP lama hanya mengembalikan pesan penolakan.
   var jsonp = serveSpkRpcJsonp_(e);
   if (jsonp) return jsonp;
-
-  var page = e && e.parameter && e.parameter.page ? e.parameter.page : '';
-  var fileName = 'FE-Dashboard';
-  var pageTitle = 'PPIC | Polyta Global Mandiri';
-
-  if (page === 'Dashboard-PPIC') {
-    fileName = 'FE-PPIC-Dashboard';
-    pageTitle = 'Dashboard PPIC | Polyta Global Mandiri';
-  } else if (page === 'Input-SPK') {
-    fileName = 'FE-Input-SPK';
-    pageTitle = 'Input SPK | Polyta Global Mandiri';
-  } else if (page === 'Penarikan-Data') {
-    fileName = 'FE-Penarikan-Data';
-    pageTitle = 'Penarikan Data | Polyta Global Mandiri';
-  } else if (page === 'Keluar-Bahan') {
-    fileName = 'FE-Keluar-Bahan';
-    pageTitle = 'Keluar Bahan | Manager PPIC';
-  } else if (page === 'Cetak-SPK') {
-    fileName = 'FE-Cetak-SPK';
-    pageTitle = 'Cetak Surat Perintah Kerja';
+  var page = e && e.parameter && e.parameter.page || '';
+  var routes = {
+    'Dashboard-PPIC': '/apps/spk-automation/dashboard/',
+    'Input-SPK': '/apps/spk-automation/create-spk/',
+    'Penarikan-Data': '/apps/spk-automation/data-retrieval/',
+    'Keluar-Bahan': '/apps/spk-automation/material-issue/',
+    'Cetak-SPK': '/apps/spk-automation/print-spk/'
+  };
+  var target = 'https://polytaglobalmandiri.github.io' + (routes[page] || '/');
+  if (page === 'Cetak-SPK' && e && e.parameter) {
+    var query = [];
+    ['spk', 'row', 'mode'].forEach(function(key) {
+      if (e.parameter[key]) query.push(encodeURIComponent(key) + '=' + encodeURIComponent(String(e.parameter[key])));
+    });
+    if (query.length) target += '?' + query.join('&');
   }
-
-  var template = HtmlService.createTemplateFromFile(fileName);
-  template.appUrl = ScriptApp.getService().getUrl() || '';
-  template.spkNumber = '';
-  // Nomor baris Database dari halaman pemanggil. Hanya petunjuk pencarian;
-  // nilainya selalu diverifikasi ulang di server sebelum dipakai.
-  template.dbRow = '';
-  if (page === 'Cetak-SPK' && e && e.parameter && e.parameter.spk) {
-    template.spkNumber = String(e.parameter.spk)
-      .trim()
-      .toUpperCase()
-      .replace(/[^A-Z0-9._\/-]/g, '');
-    template.dbRow = String(
-      Math.max(0, Math.floor(Number(e.parameter.row) || 0))
-    );
-  }
-  template.printMode = page === 'Cetak-SPK' && e && e.parameter && e.parameter.mode === 'view'
-    ? 'view'
-    : 'release';
-
-  return template
-    .evaluate()
-    .setTitle(pageTitle)
-    .addMetaTag('viewport', 'width=device-width, initial-scale=1')
-    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  return HtmlService.createHtmlOutput('<!doctype html><meta charset="utf-8"><script>location.replace(' + JSON.stringify(target) + ')</script><a href="' + target.replace(/&/g, '&amp;').replace(/"/g, '&quot;') + '">Buka portal</a>');
 }
 
 // Naik ke v13: pembacaan nilai Dashboard kini memakai satu batch Sheets API.

@@ -7,6 +7,7 @@ const apiSource = fs.readFileSync(path.join(__dirname, '../gas-deploy/BE-Api.js'
 const backendCalls = [];
 const backend = {
   console: { error() {} },
+  requireApprovalSession_(token, roles) { if (token !== 'test-token') throw new Error('Sesi wajib'); return { roleKey: 'admin_ppic' }; },
   ContentService: {
     MimeType: { JSON: 'application/json' },
     createTextOutput(text) { return { setMimeType(type) { return { type, payload: JSON.parse(text) }; } }; }
@@ -23,9 +24,11 @@ assert.equal(response.payload.ok, true);
 assert.equal(backendCalls.length, 1);
 assert.equal(backendCalls[0].method, 'loginApprovalUser');
 assert.deepEqual(JSON.parse(JSON.stringify(backendCalls[0].args)), ['test@example.invalid', 'test-password', true]);
+assert.equal(backend.doPost({ postData: { contents: JSON.stringify({ method: 'getDashboardData', args: [] }) } }).payload.ok, false);
+assert.equal(backend.doPost({ postData: { contents: JSON.stringify({ method: 'getDashboardData', args: [], authToken: 'test-token' }) } }).payload.ok, true);
 assert.equal(backend.doPost({ postData: { contents: '{bad json' } }).payload.ok, false);
 assert.equal(backend.doPost({ postData: { contents: '{"method":"notAllowed","args":[]}' } }).payload.ok, false);
-assert.equal(backendCalls.length, 1, 'Malformed or unknown requests must not invoke application functions');
+assert.equal(backendCalls.length, 2, 'Malformed or unknown requests must not invoke application functions');
 function client(fetch) {
   const calls = [];
   const window = {
@@ -53,7 +56,7 @@ function client(fetch) {
     assert.equal(options.method, 'POST');
     assert.equal(options.credentials, 'omit');
     assert.match(options.headers['Content-Type'], /^text\/plain/);
-    assert.deepEqual(JSON.parse(options.body), { method, args });
+    assert.deepEqual(JSON.parse(options.body), { method, args, authToken: '' });
   }
   assert.equal(successful.calls.length, 6);
   assert.equal(successful.window.POLYTA_GAS_TRANSPORT().post, 'sehat');

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Masuk | Polyta Global Mandiri</title>
+  <link rel="icon" href="/assets/img/logo-app.png" type="image/png">
+  <style>
+    :root{font-family:Inter,system-ui,sans-serif;color:#242b2c;background:#e9ece9}*{box-sizing:border-box}body{min-height:100vh;margin:0;display:grid;place-items:center;padding:20px}
+    main{width:min(440px,100%);padding:28px;background:#fff;border:1px solid #c5cbc7;border-radius:14px;box-shadow:0 16px 45px #1a2b1e1c}img{width:56px;height:56px;object-fit:contain}h1{margin:14px 0 5px;font-size:1.5rem}p{margin:0 0 22px;color:#64706a;font-size:.89rem;line-height:1.5}label{display:grid;gap:6px;margin:14px 0;font-size:.83rem;font-weight:700}input[type=email],input[type=password]{width:100%;padding:11px;border:1px solid #aeb9b1;border-radius:7px;font:inherit;font-weight:400}.remember{display:flex;align-items:center;gap:8px;font-weight:400}.remember input{width:16px;height:16px}button{width:100%;padding:11px;border:1px solid #8b1821;border-radius:7px;background:#aa1e28;color:#fff;font:inherit;font-weight:700;cursor:pointer}button:disabled{opacity:.55;cursor:wait}.message{min-height:22px;margin:12px 0 0;color:#a3141f;font-size:.81rem}small{display:block;margin-top:16px;color:#748078;font-size:.74rem}
+  </style>
+  <script src="/assets/js/gas-rpc.js?v=20260926-2"></script>
+</head>
+<body>
+  <main>
+    <img src="/assets/img/logo-app.png" alt="">
+    <h1>Masuk ke Portal Polyta</h1>
+    <p>Gunakan akun perusahaan sesuai jabatan. Menu dan tindakan akan mengikuti hak akses akun Anda.</p>
+    <form id="loginForm">
+      <label>Email<input id="email" type="email" autocomplete="username" required></label>
+      <label>Password<input id="password" type="password" autocomplete="current-password" required></label>
+      <label class="remember"><input id="remember" type="checkbox">Ingat saya di perangkat ini</label>
+      <button id="submit" type="submit">Masuk</button>
+    </form>
+    <div id="message" class="message" role="status" aria-live="polite"></div>
+    <small>Hubungi Admin PPIC jika akun belum dibuat atau akses jabatan perlu diubah.</small>
+  </main>
+  <script>
+  (function(){
+    'use strict';
+    var KEY='pgm:spk-auth-v1';
+    var params=new URLSearchParams(location.search);
+    var next=String(params.get('next')||'/');
+    if(!next.startsWith('/')||next.startsWith('//')||/[\\\x00-\x1f]/.test(next)||next.startsWith('/login/'))next='/';
+    function rpc(method){var args=[].slice.call(arguments,1);return new Promise(function(resolve,reject){var runner=google.script.run.withSuccessHandler(resolve).withFailureHandler(reject);runner[method].apply(runner,args);});}
+    function saved(){for(var storage of [sessionStorage,localStorage]){try{var data=JSON.parse(storage.getItem(KEY)||'null');if(data&&data.token)return data;}catch(ignore){}}return null;}
+    var existing=saved();
+    if(existing)rpc('getApprovalSession',existing.token).then(function(result){if(result&&result.status==='success')location.replace(next);}).catch(function(){});
+    document.getElementById('loginForm').addEventListener('submit',async function(event){
+      event.preventDefault();var button=document.getElementById('submit');button.disabled=true;document.getElementById('message').textContent='Memeriksa akun...';
+      try{var remember=document.getElementById('remember').checked;var result=await rpc('loginApprovalUser',document.getElementById('email').value.trim(),document.getElementById('password').value,remember);if(!result||result.status!=='success'||!result.token)throw new Error(result&&result.message||'Login gagal.');sessionStorage.removeItem(KEY);localStorage.removeItem(KEY);(remember?localStorage:sessionStorage).setItem(KEY,JSON.stringify({token:result.token,user:result.user,remember:remember}));document.getElementById('password').value='';location.replace(next);}catch(error){document.getElementById('message').textContent=error&&error.message||'Tidak dapat masuk.';button.disabled=false;}
+    });
+  })();
+  </script>
+</body>
+</html>

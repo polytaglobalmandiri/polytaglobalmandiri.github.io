@@ -366,7 +366,7 @@
     if (!p || !p.sections) return [];
     var out = [];
     p.sections.forEach(function (s) {
-      s.items.forEach(function (it) { out.push({ item: it, section: s.title, page: pageId }); });
+      s.items.forEach(function (it) { if (canOpen(it.url)) out.push({ item: it, section: s.title, page: pageId }); });
     });
     return out;
   }
@@ -374,10 +374,19 @@
   function allItems() {
     var out = [];
     SITE.nav.forEach(function (n) {
-      if (n.id === "beranda") return;
+      if (n.id === "beranda" || !canOpen(n.path)) return;
       pageItems(n.id).forEach(function (r) { out.push(r); });
     });
     return out;
+  }
+
+  function canOpen(path) {
+    if (!window.POLYTA_PORTAL_AUTH) return true;
+    var auth = window.POLYTA_PORTAL_AUTH.stored();
+    if (!auth || !auth.user) return false;
+    var target = String(path || '');
+    if (/^https?:\/\//i.test(target)) return true;
+    return window.POLYTA_PORTAL_AUTH.allowed('/' + target.replace(/^\/+/, ''), auth.user.roleKey);
   }
 
   /* ---------------------------------------------------------- Chrome */
@@ -399,6 +408,7 @@
     nav.setAttribute("aria-label", "Navigasi utama");
     var ul = el("ul", "nav__list");
     SITE.nav.forEach(function (n) {
+      if (!canOpen(n.path)) return;
       var li = el("li");
       var a = el("a", "nav__link" + (n.id === active ? " is-active" : ""), raw(n.label));
       a.href = link(n.path);
@@ -627,10 +637,10 @@
       '<div class="section__head">' +
         '<h2 class="section__title engrave">' + raw(section.title) + "</h2>" +
         (section.hint ? '<span class="section__hint">' + raw(section.hint) + "</span>" : "") +
-        '<span class="section__badge">' + section.items.length + " item</span>" +
+        '<span class="section__badge">' + section.items.filter(function (it) { return canOpen(it.url); }).length + " item</span>" +
       "</div>";
     var g = el("div", "grid");
-    section.items.forEach(function (it) { g.appendChild(buildTile(pageId, it)); });
+    section.items.forEach(function (it) { if (canOpen(it.url)) g.appendChild(buildTile(pageId, it)); });
     s.appendChild(g);
     return s;
   }
@@ -691,6 +701,7 @@
       "</div>";
     var grid = el("div", "grid grid--dept");
     SITE.pages.beranda.departments.forEach(function (d) {
+      if (!canOpen(d.path)) return;
       var n = pageItems(d.id).length;
       var deptClass = String(d.id || "custom").toLowerCase().replace(/[^a-z0-9_-]+/g, "-");
       var a = el("a", "dept dept--" + deptClass);

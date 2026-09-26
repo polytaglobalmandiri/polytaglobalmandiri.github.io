@@ -9676,7 +9676,7 @@
         }
 
     </style>
-  <script src="/assets/js/gas-rpc.js?v=20260916-2"></script>
+  <script src="/assets/js/gas-rpc.js?v=20260926-2"></script>
 
   <style>
     .polyta-portal-home {
@@ -9849,6 +9849,7 @@
     top: -2px;
   }
 </style>
+  <script src="/assets/js/portal-auth.js?v=20260926-1"></script>
 </head>
 <body
     class="tw:min-h-screen tw:text-polyta-ink selection:tw:bg-polyta-brand-soft selection:tw:text-polyta-brand"
@@ -18890,182 +18891,48 @@
       });
     }
 
-    // SweetAlert memasang popup-nya sebagai anak <body>. Ketika wizard dibuka
-    // sebagai modal Bootstrap, focus trap milik modal menarik fokus kembali ke
-    // dalam dirinya setiap kali fokus berpindah keluar, sehingga kolom input
-    // pada popup tidak dapat diklik maupun diketik. Menempatkan popup di dalam
-    // modal yang sedang terbuka membuat fokusnya tetap terhitung di dalam modal.
-    // Pada halaman Input SPK versi penuh tidak ada modal, jadi kembali ke <body>.
-    // Nilainya ditulis eksplisit karena SweetAlert menolak target undefined.
-    function approvalSwalTarget_() {
-      return document.querySelector('.modal.show') || 'body';
+    function centralApprovalAuth_() {
+      try { return JSON.parse(localStorage.getItem(SPK_AUTH_STORAGE_KEY_) || sessionStorage.getItem(SPK_AUTH_STORAGE_KEY_) || 'null'); }
+      catch (ignore) { return null; }
     }
 
-    function bindApprovalPasswordToggle_() {
-      const toggle = document.getElementById('toggleApprovalLoginPassword');
-      const password = document.getElementById('approvalLoginPassword');
-      if (!toggle || !password) return;
-      toggle.onclick = function() {
-        const visible = password.type === 'password';
-        password.type = visible ? 'text' : 'password';
-        toggle.setAttribute('aria-label', visible ? 'Sembunyikan password' : 'Tampilkan password');
-        toggle.innerHTML = '<i class="fa-solid fa-' + (visible ? 'eye-slash' : 'eye') + '"></i>';
-      };
+    function redirectCentralLogin_() {
+      window.location.assign('/login/?next=' + encodeURIComponent(window.location.pathname + window.location.search));
     }
 
     async function ensureCreatorApprovalLogin_() {
-      let saved = null;
-      let savedPermanently = false;
+      const saved = centralApprovalAuth_();
+      if (!saved || !saved.token) { redirectCentralLogin_(); return null; }
       try {
-        const localAuth = localStorage.getItem(SPK_AUTH_STORAGE_KEY_);
-        savedPermanently = Boolean(localAuth);
-        saved = JSON.parse(localAuth || sessionStorage.getItem(SPK_AUTH_STORAGE_KEY_) || 'null');
-      } catch (ignore) {}
-      if (saved && saved.token) {
-        try {
-          const current = await approvalRpcPromise_('getApprovalSession', saved.token);
-          if (current && current.status === 'success' && current.user.roleKey === 'admin_ppic') {
-            saved.user = current.user;
-            (savedPermanently ? localStorage : sessionStorage).setItem(SPK_AUTH_STORAGE_KEY_, JSON.stringify(saved));
-            return saved;
-          }
-        } catch (ignore) {}
+        const current = await approvalRpcPromise_('getApprovalSession', saved.token);
+        if (!current || current.status !== 'success' || !current.user) throw new Error('Sesi berakhir.');
+        if (current.user.roleKey !== 'admin_ppic') {
+          await Swal.fire({ icon: 'warning', title: 'Akses ditolak', text: 'Pembuatan SPK hanya untuk Admin PPIC.' });
+          return null;
+        }
+        saved.user = current.user;
+        return saved;
+      } catch (error) {
         localStorage.removeItem(SPK_AUTH_STORAGE_KEY_);
         sessionStorage.removeItem(SPK_AUTH_STORAGE_KEY_);
+        redirectCentralLogin_();
+        return null;
       }
-
-      const result = await Swal.fire({
-        icon: 'info',
-        title: 'Login Admin PPIC',
-        html: '<div class="spk-login-dialog">' +
-          '<p class="spk-login-note">SPK baru hanya dapat dibuat oleh Admin PPIC. Paraf pembuat akan terisi otomatis.</p>' +
-          '<label class="spk-login-field"><span>Email</span><input id="approvalLoginEmail" type="email" autocomplete="username" placeholder="nama@perusahaan.com"></label>' +
-          '<label class="spk-login-field"><span>Password</span><span class="spk-login-password-shell"><input id="approvalLoginPassword" type="password" autocomplete="current-password" placeholder="Masukkan password"><button class="spk-login-password-toggle" id="toggleApprovalLoginPassword" type="button" aria-label="Tampilkan password"><i class="fa-solid fa-eye"></i></button></span></label>' +
-          '<label class="spk-login-remember"><input id="approvalLoginRemember" type="checkbox"><span>Ingat saya di perangkat ini</span></label>' +
-          '</div>',
-        target: approvalSwalTarget_(),
-        showCancelButton: true,
-        confirmButtonText: 'Masuk & Lanjutkan',
-        cancelButtonText: 'Batal',
-        confirmButtonColor: '#202020',
-        background: '#e0e5ec',
-        customClass: {
-          popup: 'swal2-popup-neumorphic spk-login-popup spk-login-compact',
-          confirmButton: 'spk-login-confirm',
-          cancelButton: 'spk-login-cancel'
-        },
-        showCloseButton: true,
-        focusConfirm: false,
-        didOpen: function() {
-          const email = document.getElementById('approvalLoginEmail');
-          if (email) email.focus();
-          bindApprovalPasswordToggle_();
-        },
-        showLoaderOnConfirm: true,
-        allowOutsideClick: function() { return !Swal.isLoading(); },
-        preConfirm: async function() {
-          const email = document.getElementById('approvalLoginEmail').value.trim();
-          const password = document.getElementById('approvalLoginPassword').value;
-          if (!email || !password) { Swal.showValidationMessage('Email dan password wajib diisi.'); return false; }
-          try {
-            const remember = document.getElementById('approvalLoginRemember').checked;
-            const response = await approvalRpcPromise_('loginApprovalUser', email, password, remember);
-            if (!response || response.status !== 'success') throw new Error(response && response.message || 'Login gagal.');
-            if (!response.user || response.user.roleKey !== 'admin_ppic') throw new Error('Hanya akun Admin PPIC/pembuat yang dapat membuat SPK.');
-            response.remember = remember;
-            return response;
-          } catch (error) { Swal.showValidationMessage(error.message || 'Login gagal.'); return false; }
-        }
-      });
-      if (!result.isConfirmed || !result.value) return null;
-      const auth = { token: result.value.token, user: result.value.user };
-      localStorage.removeItem(SPK_AUTH_STORAGE_KEY_);
-      sessionStorage.removeItem(SPK_AUTH_STORAGE_KEY_);
-      (result.value.remember ? localStorage : sessionStorage).setItem(SPK_AUTH_STORAGE_KEY_, JSON.stringify(auth));
-      return auth;
     }
 
     async function ensureInitialApprovalLogin_() {
-      let saved = null;
-      let savedPermanently = false;
+      const saved = centralApprovalAuth_();
+      if (!saved || !saved.token) { redirectCentralLogin_(); return false; }
       try {
-        const localAuth = localStorage.getItem(SPK_AUTH_STORAGE_KEY_);
-        savedPermanently = Boolean(localAuth);
-        saved = JSON.parse(localAuth || sessionStorage.getItem(SPK_AUTH_STORAGE_KEY_) || 'null');
-      } catch (ignore) {}
-
-      if (saved && saved.token) {
-        try {
-          const current = await approvalRpcPromise_('getApprovalSession', saved.token);
-          if (current && current.status === 'success' && current.user) {
-            saved.user = current.user;
-            (savedPermanently ? localStorage : sessionStorage)
-              .setItem(SPK_AUTH_STORAGE_KEY_, JSON.stringify(saved));
-            return true;
-          }
-        } catch (ignore) {}
+        const current = await approvalRpcPromise_('getApprovalSession', saved.token);
+        if (!current || current.status !== 'success' || !current.user) throw new Error('Sesi berakhir.');
+        return true;
+      } catch (error) {
         localStorage.removeItem(SPK_AUTH_STORAGE_KEY_);
         sessionStorage.removeItem(SPK_AUTH_STORAGE_KEY_);
+        redirectCentralLogin_();
+        return false;
       }
-
-      try { await window.POLYTA_PRIME_GAS_ACCESS(); } catch (ignore) {}
-      const result = await Swal.fire({
-        icon: 'info',
-        title: 'Login Portal Polyta',
-        html: '<div class="spk-login-dialog">' +
-          '<p class="spk-login-note">Masuk sekali untuk membuka dashboard, membuat SPK, dan menggunakan persetujuan sesuai jabatan Anda.</p>' +
-          '<label class="spk-login-field"><span>Email</span><input id="approvalLoginEmail" type="email" autocomplete="username" placeholder="nama@perusahaan.com"></label>' +
-          '<label class="spk-login-field"><span>Password</span><span class="spk-login-password-shell"><input id="approvalLoginPassword" type="password" autocomplete="current-password" placeholder="Masukkan password"><button class="spk-login-password-toggle" id="toggleApprovalLoginPassword" type="button" aria-label="Tampilkan password"><i class="fa-solid fa-eye"></i></button></span></label>' +
-          '<label class="spk-login-remember"><input id="approvalLoginRemember" type="checkbox"><span>Ingat saya di perangkat ini</span></label>' +
-          '</div>',
-        target: 'body',
-        showCancelButton: false,
-        confirmButtonText: 'Masuk ke Portal',
-        confirmButtonColor: '#202020',
-        background: '#e0e5ec',
-        customClass: {
-          popup: 'swal2-popup-neumorphic spk-login-popup spk-login-compact',
-          confirmButton: 'spk-login-confirm'
-        },
-        showCloseButton: true,
-        focusConfirm: false,
-        allowOutsideClick: false,
-        didOpen: function() {
-          const email = document.getElementById('approvalLoginEmail');
-          if (email) email.focus();
-          bindApprovalPasswordToggle_();
-        },
-        showLoaderOnConfirm: true,
-        preConfirm: async function() {
-          const email = document.getElementById('approvalLoginEmail').value.trim();
-          const password = document.getElementById('approvalLoginPassword').value;
-          if (!email || !password) {
-            Swal.showValidationMessage('Email dan password wajib diisi.');
-            return false;
-          }
-          try {
-            try { await window.POLYTA_PRIME_GAS_ACCESS(); } catch (ignore) {}
-            const remember = document.getElementById('approvalLoginRemember').checked;
-            const response = await approvalRpcPromise_('loginApprovalUser', email, password, remember);
-            if (!response || response.status !== 'success') {
-              throw new Error(response && response.message || 'Login gagal.');
-            }
-            response.remember = remember;
-            return response;
-          } catch (error) {
-            Swal.showValidationMessage(error.message || 'Login gagal.');
-            return false;
-          }
-        }
-      });
-
-      if (!result.isConfirmed || !result.value) return false;
-      const auth = { token: result.value.token, user: result.value.user };
-      localStorage.removeItem(SPK_AUTH_STORAGE_KEY_);
-      sessionStorage.removeItem(SPK_AUTH_STORAGE_KEY_);
-      (result.value.remember ? localStorage : sessionStorage)
-        .setItem(SPK_AUTH_STORAGE_KEY_, JSON.stringify(auth));
-      return true;
     }
 
     async function submitDatabase_() {

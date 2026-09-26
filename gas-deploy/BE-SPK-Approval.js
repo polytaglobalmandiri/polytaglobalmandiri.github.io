@@ -41,7 +41,12 @@ var APPROVAL_ROLES_ = {
   manager_ppic: { label: 'Manager PPIC', department: 'PPIC' },
   manager_qc: { label: 'Manager QC/QA', department: 'QC/QA' },
   senior_manager: { label: 'Senior Manager', department: 'Management' },
-  general_manager: { label: 'General Manager', department: 'Management' }
+  general_manager: { label: 'General Manager', department: 'Management' },
+  marketing: { label: 'Marketing', department: 'Marketing' },
+  purchasing: { label: 'Purchasing', department: 'Purchasing' },
+  finance: { label: 'Finance', department: 'Finance' },
+  admin_portal: { label: 'Administrator Portal', department: 'Administration' },
+  support: { label: 'Support', department: 'Support' }
 };
 
 function getApprovalBootstrapStatus() {

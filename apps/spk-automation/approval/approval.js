@@ -16,7 +16,6 @@
   var previewPackageMessage='';
   var previewWaitTimer=0;
   var loginBusy=false;
-  var manualLoginStarted=false;
   var loginWaitTimers=[];
   var queueLoadPromise=null;
   var PRINT_PREVIEW_VERSION='20260829-1';
@@ -58,11 +57,6 @@
     if(code==='tanpa-jawaban')return '<p style="margin:0 0 .7em">Permintaan tidak pernah sampai ke server.</p><ol style="text-align:left;margin:0;padding-left:1.2em;line-height:1.65"><li>Periksa sambungan internet.</li><li>Pastikan <b>script.google.com</b> tidak ditahan proxy atau antivirus.</li></ol>';
     return '';
   }
-  function alertLoginError(error){
-    var help=transportHelp(error&&error.transportCode);
-    if(!help)return alertError(error&&error.message);
-    return showAlert({icon:'error',title:'Tidak bisa masuk',html:help,confirmButtonColor:'#b41420'}).catch(function(){window.alert(error&&error.message);});
-  }
   // Satu penanda proses per layar. Di ruang kerja dipakai overlay; di halaman login
   // cukup tombolnya, sehingga overlay ditahan selama proses login berjalan.
   // Kedalaman dihitung supaya alur bersarang (login -> showApp -> loadQueue)
@@ -71,30 +65,6 @@
     var busy=busyDepth>0&&!busyPaused&&!loginBusy;
     document.body.classList.toggle('loading',busy);
     $('busyOverlay').hidden=!busy;
-  }
-  function setLoginBusy(value){
-    loginBusy=Boolean(value);
-    var button=$('loginButton');
-    button.disabled=loginBusy;
-    button.setAttribute('aria-busy',String(loginBusy));
-    button.querySelector('i').className=loginBusy?'fa-solid fa-spinner':'fa-solid fa-right-to-bracket';
-    button.querySelector('span').textContent=loginBusy?'Mohon tunggu…':'Masuk ke Persetujuan';
-    applyBusy();
-    // Apps Script yang dingin dapat memakan puluhan detik. Tanpa kabar apa pun
-    // tombol yang berputar lama terbaca sebagai macet, dan pengguna memuat
-    // ulang halaman justru saat permintaannya hampir dilayani.
-    loginWaitTimers.forEach(window.clearTimeout);
-    loginWaitTimers=[];
-    if(!loginBusy)return;
-    loginWaitTimers=[
-      window.setTimeout(function(){setLoginWaitText('Menunggu server…');},15000),
-      window.setTimeout(function(){setLoginWaitText('Server sedang lambat, tetap ditunggu…');},45000),
-      window.setTimeout(function(){setLoginWaitText('Masih menunggu, jangan tutup halaman…');},90000)
-    ];
-  }
-  function setLoginWaitText(text){
-    if(!loginBusy)return;
-    $('loginButton').querySelector('span').textContent=text;
   }
   function setBusy(value,title,detail){
     busyDepth=Math.max(0,busyDepth+(value?1:-1));
@@ -257,27 +227,24 @@
     catch(error){console.warn('Status aktivasi belum dapat dimuat:',error);}
   }
   async function init(){
-    bind();
-    $('loginView').hidden=false;
-    $('setupView').hidden=true;
     var auth=savedAuth();
-    if(!auth.token){await loadBootstrapStatus();return;}
+    if(!auth.token){window.location.replace('/login/?next='+encodeURIComponent(window.location.pathname+window.location.search));return;}
+    bind();
+    $('loginView').hidden=true;
+    $('setupView').hidden=true;
     // Pemulihan sesi berjalan di latar dan TIDAK mengunci formulir. Sebelumnya
     // tombol Masuk dinonaktifkan selama pengecekan ini, sehingga token yang
     // sudah basi membuat form terkunci sampai 20 detik setiap halaman dibuka —
     // pengguna tidak bisa masuk manual justru saat sesinya tidak lagi berlaku.
     try{
       var session=await rpc('getApprovalSession',auth.token);
-      if(manualLoginStarted)return;
       if(session&&session.status==='success'){saveAuth(auth.token,session.user,auth.remember);await showApp();return;}
       clearAuth();showLogin();
-    }catch(error){if(!manualLoginStarted){clearAuth();showLogin();}}
+    }catch(error){clearAuth();showLogin();}
   }
   function bind(){
     setupSignaturePad=createSignaturePad($('setupSignaturePad'),$('clearSetupSignature'));
     userSignaturePad=createSignaturePad($('userSignaturePad'),$('clearUserSignature'));
-    $('loginForm').addEventListener('submit',login);
-    $('toggleLoginPassword').addEventListener('click',toggleLoginPassword);
     $('logoutButton').addEventListener('click',logout);
     $('showSetupButton').addEventListener('click',function(){$('loginView').hidden=true;$('setupView').hidden=false;window.setTimeout(function(){setupSignaturePad.resize();},0);});
     $('cancelSetup').addEventListener('click',showLogin);
@@ -307,75 +274,9 @@
     window.addEventListener('message',handlePreviewMessage);
     $('userList').addEventListener('click',function(event){var button=event.target.closest('[data-user]');if(button)openUser(state.users.find(function(u){return u.userId===button.dataset.user;}));});
   }
-  function setLoginPasswordVisibility(visible){
-    var input=$('loginPassword');
-    var button=$('toggleLoginPassword');
-    var label=visible?'Sembunyikan password':'Tampilkan password';
-    input.type=visible?'text':'password';
-    button.setAttribute('aria-pressed',String(visible));
-    button.setAttribute('aria-label',label);
-    button.title=label;
-    button.querySelector('.password-icon-show').hidden=visible;
-    button.querySelector('.password-icon-hide').hidden=!visible;
-  }
-  function toggleLoginPassword(){
-    var input=$('loginPassword');
-    setLoginPasswordVisibility(input.type==='password');
-    input.focus();
-  }
   function returnToPortal(){window.location.replace('/');}
   function showLogin(){
-    $('loginView').hidden=false;
-    $('setupView').hidden=true;
-    $('appView').hidden=true;
-    $('userbar').hidden=true;
-    loadBootstrapStatus();
-    window.scrollTo({top:0,behavior:'smooth'});
-  }
-  async function login(event){
-    event.preventDefault();
-    // Menandai bahwa pengguna mengambil alih, supaya pemulihan sesi yang masih
-    // berjalan di latar tidak menimpa hasil login manual ini.
-    manualLoginStarted=true;
-    setLoginBusy(true);
-    // Chrome baru memblokir cookie pihak ketiga, dan frame googleusercontent
-    // yang membawa balasan Apps Script ikut mati karenanya. Izin itu hanya
-    // boleh diminta selagi klik pengguna masih berlaku, jadi tempatnya di
-    // sini - bukan saat halaman dimuat.
-    try{await window.POLYTA_PRIME_GAS_ACCESS();}catch(ignored){}
-    try{
-      var remember=$('rememberMe').checked;
-      var response=await rpc('loginApprovalUser',$('loginEmail').value,$('loginPassword').value,remember);
-      if(!response||response.status!=='success'){
-        var rejected=new Error(response&&response.message);
-        rejected.credentialsRejected=true;
-        throw rejected;
-      }
-      saveAuth(response.token,response.user,remember);
-      $('loginPassword').value='';
-      setLoginPasswordVisibility(false);
-      // Login sudah selesai. Pemuatan antrean memakai indikator ruang kerja
-      // sendiri dan tidak boleh membuat tombol masuk terus berputar.
-      setLoginBusy(false);
-      await showApp();
-    }catch(error){
-      // Password hanya dibuang saat memang ditolak. Bila yang gagal adalah
-      // sambungannya, mengetik ulang password tidak memperbaiki apa pun dan
-      // hanya menyulitkan percobaan berikutnya.
-      if(error&&error.credentialsRejected){
-        $('loginPassword').value='';
-        setLoginPasswordVisibility(false);
-      }
-      // Pulihkan tombol sebelum dialog dimuat/ditutup agar form tidak terkunci.
-      setLoginBusy(false);
-      await alertLoginError(error);
-      // Kredensial ditolak berarti isian perlu diperiksa ulang dari awal.
-      // Kegagalan sambungan tidak: isiannya masih utuh dan tinggal dicoba lagi.
-      if(error&&error.credentialsRejected)$('loginEmail').focus();
-      else $('loginButton').focus();
-    }finally{
-      setLoginBusy(false);
-    }
+    window.location.replace('/login/?next='+encodeURIComponent(window.location.pathname+window.location.search));
   }
   function logout(){var token=state.token;clearAuth();showLogin();if(token)rpc('logoutApprovalUser',token).catch(function(){});}
   async function setup(event){event.preventDefault();setBusy(true,'Mengaktifkan akun','Tanda tangan dan data pengguna sedang disimpan…');try{var form=new FormData(event.currentTarget);var signature=await selectedSignatureData(form.get('signature'),setupSignaturePad,true);var response=await rpc('bootstrapApprovalAdmin',form.get('setupCode'),{email:form.get('email'),name:form.get('name'),password:form.get('password'),signatureData:signature,signatureName:form.get('name')});if(!response||response.status!=='success')throw new Error(response&&response.message);await showAlert({icon:'success',title:'Akun dibuat',text:'Silakan masuk memakai email dan password Admin PPIC.',confirmButtonColor:'#b41420'});event.currentTarget.reset();setupSignaturePad.clear();$('showSetupButton').hidden=true;showLogin();}catch(error){alertError(error.message);}finally{setBusy(false);}}

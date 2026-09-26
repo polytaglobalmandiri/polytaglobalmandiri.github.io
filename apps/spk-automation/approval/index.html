@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="/assets/vendor/inter/inter.css?v=20260827">
   <link rel="stylesheet" href="/assets/vendor/fontawesome/css/all.min.css?v=20260827">
   <link rel="stylesheet" href="approval.css?v=20260828-5">
+  <script src="/assets/js/portal-auth.js?v=20260926-1"></script>
 </head>
 <body data-page="approval-spk">
   <header class="topbar">
@@ -53,34 +54,7 @@
       <span class="status-chip"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Akses Terproteksi</span>
     </section>
 
-    <section class="auth-workspace" id="loginView" hidden>
-      <aside class="auth-intro">
-        <span class="intro-orb"><i class="fa-solid fa-file-circle-check" aria-hidden="true"></i></span>
-        <p class="eyebrow">ALUR PERSETUJUAN TERKENDALI</p>
-        <h2>SPK siap release setelah seluruh persetujuan lengkap.</h2>
-        <p>Setiap keputusan tercatat sesuai akun, jabatan, waktu, dan tanda tangan yang tersimpan.</p>
-        <div class="flow-list" aria-label="Tahapan persetujuan">
-          <span><b>01</b><i class="fa-solid fa-user-lock" aria-hidden="true"></i> Login akun jabatan</span>
-          <span><b>02</b><i class="fa-solid fa-pen-nib" aria-hidden="true"></i> Periksa dan setujui SPK</span>
-          <span><b>03</b><i class="fa-solid fa-flag-checkered" aria-hidden="true"></i> Siap release oleh Admin PPIC</span>
-        </div>
-      </aside>
-
-      <article class="auth-card">
-        <div class="card-heading">
-          <span><i class="fa-solid fa-key" aria-hidden="true"></i></span>
-          <div><p class="eyebrow">AKSES PENGGUNA</p><h2>Masuk dengan email</h2><p>Gunakan akun sesuai jabatan Anda.</p></div>
-        </div>
-        <form id="loginForm" class="form-stack">
-          <label><span>Email</span><span class="input-shell"><i class="fa-regular fa-envelope" aria-hidden="true"></i><input id="loginEmail" type="email" autocomplete="email" placeholder="nama@perusahaan.com" required></span></label>
-          <label><span>Password</span><span class="input-shell password-shell"><i class="fa-solid fa-lock" aria-hidden="true"></i><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Masukkan password" required><button class="password-toggle" id="toggleLoginPassword" type="button" aria-label="Tampilkan password" aria-pressed="false" title="Tampilkan password"><i class="fa-solid fa-eye password-icon-show" aria-hidden="true"></i><img class="password-icon-hide" src="/assets/vendor/fontawesome/svgs/solid/eye-slash.svg" alt="" aria-hidden="true" hidden></button></span></label>
-          <label class="check"><input id="rememberMe" type="checkbox"><span>Ingat saya di perangkat ini</span></label>
-          <button class="button primary wide login-button" id="loginButton" type="submit"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i><span>Masuk ke Persetujuan</span></button>
-        </form>
-        <p class="security-note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Jangan bagikan password atau akses akun Anda kepada orang lain.</p>
-        <button class="text-button" id="showSetupButton" type="button" hidden>Aktivasi Admin PPIC pertama</button>
-      </article>
-    </section>
+    <section id="loginView" hidden><button id="showSetupButton" type="button" hidden></button></section>
 
     <section class="workspace setup-workspace" id="setupView" hidden>
       <header class="workspace-head">
@@ -193,7 +167,7 @@
     </div>
   </div>
 
-  <script src="/assets/js/gas-rpc.js?v=20260916-2" defer></script>
+  <script src="/assets/js/gas-rpc.js?v=20260926-2" defer></script>
   <script src="approval.js?v=20260829-1" defer></script>
 </body>
 </html>

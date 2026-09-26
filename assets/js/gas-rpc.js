@@ -18,7 +18,7 @@
   // atau karena pemanggilan yang mengubah data; perubahan kode tidak
   // menyentuhnya sama sekali, jadi nomor versi pada kunci inilah yang wajib
   // dinaikkan setiap bentuk muatannya berubah.
-  var DASHBOARD_CACHE_KEY = "dashboard-data-v7";
+  var DASHBOARD_CACHE_KEY = "dashboard-data-v8";
   var DASHBOARD_CACHE_MAX_AGE = 6 * 60 * 60 * 1000;
   var MUTATING_METHODS = {
     saveSpkYearPreference: true,
@@ -105,6 +105,16 @@
 
   var scriptTransport = "belum-diuji";
   var postTransport = "belum-diuji";
+  function authToken() {
+    for (var i = 0, stores = [window.sessionStorage, window.localStorage]; i < stores.length; i++) {
+      try {
+        var auth = JSON.parse(stores[i].getItem('pgm:spk-auth-v1') || 'null');
+        if (auth && auth.token) return auth.token;
+      } catch (ignore) {}
+    }
+    return '';
+  }
+  function dashboardCacheKey() { return DASHBOARD_CACHE_KEY + ':' + authToken(); }
 
   function transportError(code, message, originalError) {
     var error = new Error(message);
@@ -139,7 +149,7 @@
     return window.fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=UTF-8" },
-      body: JSON.stringify({ method: method, args: args }),
+      body: JSON.stringify({ method: method, args: args, authToken: authToken() }),
       credentials: "omit",
       redirect: "follow",
       signal: controller.signal
@@ -218,20 +228,8 @@
   }
 
   function requestTransport(method, args) {
-    // Pembacaan ini tidak membawa kredensial dan aman dicoba ulang. Kegagalan
-    // JSONP sementara tidak boleh mengembalikannya ke iframe yang diblokir.
-    var publicRead = [
-      "getDashboardData", "getDashboardDataRevision", "getDashboardTrackingData",
-      "getSpkData", "getSpkYearPreference", "getInputSpkOptionsFast",
-      "getSpkExistenceSnapshot", "checkSpkExists", "getMasterFormOptions"
-    ].indexOf(method) !== -1;
-    if (publicRead) {
-      return requestViaScript(method, args).catch(function (error) {
-        if (!error || error.transportCode !== "cadangan-belum-ada") throw error;
-        return requestViaScript(method, args);
-      });
-    }
-    // Hop kedua Apps Script (script.googleusercontent.com) sesekali membalas
+    // Semua permintaan membawa sesi dalam badan POST. Hop kedua Apps Script
+    // (script.googleusercontent.com) sesekali membalas
     // halaman 404 Drive walau skripnya sendiri berhasil, terutama ketika
     // eksekusinya lambat. Pembacaan tidak mengubah apa pun, jadi diberi satu
     // kesempatan kedua seperti jalur JSONP. Transaksi tetap tidak diulang.
@@ -265,7 +263,7 @@
 
   function requestAndCacheDashboard(method, args) {
     return requestServer(method, args).then(function (result) {
-      writeClientCache(DASHBOARD_CACHE_KEY, result).catch(function () {});
+      writeClientCache(dashboardCacheKey(), result).catch(function () {});
       return result;
     });
   }
@@ -284,9 +282,9 @@
 
     return requestServer(method, args).then(function (result) {
       if (method === "getDashboardData") {
-        writeClientCache(DASHBOARD_CACHE_KEY, result).catch(function () {});
+        writeClientCache(dashboardCacheKey(), result).catch(function () {});
       } else if (MUTATING_METHODS[method]) {
-        deleteClientCache(DASHBOARD_CACHE_KEY);
+        deleteClientCache(dashboardCacheKey());
       }
       return result;
     });

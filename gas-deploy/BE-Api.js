@@ -80,6 +80,7 @@ var PORTAL_PAGE_CATALOG_ = [
   ['/apps/spk-automation/create-spk/', 'Buat SPK'],
   ['/apps/spk-automation/print-spk/', 'Cetak SPK'],
   ['/apps/spk-automation/approval/', 'Persetujuan SPK'],
+  ['/apps/spk-automation/admin/', 'Administrasi Akses'],
   ['/apps/spk-automation/schedule/', 'Jadwal Produksi'],
   ['/apps/spk-automation/production/', 'Hasil Produksi'],
   ['/apps/spk-automation/material-management/', 'Master Bahan'],

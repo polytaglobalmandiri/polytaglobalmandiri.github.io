@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Administrasi Akses | Polyta Global Mandiri</title>
+  <link rel="icon" href="/assets/img/logo-app.png" type="image/png">
+  <link rel="stylesheet" href="/assets/vendor/inter/inter.css?v=20260827">
+  <link rel="stylesheet" href="/assets/vendor/fontawesome/css/all.min.css?v=20260827">
+  <link rel="stylesheet" href="../approval/approval.css?v=20260926-1">
+  <script src="/assets/js/portal-auth.js?v=20260926-3"></script>
+</head>
+<body data-page="admin-access">
+  <header class="topbar"><div class="topbar-inner">
+    <a class="brand" href="/"><span class="brand-mark"><img src="/assets/img/logo-app.png" alt="" style="width:44px;height:44px;object-fit:contain"></span><span><strong class="brand-name">POLYTA GLOBAL MANDIRI</strong><small class="brand-subtitle">Administrasi Akses</small></span></a>
+    <nav class="topnav" aria-label="Navigasi utama"><a class="nav-link-app" href="/"><i class="fa-solid fa-house" aria-hidden="true"></i><span>Portal Utama</span></a><a class="nav-link-app" href="/apps/spk-automation/approval/"><i class="fa-solid fa-file-signature" aria-hidden="true"></i><span>Persetujuan SPK</span></a></nav>
+  </div></header>
+  <main class="app-main">
+    <section class="page-heading"><div class="heading-group"><span class="heading-icon"><i class="fa-solid fa-user-shield" aria-hidden="true"></i></span><div><p class="eyebrow">AKUN MASTER</p><h1>Administrasi Akses</h1><p>Kelola pengguna, jabatan, dan izin secara terpisah dari persetujuan SPK.</p></div></div><span class="status-chip"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Khusus Master</span></section>
+    <section class="workspace admin-panel" id="adminPanel"><header class="workspace-head section-title"><div class="workspace-title"><span><i class="fa-solid fa-users-gear" aria-hidden="true"></i></span><div><p class="eyebrow">PENGATURAN PENGGUNA</p><h2>Pengguna dan otoritas</h2><p>Tentukan akses halaman, menu, dan tindakan data setiap akun.</p></div></div><button class="button primary" id="newUserButton" type="button"><i class="fa-solid fa-user-plus" aria-hidden="true"></i> Tambah pengguna</button></header><div class="user-list" id="userList"><div class="empty">Memuat pengguna...</div></div></section>
+  </main>
+  <dialog id="userDialog">
+    <form id="userForm" class="form-grid" method="dialog">
+      <div class="dialog-head"><div><p class="eyebrow">DATABASE PENGGUNA</p><h2 id="userDialogTitle">Tambah pengguna</h2></div><button class="icon-button" id="closeUserDialog" type="button" aria-label="Tutup">×</button></div>
+      <input name="userId" type="hidden">
+      <label>Email login<input name="email" type="email" autocomplete="email" required></label>
+      <label>Nama lengkap<input name="name" autocomplete="name" required></label>
+      <label>Jabatan<select name="roleKey" id="roleSelect" required></select></label>
+      <div class="full-field" id="permissionEditor"></div>
+      <label>Password <small>Kosongkan jika tidak diubah</small><input name="password" type="password" minlength="8" autocomplete="new-password"></label>
+      <label class="full-field">Upload file tanda tangan <small>PNG/JPG maks. 1 MB atau PDF maks. 5 MB</small><input name="signature" type="file" accept="image/png,image/jpeg,application/pdf,.pdf"></label>
+      <div class="signature-field">
+        <div class="signature-field-head"><span><i class="fa-solid fa-signature" aria-hidden="true"></i> Tanda tangan manual</span><button class="text-button compact" id="clearUserSignature" type="button"><i class="fa-solid fa-eraser" aria-hidden="true"></i> Hapus / Ulangi</button></div>
+        <canvas id="userSignaturePad" class="signature-pad" aria-label="Area menggambar tanda tangan pengguna"></canvas>
+        <small>Garis dirapikan otomatis. Biarkan kosong saat mengubah pengguna jika tanda tangan lama tetap dipakai.</small>
+      </div>
+      <label class="check full-field"><input name="active" type="checkbox" checked><span>Akun aktif</span></label>
+      <div class="form-actions"><button class="button ghost" id="cancelUser" type="button">Batal</button><button class="button primary" type="submit"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Simpan pengguna</button></div>
+    </form>
+  </dialog>
+
+  <div class="busy-overlay" id="busyOverlay" role="status" aria-live="polite" hidden><div class="busy-card"><span class="busy-spinner"></span><span><strong id="busyTitle">Memproses permintaan</strong><small id="busyDetail">Mohon tunggu sebentar...</small></span></div></div>
+  <script src="/assets/js/data.js?v=20260926-1" defer></script>
+  <script src="/assets/js/gas-rpc.js?v=20260926-2" defer></script>
+  <script src="/assets/vendor/sweetalert2/sweetalert2-11.26.25.all.min.js" defer></script>
+  <script src="admin.js?v=20260926-1" defer></script>
+</body>
+</html>

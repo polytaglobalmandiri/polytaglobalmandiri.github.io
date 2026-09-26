@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="/assets/vendor/inter/inter.css?v=20260827">
   <link rel="stylesheet" href="/assets/vendor/fontawesome/css/all.min.css?v=20260827">
   <link rel="stylesheet" href="approval.css?v=20260926-1">
-  <script src="/assets/js/portal-auth.js?v=20260926-2"></script>
+  <script src="/assets/js/portal-auth.js?v=20260926-3"></script>
 </head>
 <body data-page="approval-spk">
   <header class="topbar">
@@ -88,32 +88,9 @@
         <div class="queue" id="queueList"></div>
       </section>
 
-      <section class="workspace admin-panel" id="adminPanel" hidden>
-        <header class="workspace-head section-title"><div class="workspace-title"><span><i class="fa-solid fa-users-gear" aria-hidden="true"></i></span><div><p class="eyebrow">AKUN MASTER</p><h2>Pengguna dan otoritas</h2><p>Atur akses halaman, tindakan data, jabatan, dan tanda tangan setiap pengguna.</p></div></div><button class="button primary" id="newUserButton" type="button"><i class="fa-solid fa-user-plus" aria-hidden="true"></i> Tambah pengguna</button></header>
-        <div class="user-list" id="userList"></div>
-      </section>
+
     </section>
   </main>
-
-  <dialog id="userDialog">
-    <form id="userForm" class="form-grid" method="dialog">
-      <div class="dialog-head"><div><p class="eyebrow">DATABASE PENGGUNA</p><h2 id="userDialogTitle">Tambah pengguna</h2></div><button class="icon-button" id="closeUserDialog" type="button" aria-label="Tutup">×</button></div>
-      <input name="userId" type="hidden">
-      <label>Email login<input name="email" type="email" autocomplete="email" required></label>
-      <label>Nama lengkap<input name="name" autocomplete="name" required></label>
-      <label>Jabatan<select name="roleKey" id="roleSelect" required></select></label>
-      <div class="full-field" id="permissionEditor"></div>
-      <label>Password <small>Kosongkan jika tidak diubah</small><input name="password" type="password" minlength="8" autocomplete="new-password"></label>
-      <label class="full-field">Upload file tanda tangan <small>PNG/JPG maks. 1 MB atau PDF maks. 5 MB</small><input name="signature" type="file" accept="image/png,image/jpeg,application/pdf,.pdf"></label>
-      <div class="signature-field">
-        <div class="signature-field-head"><span><i class="fa-solid fa-signature" aria-hidden="true"></i> Tanda tangan manual</span><button class="text-button compact" id="clearUserSignature" type="button"><i class="fa-solid fa-eraser" aria-hidden="true"></i> Hapus / Ulangi</button></div>
-        <canvas id="userSignaturePad" class="signature-pad" aria-label="Area menggambar tanda tangan pengguna"></canvas>
-        <small>Garis dirapikan otomatis. Biarkan kosong saat mengubah pengguna jika tanda tangan lama tetap dipakai.</small>
-      </div>
-      <label class="check full-field"><input name="active" type="checkbox" checked><span>Akun aktif</span></label>
-      <div class="form-actions"><button class="button ghost" id="cancelUser" type="button">Batal</button><button class="button primary" type="submit"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Simpan pengguna</button></div>
-    </form>
-  </dialog>
 
   <dialog id="previewDialog" class="preview-dialog" aria-labelledby="previewTitle">
     <aside class="preview-sidebar">
@@ -168,8 +145,7 @@
     </div>
   </div>
 
-  <script src="/assets/js/data.js?v=20260926-1" defer></script>
   <script src="/assets/js/gas-rpc.js?v=20260926-2" defer></script>
-  <script src="approval.js?v=20260926-2" defer></script>
+  <script src="approval.js?v=20260926-3" defer></script>
 </body>
 </html>

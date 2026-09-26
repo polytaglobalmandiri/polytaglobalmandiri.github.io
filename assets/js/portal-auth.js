@@ -14,6 +14,7 @@
     [/^\/pages\/admin\//, []],
     [/^\/pages\/support\//, ['support', 'admin_portal'].concat(MANAGEMENT)],
     [/^\/apps\/spk-automation\/schedule\//, PPIC],
+    [/^\/apps\/spk-automation\/admin\//, []],
     [/^\/apps\/spk-automation\/production\//, PRODUCTION.concat(PPIC)],
     [/^\/apps\/spk-automation\/create-spk\//, ['admin_ppic']],
     [/^\/apps\/spk-automation\/print-spk\//, PPIC],
@@ -66,7 +67,7 @@
     label.textContent = (user.name || user.email || 'Pengguna') + ' · ' + (user.roleLabel || user.roleKey || '');
     if (user.isOwner) {
       var accessLink = document.createElement('a');
-      accessLink.href = '/apps/spk-automation/approval/#adminPanel';
+      accessLink.href = '/apps/spk-automation/admin/';
       accessLink.textContent = 'Kelola akses';
       bar.appendChild(accessLink);
     }

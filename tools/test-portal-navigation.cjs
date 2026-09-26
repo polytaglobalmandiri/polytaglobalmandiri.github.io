@@ -20,4 +20,7 @@ assert.equal(allowed('/pages/ppic/', 'admin_ppic', { pages: { '/pages/ppic/': fa
 assert.equal(allowed('/pages/ppic/', 'marketing', { pages: { '/pages/ppic/': false } }, true), true);
 assert.equal(allowed('/pages/admin/', 'admin_ppic'), false);
 assert.equal(allowed('/pages/admin/', 'admin_ppic', { pages: { '/pages/admin/': true } }), true);
+assert.equal(allowed('/apps/spk-automation/admin/', 'admin_ppic'), false);
+assert.equal(allowed('/apps/spk-automation/admin/', 'admin_ppic', {}, true), true);
+assert.equal(source.includes("accessLink.href = '/apps/spk-automation/admin/'"), true);
 console.log('PASS: izin halaman bawaan, override per pengguna, dan akses akun master');

@@ -200,6 +200,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .form-stack, .form-grid { display: grid; gap: 16px; }
 .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .form-grid .dialog-head, .form-grid .form-actions, .form-grid .signature-field, .form-grid .full-field { grid-column: 1 / -1; }
+#permissionEditor { padding: 14px; border: 1px solid #b9babc; border-radius: 10px; background: #f7f7f4; }
+#permissionEditor h3 { margin: 0 0 5px; font-size: .9rem; }
+#permissionEditor p { margin: 0 0 12px; color: var(--muted); font-size: .72rem; line-height: 1.5; }
+#permissionEditor details { margin-top: 8px; padding: 10px 12px; border: 1px solid #d2d3d2; border-radius: 8px; background: #fff; }
+#permissionEditor summary { cursor: pointer; font-size: .77rem; font-weight: 800; }
+#permissionEditor label { font-size: .69rem; font-weight: 600; }
+#permissionEditor select { min-height: 33px; height: 33px; font-size: .7rem; }
 label { display: grid; gap: 7px; color: #37393e; font-size: .72rem; font-weight: 800; }
 label small { color: var(--muted); font-size: .62rem; font-weight: 500; }
 input, select {

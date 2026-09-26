@@ -11,7 +11,7 @@
     [/^\/pages\/marketing\//, ['marketing'].concat(MANAGEMENT)],
     [/^\/pages\/purchasing\//, ['purchasing'].concat(MANAGEMENT)],
     [/^\/pages\/finance\//, ['finance'].concat(MANAGEMENT)],
-    [/^\/pages\/admin\//, ['admin_portal', 'admin_ppic'].concat(MANAGEMENT)],
+    [/^\/pages\/admin\//, []],
     [/^\/pages\/support\//, ['support', 'admin_portal'].concat(MANAGEMENT)],
     [/^\/apps\/spk-automation\/schedule\//, PPIC],
     [/^\/apps\/spk-automation\/production\//, PRODUCTION.concat(PPIC)],
@@ -35,9 +35,13 @@
     return null;
   }
   function clear() { try { localStorage.removeItem(KEY); sessionStorage.removeItem(KEY); } catch (ignore) {} }
-  function allowed(path, role) {
+  function allowed(path, role, permissions, isOwner) {
+    if (isOwner) return true;
+    var pages = permissions && permissions.pages || {};
+    var cleanPath = String(path || '/').replace(/index\.html$/, '');
+    if (Object.prototype.hasOwnProperty.call(pages, cleanPath)) return pages[cleanPath] === true;
     for (var i = 0; i < rules.length; i++) {
-      if (rules[i][0].test(path)) return !rules[i][1] || rules[i][1].indexOf(role) !== -1;
+      if (rules[i][0].test(cleanPath)) return !rules[i][1] || rules[i][1].indexOf(role) !== -1;
     }
     return Boolean(role);
   }
@@ -60,6 +64,12 @@
     bar.className = 'pgm-auth-bar';
     var label = document.createElement('span');
     label.textContent = (user.name || user.email || 'Pengguna') + ' · ' + (user.roleLabel || user.roleKey || '');
+    if (user.isOwner) {
+      var accessLink = document.createElement('a');
+      accessLink.href = '/apps/spk-automation/approval/#adminPanel';
+      accessLink.textContent = 'Kelola akses';
+      bar.appendChild(accessLink);
+    }
     var button = document.createElement('button');
     button.type = 'button';
     button.textContent = 'Keluar';
@@ -69,10 +79,10 @@
       location.replace(LOGIN);
       if (auth) rpc('logoutApprovalUser', auth.token).catch(function () {});
     };
-    bar.appendChild(label); bar.appendChild(button); document.body.appendChild(bar);
+    bar.insertBefore(label, bar.firstChild); bar.appendChild(button); document.body.appendChild(bar);
   }
   var style = document.createElement('style');
-  style.textContent = 'html.pgm-auth-pending body{visibility:hidden}.pgm-auth-bar{position:fixed;z-index:99999;right:12px;bottom:12px;display:flex;align-items:center;gap:9px;max-width:calc(100vw - 24px);padding:7px 9px;border:1px solid #b9c2bd;border-radius:8px;background:#fff;color:#26312b;box-shadow:0 3px 12px #0002;font:12px system-ui,sans-serif}.pgm-auth-bar button{padding:5px 9px;border:1px solid #9d2028;border-radius:5px;background:#ab2029;color:#fff;cursor:pointer}';
+  style.textContent = 'html.pgm-auth-pending body{visibility:hidden}.pgm-auth-bar{position:fixed;z-index:99999;right:12px;bottom:12px;display:flex;align-items:center;gap:9px;max-width:calc(100vw - 24px);padding:7px 9px;border:1px solid #b9c2bd;border-radius:8px;background:#fff;color:#26312b;box-shadow:0 3px 12px #0002;font:12px system-ui,sans-serif}.pgm-auth-bar a{color:#8b1821;font-weight:700}.pgm-auth-bar button{padding:5px 9px;border:1px solid #9d2028;border-radius:5px;background:#ab2029;color:#fff;cursor:pointer}';
   document.head.appendChild(style);
   document.documentElement.classList.add('pgm-auth-pending');
   var auth = stored();
@@ -81,8 +91,13 @@
   function verify() {
     rpc('getApprovalSession', auth.token).then(function (result) {
       if (!result || result.status !== 'success' || !result.user) throw new Error('Sesi berakhir.');
-      if (!allowed(location.pathname, result.user.roleKey)) {
-        location.replace('/?akses=ditolak');
+      if (!allowed(location.pathname, result.user.roleKey, result.user.permissions, result.user.isOwner)) {
+        document.body.textContent = '';
+        var denied = document.createElement('main');
+        denied.style.cssText = 'max-width:520px;margin:15vh auto;padding:28px;font:16px system-ui,sans-serif;color:#26312b';
+        denied.innerHTML = '<h1>Akses dibatasi</h1><p>Akun Anda belum diizinkan membuka halaman ini. Hubungi akun master untuk meminta akses.</p><a href="/">Kembali ke portal</a>';
+        document.body.appendChild(denied);
+        show(result.user);
         return;
       }
       auth.user = result.user;

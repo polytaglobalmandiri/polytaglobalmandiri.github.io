@@ -7,7 +7,10 @@ const apiSource = fs.readFileSync(path.join(__dirname, '../gas-deploy/BE-Api.js'
 const backendCalls = [];
 const backend = {
   console: { error() {} },
-  requireApprovalSession_(token, roles) { if (token !== 'test-token') throw new Error('Sesi wajib'); return { roleKey: 'admin_ppic' }; },
+  requireApprovalSession_(token, roles) { if (token !== 'test-token') throw new Error('Sesi wajib'); return { userId: 'test-user', roleKey: 'admin_ppic' }; },
+  getApprovalUserById_() { return { roleKey: 'admin_ppic' }; },
+  isPortalOwner_() { return false; },
+  portalMethodOverride_() { return null; },
   ContentService: {
     MimeType: { JSON: 'application/json' },
     createTextOutput(text) { return { setMimeType(type) { return { type, payload: JSON.parse(text) }; } }; }

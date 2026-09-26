@@ -46,6 +46,12 @@ assert.equal(properties.has(key), true);
 cache.delete(key);
 assert.equal(context.getApprovalSession(remembered.token).authenticated, true);
 assert.equal(cache.has(key), true, 'Remembered session is restored from persistent storage');
+assert.equal(context.isPortalOwner_({ email: 'ZULFI.POLYTA@GMAIL.COM', active: true }), true);
+assert.equal(context.isPortalOwner_({ email: 'zulfi.polyta@gmail.com', active: false }), false);
+const overrides = context.normalizePortalPermissions_({ pages: { '/pages/ppic/': false }, menus: { 'ppic:Dashboard': true }, methods: { getDashboardData: false } });
+assert.equal(overrides.pages['/pages/ppic/'], false);
+assert.equal(overrides.menus['ppic:Dashboard'], true);
+assert.equal(overrides.methods.getDashboardData, false);
 
 user.active = false;
 assert.match(context.getApprovalSession(temporary.token).message, /tidak aktif/);
@@ -78,4 +84,14 @@ assert.match(context.getApprovalSession(remembered.token).message, /Sesi login b
 assert.equal(properties.has(key), false);
 context.logoutApprovalUser(temporary.token);
 assert.equal(context.getApprovalSession(temporary.token).authenticated, false);
+context.LockService = { getScriptLock: () => ({ waitLock() {}, releaseLock() {} }) };
+context.requirePortalOwner_ = () => ({ userId: 'owner-user' });
+context.ensureApprovalSheets_ = () => ({ users: {} });
+context.getApprovalUserById_ = () => ({ userId: 'owner-user', email: 'zulfi.polyta@gmail.com', active: true });
+let userWrites = 0;
+context.createOrUpdateApprovalUser_ = (_, id, payload) => { userWrites++; return { userId: id, email: payload.email, active: payload.active !== false }; };
+context.sanitizeApprovalUser_ = value => value;
+assert.equal(context.saveApprovalUser('token', { userId: 'owner-user', email: 'other@example.com', active: true }).status, 'error');
+assert.equal(context.saveApprovalUser('token', { userId: 'owner-user', email: 'zulfi.polyta@gmail.com', active: false }).status, 'error');
+assert.equal(userWrites, 0, 'akun master tidak bisa diturunkan atau dinonaktifkan');
 console.log('PASS: real login/session logic with simulated storage, remember, logout, expiration, role/revocation checks, and idempotent print release');

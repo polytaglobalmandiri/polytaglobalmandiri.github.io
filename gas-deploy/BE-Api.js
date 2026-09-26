@@ -70,6 +70,31 @@ var SPK_RPC_METHODS_ = {
 };
 
 var SPK_RPC_PUBLIC_ = ['getApprovalBootstrapStatus', 'bootstrapApprovalAdmin', 'loginApprovalUser', 'getApprovalSession', 'logoutApprovalUser'];
+var SPK_CURRENT_RPC_METHOD_ = '';
+var PORTAL_PAGE_CATALOG_ = [
+  ['/', 'Beranda'], ['/pages/ppic/', 'PPIC'], ['/pages/production/', 'Produksi'],
+  ['/pages/marketing/', 'Marketing'], ['/pages/purchasing/', 'Purchasing'],
+  ['/pages/finance/', 'Finance'], ['/pages/admin/', 'Administrasi'],
+  ['/pages/support/', 'Support'], ['/apps/spk-automation/', 'SPK'],
+  ['/apps/spk-automation/dashboard/', 'Dashboard SPK'],
+  ['/apps/spk-automation/create-spk/', 'Buat SPK'],
+  ['/apps/spk-automation/print-spk/', 'Cetak SPK'],
+  ['/apps/spk-automation/approval/', 'Persetujuan SPK'],
+  ['/apps/spk-automation/schedule/', 'Jadwal Produksi'],
+  ['/apps/spk-automation/production/', 'Hasil Produksi'],
+  ['/apps/spk-automation/material-management/', 'Master Bahan'],
+  ['/apps/spk-automation/material-issue/', 'Keluar Bahan'],
+  ['/apps/spk-automation/handover/', 'Serah Terima'],
+  ['/apps/spk-automation/data-retrieval/', 'Penarikan Data']
+];
+function getPortalAccessCatalog_() {
+  return {
+    pages: PORTAL_PAGE_CATALOG_.map(function(item) { return { key: item[0], label: item[1] }; }),
+    methods: Object.keys(SPK_RPC_METHODS_).filter(function(method) {
+      return SPK_RPC_PUBLIC_.indexOf(method) === -1 && method !== 'listApprovalUsers' && method !== 'saveApprovalUser';
+    }).map(function(method) { return { key: method, label: method }; })
+  };
+}
 var SPK_RPC_PPIC_ = ['admin_ppic', 'asmen_ppic', 'manager_ppic'];
 var SPK_RPC_PRODUCTION_ = ['admin_produksi', 'operator_produksi', 'head_mixer', 'head_blowing', 'head_printing', 'head_slitting', 'head_folding', 'head_gusset', 'head_finishing'];
 var SPK_RPC_MANAGEMENT_ = ['senior_manager', 'general_manager'];
@@ -120,7 +145,18 @@ function requireSpkRpcAccess_(request, method) {
   if (!Object.prototype.hasOwnProperty.call(SPK_RPC_ROLE_MAP_, method)) {
     throw new Error('Aturan akses API belum ditetapkan: ' + method);
   }
-  requireApprovalSession_(request && request.authToken, SPK_RPC_ROLE_MAP_[method]);
+  var session = requireApprovalSession_(request && request.authToken);
+  if (session.isOwner) return;
+  if (method === 'listApprovalUsers' || method === 'saveApprovalUser') {
+    throw new Error('Hanya akun master yang boleh mengatur pengguna dan izin.');
+  }
+  var override = portalMethodOverride_(session, method);
+  if (override === false) throw new Error('Izin tindakan ini dinonaktifkan oleh akun master.');
+  if (override === true) return;
+  var roles = SPK_RPC_ROLE_MAP_[method];
+  if (roles && roles.indexOf(session.roleKey) === -1) {
+    throw new Error('Jabatan akun tidak memiliki izin untuk tindakan ini.');
+  }
 }
 
 function doPost(e) {
@@ -138,6 +174,7 @@ function doPost(e) {
     requireSpkRpcAccess_(request, method);
 
     var args = Array.isArray(request.args) ? request.args : [];
+    SPK_CURRENT_RPC_METHOD_ = method;
     var result = action.apply(null, args);
     return createSpkRpcResponse_({ ok: true, result: result, requestId: requestId }, e);
   } catch (error) {
@@ -149,6 +186,8 @@ function doPost(e) {
       },
       requestId: requestId
     }, e);
+  } finally {
+    SPK_CURRENT_RPC_METHOD_ = '';
   }
 }
 

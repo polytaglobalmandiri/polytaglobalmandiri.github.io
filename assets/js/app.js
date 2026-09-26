@@ -366,7 +366,7 @@
     if (!p || !p.sections) return [];
     var out = [];
     p.sections.forEach(function (s) {
-      s.items.forEach(function (it) { if (canOpen(it.url)) out.push({ item: it, section: s.title, page: pageId }); });
+      s.items.forEach(function (it) { if (canOpenMenu(pageId, it)) out.push({ item: it, section: s.title, page: pageId }); });
     });
     return out;
   }
@@ -386,7 +386,16 @@
     if (!auth || !auth.user) return false;
     var target = String(path || '');
     if (/^https?:\/\//i.test(target)) return true;
-    return window.POLYTA_PORTAL_AUTH.allowed('/' + target.replace(/^\/+/, ''), auth.user.roleKey);
+    return window.POLYTA_PORTAL_AUTH.allowed('/' + target.replace(/^\/+/, ''), auth.user.roleKey, auth.user.permissions, auth.user.isOwner);
+  }
+  function canOpenMenu(pageId, item) {
+    var auth = window.POLYTA_PORTAL_AUTH && window.POLYTA_PORTAL_AUTH.stored();
+    if (auth && auth.user && !auth.user.isOwner) {
+      var menus = auth.user.permissions && auth.user.permissions.menus || {};
+      var key = pageId + ':' + item.label;
+      if (Object.prototype.hasOwnProperty.call(menus, key)) return menus[key] === true;
+    }
+    return canOpen(item.url);
   }
 
   /* ---------------------------------------------------------- Chrome */
@@ -637,10 +646,10 @@
       '<div class="section__head">' +
         '<h2 class="section__title engrave">' + raw(section.title) + "</h2>" +
         (section.hint ? '<span class="section__hint">' + raw(section.hint) + "</span>" : "") +
-        '<span class="section__badge">' + section.items.filter(function (it) { return canOpen(it.url); }).length + " item</span>" +
+        '<span class="section__badge">' + section.items.filter(function (it) { return canOpenMenu(pageId, it); }).length + " item</span>" +
       "</div>";
     var g = el("div", "grid");
-    section.items.forEach(function (it) { if (canOpen(it.url)) g.appendChild(buildTile(pageId, it)); });
+    section.items.forEach(function (it) { if (canOpenMenu(pageId, it)) g.appendChild(buildTile(pageId, it)); });
     s.appendChild(g);
     return s;
   }

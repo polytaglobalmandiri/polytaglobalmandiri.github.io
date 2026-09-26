@@ -9,8 +9,8 @@
   <link rel="icon" href="/assets/img/logo-app.png" type="image/png">
   <link rel="stylesheet" href="/assets/vendor/inter/inter.css?v=20260827">
   <link rel="stylesheet" href="/assets/vendor/fontawesome/css/all.min.css?v=20260827">
-  <link rel="stylesheet" href="approval.css?v=20260828-5">
-  <script src="/assets/js/portal-auth.js?v=20260926-1"></script>
+  <link rel="stylesheet" href="approval.css?v=20260926-1">
+  <script src="/assets/js/portal-auth.js?v=20260926-2"></script>
 </head>
 <body data-page="approval-spk">
   <header class="topbar">
@@ -89,7 +89,7 @@
       </section>
 
       <section class="workspace admin-panel" id="adminPanel" hidden>
-        <header class="workspace-head section-title"><div class="workspace-title"><span><i class="fa-solid fa-users-gear" aria-hidden="true"></i></span><div><p class="eyebrow">ADMIN PPIC</p><h2>Database pengguna</h2><p>Kelola akses jabatan dan tanda tangan pengguna.</p></div></div><button class="button primary" id="newUserButton" type="button"><i class="fa-solid fa-user-plus" aria-hidden="true"></i> Tambah pengguna</button></header>
+        <header class="workspace-head section-title"><div class="workspace-title"><span><i class="fa-solid fa-users-gear" aria-hidden="true"></i></span><div><p class="eyebrow">AKUN MASTER</p><h2>Pengguna dan otoritas</h2><p>Atur akses halaman, tindakan data, jabatan, dan tanda tangan setiap pengguna.</p></div></div><button class="button primary" id="newUserButton" type="button"><i class="fa-solid fa-user-plus" aria-hidden="true"></i> Tambah pengguna</button></header>
         <div class="user-list" id="userList"></div>
       </section>
     </section>
@@ -102,6 +102,7 @@
       <label>Email login<input name="email" type="email" autocomplete="email" required></label>
       <label>Nama lengkap<input name="name" autocomplete="name" required></label>
       <label>Jabatan<select name="roleKey" id="roleSelect" required></select></label>
+      <div class="full-field" id="permissionEditor"></div>
       <label>Password <small>Kosongkan jika tidak diubah</small><input name="password" type="password" minlength="8" autocomplete="new-password"></label>
       <label class="full-field">Upload file tanda tangan <small>PNG/JPG maks. 1 MB atau PDF maks. 5 MB</small><input name="signature" type="file" accept="image/png,image/jpeg,application/pdf,.pdf"></label>
       <div class="signature-field">
@@ -167,7 +168,8 @@
     </div>
   </div>
 
+  <script src="/assets/js/data.js?v=20260926-1" defer></script>
   <script src="/assets/js/gas-rpc.js?v=20260926-2" defer></script>
-  <script src="approval.js?v=20260829-1" defer></script>
+  <script src="approval.js?v=20260926-2" defer></script>
 </body>
 </html>

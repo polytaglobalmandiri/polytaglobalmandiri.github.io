@@ -1,7 +1,7 @@
 (function(){
   'use strict';
   var AUTH_KEY='pgm:spk-auth-v1';
-  var state={token:'',user:null,roles:[],users:[],queue:null};
+  var state={token:'',user:null,roles:[],users:[],queue:null,accessCatalog:{pages:[],methods:[]}};
   var $=function(id){return document.getElementById(id)};
   var setupSignaturePad=null;
   var userSignaturePad=null;
@@ -280,7 +280,7 @@
   }
   function logout(){var token=state.token;clearAuth();showLogin();if(token)rpc('logoutApprovalUser',token).catch(function(){});}
   async function setup(event){event.preventDefault();setBusy(true,'Mengaktifkan akun','Tanda tangan dan data pengguna sedang disimpan…');try{var form=new FormData(event.currentTarget);var signature=await selectedSignatureData(form.get('signature'),setupSignaturePad,true);var response=await rpc('bootstrapApprovalAdmin',form.get('setupCode'),{email:form.get('email'),name:form.get('name'),password:form.get('password'),signatureData:signature,signatureName:form.get('name')});if(!response||response.status!=='success')throw new Error(response&&response.message);await showAlert({icon:'success',title:'Akun dibuat',text:'Silakan masuk memakai email dan password Admin PPIC.',confirmButtonColor:'#b41420'});event.currentTarget.reset();setupSignaturePad.clear();$('showSetupButton').hidden=true;showLogin();}catch(error){alertError(error.message);}finally{setBusy(false);}}
-  async function showApp(){$('loginView').hidden=true;$('setupView').hidden=true;$('appView').hidden=false;$('userbar').hidden=false;$('currentName').textContent=state.user.name||state.user.email;$('currentRole').textContent=state.user.roleLabel||'';var isAdmin=state.user.roleKey==='admin_ppic';$('adminPanel').hidden=!isAdmin;var tasks=[loadQueue()];if(isAdmin)tasks.push(loadUsers().catch(function(error){alertError(error.message);}));await Promise.all(tasks);}
+  async function showApp(){$('loginView').hidden=true;$('setupView').hidden=true;$('appView').hidden=false;$('userbar').hidden=false;$('currentName').textContent=state.user.name||state.user.email;$('currentRole').textContent=state.user.isOwner?'Master / Developer':state.user.roleLabel||'';var isAdmin=Boolean(state.user.isOwner);$('adminPanel').hidden=!isAdmin;var tasks=[loadQueue()];if(isAdmin)tasks.push(loadUsers().catch(function(error){alertError(error.message);}));await Promise.all(tasks);if(isAdmin&&location.hash==='#adminPanel')$('adminPanel').scrollIntoView();}
   function loadQueue(){
     // Satu permintaan antrean pada satu waktu. Klik Muat ulang berulang
     // sebelumnya dapat membuat respons yang lebih lama datang belakangan dan
@@ -473,10 +473,33 @@
   }
   // Mengembalikan true hanya bila persetujuan benar-benar tersimpan.
   async function approve(spk){var confirmation=await showAlert({icon:'question',title:'Setujui SPK '+spk+'?',text:'Tanda tangan akun Anda akan dibubuhkan dan tindakan ini dicatat beserta waktu persetujuan.',showCancelButton:true,confirmButtonText:'Ya, setujui',cancelButtonText:'Batal',confirmButtonColor:'#b41420'});if(!confirmation.isConfirmed)return false;setBusy(true,'Menyimpan persetujuan','Tanda tangan dan waktu persetujuan sedang dicatat…');try{var response=await rpc('approveSpk',state.token,spk);if(!response||response.status!=='success')throw new Error(response&&response.message);await showAlert({icon:'success',title:'Persetujuan tersimpan',text:response.message,confirmButtonColor:'#b41420'});invalidatePreviewCache();await loadQueue();return true;}catch(error){alertError(error.message);return false;}finally{setBusy(false);}}
-  async function loadUsers(){var response=await rpc('listApprovalUsers',state.token);if(!response||response.status!=='success')throw new Error(response&&response.message);state.users=response.users||[];state.roles=response.roles||state.roles;renderUsers();fillRoles();}
+  async function loadUsers(){var response=await rpc('listApprovalUsers',state.token);if(!response||response.status!=='success')throw new Error(response&&response.message);state.users=response.users||[];state.roles=response.roles||state.roles;state.accessCatalog=response.accessCatalog||state.accessCatalog;renderUsers();fillRoles();}
   function renderUsers(){$('userList').innerHTML=state.users.map(function(user){return '<article class="user-card"><div><h3><i class="fa-solid fa-user-shield" aria-hidden="true"></i> '+escapeHtml(user.name)+'</h3><p>'+escapeHtml(user.email)+'</p><p>'+escapeHtml(user.roleLabel)+' · TTD '+(user.signatureReady?'tersedia':'belum ada')+'</p><span class="state '+(user.active?'':'off')+'">'+(user.active?'AKTIF':'NONAKTIF')+'</span></div><button class="button ghost" data-user="'+escapeHtml(user.userId)+'"><i class="fa-solid fa-pen" aria-hidden="true"></i> Ubah</button></article>';}).join('')||'<div class="empty">Belum ada pengguna.</div>';}
   function fillRoles(){$('roleSelect').innerHTML=state.roles.map(function(role){return '<option value="'+escapeHtml(role.key)+'">'+escapeHtml(role.label)+'</option>';}).join('');}
-  function openUser(user){var form=$('userForm');form.reset();userSignaturePad.clear();fillRoles();form.elements.userId.value=user?user.userId:'';form.elements.email.value=user?user.email:'';form.elements.name.value=user?user.name:'';form.elements.roleKey.value=user?user.roleKey:'head_blowing';form.elements.active.checked=user?user.active:true;form.elements.password.required=!user;$('userDialogTitle').textContent=user?'Ubah pengguna':'Tambah pengguna';$('userDialog').showModal();window.setTimeout(function(){userSignaturePad.resize();},0);}
-  async function saveUser(event){event.preventDefault();var form=event.currentTarget;setBusy(true,'Menyimpan pengguna','Data akun dan tanda tangan sedang diperbarui…');try{var data=new FormData(form);var isNew=!data.get('userId');var signature=await selectedSignatureData(data.get('signature'),userSignaturePad,isNew);var payload={userId:data.get('userId'),email:data.get('email'),name:data.get('name'),roleKey:data.get('roleKey'),password:data.get('password'),active:form.elements.active.checked,signatureData:signature,signatureName:data.get('name')};var response=await rpc('saveApprovalUser',state.token,payload);if(!response||response.status!=='success')throw new Error(response&&response.message);$('userDialog').close();await loadUsers();await showAlert({icon:'success',title:'Pengguna tersimpan',text:response.message,confirmButtonColor:'#b41420'});}catch(error){alertError(error.message);}finally{setBusy(false);}}
+  function permissionAction(method){if(/^(get|list|check)/.test(method))return 'Lihat';if(/^(save|submit|begin|extract)/.test(method))return 'Tambah / Simpan';if(/^(update|acknowledge)/.test(method))return 'Ubah / Update';if(/^(delete|remove)/.test(method))return 'Hapus';if(/^(cancel|reject)/.test(method))return 'Batalkan / Tolak';return 'Setujui / Rilis / Verifikasi';}
+  function permissionRow(group,item,value){return '<label style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:5px 0"><span>'+escapeHtml(item.label)+'</span><select data-permission-group="'+group+'" data-permission-key="'+escapeHtml(item.key)+'" style="max-width:170px"><option value="default"'+(value==null?' selected':'')+'>Ikuti jabatan</option><option value="allow"'+(value===true?' selected':'')+'>Izinkan</option><option value="deny"'+(value===false?' selected':'')+'>Blokir</option></select></label>';}
+  function renderPermissionEditor(user){
+    var permissions=user&&user.permissions||{pages:{},menus:{},methods:{}};
+    var pages=state.accessCatalog.pages||[];
+    var methods=state.accessCatalog.methods||[];
+    var html='<h3>Akses khusus pengguna</h3><p>"Ikuti jabatan" memakai izin bawaan. "Izinkan" atau "Blokir" mengesampingkannya.</p>';
+    html+='<details open><summary>Halaman ('+pages.length+')</summary>'+pages.map(function(item){return permissionRow('pages',item,permissions.pages&&permissions.pages[item.key]);}).join('')+'</details>';
+    if(typeof SITE!=='undefined'){
+      var menus=[];
+      Object.keys(SITE.pages||{}).forEach(function(pageId){
+        (SITE.pages[pageId].sections||[]).forEach(function(section){
+          (section.items||[]).forEach(function(item){menus.push({key:pageId+':'+item.label,label:pageId+' / '+item.label});});
+        });
+      });
+      html+='<details><summary>Menu dan tautan ('+menus.length+')</summary>'+menus.map(function(item){return permissionRow('menus',item,permissions.menus&&permissions.menus[item.key]);}).join('')+'</details>';
+    }
+    ['Lihat','Tambah / Simpan','Ubah / Update','Hapus','Batalkan / Tolak','Setujui / Rilis / Verifikasi'].forEach(function(group){
+      var items=methods.filter(function(item){return permissionAction(item.key)===group;});
+      if(items.length)html+='<details><summary>'+escapeHtml(group)+' ('+items.length+')</summary>'+items.map(function(item){return permissionRow('methods',item,permissions.methods&&permissions.methods[item.key]);}).join('')+'</details>';
+    });
+    $('permissionEditor').innerHTML=html;
+  }
+  function openUser(user){var form=$('userForm');form.reset();userSignaturePad.clear();fillRoles();form.elements.userId.value=user?user.userId:'';form.elements.email.value=user?user.email:'';form.elements.name.value=user?user.name:'';form.elements.roleKey.value=user?user.roleKey:'head_blowing';form.elements.active.checked=user?user.active:true;form.elements.password.required=!user;renderPermissionEditor(user);$('userDialogTitle').textContent=user?'Ubah pengguna':'Tambah pengguna';$('userDialog').showModal();window.setTimeout(function(){userSignaturePad.resize();},0);}
+  async function saveUser(event){event.preventDefault();var form=event.currentTarget;setBusy(true,'Menyimpan pengguna','Data akun dan tanda tangan sedang diperbarui…');try{var data=new FormData(form);var isNew=!data.get('userId');var signature=await selectedSignatureData(data.get('signature'),userSignaturePad,isNew);var permissions={pages:{},menus:{},methods:{}};$('permissionEditor').querySelectorAll('select[data-permission-group]').forEach(function(select){if(select.value!=='default')permissions[select.dataset.permissionGroup][select.dataset.permissionKey]=select.value==='allow';});var payload={userId:data.get('userId'),email:data.get('email'),name:data.get('name'),roleKey:data.get('roleKey'),password:data.get('password'),active:form.elements.active.checked,signatureData:signature,signatureName:data.get('name'),permissions:permissions};var response=await rpc('saveApprovalUser',state.token,payload);if(!response||response.status!=='success')throw new Error(response&&response.message);$('userDialog').close();await loadUsers();await showAlert({icon:'success',title:'Pengguna tersimpan',text:response.message,confirmButtonColor:'#b41420'});}catch(error){alertError(error.message);}finally{setBusy(false);}}
   init();
 })();

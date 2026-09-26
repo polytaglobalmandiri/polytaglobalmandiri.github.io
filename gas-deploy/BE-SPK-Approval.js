@@ -11,12 +11,13 @@ var APPROVAL_SESSION_SECONDS_ = 21600;
 var APPROVAL_REMEMBER_SECONDS_ = 2592000;
 var APPROVAL_BOOTSTRAP_CODE_PROPERTY_ = 'APPROVAL_BOOTSTRAP_CODE';
 var APPROVAL_SIGNATURE_FOLDER_ID_ = '1hHcBx2ris478lg24Zah1obaC0dnx3FVF';
+var PORTAL_OWNER_EMAIL_ = 'zulfi.polyta@gmail.com';
 
 var APPROVAL_USER_HEADERS_ = [
   'User ID', 'Email', 'Password Hash', 'Password Salt',
   'Nama Lengkap', 'Role Key', 'Jabatan', 'Departemen', 'Aktif',
   'Signature File ID', 'Signature URL', 'Dibuat', 'Diperbarui',
-  'Login Terakhir', 'Token Version'
+  'Login Terakhir', 'Token Version', 'Portal Permissions'
 ];
 
 var APPROVAL_LOG_HEADERS_ = [
@@ -114,6 +115,8 @@ function loginApprovalUser(email, password, rememberMe) {
       roleLabel: user.roleLabel,
       department: user.department,
       tokenVersion: user.tokenVersion,
+      permissions: user.permissions,
+      isOwner: isPortalOwner_(user),
       persistent: persistent,
       expiresAt: Date.now() + ((persistent ? APPROVAL_REMEMBER_SECONDS_ : APPROVAL_SESSION_SECONDS_) * 1000)
     };
@@ -157,10 +160,10 @@ function logoutApprovalUser(token) {
 
 function listApprovalUsers(token) {
   try {
-    requireApprovalSession_(token, ['admin_ppic']);
+    requirePortalOwner_(token);
     var sheet = ensureApprovalSheets_().users;
     var users = readApprovalUsers_(sheet).map(sanitizeApprovalUser_);
-    return { status: 'success', users: users, roles: getApprovalRoleOptions_() };
+    return { status: 'success', users: users, roles: getApprovalRoleOptions_(), accessCatalog: getPortalAccessCatalog_() };
   } catch (error) {
     return { status: 'error', message: error.message };
   }
@@ -170,14 +173,19 @@ function saveApprovalUser(token, payload) {
   var lock = LockService.getScriptLock();
   lock.waitLock(30000);
   try {
-    var session = requireApprovalSession_(token, ['admin_ppic']);
+    var session = requirePortalOwner_(token);
     var sheet = ensureApprovalSheets_().users;
+    var current = payload && payload.userId ? getApprovalUserById_(payload.userId) : null;
+    if (current && isPortalOwner_(current) &&
+        (normalizeApprovalEmail_(payload.email) !== PORTAL_OWNER_EMAIL_ || payload.active === false)) {
+      throw new Error('Email dan status aktif akun master tidak boleh diubah.');
+    }
     var user = createOrUpdateApprovalUser_(sheet, payload && payload.userId, payload || {});
     // Mengubah password/jabatan/status menaikkan tokenVersion. Jika yang
     // diubah adalah akun admin yang sedang aktif, sinkronkan sesi yang sama
     // dengan versi terbaru agar penyimpanan berhasil tanpa memutus admin dari
     // halaman manajemen user.
-    if (user.userId === session.userId && user.active && user.roleKey === 'admin_ppic') {
+    if (user.userId === session.userId && user.active) {
       refreshApprovalSessionForUser_(token, session, user);
     }
     return {
@@ -199,7 +207,9 @@ function refreshApprovalSessionForUser_(token, session, user) {
     roleKey: user.roleKey,
     roleLabel: user.roleLabel,
     department: user.department,
-    tokenVersion: user.tokenVersion
+    tokenVersion: user.tokenVersion,
+    permissions: user.permissions,
+    isOwner: isPortalOwner_(user)
   });
   var raw = JSON.stringify(updated);
   var sessionKey = approvalSessionKey_(token);
@@ -444,10 +454,35 @@ function requireApprovalSession_(token, allowedRoles) {
   if (!user || !user.active || Number(user.tokenVersion) !== Number(session.tokenVersion)) {
     throw new Error('Akun tidak aktif atau sesi sudah dicabut.');
   }
-  if (allowedRoles && allowedRoles.indexOf(user.roleKey) === -1) {
+  if (allowedRoles && allowedRoles.indexOf(user.roleKey) === -1 && !isPortalOwner_(user) &&
+      !(typeof SPK_CURRENT_RPC_METHOD_ !== 'undefined' && SPK_CURRENT_RPC_METHOD_ &&
+        portalMethodOverride_(user, SPK_CURRENT_RPC_METHOD_) === true)) {
     throw new Error('Jabatan akun tidak memiliki izin untuk tindakan ini.');
   }
+  session.email = user.email;
+  session.name = user.name;
+  session.roleKey = user.roleKey;
+  session.roleLabel = user.roleLabel;
+  session.department = user.department;
+  session.permissions = user.permissions;
+  session.isOwner = isPortalOwner_(user);
   return session;
+}
+
+function isPortalOwner_(user) {
+  return Boolean(user && user.active && normalizeApprovalEmail_(user.email) === PORTAL_OWNER_EMAIL_);
+}
+
+function requirePortalOwner_(token) {
+  var session = requireApprovalSession_(token);
+  if (!session.isOwner) throw new Error('Hanya akun master yang boleh mengatur pengguna dan izin.');
+  return session;
+}
+
+function portalMethodOverride_(user, method) {
+  var permissions = user && user.permissions || {};
+  var methods = permissions.methods || {};
+  return Object.prototype.hasOwnProperty.call(methods, method) ? methods[method] : null;
 }
 
 function requiredApprovalRolesForRouting_(routingSteps) {
@@ -518,13 +553,15 @@ function createOrUpdateApprovalUser_(sheet, userId, payload) {
   var signature = saveApprovalSignature_(data.signatureData, data.signatureName, current);
   var now = new Date();
   var tokenVersion = current ? Number(current.tokenVersion || 1) : 1;
-  if (current && (password || current.roleKey !== roleKey || Boolean(current.active) !== Boolean(data.active))) tokenVersion += 1;
+  var permissions = normalizePortalPermissions_(data.permissions === undefined && current ? current.permissions : data.permissions);
+  if (current && (password || current.roleKey !== roleKey || Boolean(current.active) !== Boolean(data.active) ||
+      JSON.stringify(current.permissions) !== JSON.stringify(permissions))) tokenVersion += 1;
   var row = [
     current ? current.userId : Utilities.getUuid(), email, hash, salt, name,
     roleKey, role.label, role.department, data.active === false ? 'TIDAK' : 'YA',
     signature.fileId, signature.url,
     current ? current.createdAt : now, now,
-    current ? current.lastLogin : '', tokenVersion
+    current ? current.lastLogin : '', tokenVersion, JSON.stringify(permissions)
   ];
   var rowNumber = current ? current.rowNumber : sheet.getLastRow() + 1;
   sheet.getRange(rowNumber, 1, 1, row.length).setValues([row]);
@@ -638,7 +675,8 @@ function parseApprovalUserRow_(row, rowNumber) {
     name: String(row[4] || ''), roleKey: String(row[5] || ''), roleLabel: String(row[6] || ''),
     department: String(row[7] || ''), active: String(row[8] || '').toUpperCase() === 'YA',
     signatureFileId: String(row[9] || ''), signatureUrl: String(row[10] || ''),
-    createdAt: row[11], updatedAt: row[12], lastLogin: row[13], tokenVersion: Number(row[14] || 1)
+    createdAt: row[11], updatedAt: row[12], lastLogin: row[13], tokenVersion: Number(row[14] || 1),
+    permissions: normalizePortalPermissions_(row[15])
   };
 }
 
@@ -647,8 +685,24 @@ function sanitizeApprovalUser_(user) {
     userId: user.userId, email: user.email, name: user.name,
     roleKey: user.roleKey, roleLabel: user.roleLabel, department: user.department,
     active: user.active, signatureReady: Boolean(user.signatureFileId),
-    signatureUrl: user.signatureUrl, lastLogin: approvalDateText_(user.lastLogin)
+    signatureUrl: user.signatureUrl, lastLogin: approvalDateText_(user.lastLogin),
+    permissions: user.permissions, isOwner: isPortalOwner_(user)
   };
+}
+
+function normalizePortalPermissions_(value) {
+  var source = value;
+  if (typeof source === 'string') {
+    try { source = JSON.parse(source); } catch (ignore) { source = {}; }
+  }
+  var result = { pages: {}, menus: {}, methods: {} };
+  ['pages', 'menus', 'methods'].forEach(function(group) {
+    var values = source && source[group] || {};
+    Object.keys(values).forEach(function(key) {
+      if (values[key] === true || values[key] === false) result[group][key] = values[key];
+    });
+  });
+  return result;
 }
 
 function findApprovalUserByEmail_(sheet, email) {

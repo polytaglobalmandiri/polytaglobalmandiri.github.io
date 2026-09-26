@@ -69,6 +69,8 @@
   }
   function show(user) {
     document.documentElement.classList.remove('pgm-auth-pending');
+    var previousBar = document.querySelector('.pgm-auth-bar');
+    if (previousBar) previousBar.remove();
     var bar = document.createElement('div');
     bar.className = 'pgm-auth-bar';
     var label = document.createElement('span');
@@ -96,13 +98,33 @@
   document.documentElement.classList.add('pgm-auth-pending');
   var auth = stored();
   if (!auth) { location.replace(loginUrl()); return; }
+  var cachedViewAllowed = Boolean(auth.user && Number(auth.user.expiresAt) > Date.now() &&
+    allowed(location.pathname, auth.user.roleKey, auth.user.permissions, auth.user.isOwner));
+  if (cachedViewAllowed) {
+    document.documentElement.classList.remove('pgm-auth-pending');
+    withBody(function () { if (cachedViewAllowed) show(auth.user); });
+  }
   var resolveReady;
   var ready = new Promise(function (resolve) { resolveReady = resolve; });
   window.POLYTA_PORTAL_AUTH = { stored: stored, allowed: allowed, safeNext: safeNext, clear: clear, ready: ready };
+  function endSession() {
+    cachedViewAllowed = false;
+    document.documentElement.classList.add('pgm-auth-pending');
+    resolveReady(null);
+    clear();
+    location.replace(loginUrl());
+  }
+  function connectionFailure() {
+    if (cachedViewAllowed) { resolveReady(auth.user); return; }
+    resolveReady(null);
+    location.replace(loginUrl());
+  }
   function verify() {
     rpc('getApprovalSession', auth.token).then(function (result) {
-      if (!result || result.status !== 'success' || !result.user) throw new Error('Sesi berakhir.');
+      if (!result || result.status !== 'success' || !result.user) { endSession(); return; }
       if (!allowed(location.pathname, result.user.roleKey, result.user.permissions, result.user.isOwner)) {
+        cachedViewAllowed = false;
+        document.documentElement.classList.add('pgm-auth-pending');
         afterParsed(function () {
           document.body.textContent = '';
           var denied = document.createElement('main');
@@ -115,17 +137,18 @@
         return;
       }
       auth.user = result.user;
+      cachedViewAllowed = true;
       try { (auth.remember ? localStorage : sessionStorage).setItem(KEY, JSON.stringify(auth)); } catch (ignore) {}
       withBody(function () { show(result.user); });
       resolveReady(result.user);
-    }).catch(function () { resolveReady(null); clear(); location.replace(loginUrl()); });
+    }, connectionFailure).catch(connectionFailure);
   }
   function start() {
     if (window.google && window.google.script && window.google.script.run) { verify(); return; }
     var script = document.createElement('script');
     script.src = '/assets/js/gas-rpc.js?v=20260926-2';
     script.onload = verify;
-    script.onerror = function () { resolveReady(null); clear(); location.replace(loginUrl()); };
+    script.onerror = connectionFailure;
     document.head.appendChild(script);
   }
   start();

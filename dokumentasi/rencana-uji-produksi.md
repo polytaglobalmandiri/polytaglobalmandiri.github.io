@@ -1,6 +1,6 @@
 # Persiapan Uji Schedule dan Produksi
 
-Status 26 September 2026: pengguna memilih memakai spreadsheet operasional secara langsung. Pengujian harus memakai SPK nyata yang memang siap dijadwalkan; jangan membuat transaksi contoh yang menyerupai produksi. Deployment web app versi 41 adalah titik kembali bila rilis baru bermasalah.
+Status 26 September 2026: pengguna memilih memakai spreadsheet operasional secara langsung. Apps Script versi 42 dan halaman GitHub Pages sudah terbit; pemeriksaan baca awal lulus, transaksi nyata belum diuji. Pengujian harus memakai SPK nyata yang memang siap dijadwalkan; jangan membuat transaksi contoh yang menyerupai produksi. Deployment web app versi 41 adalah titik kembali bila rilis baru bermasalah.
 
 ## Pemeriksaan sumber aktif
 
@@ -25,7 +25,7 @@ Spreadsheet operasional: `1bvyTfFQ1vvzw5ZVj-QUn-XGiyWifjK0lG-GPd0FO9Aw` (`MASTER
 ## Gerbang rilis
 
 1. Jalankan tes kode lokal, bandingkan source dengan Apps Script aktif, dan catat deployment versi 41 untuk pemulihan.
-2. Perbarui Apps Script dan frontend. Lakukan pemeriksaan baca saja terhadap endpoint baru sebelum pengguna melakukan transaksi pertama.
+2. Apps Script dan frontend sudah diperbarui. Pemeriksaan baca saja terhadap endpoint baru lulus; pengguna berizin perlu menguji transaksi pertama pada pekerjaan nyata.
 3. Uji pengguna PPIC, admin produksi, dan leader Mixer memakai pekerjaan nyata. Catat hasil setiap skenario; hentikan perluasan proses bila ada kegagalan.
 4. Tinjau fungsi produksi lama yang masih dipakai. Tetapkan waktu migrasi dan jalur kembali ke versi 41.
 

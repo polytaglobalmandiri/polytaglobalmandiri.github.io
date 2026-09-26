@@ -1,12 +1,12 @@
 # Rancangan Sistem Schedule dan Produksi
 
-Status: pilot lokal Schedule Produksi dan hasil Mixer telah dibuat; belum diterbitkan ke Apps Script/GitHub Pages dan belum diuji terhadap data produksi. Spreadsheet SPK V2 tetap menjadi sumber SPK aktif. Contoh Excel hanya dipakai untuk mengenali pekerjaan dan istilah di lapangan; tata letak serta rumusnya tidak menjadi kontrak aplikasi.
+Status 26 September 2026: pilot Schedule Produksi dan hasil Mixer telah diterbitkan ke Apps Script versi 42 dan GitHub Pages. Endpoint baru telah lulus pemeriksaan baca dengan sesi kosong; transaksi pengguna pada pekerjaan nyata belum diuji. Spreadsheet SPK V2 tetap menjadi sumber SPK aktif. Contoh Excel hanya dipakai untuk mengenali pekerjaan dan istilah di lapangan; tata letak serta rumusnya tidak menjadi kontrak aplikasi.
 
 ## Pilot yang sudah dibuat
 
 - `apps/spk-automation/schedule/`: PPIC melihat routing aktif, menyimpan draf jadwal, merilis atau membatalkannya dengan alasan, dan melihat target dibanding hasil terverifikasi. Backend memeriksa sesi PPIC, referensi SPK/routing, format waktu, target, dan benturan mesin. Jadwal yang sudah memiliki entri hasil tidak dapat dibatalkan.
 - `apps/spk-automation/production/`: daftar pekerjaan Mixer yang telah dirilis, hasil berulang per shift, pemakaian bahan, downtime, verifikasi atau pengembalian hasil oleh leader. Hasil yang dikembalikan tetap tercatat bersama alasan; admin membuat entri baru untuk koreksi.
-- `gas-deploy/BE-Production-Schedule.js` dan `BE-Production-Entries.js`: dua tabel baru (`Schedule Produksi`, `Hasil Produksi`) hanya dibuat saat mutasi pertama oleh pengguna berizin; tidak ada penulisan pada database produksi dari pekerjaan lokal ini.
+- `gas-deploy/BE-Production-Schedule.js` dan `BE-Production-Entries.js`: dua tabel baru (`Schedule Produksi`, `Hasil Produksi`) hanya dibuat saat mutasi pertama oleh pengguna berizin; penerbitan dan pemeriksaan baca awal belum menulis tabel produksi.
 - Endpoint Mixer, Blowing, dan Printing lama dipertahankan sementara karena masih ada di Apps Script aktif. Halaman pilot baru tidak memakainya. Penonaktifan endpoint lama menunggu inventaris klien produksi dan migrasi proses terkait.
 
 Pilot belum memiliki penjadwalan ulang setelah rilis, revisi entri di tempat, penutupan routing, ekspor laporan, pencocokan kemampuan mesin dengan proses, atau dukungan formulir khusus selain Mixer dengan target KG. Status `IN_PROGRESS` dan `COMPLETED` telah disiapkan dalam pembacaan data, tetapi perpindahannya belum diterapkan. Pembatalan hanya berlaku sebelum ada entri hasil. Pengembalian hasil menyimpan alasan dan tidak menghapus data lama. Pekerjaan ini harus selesai sebelum perluasan ke seluruh produksi. Pengguna memilih memakai spreadsheet operasional langsung; uji transaksi hanya pada pekerjaan nyata oleh PPIC/admin/leader, dengan versi deployment 41 sebagai titik kembali.

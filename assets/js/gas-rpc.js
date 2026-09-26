@@ -116,6 +116,16 @@
   }
   function dashboardCacheKey() { return DASHBOARD_CACHE_KEY + ':' + authToken(); }
 
+  function readDashboardSnapshot() {
+    if (!authToken()) return Promise.resolve(null);
+    return readClientCache(dashboardCacheKey()).then(function (entry) {
+      if (!entry || !entry.savedAt || Date.now() - entry.savedAt > DASHBOARD_CACHE_MAX_AGE ||
+          entry.savedAt > Date.now()) return null;
+      var data = entry.value;
+      return data && !data.error && Array.isArray(data.tableData) && data.revision ? data : null;
+    }).catch(function () { return null; });
+  }
+
   function transportError(code, message, originalError) {
     var error = new Error(message);
     error.transportCode = code;
@@ -332,6 +342,7 @@
     get: createRunner
   });
   window.POLYTA_SPK_API_URL = API_URL;
+  window.POLYTA_READ_DASHBOARD_CACHE = readDashboardSnapshot;
   window.POLYTA_PRIME_GAS_ACCESS = primeThirdPartyAccess;
   window.POLYTA_GAS_TRANSPORT = function () {
     return { frame: "tidak-digunakan", post: postTransport, cadangan: scriptTransport };

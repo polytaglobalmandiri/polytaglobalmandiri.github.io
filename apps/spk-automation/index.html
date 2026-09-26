@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-  <script src="/assets/js/gas-rpc.js?v=20260926-2"></script>
+  <script src="/assets/js/gas-rpc.js?v=20260926-3"></script>
   <script src="/assets/js/portal-auth.js?v=20260926-6"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#172033">
@@ -11985,9 +11985,51 @@
             initializeViewControls();
             bindStaticEvents();
             loadSpkYearPreference();
-            loadData();
-            startDashboardRealtime();
+            Promise.resolve(loadInitialDashboardData_()).then(startDashboardRealtime, startDashboardRealtime);
         });
+
+        function mayReadCachedDashboard_(user) {
+            if (!user) return false;
+            if (user.isOwner) return true;
+            var methods = user.permissions && user.permissions.methods || {};
+            if (methods.getDashboardData === false) return false;
+            if (methods.getDashboardData === true) return true;
+            return ['admin_ppic', 'asmen_ppic', 'manager_ppic', 'senior_manager', 'general_manager']
+                .indexOf(user.roleKey) !== -1;
+        }
+
+        function loadInitialDashboardData_() {
+            if (typeof window.POLYTA_READ_DASHBOARD_CACHE !== 'function') {
+                loadData();
+                return;
+            }
+            return window.POLYTA_READ_DASHBOARD_CACHE().then(function (snapshot) {
+                if (!snapshot) { loadData(); return; }
+                var ready = window.POLYTA_PORTAL_AUTH && window.POLYTA_PORTAL_AUTH.ready;
+                if (!ready) { loadData(); return; }
+                var revisionCheck = new Promise(function (resolve) {
+                    google.script.run
+                        .withSuccessHandler(function (response) {
+                            resolve(response && response.status === 'success' ? String(response.revision || '') : '');
+                        })
+                        .withFailureHandler(function () { resolve(''); })
+                        .getDashboardDataRevision();
+                });
+                return Promise.all([ready, revisionCheck]).then(function (results) {
+                    var user = results[0];
+                    if (!user) return;
+                    if (!mayReadCachedDashboard_(user) || !results[1] ||
+                        results[1] !== String(snapshot.revision) || !renderData(snapshot, true)) {
+                        loadData();
+                        return;
+                    }
+                    dashboardRevision = String(snapshot.revision);
+                    document.getElementById('lastUpdated').textContent =
+                        'Data tersimpan · sudah cocok dengan server';
+                    setRealtimeStatus_('live', 'Realtime aktif');
+                });
+            }).catch(function () { loadData(); });
+        }
 
         // Dijalankan berbarengan dengan pemuatan data, bukan menunggunya, agar
         // tabel tidak tertahan hanya demi satu nilai kecil. Bila jawabannya

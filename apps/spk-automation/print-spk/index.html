@@ -2,6 +2,8 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
+  <script src="/assets/js/gas-rpc.js?v=20260926-2"></script>
+  <script src="/assets/js/portal-auth.js?v=20260926-5"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Cetak SPK | Polyta Global Mandiri</title>
   <link rel="stylesheet" href="/assets/css/status.css?v=20260913-2">
@@ -3969,7 +3971,7 @@
     @media (max-width: 620px) { .print-login-card { grid-template-columns: 1fr; } .print-login-intro { padding: 24px; } .print-login-intro h2 { font-size: 1.15rem; } .print-login-card-body { padding: 26px 22px; } }
 
     </style>
-  <script src="/assets/js/gas-rpc.js?v=20260926-2"></script>
+
 
   <style>
     .polyta-portal-home {
@@ -4119,7 +4121,7 @@
       body.is-embedded .print-page { display: block !important; }
     }
   </style>
-  <script src="/assets/js/portal-auth.js?v=20260926-3"></script>
+
 </head>
 <body
   class="tw:min-h-screen tw:text-polyta-ink selection:tw:bg-polyta-brand-soft selection:tw:text-polyta-brand"
@@ -4311,8 +4313,10 @@
         return false;
       }
       try {
-        const current = await printRpc_('getApprovalSession', token);
-        if (!current || current.status !== 'success' || !current.user) throw new Error('Sesi berakhir.');
+        const current = window.POLYTA_PORTAL_AUTH && window.POLYTA_PORTAL_AUTH.ready
+          ? await window.POLYTA_PORTAL_AUTH.ready
+          : (await printRpc_('getApprovalSession', token)).user;
+        if (!current) throw new Error('Sesi berakhir.');
         printAuthReady_ = true;
         return true;
       } catch (error) {

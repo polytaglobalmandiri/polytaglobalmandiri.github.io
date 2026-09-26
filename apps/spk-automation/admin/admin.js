@@ -147,7 +147,7 @@
     return signature;
   }
 
-  async function loadUsers(){var response=await rpc('listApprovalUsers',state.token);if(!response||response.status!=='success')throw new Error(response&&response.message);state.users=response.users||[];state.roles=response.roles||state.roles;state.accessCatalog=response.accessCatalog||state.accessCatalog;renderUsers();fillRoles();}
+  async function loadUsers(renderResult){var response=await rpc('listApprovalUsers',state.token);if(!response||response.status!=='success')throw new Error(response&&response.message);state.users=response.users||[];state.roles=response.roles||state.roles;state.accessCatalog=response.accessCatalog||state.accessCatalog;if(renderResult!==false){renderUsers();fillRoles();}}
   function renderUsers(){$('userList').innerHTML=state.users.map(function(user){return '<article class="user-card"><div><h3><i class="fa-solid fa-user-shield" aria-hidden="true"></i> '+escapeHtml(user.name)+'</h3><p>'+escapeHtml(user.email)+'</p><p>'+escapeHtml(user.roleLabel)+' · TTD '+(user.signatureReady?'tersedia':'belum ada')+'</p><span class="state '+(user.active?'':'off')+'">'+(user.active?'AKTIF':'NONAKTIF')+'</span></div><button class="button ghost" data-user="'+escapeHtml(user.userId)+'"><i class="fa-solid fa-pen" aria-hidden="true"></i> Ubah</button></article>';}).join('')||'<div class="empty">Belum ada pengguna.</div>';}
   function fillRoles(){$('roleSelect').innerHTML=state.roles.map(function(role){return '<option value="'+escapeHtml(role.key)+'">'+escapeHtml(role.label)+'</option>';}).join('');}
   function permissionAction(method){if(/^(get|list|check)/.test(method))return 'Lihat';if(/^(save|submit|begin|extract)/.test(method))return 'Tambah / Simpan';if(/^(update|acknowledge)/.test(method))return 'Ubah / Update';if(/^(delete|remove)/.test(method))return 'Hapus';if(/^(cancel|reject)/.test(method))return 'Batalkan / Tolak';return 'Setujui / Rilis / Verifikasi';}
@@ -180,15 +180,20 @@
     try{auth=JSON.parse(sessionStorage.getItem(KEY)||localStorage.getItem(KEY)||'null');}catch(ignore){}
     if(!auth||!auth.token){location.replace('/login/?next='+encodeURIComponent(location.pathname));return;}
     state.token=auth.token;
-    try{var session=await rpc('getApprovalSession',state.token);if(!session||session.status!=='success'||!session.user||!session.user.isOwner)throw new Error('Hanya akun master yang dapat membuka panel ini.');
-      userSignaturePad=createSignaturePad($('userSignaturePad'),$('clearUserSignature'));
-      $('newUserButton').addEventListener('click',function(){openUser();});
-      $('closeUserDialog').addEventListener('click',function(){$('userDialog').close();});
-      $('cancelUser').addEventListener('click',function(){$('userDialog').close();});
-      $('userForm').addEventListener('submit',saveUser);
-      $('userList').addEventListener('click',function(event){var button=event.target.closest('[data-user]');if(button)openUser(state.users.find(function(user){return user.userId===button.dataset.user;}));});
-      await loadUsers();
-    }catch(error){$('userList').textContent=error.message||'Panel tidak dapat dimuat.';}
+    userSignaturePad=createSignaturePad($('userSignaturePad'),$('clearUserSignature'));
+    $('newUserButton').addEventListener('click',function(){openUser();});
+    $('closeUserDialog').addEventListener('click',function(){$('userDialog').close();});
+    $('cancelUser').addEventListener('click',function(){$('userDialog').close();});
+    $('userForm').addEventListener('submit',saveUser);
+    $('userList').addEventListener('click',function(event){var button=event.target.closest('[data-user]');if(button)openUser(state.users.find(function(user){return user.userId===button.dataset.user;}));});
+    var verification=window.POLYTA_PORTAL_AUTH&&window.POLYTA_PORTAL_AUTH.ready
+      ? window.POLYTA_PORTAL_AUTH.ready
+      : rpc('getApprovalSession',state.token).then(function(result){return result.user;});
+    var results=await Promise.allSettled([verification,loadUsers(false)]);
+    var user=results[0].status==='fulfilled'&&results[0].value;
+    if(!user||!user.isOwner)return;
+    if(results[1].status==='rejected')$('userList').textContent=results[1].reason&&results[1].reason.message||'Panel tidak dapat dimuat.';
+    else{renderUsers();fillRoles();}
   }
   init();
 })();

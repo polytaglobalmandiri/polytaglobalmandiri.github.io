@@ -59,6 +59,14 @@
       runner[method].apply(runner, args);
     });
   }
+  function withBody(callback) {
+    if (document.body) callback();
+    else document.addEventListener('DOMContentLoaded', callback, { once: true });
+  }
+  function afterParsed(callback) {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', callback, { once: true });
+    else callback();
+  }
   function show(user) {
     document.documentElement.classList.remove('pgm-auth-pending');
     var bar = document.createElement('div');
@@ -83,37 +91,42 @@
     bar.insertBefore(label, bar.firstChild); bar.appendChild(button); document.body.appendChild(bar);
   }
   var style = document.createElement('style');
-  style.textContent = 'html.pgm-auth-pending body{visibility:hidden}.pgm-auth-bar{position:fixed;z-index:99999;right:12px;bottom:12px;display:flex;align-items:center;gap:9px;max-width:calc(100vw - 24px);padding:7px 9px;border:1px solid #b9c2bd;border-radius:8px;background:#fff;color:#26312b;box-shadow:0 3px 12px #0002;font:12px system-ui,sans-serif}.pgm-auth-bar a{color:#8b1821;font-weight:700}.pgm-auth-bar button{padding:5px 9px;border:1px solid #9d2028;border-radius:5px;background:#ab2029;color:#fff;cursor:pointer}';
+  style.textContent = 'html.pgm-auth-pending{background:#f3f4f2}html.pgm-auth-pending body{visibility:hidden}html.pgm-auth-pending::before{content:"Memeriksa akses portal...";position:fixed;inset:0;display:grid;place-items:center;color:#526058;font:600 14px system-ui,sans-serif}.pgm-auth-bar{position:fixed;z-index:99999;right:12px;bottom:12px;display:flex;align-items:center;gap:9px;max-width:calc(100vw - 24px);padding:7px 9px;border:1px solid #b9c2bd;border-radius:8px;background:#fff;color:#26312b;box-shadow:0 3px 12px #0002;font:12px system-ui,sans-serif}.pgm-auth-bar a{color:#8b1821;font-weight:700}.pgm-auth-bar button{padding:5px 9px;border:1px solid #9d2028;border-radius:5px;background:#ab2029;color:#fff;cursor:pointer}';
   document.head.appendChild(style);
   document.documentElement.classList.add('pgm-auth-pending');
   var auth = stored();
   if (!auth) { location.replace(loginUrl()); return; }
-  window.POLYTA_PORTAL_AUTH = { stored: stored, allowed: allowed, safeNext: safeNext, clear: clear };
+  var resolveReady;
+  var ready = new Promise(function (resolve) { resolveReady = resolve; });
+  window.POLYTA_PORTAL_AUTH = { stored: stored, allowed: allowed, safeNext: safeNext, clear: clear, ready: ready };
   function verify() {
     rpc('getApprovalSession', auth.token).then(function (result) {
       if (!result || result.status !== 'success' || !result.user) throw new Error('Sesi berakhir.');
       if (!allowed(location.pathname, result.user.roleKey, result.user.permissions, result.user.isOwner)) {
-        document.body.textContent = '';
-        var denied = document.createElement('main');
-        denied.style.cssText = 'max-width:520px;margin:15vh auto;padding:28px;font:16px system-ui,sans-serif;color:#26312b';
-        denied.innerHTML = '<h1>Akses dibatasi</h1><p>Akun Anda belum diizinkan membuka halaman ini. Hubungi akun master untuk meminta akses.</p><a href="/">Kembali ke portal</a>';
-        document.body.appendChild(denied);
-        show(result.user);
+        afterParsed(function () {
+          document.body.textContent = '';
+          var denied = document.createElement('main');
+          denied.style.cssText = 'max-width:520px;margin:15vh auto;padding:28px;font:16px system-ui,sans-serif;color:#26312b';
+          denied.innerHTML = '<h1>Akses dibatasi</h1><p>Akun Anda belum diizinkan membuka halaman ini. Hubungi akun master untuk meminta akses.</p><a href="/">Kembali ke portal</a>';
+          document.body.appendChild(denied);
+          show(result.user);
+        });
+        resolveReady(null);
         return;
       }
       auth.user = result.user;
       try { (auth.remember ? localStorage : sessionStorage).setItem(KEY, JSON.stringify(auth)); } catch (ignore) {}
-      show(result.user);
-    }).catch(function () { clear(); location.replace(loginUrl()); });
+      withBody(function () { show(result.user); });
+      resolveReady(result.user);
+    }).catch(function () { resolveReady(null); clear(); location.replace(loginUrl()); });
   }
   function start() {
     if (window.google && window.google.script && window.google.script.run) { verify(); return; }
     var script = document.createElement('script');
     script.src = '/assets/js/gas-rpc.js?v=20260926-2';
     script.onload = verify;
-    script.onerror = function () { clear(); location.replace(loginUrl()); };
+    script.onerror = function () { resolveReady(null); clear(); location.replace(loginUrl()); };
     document.head.appendChild(script);
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, { once: true });
-  else start();
+  start();
 })();

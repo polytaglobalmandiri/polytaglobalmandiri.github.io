@@ -25,6 +25,7 @@ const context = vm.createContext({
 for (const file of ['BE-SPK-Approval.js', 'BE-Input-SPK.js']) {
   vm.runInContext(fs.readFileSync(path.join(__dirname, '../gas-deploy', file), 'utf8'), context);
 }
+const cachedUserLookup = context.getApprovalUserById_;
 const user = { userId: 'test-user', email: 'test@example.invalid', name: 'Test', roleKey: 'admin_ppic',
   active: true, tokenVersion: 1, rowNumber: 2, passwordSalt: 'test-salt' };
 user.passwordHash = context.hashApprovalPassword_('correct-password', user.passwordSalt);
@@ -94,4 +95,19 @@ context.sanitizeApprovalUser_ = value => value;
 assert.equal(context.saveApprovalUser('token', { userId: 'owner-user', email: 'other@example.com', active: true }).status, 'error');
 assert.equal(context.saveApprovalUser('token', { userId: 'owner-user', email: 'zulfi.polyta@gmail.com', active: false }).status, 'error');
 assert.equal(userWrites, 0, 'akun master tidak bisa diturunkan atau dinonaktifkan');
+const cacheRow = ['cache-user', 'cached@example.invalid', '', '', 'Cached User', 'admin_ppic', 'Admin PPIC', 'PPIC', 'YA', '', '', '', '', '', 1, '{}'];
+let sheetReads = 0;
+context.getApprovalUsersSheetForLogin_ = () => ({
+  getLastRow: () => 2,
+  getRange: (_, column, __, width) => width === 1 ? {
+    createTextFinder: () => ({ matchEntireCell() { return this; }, matchCase() { return this; }, findNext: () => ({ getRow: () => 2 }) })
+  } : { getValues: () => { sheetReads++; return [cacheRow]; } }
+});
+assert.equal(cachedUserLookup('cache-user').roleKey, 'admin_ppic');
+cacheRow[5] = 'marketing';
+assert.equal(cachedUserLookup('cache-user').roleKey, 'admin_ppic');
+assert.equal(sheetReads, 1, 'pemeriksaan sesi berikutnya memakai cache pengguna');
+context.invalidateApprovalUserCache_('cache-user');
+assert.equal(cachedUserLookup('cache-user').roleKey, 'marketing');
+assert.equal(sheetReads, 2, 'perubahan izin mencabut cache pengguna');
 console.log('PASS: real login/session logic with simulated storage, remember, logout, expiration, role/revocation checks, and idempotent print release');

@@ -9,6 +9,8 @@ var APPROVAL_LOG_SHEET_ = 'Persetujuan SPK';
 var APPROVAL_SESSION_PREFIX_ = 'spk-auth-v1-';
 var APPROVAL_SESSION_SECONDS_ = 21600;
 var APPROVAL_REMEMBER_SECONDS_ = 2592000;
+var APPROVAL_USER_CACHE_PREFIX_ = 'approval-user-v1-';
+var APPROVAL_USER_CACHE_SECONDS_ = 180;
 var APPROVAL_BOOTSTRAP_CODE_PROPERTY_ = 'APPROVAL_BOOTSTRAP_CODE';
 var APPROVAL_SIGNATURE_FOLDER_ID_ = '1hHcBx2ris478lg24Zah1obaC0dnx3FVF';
 var PORTAL_OWNER_EMAIL_ = 'zulfi.polyta@gmail.com';
@@ -439,6 +441,7 @@ function requireApprovalSession_(token, allowedRoles) {
   if (!cleanToken) throw new Error('Silakan login dengan email terlebih dahulu.');
   var sessionKey = approvalSessionKey_(cleanToken);
   var raw = CacheService.getScriptCache().get(sessionKey);
+  var restoredFromProperties = !raw;
   if (!raw) raw = PropertiesService.getScriptProperties().getProperty(sessionKey);
   if (!raw) throw new Error('Sesi login berakhir. Silakan login kembali.');
   var session = JSON.parse(raw);
@@ -447,7 +450,7 @@ function requireApprovalSession_(token, allowedRoles) {
     try { PropertiesService.getScriptProperties().deleteProperty(sessionKey); } catch (ignore) {}
     throw new Error('Sesi login berakhir. Silakan login kembali.');
   }
-  if (session.persistent) {
+  if (session.persistent && restoredFromProperties) {
     CacheService.getScriptCache().put(sessionKey, raw, APPROVAL_SESSION_SECONDS_);
   }
   var user = getApprovalUserById_(session.userId);
@@ -565,6 +568,7 @@ function createOrUpdateApprovalUser_(sheet, userId, payload) {
   ];
   var rowNumber = current ? current.rowNumber : sheet.getLastRow() + 1;
   sheet.getRange(rowNumber, 1, 1, row.length).setValues([row]);
+  invalidateApprovalUserCache_(row[0]);
   return parseApprovalUserRow_(row, rowNumber);
 }
 
@@ -710,7 +714,27 @@ function findApprovalUserByEmail_(sheet, email) {
 }
 
 function getApprovalUserById_(userId) {
-  return readApprovalUsers_(ensureApprovalSheets_().users).find(function(user) { return user.userId === userId; }) || null;
+  var id = String(userId || '').trim();
+  if (!/^[A-Za-z0-9-]{1,80}$/.test(id)) return null;
+  var key = APPROVAL_USER_CACHE_PREFIX_ + id;
+  var cache = CacheService.getScriptCache();
+  try {
+    var cached = cache.get(key);
+    if (cached) return JSON.parse(cached);
+  } catch (ignore) {}
+  var sheet = getApprovalUsersSheetForLogin_();
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) return null;
+  var match = sheet.getRange(2, 1, lastRow - 1, 1)
+    .createTextFinder(id).matchEntireCell(true).matchCase(true).findNext();
+  if (!match) return null;
+  var user = parseApprovalUserRow_(sheet.getRange(match.getRow(), 1, 1, APPROVAL_USER_HEADERS_.length).getValues()[0], match.getRow());
+  try { cache.put(key, JSON.stringify(user), APPROVAL_USER_CACHE_SECONDS_); } catch (ignore) {}
+  return user;
+}
+
+function invalidateApprovalUserCache_(userId) {
+  try { CacheService.getScriptCache().remove(APPROVAL_USER_CACHE_PREFIX_ + String(userId || '')); } catch (ignore) {}
 }
 
 function readApprovalRows_(sheet) {

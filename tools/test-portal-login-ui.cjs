@@ -52,8 +52,11 @@ function harness(search) {
   app.nodes.togglePassword.listeners.click();
   assert.equal(app.nodes.password.type, 'text');
   assert.equal(app.nodes.togglePassword.attributes['aria-pressed'], 'true');
+  assert.equal(app.nodes.togglePassword.attributes['aria-label'], 'Sembunyikan password');
   app.nodes.togglePassword.listeners.click();
   assert.equal(app.nodes.password.type, 'password');
+  assert.equal(app.nodes.togglePassword.attributes['aria-pressed'], 'false');
+  assert.equal(app.nodes.togglePassword.attributes['aria-label'], 'Tampilkan password');
 
   app.nodes.email.value = 'test@example.invalid';
   app.nodes.password.value = 'wrong';

@@ -213,23 +213,28 @@ h1 { margin: 0; color: #202329; font-size: clamp(31px, 3vw, 40px); font-weight: 
 .control input:focus { border-color: #b61b32; background: #fff; box-shadow: 0 0 0 4px #c8102e18; }
 .control input:focus-visible { transform: translateY(-1px); }
 .control input[aria-invalid="true"] { border-color: #c7293d; }
-.password-control input { padding-right: 100px; }
+.password-control input { padding-right: 58px; }
 .toggle-password {
   position: absolute;
   top: 50%;
   right: 7px;
   transform: translateY(-50%);
-  min-width: 86px;
+  width: 40px;
   height: 40px;
+  display: grid;
+  place-items: center;
+  padding: 0;
   border: 0;
   border-radius: 8px;
   background: transparent;
   color: #7b4650;
-  font-size: 12px;
-  font-weight: 750;
   transition: background .16s ease, color .16s ease;
 }
 .toggle-password:hover, .toggle-password:focus-visible { outline: none; background: #f5e8eb; color: #a7142b; }
+.toggle-password:focus-visible { box-shadow: 0 0 0 3px #c8102e33; }
+.toggle-password svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.toggle-password .icon-eye-off, .toggle-password[aria-pressed="true"] .icon-eye { display: none; }
+.toggle-password[aria-pressed="true"] .icon-eye-off { display: block; }
 .caps-hint { display: block; margin: 7px 0 -5px; color: #9a5f0b; font-size: 12px; }
 .remember {
   display: flex;

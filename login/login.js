@@ -80,7 +80,6 @@
   toggle.addEventListener('click', function () {
     var visible = password.type === 'password';
     password.type = visible ? 'text' : 'password';
-    toggle.textContent = visible ? 'Sembunyikan' : 'Lihat';
     toggle.setAttribute('aria-label', visible ? 'Sembunyikan password' : 'Tampilkan password');
     toggle.setAttribute('aria-pressed', String(visible));
     password.focus();

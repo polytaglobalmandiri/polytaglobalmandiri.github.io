@@ -32,6 +32,31 @@
   var message = document.getElementById('message');
   var toggle = document.getElementById('togglePassword');
   var capsHint = document.getElementById('capsHint');
+  var brand = document.querySelector && document.querySelector('.brand');
+
+  if (brand && typeof window !== 'undefined' && window.matchMedia &&
+      window.matchMedia('(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)').matches) {
+    var pointerFrame = 0;
+    var pointerX = 0;
+    var pointerY = 0;
+    brand.addEventListener('pointermove', function (event) {
+      var bounds = brand.getBoundingClientRect();
+      pointerX = event.clientX - bounds.left;
+      pointerY = event.clientY - bounds.top;
+      if (pointerFrame) return;
+      pointerFrame = window.requestAnimationFrame(function () {
+        brand.style.setProperty('--spot-x', pointerX + 'px');
+        brand.style.setProperty('--spot-y', pointerY + 'px');
+        pointerFrame = 0;
+      });
+    });
+    brand.addEventListener('pointerleave', function () {
+      if (pointerFrame) window.cancelAnimationFrame(pointerFrame);
+      pointerFrame = 0;
+      brand.style.removeProperty('--spot-x');
+      brand.style.removeProperty('--spot-y');
+    });
+  }
 
   function setBusy(busy) {
     submit.disabled = busy;
@@ -41,6 +66,7 @@
 
   function clearMessage() {
     message.textContent = '';
+    message.classList.toggle('is-visible', false);
     email.removeAttribute('aria-invalid');
     password.removeAttribute('aria-invalid');
   }
@@ -86,6 +112,7 @@
       location.replace(next);
     } catch (error) {
       message.textContent = error && error.message || 'Tidak dapat masuk.';
+      message.classList.toggle('is-visible', true);
       password.setAttribute('aria-invalid', 'true');
       setBusy(false);
     }

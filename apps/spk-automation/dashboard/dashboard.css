@@ -5,3 +5,42 @@
 @media (max-width: 650px) {
   .app-main { width: calc(100% - 28px); }
 }
+
+.portal-footer { margin-top: 32px; background: transparent; }
+.portal-footer::before {
+  width: min(1600px, calc(100% - 32px));
+  height: 1px;
+  margin-inline: auto;
+  display: block;
+  background: linear-gradient(90deg, transparent, #ffffff26 24%, #ffffff26 76%, transparent);
+  content: "";
+}
+.portal-footer-inner {
+  width: min(1600px, calc(100% - 32px));
+  margin-inline: auto;
+  padding: 17px 0 24px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+  color: #ffffff80;
+  font-size: .64rem;
+  font-weight: 400;
+  letter-spacing: .07em;
+  line-height: 1.6;
+  text-align: center;
+}
+.portal-footer-inner strong {
+  margin-inline-end: -.18em;
+  color: #ffffffd1;
+  font-weight: 500;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+@media (max-width: 650px) {
+  .portal-footer::before, .portal-footer-inner { width: calc(100% - 28px); }
+  .portal-footer-inner { padding: 14px 0 20px; gap: 4px; font-size: .6rem; letter-spacing: .05em; }
+  .portal-footer-inner strong { margin-inline-end: -.12em; letter-spacing: .12em; }
+}
+@media print { .portal-footer { display: none; } }

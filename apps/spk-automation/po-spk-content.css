@@ -1,0 +1,55 @@
+/* Skala huruf konten PO & SPK mengikuti dashboard operasional. */
+html { font-family: Inter, "Segoe UI", Arial, sans-serif; }
+body[data-page="dashboard"] .app-main { font-family: Inter, "Segoe UI", Arial, sans-serif; }
+
+body[data-page="dashboard"] .app-main .page-heading h1 {
+  font-weight: 700 !important;
+}
+body[data-page="dashboard"] .app-main .page-description {
+  font-weight: 400 !important;
+}
+body[data-page="dashboard"] .app-main .panel-title {
+  font-size: 14.4px !important;
+  font-weight: 700 !important;
+}
+body[data-page="dashboard"] .app-main .panel-caption {
+  font-size: 10.4px !important;
+  font-weight: 400 !important;
+}
+body[data-page="dashboard"] .app-main .panel-chip {
+  font-size: 10.4px;
+  font-weight: 800;
+}
+
+body[data-page="dashboard"] .app-main .spk-period-copy strong {
+  font-size: 16px;
+  font-weight: 700;
+}
+body[data-page="dashboard"] .app-main .spk-period-copy > span {
+  font-size: 9.92px;
+  font-weight: 400;
+}
+body[data-page="dashboard"] .app-main .kpi-label {
+  font-size: 9.92px;
+  font-weight: 800;
+}
+body[data-page="dashboard"] .app-main .kpi-value { font-size: 16.8px; }
+body[data-page="dashboard"] .app-main .kpi-meta { font-size: 8.96px !important; font-weight: 400; }
+
+body[data-page="dashboard"] .app-main .field label,
+body[data-page="dashboard"] .app-main .spk-year-field label {
+  font-size: 10.4px !important;
+  font-weight: 800;
+}
+body[data-page="dashboard"] .app-main .form-control,
+body[data-page="dashboard"] .app-main .form-select {
+  font-size: 10.4px !important;
+  font-weight: 600;
+}
+body[data-page="dashboard"] .app-main .button {
+  font-size: 10.4px !important;
+}
+body[data-page="dashboard"] .app-main .filter-summary {
+  font-size: 10.4px;
+  font-weight: 400;
+}

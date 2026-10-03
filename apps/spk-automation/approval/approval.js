@@ -282,7 +282,8 @@
     // menimpa status terbaru yang baru saja ditampilkan.
     if(queueLoadPromise)return queueLoadPromise;
     queueLoadPromise=(async function(){
-      setBusy(true,'Memuat antrean','Daftar SPK yang menunggu persetujuan sedang diambil…');
+      $('queueLoader').hidden=false;
+      $('queueList').hidden=true;
       try{
         var response=await rpc('getApprovalQueue',state.token);
         if(!response||response.status!=='success')throw new Error(response&&response.message);
@@ -293,7 +294,8 @@
         if(/sesi|login|akun/i.test(error.message||'')){clearAuth();showLogin();}
         await alertError(error.message);
       }finally{
-        setBusy(false);
+        $('queueLoader').hidden=true;
+        $('queueList').hidden=false;
         queueLoadPromise=null;
       }
     })();

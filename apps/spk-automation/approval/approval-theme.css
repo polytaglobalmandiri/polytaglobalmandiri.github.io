@@ -129,3 +129,65 @@ body[data-page="approval-spk"] .app-hero p:not(.eyebrow) { font-size: 9.92px; }
   body[data-page="approval-spk"] .pgm-auth-bar--navbar .pgm-auth-panel { right: -15px; }
 }
 @media print { .portal-footer { display: none; } }
+
+/* Spinner dan teks mengikuti loader panel Basis Data SPK. */
+.approval-loading-state {
+  min-height: 300px;
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: repeating-linear-gradient(0deg, rgba(0,0,0,.012) 0 1px, transparent 1px 4px), #f1f1ee;
+  box-shadow: inset 0 3px 7px rgba(0,0,0,.16);
+  text-align: center;
+}
+.approval-loader-ring,
+.busy-spinner {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  margin-bottom: 16px;
+  border: 4px solid #c0c1bf;
+  border-top-color: #b21e1e;
+  border-radius: 50%;
+  box-shadow: inset 0 0 4px rgba(0,0,0,.22), 0 1px 0 #fff;
+  animation: loadingSpin .85s linear infinite;
+}
+.approval-loading-state strong,
+.busy-card strong,
+.preview-loading strong {
+  color: #172033;
+  font-size: 12.9px;
+  font-weight: 700;
+}
+.approval-loading-state > span:last-child,
+.busy-card small,
+.preview-loading small {
+  max-width: 440px;
+  margin-top: 6px;
+  color: #6d7689;
+  font-size: 10.95px;
+  line-height: 1.5;
+}
+.busy-card {
+  min-width: 0;
+  width: min(440px, calc(100vw - 40px));
+  min-height: 240px;
+  padding: 40px 20px;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid #aeb1b1;
+  background: repeating-linear-gradient(0deg, rgba(0,0,0,.012) 0 1px, transparent 1px 4px), #f1f1ee;
+  box-shadow: inset 0 3px 7px rgba(0,0,0,.16), 0 16px 32px rgba(0,0,0,.25);
+  text-align: center;
+}
+.busy-card > span:last-child { justify-items: center; gap: 0; }
+.preview-loading {
+  flex-direction: column;
+  gap: 0;
+  background: repeating-linear-gradient(0deg, rgba(0,0,0,.012) 0 1px, transparent 1px 4px), #f1f1ee;
+  box-shadow: inset 0 3px 7px rgba(0,0,0,.16);
+}
+.preview-loading > span:last-child { justify-items: center; gap: 0; }
+.preview-loading .busy-spinner { border: 4px solid #c0c1bf; border-top-color: #b21e1e; }

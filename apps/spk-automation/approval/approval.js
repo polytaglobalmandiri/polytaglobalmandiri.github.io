@@ -275,7 +275,7 @@
     window.location.replace('/login/?next='+encodeURIComponent(window.location.pathname+window.location.search));
   }
   async function setup(event){event.preventDefault();setBusy(true,'Mengaktifkan akun','Tanda tangan dan data pengguna sedang disimpan…');try{var form=new FormData(event.currentTarget);var signature=await selectedSignatureData(form.get('signature'),setupSignaturePad,true);var response=await rpc('bootstrapApprovalAdmin',form.get('setupCode'),{email:form.get('email'),name:form.get('name'),password:form.get('password'),signatureData:signature,signatureName:form.get('name')});if(!response||response.status!=='success')throw new Error(response&&response.message);await showAlert({icon:'success',title:'Akun dibuat',text:'Silakan masuk memakai email dan password Admin PPIC.',confirmButtonColor:'#b41420'});event.currentTarget.reset();setupSignaturePad.clear();$('showSetupButton').hidden=true;showLogin();}catch(error){alertError(error.message);}finally{setBusy(false);}}
-  async function showApp(queueAlreadyLoaded){$('loginView').hidden=true;$('setupView').hidden=true;$('appView').hidden=false;if(!queueAlreadyLoaded)await loadQueue();}
+  async function showApp(queueAlreadyLoaded){$('loginView').hidden=true;$('setupView').hidden=true;$('appView').hidden=false;$('appView').setAttribute('aria-busy','false');$('refreshButton').disabled=false;if(!queueAlreadyLoaded)await loadQueue();}
   function loadQueue(){
     // Satu permintaan antrean pada satu waktu. Klik Muat ulang berulang
     // sebelumnya dapat membuat respons yang lebih lama datang belakangan dan

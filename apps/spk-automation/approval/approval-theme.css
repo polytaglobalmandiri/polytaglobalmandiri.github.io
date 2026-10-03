@@ -1,0 +1,131 @@
+/* Persetujuan SPK mengikuti navbar dan lebar halaman operasional. */
+body[data-page="approval-spk"] .topbar {
+  min-height: 0;
+  border-top: 1px solid #62656a;
+  border-bottom: 4px solid #8b1717;
+  background: linear-gradient(180deg, #4b4e54 0, #303238 45%, #202226 46%, #101114 100%);
+  box-shadow: inset 0 1px #ffffff2e, inset 0 -1px #000, 0 4px 10px #0007;
+}
+body[data-page="approval-spk"] .topbar::before { display: none; }
+body[data-page="approval-spk"] .topbar::after {
+  right: 0;
+  bottom: -4px;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #751010, #ec4a4a 50%, #751010);
+}
+body[data-page="approval-spk"] .topbar-inner {
+  width: min(1600px, 100%);
+  min-height: 70px;
+  padding: 0 22px;
+  gap: 24px;
+}
+body[data-page="approval-spk"] .brand { gap: 13px; color: #fff; }
+body[data-page="approval-spk"] .brand-mark {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  padding: 4px;
+  border: 1px solid #74787d;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #ffffffeb, #ffffff2e 42%, transparent 43%), linear-gradient(145deg, #f7f7f4, #bfc2c4 54%, #85898e);
+  box-shadow: inset 0 1px #fff, inset 0 -2px 3px #0004, 0 3px 0 #111216, 0 6px 12px #0006;
+}
+body[data-page="approval-spk"] .polyta-logo { display: block; filter: drop-shadow(0 2px 1px #0005); }
+body[data-page="approval-spk"] .brand-name {
+  color: #fff;
+  font: 750 15.2px/1.2 Inter, system-ui, sans-serif;
+  letter-spacing: .01em;
+  text-transform: none;
+  text-shadow: 0 -1px #000, 0 1px #ffffff24;
+  white-space: normal;
+}
+body[data-page="approval-spk"] .brand-subtitle {
+  display: block;
+  margin-top: 3px;
+  color: #c0c3c9;
+  font: 400 11.52px/1.2 Inter, system-ui, sans-serif;
+  letter-spacing: 0;
+  text-transform: none;
+  text-shadow: 0 -1px #000;
+  white-space: normal;
+}
+.approval-header-actions { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.approval-account-slot { min-width: 44px; min-height: 44px; display: grid; place-items: center; }
+.approval-menu-link {
+  min-height: 44px;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid #090a0c;
+  border-radius: 11px;
+  background: linear-gradient(#34373c, #1d1f23);
+  box-shadow: inset 0 1px #ffffff2b, inset 0 -2px #08090b, 0 2px 4px #0008;
+  color: #eef0f2;
+  font-size: 11px;
+  font-weight: 700;
+  text-decoration: none;
+  text-shadow: 0 -1px #000;
+}
+.approval-menu-link:hover { background: linear-gradient(#3d4045, #232529); box-shadow: inset 0 1px #ffffff35, inset 0 -2px #08090b, 0 4px 7px #0009; color: #fff; }
+.approval-menu-link:focus-visible { outline: 3px solid #ffffff70; outline-offset: 2px; }
+.approval-menu-icon { width: 17px; height: 17px; display: block; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+
+body[data-page="approval-spk"] .app-main { width: min(1600px, calc(100% - 32px)); }
+body[data-page="approval-spk"] .app-hero h2 { font-size: 16px; font-weight: 700; }
+body[data-page="approval-spk"] .app-hero p:not(.eyebrow) { font-size: 9.92px; }
+
+.portal-footer { margin-top: 32px; background: transparent; }
+.portal-footer::before {
+  width: min(1600px, calc(100% - 32px));
+  height: 1px;
+  margin-inline: auto;
+  display: block;
+  background: linear-gradient(90deg, transparent, #ffffff26 24%, #ffffff26 76%, transparent);
+  content: "";
+}
+.portal-footer-inner {
+  width: min(1600px, calc(100% - 32px));
+  margin-inline: auto;
+  padding: 17px 0 24px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+  color: #ffffff80;
+  font-size: .64rem;
+  font-weight: 400;
+  letter-spacing: .07em;
+  line-height: 1.6;
+  text-align: center;
+}
+.portal-footer-inner strong {
+  margin-inline-end: -.18em;
+  color: #ffffffd1;
+  font-weight: 500;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+@media (max-width: 650px) {
+  body[data-page="approval-spk"] .topbar-inner { width: 100%; padding: 0 14px; gap: 6px; }
+  body[data-page="approval-spk"] .brand-name { max-width: none; overflow: visible; font-size: 12px; letter-spacing: .01em; text-overflow: clip; white-space: normal; }
+  body[data-page="approval-spk"] .brand-subtitle { display: block; }
+  .approval-header-actions { gap: 7px; }
+  .approval-menu-link { padding: 0 8px; }
+  body[data-page="approval-spk"] .app-main { width: calc(100% - 28px); }
+  .portal-footer::before, .portal-footer-inner { width: calc(100% - 28px); }
+  .portal-footer-inner { padding: 14px 0 20px; gap: 4px; font-size: .6rem; letter-spacing: .05em; }
+  .portal-footer-inner strong { margin-inline-end: -.12em; letter-spacing: .12em; }
+}
+@media (max-width: 350px) {
+  .approval-menu-link { width: 42px; padding: 0; }
+  .approval-menu-link span { display: none; }
+  body[data-page="approval-spk"] .brand-subtitle { display: none; }
+}
+@media (max-width: 480px) {
+  body[data-page="approval-spk"] .pgm-auth-bar--navbar .pgm-auth-panel { right: -15px; }
+}
+@media print { .portal-footer { display: none; } }

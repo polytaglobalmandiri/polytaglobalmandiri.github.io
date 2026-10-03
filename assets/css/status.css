@@ -10,7 +10,7 @@
    Dua keputusan penting pada berkas ini:
 
    1. Paletnya berdiri sendiri, tidak mewarisi token halaman induk.
-      Halaman portal memakai skeuo.css sedangkan halaman Otomasi SPK
+      Halaman portal memakai portal.css sedangkan halaman Otomasi SPK
       memakai paletnya sendiri; kalau warnanya diwarisi, panel yang
       seharusnya seragam justru berubah-ubah menurut halamannya.
 
@@ -39,7 +39,7 @@
   --pgm-status-font-mono: "Cascadia Mono", Consolas, "SF Mono", ui-monospace, monospace;
 }
 
-/* Gelap mengikuti pola tiga keadaan yang dipakai skeuo.css: pilihan
+/* Gelap mengikuti pola tiga keadaan yang dipakai portal.css: pilihan
    eksplisit lewat data-theme selalu menang, sedangkan tanpa pilihan
    barulah selera sistem yang dipakai. */
 @media (prefers-color-scheme: dark) {

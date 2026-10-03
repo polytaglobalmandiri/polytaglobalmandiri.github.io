@@ -43,7 +43,7 @@ const assetVersions = {
 };
 
 // Kaki halaman dipasang oleh build karena sumber GAS tidak memuatnya. Teksnya
-// disamakan dengan kaki halaman portal pada assets/js/data.js.
+// disamakan dengan kaki halaman portal pada assets/js/portal-home.js.
 const footerText = "Dikembangkan dan dikelola oleh: <strong>Team POLYTA GLOBAL MANDIRI</strong>";
 
 // Lekukan mengikuti gaya masing-masing berkas sumber GAS: Dashboard memakai

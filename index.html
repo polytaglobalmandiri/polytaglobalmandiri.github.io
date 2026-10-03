@@ -1,35 +1,51 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
 <head>
-<meta charset="utf-8">
-  <script src="/assets/js/portal-auth.js?v=20261003-1"></script>
-
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Portal akses data dan dokumen internal POLYTA GLOBAL MANDIRI. Akses direktori penyimpanan daring dibatasi berdasarkan peran pengguna.">
-<meta name="color-scheme" content="light dark">
-<title>POLYTA GLOBAL MANDIRI — Home</title>
-<link rel="icon" href="assets/img/logo-app.png" type="image/png">
-<link rel="stylesheet" href="assets/css/skeuo.css?v=20260913-1">
-<link rel="stylesheet" href="assets/css/status.css?v=20260814-4">
-<script src="assets/js/status.js?v=20260815-1"></script>
-<script>
-  /* Terapkan tema sebelum render untuk mencegah kedip */
-  try { var t = JSON.parse(localStorage.getItem('pgm:theme')); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}
-</script>
-
+  <meta charset="utf-8">
+  <script src="/assets/js/portal-auth.js?v=20261003-2"></script>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#1d1f26">
+  <meta name="description" content="Portal operasional terpadu Polyta Global Mandiri untuk perencanaan, produksi, material, dan pelaporan.">
+  <title>Portal Operasional | Polyta Global Mandiri</title>
+  <link rel="icon" href="/assets/img/logo-app.png" type="image/png">
+  <link rel="stylesheet" href="/assets/vendor/inter/inter.css?v=20260827">
+  <link rel="stylesheet" href="/assets/vendor/fontawesome/css/all.min.css?v=20260827">
+  <link rel="stylesheet" href="/assets/css/portal.css?v=20261003-1">
 </head>
-<body data-page="beranda">
-  <a class="sr-only" href="#konten">Lewati ke konten utama</a>
-  <main id="konten"></main>
-  <noscript>
-    <div class="wrap" style="padding:2rem 0">
-      <div class="plate" style="padding:1.5rem">
-        <h1>POLYTA GLOBAL MANDIRI</h1>
-        <p>Portal ini memerlukan JavaScript aktif untuk menampilkan daftar tautan. Mohon aktifkan JavaScript pada peramban Anda.</p>
-      </div>
+<body>
+  <a class="skip-link" href="#mainContent">Lewati ke konten utama</a>
+  <header class="portal-header">
+    <div class="header-inner">
+      <a class="brand" href="/" aria-label="Beranda Portal Operasional">
+        <span class="brand-mark"><img src="/assets/img/logo-app.png" alt=""></span>
+        <span><strong>POLYTA GLOBAL MANDIRI</strong><small>Portal Operasional</small></span>
+      </a>
+      <div class="header-status"><i aria-hidden="true"></i><span>Sistem internal</span></div>
     </div>
-  </noscript>
-  <script src="assets/js/data.js?v=20260815-3"></script>
-  <script src="assets/js/app.js?v=20260926-3"></script>
+  </header>
+  <main id="mainContent" class="portal-main">
+    <section class="hero" aria-labelledby="pageTitle">
+      <div class="hero-copy">
+        <p class="eyebrow"><span></span> RUANG KERJA TERPADU</p>
+        <h1 id="pageTitle">Kendalikan operasi dari satu tempat.</h1>
+        <p>Kelola alur SPK, material, jadwal, hasil produksi, dan serah terima melalui akses yang mengikuti tanggung jawab setiap pengguna.</p>
+        <div class="hero-meta"><span><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Akses berbasis wewenang</span><span><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i> Data operasional terhubung</span></div>
+      </div>
+      <div class="hero-summary" aria-label="Ringkasan portal">
+        <span class="summary-icon"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span>
+        <strong id="availableCount">—</strong><span>modul tersedia untuk akun Anda</span><small id="currentUser">Memuat profil pengguna...</small>
+      </div>
+    </section>
+    <section class="workspace" aria-labelledby="workspaceTitle">
+      <header class="workspace-head">
+        <div><p class="section-kicker">APLIKASI OPERASIONAL</p><h2 id="workspaceTitle">Pilih ruang kerja</h2><p>Gunakan pencarian atau buka modul sesuai pekerjaan yang akan dilakukan.</p></div>
+        <label class="search-box" for="portalSearch"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input id="portalSearch" type="search" placeholder="Cari modul..." autocomplete="off"><kbd>/</kbd></label>
+      </header>
+      <div class="module-grid" id="moduleGrid" aria-live="polite"></div>
+      <div class="empty-state" id="emptyState" hidden><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><strong>Modul tidak ditemukan</strong><span>Coba gunakan kata pencarian lain.</span></div>
+    </section>
+  </main>
+  <footer class="portal-footer"><span>© Polyta Global Mandiri</span><span>Portal internal · aktivitas mengikuti wewenang akun</span></footer>
+  <script src="/assets/js/portal-home.js?v=20261003-1"></script>
 </body>
 </html>

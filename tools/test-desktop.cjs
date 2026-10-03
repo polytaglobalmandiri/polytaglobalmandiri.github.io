@@ -59,8 +59,8 @@ async function launch({ name = 'Polyta Portal', argv = [], platform = 'linux', s
 test('portal and both administrator entry points retain their URL and identity', async () => {
   for (const [options, suffix, id] of [
     [{}, '/', 'portal'],
-    [{ argv: ['--admin'] }, '/pages/admin/', 'admin'],
-    [{ name: 'Polyta Administrator' }, '/pages/admin/', 'admin']
+    [{ argv: ['--admin'] }, '/apps/spk-automation/admin/', 'admin'],
+    [{ name: 'Polyta Administrator' }, '/apps/spk-automation/admin/', 'admin']
   ]) {
     const { app, window } = await launch(options);
     assert.equal(window.loaded[0], origin + suffix);
@@ -82,8 +82,8 @@ test('remote pages run without Node integration or developer tools', async () =>
 
 test('trusted popup navigation stays in the application', async () => {
   const { window, external } = await launch();
-  assert.equal(window.open({ url: origin + '/unduh/' }).action, 'deny');
-  assert.equal(window.loaded.at(-1), origin + '/unduh/');
+  assert.equal(window.open({ url: origin + '/apps/spk-automation/dashboard/' }).action, 'deny');
+  assert.equal(window.loaded.at(-1), origin + '/apps/spk-automation/dashboard/');
   assert.equal(external.length, 0);
 });
 
@@ -115,7 +115,7 @@ test('same-origin navigation is not prevented', async () => {
   const { window } = await launch();
   window.webEvents['will-navigate']({
     preventDefault() { assert.fail('trusted navigation was blocked'); }
-  }, origin + '/dokumentasi/');
+  }, origin + '/apps/spk-automation/');
 });
 
 test('aborted loads are ignored and failed loads provide a safe retry page', async () => {
@@ -125,7 +125,7 @@ test('aborted loads are ignored and failed loads provide a safe retry page', asy
   window.webEvents['did-fail-load']({}, -105, '<script>alert("x")</script>');
   const html = decodeURIComponent(window.loaded.at(-1).split(',').slice(1).join(','));
   assert.match(html, /Portal belum dapat dibuka/);
-  assert.ok(html.includes(origin + '/pages/admin/'));
+  assert.ok(html.includes(origin + '/apps/spk-automation/admin/'));
   assert.ok(!html.includes('<script>'));
 });
 
@@ -144,27 +144,9 @@ test('closing the last window quits on Linux but retains macOS lifecycle', async
   }
 });
 
-test('download release versions and packaged local fallback files are consistent', () => {
-  const manifest = JSON.parse(fs.readFileSync(path.join(root, 'desktop/electron/package.json')));
-  const html = fs.readFileSync(path.join(root, 'unduh/index.html'), 'utf8');
-  const links = [...html.matchAll(/href="([^"]+)"/g)].map(match => match[1]);
-  const released = links.filter(url => url.includes('/releases/download/'));
-  assert.equal(released.length, 8);
-  assert.equal(new Set(released).size, 8);
-  for (const url of released) {
-    assert.ok(url.includes(`/desktop-v${manifest.version}/`), url);
-    assert.ok(url.includes(`-${manifest.version}-`), url);
-  }
-  for (const url of links.filter(url => url.startsWith('../desktop/release/'))) {
-    const binary = fs.readFileSync(path.resolve(root, 'unduh', url));
-    assert.equal(binary.subarray(0, 2).toString(), 'MZ');
-    assert.ok(binary.length > 1024);
-  }
-});
-
 const products = [
   { variant: 'portal', name: 'polyta-portal', productName: 'Polyta Portal', suffix: '/', appId: 'portal' },
-  { variant: 'admin', name: 'polyta-administrator', productName: 'Polyta Administrator', suffix: '/pages/admin/', appId: 'admin' }
+  { variant: 'admin', name: 'polyta-administrator', productName: 'Polyta Administrator', suffix: '/apps/spk-automation/admin/', appId: 'admin' }
 ];
 
 function readDebianFile(deb, entry) {

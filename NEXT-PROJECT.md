@@ -45,7 +45,7 @@ Data produksi sementara disimpan pada `Payload JSON` di sheet `SPK Routing`. Bel
 
 Menu Produksi sudah ditempatkan pada Portal PPIC melalui:
 
-- `assets/js/data.js`
+- `assets/js/portal-home.js`
 
 URL halaman:
 

@@ -48,7 +48,7 @@ function harness(search) {
 }
 
 (async function () {
-  const app = harness('?next=%2Fpages%2Fppic%2F');
+  const app = harness('?next=%2F');
   app.nodes.togglePassword.listeners.click();
   assert.equal(app.nodes.password.type, 'text');
   assert.equal(app.nodes.togglePassword.attributes['aria-pressed'], 'true');
@@ -74,7 +74,7 @@ function harness(search) {
     token: 'test-token', user: { roleKey: 'admin_ppic' }, remember: true
   });
   assert.equal(app.nodes.password.value, '');
-  assert.deepEqual(app.redirects, ['/pages/ppic/']);
+  assert.deepEqual(app.redirects, ['/']);
 
   const unsafe = harness('?next=%2F%2Fevil.example');
   unsafe.nodes.email.value = 'test@example.invalid';

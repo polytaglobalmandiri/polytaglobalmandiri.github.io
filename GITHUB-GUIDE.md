@@ -109,7 +109,7 @@ Bila yang muncul justru prompt teks di terminal:
 
 ## Langkah 4 — Alur kerja harian
 
-Setiap kali Anda mengubah tautan di `assets/js/data.js` atau mengubah tampilan:
+Setiap kali Anda mengubah modul di `assets/js/portal-home.js` atau mengubah tampilan:
 
 ```powershell
 git pull                          # 1. Ambil perubahan terbaru dari GitHub

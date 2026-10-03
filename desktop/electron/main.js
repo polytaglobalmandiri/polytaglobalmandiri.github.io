@@ -3,7 +3,7 @@ const path = require('path');
 
 const PORTAL_ORIGIN = 'https://polytaglobalmandiri.github.io';
 const isAdmin = process.argv.includes('--admin') || /admin/i.test(app.getName());
-const startUrl = isAdmin ? `${PORTAL_ORIGIN}/pages/admin/` : `${PORTAL_ORIGIN}/`;
+const startUrl = isAdmin ? `${PORTAL_ORIGIN}/apps/spk-automation/admin/` : `${PORTAL_ORIGIN}/`;
 
 app.setAppUserModelId(isAdmin
   ? 'com.polytaglobalmandiri.admin'

@@ -27,7 +27,7 @@ Hasil build berada di `release\Polyta-Portal-Setup.exe` dan `release\Polyta-Admi
 - Hanya terdiri dari satu berkas `.exe`; penerima tidak memerlukan PowerShell atau alat build tambahan.
 - Memerlukan koneksi Internet karena aplikasi membuka portal GitHub Pages yang selalu menggunakan versi terbaru.
 - Menggunakan Microsoft Edge WebView2 Runtime yang umumnya sudah tersedia bersama Microsoft Edge dan Windows versi terbaru.
-- Panel administrator menggunakan alamat `https://polytaglobalmandiri.github.io/pages/admin/`.
+- Panel Kelola Akses menggunakan alamat `https://polytaglobalmandiri.github.io/apps/spk-automation/admin/`.
 
 ## Catatan keamanan
 

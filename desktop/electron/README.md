@@ -3,7 +3,7 @@
 Aplikasi Electron ini menyediakan dua paket desktop lintas platform:
 
 - **Polyta Portal** membuka `https://polytaglobalmandiri.github.io/`.
-- **Polyta Administrator** membuka `https://polytaglobalmandiri.github.io/pages/admin/`.
+- **Polyta Administrator** membuka `https://polytaglobalmandiri.github.io/apps/spk-automation/admin/`.
 
 Tautan di luar domain portal dibuka menggunakan peramban bawaan sistem. Aplikasi memerlukan
 koneksi Internet dan tidak menyimpan kredensial GitHub di proses utama Electron.

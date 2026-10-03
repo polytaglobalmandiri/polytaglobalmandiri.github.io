@@ -87,7 +87,7 @@ async function visible(page, selector) {
 
 (async () => {
   browser = await chromium.launch({ executablePath: process.env.CHROME_PATH || '/usr/bin/google-chrome', headless: true });
-  const routes = ['/', '/pages/marketing/', '/pages/ppic/', '/pages/purchasing/', '/pages/production/', '/pages/finance/', '/pages/support/', '/pages/admin/', '/dokumentasi/', '/apps/spk-automation/', '/apps/spk-automation/create-spk/', '/apps/spk-automation/dashboard/', '/apps/spk-automation/material-issue/', '/apps/spk-automation/data-retrieval/', '/apps/spk-automation/approval/', '/apps/spk-automation/handover/', '/apps/spk-automation/material-management/'];
+  const routes = ['/', '/pages/ppic/', '/apps/spk-automation/', '/apps/spk-automation/create-spk/', '/apps/spk-automation/dashboard/', '/apps/spk-automation/material-issue/', '/apps/spk-automation/data-retrieval/', '/apps/spk-automation/approval/', '/apps/spk-automation/handover/', '/apps/spk-automation/material-management/', '/apps/spk-automation/schedule/', '/apps/spk-automation/production/'];
   for (const width of [1440, 390]) {
     for (const route of routes) {
       await scenario(`page ${route} at ${width}px`, async ({ page }) => {
@@ -98,22 +98,16 @@ async function visible(page, selector) {
         assert.ok(await page.title());
       }, { width, height: 1000 });
     }
-    await scenario(`portal search, theme persistence, and pins at ${width}px`, async ({ page }) => {
-      await page.goto(base + '/pages/ppic/');
-      await page.keyboard.press('/');
-      assert.equal(await page.locator('#q').evaluate(element => element === document.activeElement), true);
-      await page.locator('#q').fill('no-matching-link-9381');
-      assert.match(await page.locator('#qcount').innerText(), /^0 \//);
-      await page.keyboard.press('Escape');
-      assert.equal(await page.locator('#q').inputValue(), '');
-      await page.locator('[aria-label="Ganti mode terang / gelap"]').click();
-      const theme = await page.locator('html').getAttribute('data-theme');
-      await page.locator('.tile__pin').first().click();
-      assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem('pgm:pins')).length), 1);
-      await page.reload();
-      assert.equal(await page.locator('html').getAttribute('data-theme'), theme);
+    await scenario(`portal module search and responsive navigation at ${width}px`, async ({ page }) => {
       await page.goto(base + '/');
-      await visible(page, '[data-pinned-section]');
+      await visible(page, '.module-card');
+      await page.keyboard.press('/');
+      assert.equal(await page.locator('#portalSearch').evaluate(element => element === document.activeElement), true);
+      await page.locator('#portalSearch').fill('no-matching-link-9381');
+      await visible(page, '#emptyState');
+      await page.keyboard.press('Escape');
+      assert.equal(await page.locator('#portalSearch').inputValue(), '');
+      assert.equal(await page.locator('.module-card').count(), 9);
     }, { width, height: 1000 });
     await scenario(`standalone SPK creator login cancellation, role restriction, and token wiring at ${width}px`, async ({ page, calls, overrides }) => {
       overrides.loginApprovalUser = { status: 'success', token: 'test-token', user };

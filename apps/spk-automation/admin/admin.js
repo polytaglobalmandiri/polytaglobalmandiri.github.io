@@ -1,7 +1,7 @@
 (function(){
   'use strict';
   var KEY='pgm:spk-auth-v1';
-  var state={token:'',users:[],roles:[],accessCatalog:{pages:[],methods:[]}};
+  var state={token:'',users:[],roles:[],accessCatalog:{pages:[],menus:[],methods:[]},query:''};
   var userSignaturePad=null,pdfJsPromise=null;
   var $=function(id){return document.getElementById(id);};
   function escapeHtml(value){return String(value==null?'':value).replace(/[&<>'"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c];});}
@@ -148,29 +148,30 @@
   }
 
   async function loadUsers(renderResult){var response=await rpc('listApprovalUsers',state.token);if(!response||response.status!=='success')throw new Error(response&&response.message);state.users=response.users||[];state.roles=response.roles||state.roles;state.accessCatalog=response.accessCatalog||state.accessCatalog;if(renderResult!==false){renderUsers();fillRoles();}}
-  function renderUsers(){$('userList').innerHTML=state.users.map(function(user){return '<article class="user-card"><div><h3><i class="fa-solid fa-user-shield" aria-hidden="true"></i> '+escapeHtml(user.name)+'</h3><p>'+escapeHtml(user.email)+'</p><p>'+escapeHtml(user.roleLabel)+' · TTD '+(user.signatureReady?'tersedia':'belum ada')+'</p><span class="state '+(user.active?'':'off')+'">'+(user.active?'AKTIF':'NONAKTIF')+'</span></div><button class="button ghost" data-user="'+escapeHtml(user.userId)+'"><i class="fa-solid fa-pen" aria-hidden="true"></i> Ubah</button></article>';}).join('')||'<div class="empty">Belum ada pengguna.</div>';}
+  function renderUsers(){
+    var query=String(state.query||'').toLowerCase();
+    var users=state.users.filter(function(user){return !query||[user.name,user.email,user.roleLabel,user.department].join(' ').toLowerCase().indexOf(query)!==-1;});
+    $('totalUsers').textContent=state.users.length;
+    $('activeUsers').textContent=state.users.filter(function(user){return user.active;}).length;
+    $('roleCount').textContent=new Set(state.users.map(function(user){return user.roleKey;})).size;
+    $('userList').innerHTML=users.map(function(user){
+      var initial=String(user.name||user.email||'P').trim().charAt(0).toUpperCase();
+      return '<article class="user-card"><span class="user-avatar">'+escapeHtml(initial)+'</span><div class="user-info"><h3>'+escapeHtml(user.name)+'</h3><p>'+escapeHtml(user.email)+'</p><div class="user-meta"><span class="state '+(user.active?'':'off')+'">'+(user.active?'Aktif':'Nonaktif')+'</span><span class="role-pill">'+escapeHtml(user.isOwner?'Master · '+user.roleLabel:user.roleLabel)+'</span></div></div><button class="edit-user" type="button" data-user="'+escapeHtml(user.userId)+'" aria-label="Ubah '+escapeHtml(user.name)+'"><i class="fa-solid fa-pen" aria-hidden="true"></i></button></article>';
+    }).join('')||'<div class="empty">'+(query?'Tidak ada pengguna yang cocok dengan pencarian.':'Belum ada pengguna.')+'</div>';
+  }
   function fillRoles(){$('roleSelect').innerHTML=state.roles.map(function(role){return '<option value="'+escapeHtml(role.key)+'">'+escapeHtml(role.label)+'</option>';}).join('');}
-  function permissionAction(method){if(/^(get|list|check)/.test(method))return 'Lihat';if(/^(save|submit|begin|extract)/.test(method))return 'Tambah / Simpan';if(/^(update|acknowledge)/.test(method))return 'Ubah / Update';if(/^(delete|remove)/.test(method))return 'Hapus';if(/^(cancel|reject)/.test(method))return 'Batalkan / Tolak';return 'Setujui / Rilis / Verifikasi';}
-  function permissionRow(group,item,value){return '<label style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:5px 0"><span>'+escapeHtml(item.label)+'</span><select data-permission-group="'+group+'" data-permission-key="'+escapeHtml(item.key)+'" style="max-width:170px"><option value="default"'+(value==null?' selected':'')+'>Ikuti jabatan</option><option value="allow"'+(value===true?' selected':'')+'>Izinkan</option><option value="deny"'+(value===false?' selected':'')+'>Blokir</option></select></label>';}
+  function permissionAction(method,item){if(item&&item.action)return item.action;if(/^(get|list|check)/.test(method))return 'read';if(/^(save|submit|begin|extract)/.test(method))return 'create';if(/^(update|acknowledge)/.test(method))return 'update';if(/^(delete|remove)/.test(method))return 'delete';if(/^(cancel|reject)/.test(method))return 'cancel';return 'approve';}
+  function actionLabel(action){return{read:'Lihat / baca',create:'Tambah / simpan',update:'Edit / perbarui',delete:'Hapus',cancel:'Batalkan / kembalikan',approve:'Setujui / rilis'}[action]||'Tindakan';}
+  function permissionRow(group,item,value,description){var stateValue=value==null?'default':value===true?'allow':'deny';return '<label class="permission-row"><span class="permission-copy"><strong>'+escapeHtml(item.label)+'</strong><small>'+escapeHtml(description||item.path||item.key)+'</small></span><select data-permission-group="'+group+'" data-permission-key="'+escapeHtml(item.key)+'" data-state="'+stateValue+'"><option value="default"'+(value==null?' selected':'')+'>Ikuti jabatan</option><option value="allow"'+(value===true?' selected':'')+'>Izinkan</option><option value="deny"'+(value===false?' selected':'')+'>Blokir</option></select></label>';}
+  function permissionGroup(title,icon,rows,count,open){return '<details class="permission-group"'+(open?' open':'')+'><summary><span><i class="fa-solid '+icon+'" aria-hidden="true"></i>'+escapeHtml(title)+'</span><b>'+count+'</b></summary><div class="permission-rows">'+rows+'</div></details>';}
   function renderPermissionEditor(user){
     var permissions=user&&user.permissions||{pages:{},menus:{},methods:{}};
-    var pages=state.accessCatalog.pages||[];
-    var methods=state.accessCatalog.methods||[];
-    var html='<h3>Akses khusus pengguna</h3><p>"Ikuti jabatan" memakai izin bawaan. "Izinkan" atau "Blokir" mengesampingkannya.</p>';
-    html+='<details open><summary>Halaman ('+pages.length+')</summary>'+pages.map(function(item){return permissionRow('pages',item,permissions.pages&&permissions.pages[item.key]);}).join('')+'</details>';
-    if(typeof SITE!=='undefined'){
-      var menus=[];
-      Object.keys(SITE.pages||{}).forEach(function(pageId){
-        (SITE.pages[pageId].sections||[]).forEach(function(section){
-          (section.items||[]).forEach(function(item){menus.push({key:pageId+':'+item.label,label:pageId+' / '+item.label});});
-        });
-      });
-      html+='<details><summary>Menu dan tautan ('+menus.length+')</summary>'+menus.map(function(item){return permissionRow('menus',item,permissions.menus&&permissions.menus[item.key]);}).join('')+'</details>';
-    }
-    ['Lihat','Tambah / Simpan','Ubah / Update','Hapus','Batalkan / Tolak','Setujui / Rilis / Verifikasi'].forEach(function(group){
-      var items=methods.filter(function(item){return permissionAction(item.key)===group;});
-      if(items.length)html+='<details><summary>'+escapeHtml(group)+' ('+items.length+')</summary>'+items.map(function(item){return permissionRow('methods',item,permissions.methods&&permissions.methods[item.key]);}).join('')+'</details>';
-    });
+    var pages=state.accessCatalog.pages||[],menus=state.accessCatalog.menus||[],methods=state.accessCatalog.methods||[];
+    var html='<p class="permission-intro"><strong>Ikuti jabatan</strong> memakai izin standar sesuai peran. Gunakan <strong>Izinkan</strong> atau <strong>Blokir</strong> hanya sebagai pengecualian untuk pengguna ini.</p><div class="permission-legend"><span>Halaman = dapat membuka</span><span>Modul = tampil di portal</span><span>Data = tindakan di dalam aplikasi</span></div>';
+    html+=permissionGroup('Akses halaman','fa-window-maximize',pages.map(function(item){return permissionRow('pages',item,permissions.pages&&permissions.pages[item.key],(item.module||'Portal')+' · '+item.key);}).join(''),pages.length,true);
+    html+=permissionGroup('Modul di portal','fa-table-cells-large',menus.map(function(item){return permissionRow('menus',item,permissions.menus&&permissions.menus[item.key],item.path);}).join(''),menus.length,false);
+    var modules={};methods.forEach(function(item){var module=item.module||'Operasional';(modules[module]||(modules[module]=[])).push(item);});
+    Object.keys(modules).sort().forEach(function(module){var items=modules[module];var rows=items.map(function(item){return permissionRow('methods',item,permissions.methods&&permissions.methods[item.key],actionLabel(permissionAction(item.key,item)));}).join('');html+=permissionGroup('Data · '+module,'fa-database',rows,items.length,false);});
     $('permissionEditor').innerHTML=html;
   }
   function openUser(user){var form=$('userForm');form.reset();userSignaturePad.clear();fillRoles();form.elements.userId.value=user?user.userId:'';form.elements.email.value=user?user.email:'';form.elements.name.value=user?user.name:'';form.elements.roleKey.value=user?user.roleKey:'head_blowing';form.elements.active.checked=user?user.active:true;form.elements.password.required=!user;renderPermissionEditor(user);$('userDialogTitle').textContent=user?'Ubah pengguna':'Tambah pengguna';$('userDialog').showModal();window.setTimeout(function(){userSignaturePad.resize();},0);}
@@ -185,6 +186,8 @@
     $('closeUserDialog').addEventListener('click',function(){$('userDialog').close();});
     $('cancelUser').addEventListener('click',function(){$('userDialog').close();});
     $('userForm').addEventListener('submit',saveUser);
+    $('userSearch').addEventListener('input',function(event){state.query=event.target.value;renderUsers();});
+    $('permissionEditor').addEventListener('change',function(event){if(event.target.matches('select[data-permission-group]'))event.target.dataset.state=event.target.value;});
     $('userList').addEventListener('click',function(event){var button=event.target.closest('[data-user]');if(button)openUser(state.users.find(function(user){return user.userId===button.dataset.user;}));});
     var verification=window.POLYTA_PORTAL_AUTH&&window.POLYTA_PORTAL_AUTH.ready
       ? window.POLYTA_PORTAL_AUTH.ready

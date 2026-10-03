@@ -1,10 +1,8 @@
-# POLYTA GLOBAL MANDIRI — Portal Akses Internal
+# POLYTA GLOBAL MANDIRI — Portal Operasional
 
-Situs statis pengganti/kloning dari `sites.google.com/view/polytaglobalmandiri`, dibangun ulang
-dengan tema **skeuomorphism** modern: permukaan logam sikat, panel timbul (emboss), tombol
-mengkilap dengan pantulan, tipografi terukir, serta sekrup dan LED indikator.
-
-Portal utama memakai HTML, CSS, dan JavaScript. Aplikasi SPK memakai pustaka lokal dan backend Google Apps Script; aplikasi desktop memakai Electron.
+Portal internal terpadu untuk alur PO, SPK, persetujuan, bahan, jadwal produksi,
+hasil produksi, penarikan data, dan serah terima. Antarmuka web memakai HTML, CSS,
+dan JavaScript, sedangkan layanan data dan otorisasi memakai Google Apps Script.
 
 ---
 
@@ -12,79 +10,38 @@ Portal utama memakai HTML, CSS, dan JavaScript. Aplikasi SPK memakai pustaka lok
 
 ```
 .
-├── index.html          # BERANDA — direktori departemen + indeks seluruh tautan
-├── pages/marketing/index.html    # /marketing/
-├── pages/ppic/index.html         # /ppic/
-├── pages/purchasing/index.html   # /purchasing/
-├── pages/production/index.html     # /produksi/
-├── pages/finance/index.html      # /finance/
-├── pages/support/index.html      # /bantuan/  — panduan + FAQ
+├── index.html                         # Portal operasional utama
+├── apps/spk-automation/               # Modul operasi dan produksi
+│   ├── admin/                         # Kelola pengguna dan otorisasi
+│   ├── approval/                      # Persetujuan SPK
+│   ├── dashboard/                     # Dashboard operasional
+│   ├── material-management/           # Bahan dan tinta
+│   ├── material-issue/                # Keluar bahan
+│   ├── schedule/                      # Jadwal produksi
+│   ├── production/                    # Hasil produksi
+│   ├── data-retrieval/                # Penarikan data
+│   └── handover/                      # Serah terima
 ├── assets/
-│   ├── css/skeuo.css   # Seluruh sistem desain skeuomorphic
-│   ├── js/data.js      # ★ SEMUA KONTEN & TAUTAN DIATUR DI SINI
-│   ├── js/app.js       # Render, pencarian, tema, pin, animasi
-│   └── img/logo.svg    # Logo plat kuningan
-├── .gitignore
-├── .nojekyll           # Agar GitHub Pages tidak memproses lewat Jekyll
+│   ├── css/portal.css                 # Sistem tampilan portal utama
+│   ├── js/portal-home.js              # Katalog dan pencarian modul
+│   └── js/portal-auth.js              # Gerbang sesi dan akses halaman
+├── gas-deploy/BE-Api.js               # API, sesi, dan otorisasi server
+├── desktop/                            # Aplikasi desktop dan installer
+├── android/                            # Aplikasi Android
 └── README.md
 ```
 
-Setiap halaman HTML sengaja dibuat tipis. Navigasi, header, kartu tautan, dan footer
-di-render oleh `assets/js/app.js` berdasarkan atribut `data-page` pada `<body>`.
-
-**Mengapa berbasis folder?** Agar alamatnya bersih tanpa akhiran `.html` —
-`/marketing/` alih-alih `/marketing.html`. GitHub Pages otomatis menyajikan
-`index.html` di dalam setiap folder.
+Rute lama `/pages/ppic/` dan `/ppic/` tetap tersedia sebagai pengalih ke portal utama
+agar pintasan lama tidak terputus.
 
 ---
 
-## Cara Mengisi Tautan
+## Menambah Modul Portal
 
-Tautan yang sudah dikonfigurasi tersedia di `assets/js/data.js`. Lengkapi hanya entri yang URL-nya masih kosong.
-
-Buka [assets/js/data.js](assets/js/data.js), lalu isi properti `url`:
-
-```js
-{ label: "Schedule Design", url: "https://docs.google.com/spreadsheets/d/xxxx", type: "sheets" },
-```
-
-### Dua penanda visual
-
-Setiap tautan punya dua penanda yang **berbeda maksudnya**, sehingga satu keping
-menyampaikan dua hal sekaligus: apa isinya, dan di layanan mana ia tersimpan.
-
-**`type` — di mana tersimpan.** Menentukan warna dan bahan plat:
-
-| `type`     | Digunakan untuk        | Bahan plat     |
-|------------|------------------------|----------------|
-| `sheets`   | Google Spreadsheet     | enamel merah   |
-| `drive`    | Folder Google Drive    | enamel hitam   |
-| `onedrive` | Folder OneDrive / 1drv | baja sikat     |
-| `form`     | Google Form            | porselen putih |
-| `script`   | Google Apps Script     | merah tua      |
-| `slides`   | Google Slides          | enamel hitam   |
-| `site`     | Halaman internal       | baja sikat     |
-| `folder`   | Folder umum            | merah tua      |
-
-**`icon` — apa isinya.** Menentukan gambar di atas plat. Bila dikosongkan, gambar
-mengikuti `type`. Daftar lengkapnya ada pada objek `ICON` di
-[assets/js/app.js](assets/js/app.js):
-
-```
-person users chart gauge up down calendar clock truck car road badge shield
-check target box warehouse cylinder database wallet coins receipt tag scale
-cart clip list doc clipboard archive layers share nut gear wrench bolt
-factory camera printer wind fold slit scissors droplet flask chip sliders
-download book warn
-```
-
-Contoh penetapan yang dipakai sekarang: nama orang → `person`, laporan → `chart`,
-jadwal → `calendar`, pengiriman → `truck`, stok → `box`, gudang → `warehouse`,
-roll → `cylinder`, tinta → `droplet`, sparepart → `nut`, panel listrik → `bolt`,
-foto → `camera`, cutting → `scissors`, printing → `printer`.
-
-Menambah tombol baru cukup menambah objek pada array `items`. Menambah seksi baru cukup
-menambah objek pada array `sections`. Tidak ada file lain yang perlu disentuh.
+Daftarkan kartu modul di `assets/js/portal-home.js`, halaman pada
+`PORTAL_PAGE_CATALOG_`, dan menu pada `PORTAL_MENU_CATALOG_` di
+`gas-deploy/BE-Api.js`. Dengan begitu modul langsung mengikuti pencarian dan kontrol
+akses yang dikelola akun master.
 
 ---
 
@@ -104,36 +61,24 @@ Lalu buka <http://localhost:5500>.
 
 ---
 
-## Panel Administrator
+## Kelola Akses
 
-Buka `/pages/admin/` pada alamat situs, misalnya <http://localhost:5500/pages/admin/> ketika
-menjalankan portal secara lokal. Panel ini dapat digunakan untuk:
-
-- menambah, menghapus, menggandakan, dan mengurutkan tautan;
-- menambah, menghapus, dan mengurutkan seksi menu;
-- mengubah nama, URL, jenis penyimpanan, dan ikon setiap tautan;
-- mengubah teks umum situs dan label navigasi;
-- menyimpan draf otomatis pada perangkat;
-- mengunduh atau menyalin hasil sebagai `assets/js/data.js`;
-- menerbitkan perubahan langsung ke GitHub dengan personal access token.
-
-Portal ini merupakan situs statis, sehingga panel administrator tidak memakai akun
-atau basis data tersendiri. Orang tanpa izin GitHub dapat membuka editor dan membuat
-draf di perangkatnya, tetapi tidak dapat mengubah situs yang tayang. Penerbitan langsung
-memerlukan fine-grained token GitHub dengan izin **Contents: Read and write** yang
-dibatasi hanya untuk repositori portal.
+Akun master membuka `/apps/spk-automation/admin/`, misalnya
+<http://localhost:5500/apps/spk-automation/admin/> ketika menjalankan portal secara lokal.
+Halaman ini mengatur pengguna, jabatan, status akun, tanda tangan, akses halaman, modul
+yang tampil di portal, serta izin membaca, menambah, mengubah, menghapus, membatalkan,
+menyetujui, dan merilis data.
 
 ---
 
 ## Fitur
 
-- **Tema terang / gelap** lewat sakelar fisik di kanan atas; pilihan tersimpan di perangkat
-  dan mengikuti preferensi sistem bila belum pernah diubah.
-- **Pencarian langsung** pada seluruh tautan di halaman. Tekan <kbd>/</kbd> untuk fokus
+- **Portal operasional tunggal** sebagai pintu masuk seluruh modul kerja.
+- **Pencarian langsung** pada seluruh modul. Tekan <kbd>/</kbd> untuk fokus
   ke kolom pencarian, <kbd>Esc</kbd> untuk mengosongkan.
-- **Pin / Akses Cepat** — sematkan tautan yang sering dipakai; tampil di bagian atas Beranda.
-- **Panel statistik** jumlah seksi, tautan, tautan aktif, dan tautan tersemat.
-- **Responsif penuh** hingga layar ponsel, dengan menu tarik-turun.
+- **Akses berbasis wewenang** untuk halaman, menu, dan tindakan data.
+- **Ringkasan modul** yang tersedia sesuai akun pengguna.
+- **Responsif penuh** hingga layar ponsel.
 - **Aksesibilitas** — navigasi papan ketik, `:focus-visible`, lewati-ke-konten, `aria-*`,
   serta menghormati `prefers-reduced-motion`.
 - **Mode cetak** yang bersih.
@@ -158,9 +103,7 @@ untuk Windows. Portal dan Administrator tetap dibangun sebagai dua aplikasi terp
 Petunjuk build lokal dan GitHub Actions tersedia di
 [`desktop/electron/README.md`](desktop/electron/README.md).
 
-Pengguna dapat mengunduh pemasang melalui halaman [`/unduh/`](unduh/index.html),
-sedangkan petunjuk pemasangan dan pemecahan masalah tersedia terpisah pada
-halaman [`/dokumentasi/`](dokumentasi/index.html).
+Artefak pemasang dan petunjuk build dikelola di folder `desktop/` dan `android/`.
 
 ---
 
@@ -193,7 +136,7 @@ Branch `main`, folder `/ (root)` → **Save**.
 Situs akan tersedia di `https://<username>.github.io/<nama-repo>/`.
 
 > **Catatan keamanan:** situs ini bersifat publik bila di-host di GitHub Pages.
-> Isi `data.js` hanya berisi *tautan*, bukan data. Perlindungan sesungguhnya tetap
+> Katalog portal hanya berisi rute, bukan data. Perlindungan sesungguhnya tetap
 > berada pada izin berbagi (sharing permission) di Google Drive/OneDrive masing-masing
 > berkas. Bila daftar tautan pun dianggap sensitif, gunakan repositori **private**
 > dan hosting internal, bukan GitHub Pages publik.

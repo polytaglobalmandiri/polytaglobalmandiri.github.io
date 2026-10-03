@@ -102,7 +102,7 @@ public final class MainActivity extends Activity {
             tabs[i].setOnClickListener(v -> {
                 if (index == 0) showHome();
                 else open(index == 1 ? "/apps/spk-automation/" :
-                        (isAdmin ? "/pages/admin/" : "/apps/spk-automation/approval/"), labels[index], index);
+                        (isAdmin ? "/apps/spk-automation/admin/" : "/apps/spk-automation/approval/"), labels[index], index);
             });
             navigation.addView(tabs[i], new LinearLayout.LayoutParams(0, dp(60), 1));
         }
@@ -156,15 +156,15 @@ public final class MainActivity extends Activity {
         TextView section = text("Akses cepat", 19, INK, true);
         section.setPadding(0, dp(26), 0, dp(14)); page.addView(section);
         String[][] entries = {
-                {"Dashboard SPK", "Pantau pekerjaan", "/apps/spk-automation/"},
-                {"Buat SPK", "Input pekerjaan baru", "/apps/spk-automation/create-spk/"},
+                {"Dashboard operasional", "Pantau pekerjaan", "/apps/spk-automation/dashboard/"},
+                {"PO & SPK", "Kelola pekerjaan", "/apps/spk-automation/"},
                 {"Persetujuan", "Tinjau dan setujui", "/apps/spk-automation/approval/"},
                 {"Bahan & tinta", "Kelola material", "/apps/spk-automation/material-management/"},
+                {"Jadwal produksi", "Susun urutan kerja", "/apps/spk-automation/schedule/"},
+                {"Hasil produksi", "Catat hasil proses", "/apps/spk-automation/production/"},
                 {"Serah terima", "Pindai dan serahkan", "/apps/spk-automation/handover/"},
-                {"Portal lengkap", "Semua departemen", "/"},
-                {"Download", "Pembaruan aplikasi", "/unduh/"},
-                {isAdmin ? "Administrator" : "Bantuan", isAdmin ? "Kelola portal" : "Panduan penggunaan",
-                        isAdmin ? "/pages/admin/" : "/dokumentasi/"}
+                {isAdmin ? "Kelola akses" : "Penarikan data", isAdmin ? "Atur otorisasi" : "Sinkronkan data",
+                        isAdmin ? "/apps/spk-automation/admin/" : "/apps/spk-automation/data-retrieval/"}
         };
         int[] icons = {android.R.drawable.ic_menu_agenda, android.R.drawable.ic_input_add,
                 android.R.drawable.checkbox_on_background, android.R.drawable.ic_menu_manage,
@@ -400,12 +400,12 @@ public final class MainActivity extends Activity {
     private void menu(View anchor) {
         PopupMenu menu = new PopupMenu(this, anchor);
         if (!onHome) { menu.getMenu().add("Muat ulang"); menu.getMenu().add("Cetak / Simpan PDF"); }
-        menu.getMenu().add("Download aplikasi"); menu.getMenu().add("Tentang Polyta");
+        menu.getMenu().add("Portal Operasional"); menu.getMenu().add("Tentang Polyta");
         menu.setOnMenuItemClickListener(item -> {
             String label = item.getTitle().toString();
             if (label.equals("Muat ulang")) web.reload();
             else if (label.equals("Cetak / Simpan PDF")) printPage();
-            else if (label.equals("Download aplikasi")) open("/unduh/", "Download", 1);
+            else if (label.equals("Portal Operasional")) open("/", "Portal", 1);
             else new AlertDialog.Builder(this).setTitle("Polyta Android 1.2.0")
                     .setMessage("Portal pekerjaan POLYTA GLOBAL MANDIRI.\n\nHalaman operasional ditampilkan di dalam aplikasi dan memerlukan internet.")
                     .setPositiveButton("Tutup", null).show();

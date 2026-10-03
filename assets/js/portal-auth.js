@@ -4,15 +4,7 @@
   var LOGIN = '/login/';
   var PPIC = ['admin_ppic', 'asmen_ppic', 'manager_ppic', 'senior_manager', 'general_manager'];
   var PRODUCTION = ['admin_produksi', 'operator_produksi', 'head_mixer', 'head_blowing', 'head_printing', 'head_slitting', 'head_folding', 'head_gusset', 'head_finishing'];
-  var MANAGEMENT = ['senior_manager', 'general_manager'];
   var rules = [
-    [/^\/pages\/ppic\//, PPIC],
-    [/^\/pages\/production\//, PRODUCTION.concat(PPIC)],
-    [/^\/pages\/marketing\//, ['marketing'].concat(MANAGEMENT)],
-    [/^\/pages\/purchasing\//, ['purchasing'].concat(MANAGEMENT)],
-    [/^\/pages\/finance\//, ['finance'].concat(MANAGEMENT)],
-    [/^\/pages\/admin\//, []],
-    [/^\/pages\/support\//, ['support', 'admin_portal'].concat(MANAGEMENT)],
     [/^\/apps\/spk-automation\/schedule\//, PPIC],
     [/^\/apps\/spk-automation\/admin\//, []],
     [/^\/apps\/spk-automation\/production\//, PRODUCTION.concat(PPIC)],
@@ -263,7 +255,7 @@
           document.body.textContent = '';
           var denied = document.createElement('main');
           denied.style.cssText = 'max-width:520px;margin:15vh auto;padding:28px;font:16px system-ui,sans-serif;color:#26312b';
-          denied.innerHTML = '<h1>Akses dibatasi</h1><p>Akun Anda belum diizinkan membuka halaman ini. Hubungi akun master untuk meminta akses.</p><a href="/">Kembali ke portal</a>';
+          denied.innerHTML = '<h1>Akses dibatasi</h1><p>Akun Anda belum diizinkan membuka halaman ini. Hubungi akun master untuk meminta akses.</p><a href="/">Kembali ke Portal Operasional</a>';
           document.body.appendChild(denied);
           show(result.user);
         });

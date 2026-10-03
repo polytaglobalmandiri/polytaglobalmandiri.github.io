@@ -24,7 +24,7 @@ for product, package in [('Portal', 'portal'), ('Administrator', 'admin')]:
         assert {'classes.dex', 'AndroidManifest.xml', 'resources.arsc'} <= set(archive.namelist())
         dex = archive.read('classes.dex')
         assert b'https://polytaglobalmandiri.github.io' in dex
-        assert b'/pages/admin/' in dex
+        assert b'/apps/spk-automation/admin/' in dex
         assert b'android.support.customtabs.extra.SESSION' not in dex
         assert b'Landroid/webkit/WebView;' in dex
         assert b'addJavascriptInterface' not in dex

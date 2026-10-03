@@ -49,8 +49,8 @@ assert.equal(context.getApprovalSession(remembered.token).authenticated, true);
 assert.equal(cache.has(key), true, 'Remembered session is restored from persistent storage');
 assert.equal(context.isPortalOwner_({ email: 'ZULFI.POLYTA@GMAIL.COM', active: true }), true);
 assert.equal(context.isPortalOwner_({ email: 'zulfi.polyta@gmail.com', active: false }), false);
-const overrides = context.normalizePortalPermissions_({ pages: { '/pages/ppic/': false }, menus: { 'ppic:Dashboard': true }, methods: { getDashboardData: false } });
-assert.equal(overrides.pages['/pages/ppic/'], false);
+const overrides = context.normalizePortalPermissions_({ pages: { '/': false }, menus: { 'ppic:Dashboard': true }, methods: { getDashboardData: false } });
+assert.equal(overrides.pages['/'], false);
 assert.equal(overrides.menus['ppic:Dashboard'], true);
 assert.equal(overrides.methods.getDashboardData, false);
 

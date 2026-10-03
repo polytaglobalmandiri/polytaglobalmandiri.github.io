@@ -72,28 +72,59 @@ var SPK_RPC_METHODS_ = {
 var SPK_RPC_PUBLIC_ = ['getApprovalBootstrapStatus', 'bootstrapApprovalAdmin', 'loginApprovalUser', 'getApprovalSession', 'logoutApprovalUser'];
 var SPK_CURRENT_RPC_METHOD_ = '';
 var PORTAL_PAGE_CATALOG_ = [
-  ['/', 'Beranda'], ['/pages/ppic/', 'PPIC'], ['/pages/production/', 'Produksi'],
-  ['/pages/marketing/', 'Marketing'], ['/pages/purchasing/', 'Purchasing'],
-  ['/pages/finance/', 'Finance'], ['/pages/admin/', 'Administrasi'],
-  ['/pages/support/', 'Support'], ['/apps/spk-automation/', 'SPK'],
-  ['/apps/spk-automation/dashboard/', 'Dashboard SPK'],
-  ['/apps/spk-automation/create-spk/', 'Buat SPK'],
-  ['/apps/spk-automation/print-spk/', 'Cetak SPK'],
-  ['/apps/spk-automation/approval/', 'Persetujuan SPK'],
-  ['/apps/spk-automation/admin/', 'Administrasi Akses'],
-  ['/apps/spk-automation/schedule/', 'Jadwal Produksi'],
-  ['/apps/spk-automation/production/', 'Hasil Produksi'],
-  ['/apps/spk-automation/material-management/', 'Master Bahan'],
-  ['/apps/spk-automation/material-issue/', 'Keluar Bahan'],
-  ['/apps/spk-automation/handover/', 'Serah Terima'],
-  ['/apps/spk-automation/data-retrieval/', 'Penarikan Data']
+  ['/', 'Portal Operasional', 'Portal'],
+  ['/apps/spk-automation/dashboard/', 'Dashboard Operasional', 'Pemantauan'],
+  ['/apps/spk-automation/', 'PO & SPK', 'Perencanaan'],
+  ['/apps/spk-automation/create-spk/', 'Pembuatan SPK', 'Perencanaan'],
+  ['/apps/spk-automation/print-spk/', 'Cetak SPK', 'Perencanaan'],
+  ['/apps/spk-automation/approval/', 'Persetujuan SPK', 'Persetujuan'],
+  ['/apps/spk-automation/schedule/', 'Jadwal Produksi', 'Perencanaan'],
+  ['/apps/spk-automation/production/', 'Hasil Produksi', 'Produksi'],
+  ['/apps/spk-automation/material-management/', 'Bahan & Tinta', 'Material'],
+  ['/apps/spk-automation/material-issue/', 'Keluar Bahan', 'Material'],
+  ['/apps/spk-automation/handover/', 'Serah Terima', 'Distribusi'],
+  ['/apps/spk-automation/data-retrieval/', 'Penarikan Data', 'Data']
 ];
+var PORTAL_MENU_CATALOG_ = [
+  ['ppic:Dashboard', 'Dashboard Operasional', '/apps/spk-automation/dashboard/'],
+  ['ppic:PO & SPK', 'PO & SPK', '/apps/spk-automation/'],
+  ['ppic:Persetujuan SPK', 'Persetujuan SPK', '/apps/spk-automation/approval/'],
+  ['ppic:Bahan & Tinta', 'Bahan & Tinta', '/apps/spk-automation/material-management/'],
+  ['ppic:Keluar Bahan', 'Keluar Bahan', '/apps/spk-automation/material-issue/'],
+  ['ppic:Schedule Produksi', 'Jadwal Produksi', '/apps/spk-automation/schedule/'],
+  ['ppic:Produksi', 'Hasil Produksi', '/apps/spk-automation/production/'],
+  ['ppic:Penarikan Data', 'Penarikan Data', '/apps/spk-automation/data-retrieval/'],
+  ['ppic:Serah Terima', 'Serah Terima', '/apps/spk-automation/handover/']
+];
+function portalMethodAction_(method) {
+  if (/^(get|list|check)/.test(method)) return 'read';
+  if (/^(save|submit|begin|extract)/.test(method)) return 'create';
+  if (/^(update|acknowledge)/.test(method)) return 'update';
+  if (/^(delete|remove)/.test(method)) return 'delete';
+  if (/^(cancel|reject)/.test(method)) return 'cancel';
+  return 'approve';
+}
+function portalMethodModule_(method) {
+  if (/ProductionSchedule/.test(method)) return 'Jadwal Produksi';
+  if (/Production|Mixer|Blowing|Printing/.test(method)) return 'Hasil Produksi';
+  if (/KeluarBahan|EtaBeliBahan/.test(method)) return 'Keluar Bahan';
+  if (/Material|Brand|Customer/.test(method)) return 'Bahan & Tinta';
+  if (/Handover/.test(method)) return 'Serah Terima';
+  if (/Approval|approveSpk/.test(method)) return 'Persetujuan SPK';
+  if (/Extraction|extractData|FolderData/.test(method)) return 'Penarikan Data';
+  if (/Dashboard|Otd/.test(method)) return 'Dashboard Operasional';
+  return 'PO & SPK';
+}
+function portalMethodLabel_(method) {
+  return String(method).replace(/([a-z0-9])([A-Z])/g, '$1 $2').replace(/^get /i, 'Lihat ').replace(/^list /i, 'Daftar ').replace(/^save /i, 'Simpan ').replace(/^update /i, 'Ubah ').replace(/^cancel /i, 'Batalkan ').replace(/^reject /i, 'Kembalikan ').replace(/^verify /i, 'Verifikasi ').replace(/^approve /i, 'Setujui ').replace(/^mark /i, 'Tandai ').replace(/^begin /i, 'Mulai ').replace(/^acknowledge /i, 'Konfirmasi ');
+}
 function getPortalAccessCatalog_() {
   return {
-    pages: PORTAL_PAGE_CATALOG_.map(function(item) { return { key: item[0], label: item[1] }; }),
+    pages: PORTAL_PAGE_CATALOG_.map(function(item) { return { key: item[0], label: item[1], module: item[2] }; }),
+    menus: PORTAL_MENU_CATALOG_.map(function(item) { return { key: item[0], label: item[1], path: item[2] }; }),
     methods: Object.keys(SPK_RPC_METHODS_).filter(function(method) {
       return SPK_RPC_PUBLIC_.indexOf(method) === -1 && method !== 'listApprovalUsers' && method !== 'saveApprovalUser';
-    }).map(function(method) { return { key: method, label: method }; })
+    }).map(function(method) { return { key: method, label: portalMethodLabel_(method), action: portalMethodAction_(method), module: portalMethodModule_(method) }; })
   };
 }
 var SPK_RPC_PPIC_ = ['admin_ppic', 'asmen_ppic', 'manager_ppic'];

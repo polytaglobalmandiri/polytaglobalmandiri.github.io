@@ -9,11 +9,11 @@ Administrator mempertahankan identitas paket `com.polyta.mobile.portal` dan
 Versi 1.1.0 mengganti peluncur Custom Tabs dengan Activity Android sendiri, dan
 versi 1.2.0 menyelaraskan tampilannya dengan tema portal web:
 
-- Warna aksen, substrat, panel, radius, dan gradasi tombol mengikuti token
-  desain web (`assets/css/skeuo.css`), termasuk toolbar bergaya pelat logam.
+- Warna aksen, panel, radius, dan gradasi tombol mengikuti tema Portal
+  Operasional pada `assets/css/portal.css`.
 
-- Beranda native dengan kartu Dashboard SPK, Buat SPK, Persetujuan, Bahan & tinta,
-  Serah terima, Portal lengkap, Download, dan Bantuan/Administrator.
+- Beranda native dengan kartu Dashboard Operasional, PO & SPK, Persetujuan,
+  Bahan & Tinta, Jadwal, Hasil Produksi, Serah Terima, dan Kelola Akses.
 - Toolbar, navigasi bawah, tombol kembali, menu aplikasi, progres muat, serta
   layar gagal muat dengan tombol coba lagi dibuat menggunakan widget Android.
 - Halaman operasional berjalan dalam WebView, tanpa bilah alamat browser.

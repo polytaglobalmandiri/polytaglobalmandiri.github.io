@@ -24,6 +24,11 @@ vm.runInContext(source, context);
 for (const name of Object.keys(context.SPK_RPC_METHODS_)) {
   assert.ok(context.SPK_RPC_PUBLIC_.includes(name) || Object.hasOwn(context.SPK_RPC_ROLE_MAP_, name), `Perlu aturan akses: ${name}`);
 }
+const catalog = context.getPortalAccessCatalog_();
+assert.ok(catalog.pages.some((page) => page.key === '/'), 'portal utama tersedia dalam katalog akses');
+assert.ok(!catalog.pages.some((page) => page.key === '/pages/admin/'), 'halaman administrator lama telah dibuang');
+assert.equal(catalog.menus.length, 9, 'seluruh modul portal dapat diatur per pengguna');
+assert.ok(catalog.methods.every((method) => method.action && method.module && method.label), 'izin data memiliki aksi, modul, dan label');
 function post(method, authToken = '', args = []) {
   return context.doPost({ postData: { contents: JSON.stringify({ method, authToken, args }) } });
 }

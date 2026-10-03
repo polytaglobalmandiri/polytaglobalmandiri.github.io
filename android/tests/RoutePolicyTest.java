@@ -5,7 +5,7 @@ public class RoutePolicyTest {
         if (expected != value) throw new AssertionError(input);
     }
     public static void main(String[] args) {
-        for (String path : new String[]{"/", "/pages/admin/", "/apps/spk-automation/", "/unduh/", "/apps/spk-automation/print-spk/?spk=A24.004"})
+        for (String path : new String[]{"/", "/apps/spk-automation/admin/", "/apps/spk-automation/", "/apps/spk-automation/dashboard/", "/apps/spk-automation/print-spk/?spk=A24.004"})
             expect(true, RoutePolicy.internal(RoutePolicy.ORIGIN + path), path);
         expect(true, RoutePolicy.internal("https://polytaglobalmandiri.github.io:443/"), "default TLS port");
         for (String url : new String[]{"http://polytaglobalmandiri.github.io/", "https://polytaglobalmandiri.github.io.evil.test/",

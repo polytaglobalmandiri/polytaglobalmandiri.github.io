@@ -22,7 +22,7 @@ internal static class DesktopApp
 {
 #if ADMIN
     internal const string AppName = "POLYTA GLOBAL MANDIRI Administrator";
-    internal const string PortalUrl = "https://polytaglobalmandiri.github.io/pages/admin/";
+    internal const string PortalUrl = "https://polytaglobalmandiri.github.io/apps/spk-automation/admin/";
     private const string AppUserModelId = "PolytaGlobalMandiri.Administrator";
 #else
     internal const string AppName = "POLYTA GLOBAL MANDIRI Portal";

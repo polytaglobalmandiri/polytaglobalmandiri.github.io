@@ -45,7 +45,7 @@ function harness(user) {
     addEventListener() {},
     removeEventListener() {}
   };
-  const location = { pathname: '/pages/ppic/', search: '', hash: '', redirects: [], replace(url) { this.redirects.push(url); } };
+  const location = { pathname: '/', search: '', hash: '', redirects: [], replace(url) { this.redirects.push(url); } };
   const handlers = {};
   const runner = {
     withSuccessHandler(callback) { handlers.success = callback; return this; },
@@ -83,7 +83,7 @@ function harness(user) {
   assert.equal(revoked.redirects.length, 1);
 
   const denied = harness(user);
-  denied.success({ status: 'success', user: { ...user, roleKey: 'marketing' } });
+  denied.success({ status: 'success', user: { ...user, roleKey: 'marketing', permissions: { pages: { '/': false } } } });
   assert.equal(await denied.auth.ready, null);
   assert.equal(denied.denied(), true);
   assert.equal(denied.bars(), 1);

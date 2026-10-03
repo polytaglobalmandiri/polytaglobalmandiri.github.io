@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="material-issue">
 <head>
   <base target="_top">
   <meta charset="UTF-8">
@@ -2999,7 +2999,7 @@
 
 
   <link rel="stylesheet" href="../responsive.css?v=20260913-1">
-  <link rel="stylesheet" href="material-issue-theme.css?v=20261004-1">
+  <link rel="stylesheet" href="material-issue-theme.css?v=20261004-2">
 
 </head>
 <body
@@ -3149,12 +3149,10 @@
         </button>
       </div>
 
-      <div id="loadingState" class="state-panel">
-        <div>
-          <div class="state-icon"><span class="spinner" aria-hidden="true"></span></div>
-          <h2>Memuat data SPK</h2>
-          <p>Menyiapkan antrean keluar bahan dari Basis Data.</p>
-        </div>
+      <div id="loadingState" class="state-panel issue-loading-state" role="status" aria-live="polite">
+        <span class="issue-loader-ring" aria-hidden="true"></span>
+        <strong>Menghubungkan ke basis data</strong>
+        <span>Antrean keluar bahan sedang disiapkan. Mohon tunggu sebentar.</span>
       </div>
 
       <div id="emptyState" class="state-panel" hidden>

@@ -27,14 +27,23 @@ function harness(user) {
     readyState: 'complete',
     querySelector(selector) { return children.find(element => selector === '.pgm-auth-bar' && element.className === 'pgm-auth-bar') || null; },
     createElement() {
+      const elementClasses = new Set();
       return {
-        style: {}, children: [],
-        appendChild(element) { this.children.push(element); },
+        style: {}, children: [], attributes: {}, hidden: false,
+        classList: {
+          add(value) { elementClasses.add(value); },
+          remove(value) { elementClasses.delete(value); },
+          toggle(value, force) { if (force === false) elementClasses.delete(value); else elementClasses.add(value); }
+        },
+        appendChild(element) { this.children.push(element); return element; },
         insertBefore(element) { this.children.unshift(element); },
+        setAttribute(name, value) { this.attributes[name] = String(value); },
+        focus() {},
         remove() { const index = children.indexOf(this); if (index !== -1) children.splice(index, 1); }
       };
     },
-    addEventListener() {}
+    addEventListener() {},
+    removeEventListener() {}
   };
   const location = { pathname: '/pages/ppic/', search: '', hash: '', redirects: [], replace(url) { this.redirects.push(url); } };
   const handlers = {};

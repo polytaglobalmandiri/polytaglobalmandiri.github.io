@@ -45,7 +45,7 @@ body[data-page="dashboard"] .brand-name {
   max-width: none;
   overflow: visible;
   color: #fff !important;
-  font: 750 .95rem/1.2 Inter, system-ui, sans-serif !important;
+  font: 750 15.2px/1.2 Inter, system-ui, sans-serif !important;
   letter-spacing: .01em !important;
   text-overflow: clip;
   text-transform: none !important;
@@ -56,7 +56,7 @@ body[data-page="dashboard"] .brand-subtitle {
   display: block !important;
   margin-top: 3px !important;
   color: #c0c3c9 !important;
-  font: 400 .72rem/1.2 Inter, system-ui, sans-serif !important;
+  font: 400 11.52px/1.2 Inter, system-ui, sans-serif !important;
   letter-spacing: 0 !important;
   text-transform: none !important;
   text-shadow: 0 -1px #000 !important;
@@ -96,6 +96,7 @@ body[data-page="dashboard"] .po-header-actions .po-menu-link:focus-visible { out
 body[data-page="dashboard"] .app-main { width: min(1600px, calc(100% - 32px)) !important; }
 body[data-page="dashboard"] .spk-app-footer::before,
 body[data-page="dashboard"] .spk-app-footer-inner { width: min(1600px, calc(100% - 32px)); }
+body[data-page="dashboard"] .spk-app-footer-inner { font-size: 10.24px; }
 
 @media (max-width: 650px) {
   body[data-page="dashboard"] .topbar-inner { padding: 0 14px !important; gap: 6px !important; }
@@ -105,6 +106,7 @@ body[data-page="dashboard"] .spk-app-footer-inner { width: min(1600px, calc(100%
   body[data-page="dashboard"] .app-main { width: calc(100% - 28px) !important; }
   body[data-page="dashboard"] .spk-app-footer::before,
   body[data-page="dashboard"] .spk-app-footer-inner { width: calc(100% - 28px); }
+  body[data-page="dashboard"] .spk-app-footer-inner { font-size: 9.6px; }
 }
 @media (max-width: 420px) {
   body[data-page="dashboard"] .spk-simple-header .po-header-actions .po-menu-link > span { display: inline !important; }

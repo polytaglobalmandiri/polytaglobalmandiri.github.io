@@ -1,31 +1,74 @@
 <!doctype html>
-<html lang="id">
+<html lang="id" class="schedule-page">
 <head>
   <meta charset="utf-8">
   <script src="/assets/js/gas-rpc.js?v=20260926-2"></script>
   <script src="/assets/js/portal-auth.js?v=20261003-2"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Schedule Produksi | PPIC</title>
-  <style>
-    :root{font-family:Inter,system-ui,sans-serif;color:#25292c;background:#e8ebe8}*{box-sizing:border-box}body{margin:0}
-    main{max-width:1320px;margin:auto;padding:24px}.top,.panel,.stat{background:#f8f9f7;border:1px solid #c6cbc7;border-radius:12px}
-    .top{padding:20px;display:flex;justify-content:space-between;gap:18px;align-items:center}.top h1{font-size:1.5rem;margin:0}.top p{margin:5px 0 0;color:#656d6a;font-size:.84rem}
-    .actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.button{border:1px solid #981721;background:#af1b26;color:#fff;border-radius:7px;padding:9px 13px;font:inherit;font-size:.82rem;font-weight:700;cursor:pointer}.button.secondary{background:#fff;color:#303638;border-color:#b9c0bb}.button:disabled{opacity:.55;cursor:not-allowed}
-    .message{min-height:36px;padding:10px 0;font-size:.84rem;color:#5a635e}.message.error{color:#a2121e}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:15px}.stat{padding:13px}.stat small{display:block;color:#69716d}.stat strong{display:block;margin-top:4px;font-size:1.3rem}
-    .panel{overflow:hidden}.panel-head{padding:14px 16px;display:flex;gap:10px;align-items:center;justify-content:space-between}.panel-head h2{font-size:1rem;margin:0}.panel-head input{max-width:300px;width:100%;padding:8px;border:1px solid #bdc4be;border-radius:6px}
-    .table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:950px}th,td{padding:10px 12px;border-top:1px solid #d9deda;text-align:left;font-size:.78rem}th{background:#303638;color:white;font-size:.7rem;text-transform:uppercase}td small{display:block;color:#737b76;margin-top:3px}.tag{display:inline-block;border-radius:20px;padding:4px 8px;font-size:.7rem;font-weight:700;background:#e8e7cc;color:#655a07}.tag.released{background:#d7ede0;color:#176837}
-    dialog{width:min(620px,calc(100% - 24px));border:1px solid #b7c0ba;border-radius:12px;padding:0;box-shadow:0 25px 65px #0005}dialog::backdrop{background:#17211b99}dialog form{padding:20px}dialog h2{margin:0 0 16px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:grid;gap:5px;font-size:.78rem;font-weight:700}.field.full{grid-column:1/-1}.field input,.field select,.field textarea{padding:9px;border:1px solid #b8c1ba;border-radius:6px;font:inherit;font-weight:400;min-width:0}.field textarea{min-height:65px}.dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
-    @media(max-width:720px){main{padding:12px}.top{align-items:flex-start;flex-direction:column}.stats{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}.field.full{grid-column:auto}}
-  </style>
+  <meta name="theme-color" content="#202126">
+  <meta name="description" content="Perencanaan jadwal produksi SPK dan penugasan mesin Polyta Global Mandiri.">
+  <title>Jadwal Produksi | Polyta Global Mandiri</title>
+  <link rel="icon" href="/assets/img/logo-app.png" type="image/png">
+  <link rel="stylesheet" href="/assets/vendor/inter/inter.css?v=20260827">
+  <link rel="stylesheet" href="/assets/vendor/fontawesome/css/all.min.css?v=20260827">
+  <link rel="stylesheet" href="schedule.css?v=20261004-1">
 
 </head>
-<body>
-<main>
-  <header class="top"><div><h1>Schedule Produksi</h1><p>Rencanakan routing SPK per mesin, lalu rilis pekerjaan ke produksi.</p></div><div class="actions"><a class="button secondary" href="/apps/spk-automation/approval/">Login PPIC</a><button id="refresh" class="button secondary" type="button">Muat ulang</button><button id="new" class="button" type="button" disabled>+ Buat jadwal</button></div></header>
-  <div id="message" class="message" role="status">Memeriksa sesi PPIC...</div>
-  <section class="stats" aria-label="Ringkasan jadwal"><div class="stat"><small>Routing siap</small><strong id="candidateCount">0</strong></div><div class="stat"><small>Draf</small><strong id="draftCount">0</strong></div><div class="stat"><small>Dirilis</small><strong id="releasedCount">0</strong></div><div class="stat"><small>Mesin terjadwal</small><strong id="machineCount">0</strong></div></section>
-  <section class="panel"><div class="panel-head"><h2>Daftar jadwal</h2><input id="search" type="search" placeholder="Cari SPK, proses, mesin..." aria-label="Cari jadwal"></div><div class="table-wrap"><table><thead><tr><th>SPK / Routing</th><th>Proses</th><th>Mesin</th><th>Mulai</th><th>Selesai</th><th>Target</th><th>Aktual terverifikasi</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="scheduleRows"><tr><td colspan="9">Belum ada data.</td></tr></tbody></table></div></section>
-</main>
+<body data-page="jadwal-produksi">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/" aria-label="Portal utama Polyta Global Mandiri">
+        <span class="brand-mark" aria-hidden="true">
+          <svg class="polyta-logo" viewBox="0 0 120 120" focusable="false">
+            <defs>
+              <linearGradient id="scheduleLogoMetal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4b4e54"/><stop offset=".42" stop-color="#111216"/><stop offset="1" stop-color="#020304"/></linearGradient>
+              <linearGradient id="scheduleLogoBlue" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6f8fe0"/><stop offset=".48" stop-color="#4563b3"/><stop offset="1" stop-color="#293f87"/></linearGradient>
+              <linearGradient id="scheduleLogoRed" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff5660"/><stop offset=".5" stop-color="#ef2631"/><stop offset="1" stop-color="#b90f1d"/></linearGradient>
+              <linearGradient id="scheduleLogoGreen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#72d77b"/><stop offset=".48" stop-color="#40b84e"/><stop offset="1" stop-color="#168d2d"/></linearGradient>
+            </defs>
+            <path d="M14 12h50v43h42v53h-8V63H64v45H14V55h42V20H14z" fill="url(#scheduleLogoMetal)"/>
+            <rect x="15" y="22" width="41" height="12" rx="6" fill="url(#scheduleLogoBlue)"/>
+            <rect x="22" y="63" width="34" height="37" fill="url(#scheduleLogoRed)"/>
+            <rect x="84" y="64" width="11" height="44" rx="5.5" fill="url(#scheduleLogoGreen)"/>
+            <path d="M17 15h43M24 66h30M86.5 67v35" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="2" opacity=".36"/>
+          </svg>
+        </span>
+        <span><strong class="brand-name">POLYTA GLOBAL MANDIRI</strong><small class="brand-subtitle">Plastic Packaging Industry</small></span>
+      </a>
+      <div class="schedule-header-actions">
+        <a class="schedule-menu-link no-print" href="/" target="_top" aria-label="Kembali ke Menu"><svg class="schedule-menu-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span>Menu</span></a>
+        <div id="portalAccountSlot" class="schedule-account-slot" aria-label="Profil pengguna"></div>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <section class="page-heading" aria-labelledby="pageTitle">
+      <div class="heading-group">
+        <span class="heading-icon" aria-hidden="true"><i class="fa-solid fa-calendar-days"></i></span>
+        <div><p class="eyebrow">PERENCANAAN PRODUKSI</p><h1 id="pageTitle">Jadwal Produksi</h1><p>Atur mesin dan urutan routing SPK sebelum pekerjaan dirilis ke produksi.</p></div>
+      </div>
+      <button id="new" class="button primary" type="button" disabled><i class="fa-solid fa-calendar-plus" aria-hidden="true"></i> Buat Jadwal</button>
+    </section>
+
+    <section class="stats" aria-label="Ringkasan jadwal">
+      <article class="stat"><span class="stat-icon red" aria-hidden="true"><i class="fa-solid fa-list-check"></i></span><div><small>Routing siap</small><strong id="candidateCount">0</strong><span>menunggu penjadwalan</span></div></article>
+      <article class="stat"><span class="stat-icon amber" aria-hidden="true"><i class="fa-solid fa-pen-to-square"></i></span><div><small>Draf</small><strong id="draftCount">0</strong><span>jadwal belum dirilis</span></div></article>
+      <article class="stat"><span class="stat-icon green" aria-hidden="true"><i class="fa-solid fa-circle-check"></i></span><div><small>Dirilis</small><strong id="releasedCount">0</strong><span>siap masuk produksi</span></div></article>
+      <article class="stat"><span class="stat-icon blue" aria-hidden="true"><i class="fa-solid fa-gears"></i></span><div><small>Mesin terjadwal</small><strong id="machineCount">0</strong><span>mesin dengan jadwal aktif</span></div></article>
+    </section>
+
+    <section class="panel" aria-labelledby="scheduleListTitle">
+      <header class="panel-head"><div><h2 id="scheduleListTitle">Daftar Jadwal</h2><p id="message" class="message" role="status" aria-live="polite">Menghubungkan ke basis data...</p></div></header>
+      <div class="panel-toolbar">
+        <label class="search-box"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input id="search" type="search" placeholder="Cari SPK, proses, atau mesin..." aria-label="Cari jadwal"></label>
+        <button id="refresh" class="button secondary" type="button"><i class="fa-solid fa-rotate-right" aria-hidden="true"></i> Muat ulang</button>
+      </div>
+      <div id="scheduleLoader" class="loading-state" role="status" aria-live="polite"><span class="loader-ring" aria-hidden="true"></span><strong>Menghubungkan ke basis data</strong><span>Jadwal produksi sedang disiapkan. Mohon tunggu sebentar.</span></div>
+      <div id="tableWrap" class="table-wrap" hidden><table><thead><tr><th>SPK / Routing</th><th>Proses</th><th>Mesin</th><th>Mulai</th><th>Selesai</th><th>Target</th><th>Aktual terverifikasi</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="scheduleRows"><tr><td colspan="9">Belum ada data.</td></tr></tbody></table></div>
+    </section>
+  </main>
+  <footer class="spk-app-footer no-print"><div class="spk-app-footer-inner">Dikembangkan dan dikelola oleh: <strong>Team POLYTA GLOBAL MANDIRI</strong></div></footer>
 <dialog id="editor"><form id="scheduleForm"><h2 id="editorTitle">Buat jadwal</h2><div class="grid"><label class="field full">SPK / routing<select id="routing" required></select></label><label class="field">Mesin<input id="machine" required maxlength="50"></label><label class="field">Urutan mesin<input id="sequence" type="number" min="1" step="1" value="1" required></label><label class="field">Mulai rencana<input id="start" type="datetime-local" required></label><label class="field">Selesai rencana<input id="finish" type="datetime-local" required></label><label class="field">Target<input id="target" type="number" min="0.001" step="any" required></label><label class="field">Satuan<select id="uom"><option>KG</option><option>PCS</option><option>ROLL</option><option>METER</option></select></label><label class="field full">Catatan<textarea id="note" maxlength="1000"></textarea></label></div><div class="dialog-actions"><button id="cancel" class="button secondary" type="button">Batal</button><button id="save" class="button" type="submit">Simpan draf</button></div></form></dialog>
 
 <script>
@@ -48,10 +91,16 @@
     $('releasedCount').textContent=data.schedules.filter(item=>item.status==='RELEASED').length;
     $('machineCount').textContent=new Set(data.schedules.filter(item=>item.status==='RELEASED').map(item=>item.mesin)).size;
   }
+  function setLoading(loading){
+    $('scheduleLoader').hidden=!loading;
+    $('tableWrap').hidden=loading;
+    $('refresh').disabled=loading;
+  }
   async function load(){
+    setLoading(true);
     data.token=storedToken();
-    if(!data.token){status('Login sebagai PPIC melalui halaman Persetujuan SPK, lalu kembali ke sini.',true);$('new').disabled=true;return;}
-    status('Memuat data schedule...');$('new').disabled=true;
+    if(!data.token){status('Sesi portal tidak tersedia. Silakan masuk kembali.',true);$('new').disabled=true;$('scheduleRows').innerHTML='<tr><td colspan="9">Sesi portal tidak tersedia.</td></tr>';setLoading(false);return;}
+    status('Memuat jadwal produksi...');$('new').disabled=true;
     try{
       const result=await rpc('getProductionScheduleData',data.token);
       if(!result||result.status!=='success')throw new Error(result&&result.message||'Gagal memuat jadwal.');
@@ -59,7 +108,8 @@
       $('routing').innerHTML='<option value="">Pilih SPK / routing</option>'+data.candidates.map(item=>`<option value="${escape(item.routingId)}">${escape(item.spk)} · ${escape(item.proses)} · ${escape(item.customer)}</option>`).join('');
       $('new').disabled=!data.candidates.length;
       render();status(`${data.candidates.length} routing siap dijadwalkan.`);
-    }catch(error){status(error&&error.message||'Gagal menghubungi server.',true);}
+    }catch(error){status(error&&error.message||'Gagal menghubungi server.',true);if(!data.schedules.length)$('scheduleRows').innerHTML='<tr><td colspan="9">Jadwal belum dapat dimuat.</td></tr>';}
+    finally{setLoading(false);}
   }
   function edit(item){
     data.editing=item||null;
@@ -98,5 +148,6 @@
   load();
 })();
 </script>
+<script src="../footer-reveal.js?v=20260813-1"></script>
 </body>
 </html>

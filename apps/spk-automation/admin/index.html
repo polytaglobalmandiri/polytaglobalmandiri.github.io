@@ -12,11 +12,25 @@
   <link rel="icon" href="/assets/img/logo-app.png" type="image/png">
   <link rel="stylesheet" href="/assets/vendor/inter/inter.css?v=20260827">
   <link rel="stylesheet" href="/assets/vendor/fontawesome/css/all.min.css?v=20260827">
-  <link rel="stylesheet" href="access.css?v=20261003-4">
+  <link rel="stylesheet" href="access.css?v=20261003-5">
 </head>
 <body>
   <header class="access-header"><div class="header-inner">
-    <a class="brand" href="/"><span class="brand-mark"><img src="/assets/img/logo-app.png" alt=""></span><span><strong>POLYTA GLOBAL MANDIRI</strong><small>Kelola Akses</small></span></a>
+    <a class="brand" href="/" aria-label="Beranda Portal Operasional"><span class="brand-mark" aria-hidden="true">
+      <svg class="polyta-logo" viewBox="0 0 120 120" focusable="false">
+        <defs>
+          <linearGradient id="accessLogoMetal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4b4e54"/><stop offset=".42" stop-color="#111216"/><stop offset="1" stop-color="#020304"/></linearGradient>
+          <linearGradient id="accessLogoBlue" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6f8fe0"/><stop offset=".48" stop-color="#4563b3"/><stop offset="1" stop-color="#293f87"/></linearGradient>
+          <linearGradient id="accessLogoRed" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff5660"/><stop offset=".5" stop-color="#ef2631"/><stop offset="1" stop-color="#b90f1d"/></linearGradient>
+          <linearGradient id="accessLogoGreen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#72d77b"/><stop offset=".48" stop-color="#40b84e"/><stop offset="1" stop-color="#168d2d"/></linearGradient>
+        </defs>
+        <path d="M14 12h50v43h42v53h-8V63H64v45H14V55h42V20H14z" fill="url(#accessLogoMetal)"/>
+        <rect x="15" y="22" width="41" height="12" rx="6" fill="url(#accessLogoBlue)"/>
+        <rect x="22" y="63" width="34" height="37" fill="url(#accessLogoRed)"/>
+        <rect x="84" y="64" width="11" height="44" rx="5.5" fill="url(#accessLogoGreen)"/>
+        <path d="M17 15h43M24 66h30M86.5 67v35" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="2" opacity=".36"/>
+      </svg>
+    </span><span><strong>POLYTA GLOBAL MANDIRI</strong><small>Kelola Akses</small></span></a>
     <div class="header-actions">
       <a class="back-link" href="/"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>Portal Operasional</span></a>
       <div id="portalAccountSlot" class="portal-account-slot" aria-label="Profil pengguna"></div>
@@ -40,6 +54,9 @@
       <div class="user-list" id="userList"><div class="empty">Memuat pengguna...</div></div>
     </section>
   </main>
+  <footer class="access-footer spk-app-footer no-print">
+    <div class="access-footer-inner">Dikembangkan dan dikelola oleh: <strong>Team POLYTA GLOBAL MANDIRI</strong></div>
+  </footer>
 
   <dialog id="userDialog" class="user-dialog">
     <form id="userForm" method="dialog">
@@ -74,5 +91,6 @@
   <div class="busy-overlay" id="busyOverlay" role="status" aria-live="polite" hidden><div class="busy-card"><span class="busy-spinner"></span><span><strong id="busyTitle">Memproses permintaan</strong><small id="busyDetail">Mohon tunggu sebentar...</small></span></div></div>
   <script src="/assets/vendor/sweetalert2/sweetalert2-11.26.25.all.min.js" defer></script>
   <script src="admin.js?v=20261003-2" defer></script>
+  <script src="../footer-reveal.js?v=20260813-1"></script>
 </body>
 </html>

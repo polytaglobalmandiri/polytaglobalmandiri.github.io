@@ -50,14 +50,10 @@ akses yang dikelola akun master.
 Jalankan server dari akar repositori agar rute dan aset absolut bekerja:
 
 ```powershell
-# Python
-python -m http.server 5500
-
-# atau Node
-npx serve .
+node tools/serve-local.cjs
 ```
 
-Lalu buka <http://localhost:5500>.
+Lalu buka <http://127.0.0.1:8765/>.
 
 ---
 

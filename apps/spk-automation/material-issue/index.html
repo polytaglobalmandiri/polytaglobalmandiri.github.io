@@ -2998,19 +2998,8 @@
   </style>
 
 
-  <style>
-    .polyta-portal-home {
-      text-decoration: none;
-    }
-    .polyta-portal-home i { font-size: .78rem; }
-    .polyta-portal-home:focus-visible { outline: 3px solid rgba(230,59,82,.38); outline-offset: 3px; }
-    @media (max-width: 900px) {
-      .polyta-portal-home { width: 39px !important; flex: 0 0 39px !important; padding-inline: 0 !important; justify-content: center; }
-      .polyta-portal-home span { display: none; }
-    }
-    @media print { .polyta-portal-home { display: none !important; } }
-  </style>
   <link rel="stylesheet" href="../responsive.css?v=20260913-1">
+  <link rel="stylesheet" href="material-issue-theme.css?v=20261004-1">
 
 </head>
 <body
@@ -3027,7 +3016,7 @@
 
   <header class="app-header">
     <div class="header-inner">
-      <div class="brand">
+      <a class="brand" href="/" aria-label="Portal utama Polyta Global Mandiri">
         <div class="brand-mark" aria-hidden="true">
           <svg class="polyta-logo" viewBox="0 0 120 120" focusable="false">
             <defs>
@@ -3061,18 +3050,14 @@
         </div>
         <div>
           <span class="brand-name">POLYTA GLOBAL MANDIRI</span>
-          <span class="brand-subtitle">Portal Akses Internal</span>
+          <span class="brand-subtitle">Plastic Packaging Industry</span>
         </div>
-      </div>
+      </a>
 
-      <nav class="topnav" aria-label="Navigasi utama">
-        <a class="nav-link polyta-portal-home no-print" href="/" target="_top" title="Kembali ke portal utama">
-          <i class="fa-solid fa-house" aria-hidden="true"></i><span>Portal Utama</span>
-        </a>
-<a class="nav-link polyta-portal-home polyta-portal-ppic no-print" href="/" target="_top" title="Kembali ke Portal Operasional">
-<i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>Portal Operasional</span>
-        </a>
-      </nav>
+      <div class="issue-header-actions">
+        <a class="issue-menu-link no-print" href="/" target="_top" aria-label="Kembali ke Menu"><svg class="issue-menu-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span>Menu</span></a>
+        <div id="portalAccountSlot" class="issue-account-slot" aria-label="Profil pengguna"></div>
+      </div>
     </div>
   </header>
 
@@ -5488,7 +5473,6 @@
     <div class="spk-app-footer-inner">Dikembangkan dan dikelola oleh: <strong>Team POLYTA GLOBAL MANDIRI</strong></div>
   </footer>
   <script src="../modal-scroll-lock.js?v=20260812-1"></script>
-  <script src="../responsive-header.js?v=20260812-3"></script>
   <script src="../footer-reveal.js?v=20260813-1"></script>
 </body>
 </html>

@@ -74,8 +74,14 @@ body[data-page="approval-spk"] .brand-subtitle {
 .approval-menu-icon { width: 17px; height: 17px; display: block; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
 
 body[data-page="approval-spk"] .app-main { width: min(1600px, calc(100% - 32px)); }
-body[data-page="approval-spk"] .app-hero h2 { font-size: 16px; font-weight: 700; }
-body[data-page="approval-spk"] .app-hero p:not(.eyebrow) { font-size: 9.92px; }
+body[data-page="approval-spk"] .page-heading { min-width: 0; }
+body[data-page="approval-spk"] .heading-group { min-width: 0; }
+.approval-refresh { min-height: 40px; padding: 0 13px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; flex: none; font-size: 11px; }
+@media (max-width: 600px) {
+  body[data-page="approval-spk"] .page-heading { gap: 8px; }
+  .approval-refresh { width: 42px; min-height: 42px; padding: 0; }
+  .approval-refresh span { display: none; }
+}
 
 .portal-footer { margin-top: 32px; background: transparent; }
 .portal-footer::before {

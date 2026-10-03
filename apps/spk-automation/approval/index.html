@@ -13,8 +13,8 @@
   <link rel="icon" href="/assets/img/logo-app.png" type="image/png">
   <link rel="stylesheet" href="/assets/vendor/inter/inter.css?v=20260827">
   <link rel="stylesheet" href="/assets/vendor/fontawesome/css/all.min.css?v=20260827">
-  <link rel="stylesheet" href="approval.css?v=20260926-1">
-  <link rel="stylesheet" href="approval-theme.css?v=20261003-3">
+  <link rel="stylesheet" href="approval.css?v=20261003-2">
+  <link rel="stylesheet" href="approval-theme.css?v=20261003-4">
 
 </head>
 <body data-page="approval-spk">
@@ -50,9 +50,9 @@
     <section class="page-heading" aria-labelledby="pageTitle">
       <div class="heading-group">
         <span class="heading-icon"><i class="fa-solid fa-file-signature" aria-hidden="true"></i></span>
-        <div><p class="eyebrow">PERSETUJUAN DIGITAL INTERNAL</p><h1 id="pageTitle">Persetujuan SPK</h1><p>Kelola antrean, tanda tangan, dan status kesiapan release dalam satu halaman.</p></div>
+        <div><p class="eyebrow">PERSETUJUAN DIGITAL</p><h1 id="pageTitle">Persetujuan SPK</h1><p>Tinjau dan setujui SPK sesuai kewenangan Anda.</p></div>
       </div>
-      <span class="status-chip"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Akses Terproteksi</span>
+      <button class="button ghost approval-refresh" id="refreshButton" type="button" aria-label="Muat ulang daftar SPK" title="Muat ulang daftar SPK" disabled><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i><span>Muat ulang</span></button>
     </section>
 
     <section id="loginView" hidden><button id="showSetupButton" type="button" hidden></button></section>
@@ -77,15 +77,10 @@
     </section>
 
     <section id="appView" aria-busy="true">
-      <div class="app-hero">
-        <div><p class="eyebrow">RUANG KERJA PERSETUJUAN</p><h2>Antrean persetujuan saya</h2><p>SPK menjadi Siap Release hanya setelah semua persetujuan wajib lengkap.</p></div>
-        <button class="button ghost" id="refreshButton" type="button" disabled><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i> Muat ulang</button>
-      </div>
-
       <div class="notice warning" id="signatureWarning" hidden><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i><span>Gambar tanda tangan akun belum tersedia. Hubungi Admin PPIC sebelum menyetujui SPK.</span></div>
 
       <section class="workspace queue-workspace">
-        <header class="workspace-head"><div class="workspace-title"><span><i class="fa-solid fa-list-check" aria-hidden="true"></i></span><div><h2>Daftar SPK</h2><p>Urutan terbaru dari database persetujuan.</p></div></div><span class="live-badge"><i></i> Data aktif</span></header>
+        <header class="workspace-head"><div class="workspace-title"><span><i class="fa-solid fa-list-check" aria-hidden="true"></i></span><div><h2>Daftar SPK</h2><p>Urutan terbaru dari database persetujuan.</p></div></div></header>
         <div class="approval-loading-state" id="queueLoader" role="status" aria-live="polite">
           <span class="approval-loader-ring" aria-hidden="true"></span>
           <strong>Menghubungkan ke basis data</strong>

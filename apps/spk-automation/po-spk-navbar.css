@@ -41,7 +41,7 @@ body[data-page="dashboard"] .topbar .polyta-logo {
   display: block;
   filter: drop-shadow(0 2px 1px #0005);
 }
-body[data-page="dashboard"] .brand-name {
+body[data-page="dashboard"] .topbar .brand-name {
   max-width: none;
   overflow: visible;
   color: #fff !important;
@@ -52,7 +52,7 @@ body[data-page="dashboard"] .brand-name {
   text-shadow: 0 -1px #000, 0 1px #ffffff24 !important;
   white-space: normal;
 }
-body[data-page="dashboard"] .brand-subtitle {
+body[data-page="dashboard"] .topbar .brand-subtitle {
   display: block !important;
   margin-top: 3px !important;
   color: #c0c3c9 !important;
@@ -100,7 +100,7 @@ body[data-page="dashboard"] .spk-app-footer-inner { font-size: 10.24px; }
 
 @media (max-width: 650px) {
   body[data-page="dashboard"] .topbar-inner { padding: 0 14px !important; gap: 6px !important; }
-  body[data-page="dashboard"] .brand-name { font-size: 12px !important; }
+  body[data-page="dashboard"] .topbar .brand-name { font-size: 12px !important; }
   .po-header-actions { gap: 7px; }
   body[data-page="dashboard"] .po-header-actions .po-menu-link { padding: 0 8px !important; gap: 6px !important; }
   body[data-page="dashboard"] .app-main { width: calc(100% - 28px) !important; }
@@ -114,7 +114,7 @@ body[data-page="dashboard"] .spk-app-footer-inner { font-size: 10.24px; }
 @media (max-width: 350px) {
   body[data-page="dashboard"] .po-header-actions .po-menu-link { width: 42px !important; padding: 0 !important; }
   body[data-page="dashboard"] .spk-simple-header .po-header-actions .po-menu-link > span { display: none !important; }
-  body[data-page="dashboard"] .brand-subtitle { display: none !important; }
+  body[data-page="dashboard"] .topbar .brand-subtitle { display: none !important; }
 }
 @media (max-width: 480px) {
   body[data-page="dashboard"] .pgm-auth-bar--navbar .pgm-auth-panel { right: -15px; }

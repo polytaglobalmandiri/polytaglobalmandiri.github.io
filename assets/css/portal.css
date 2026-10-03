@@ -12,3 +12,14 @@
 .module-card p{font-size:12px;line-height:1.55}
 .module-tag{padding-top:16px;font-size:9px}
 @media(max-width:650px){.module-card{min-height:168px}.hero-meta span{font-size:10px}}
+/* Ikon SVG satu gaya: ukuran, garis, dan titik tengah konsisten. */
+.icon-definitions{position:absolute;width:0;height:0;overflow:hidden;pointer-events:none}
+.portal-icon{display:block;width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.module-icon .portal-icon{width:21px;height:21px}
+.module-arrow .portal-icon{width:15px;height:15px}
+.summary-icon .portal-icon{width:20px;height:20px}
+.hero-meta span{display:inline-flex;align-items:center;gap:8px}
+.hero-meta .portal-icon{width:15px;height:15px;color:#f16075}
+.search-box .portal-icon{width:17px;height:17px}
+.empty-state .portal-icon{width:25px;height:25px;margin-bottom:5px;color:#c3263d}
+@media(max-width:650px){.hero{gap:24px}.hero h1{font-size:clamp(30px,8.4vw,34px)}.hero-meta{margin-top:22px}}

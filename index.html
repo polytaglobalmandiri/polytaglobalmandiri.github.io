@@ -9,10 +9,25 @@
   <title>Portal Operasional | Polyta Global Mandiri</title>
   <link rel="icon" href="/assets/img/logo-app.png" type="image/png">
   <link rel="stylesheet" href="/assets/vendor/inter/inter.css?v=20260827">
-  <link rel="stylesheet" href="/assets/vendor/fontawesome/css/all.min.css?v=20260827">
-  <link rel="stylesheet" href="/assets/css/portal.css?v=20261003-3">
+  <link rel="stylesheet" href="/assets/css/portal.css?v=20261003-4">
 </head>
 <body>
+  <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <symbol id="icon-shield" viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.2c0 4.5 2.8 8.1 7.5 9.8 4.7-1.7 7.5-5.3 7.5-9.8V6L12 3Z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="icon-sync" viewBox="0 0 24 24"><path d="M20 8a8 8 0 0 0-13.7-2.2L4 8"/><path d="M4 4v4h4"/><path d="M4 16a8 8 0 0 0 13.7 2.2L20 16"/><path d="M16 16h4v4"/></symbol>
+    <symbol id="icon-layers" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5"/><path d="m3 16 9 5 9-5"/></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.5 4.5"/></symbol>
+    <symbol id="icon-chart" viewBox="0 0 24 24"><path d="M4 4v16h16"/><path d="m7 15 4-4 3 2 5-6"/><path d="M17 7h2v2"/></symbol>
+    <symbol id="icon-clipboard" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2h6v2M9 10h6M9 14h6M9 18h4"/></symbol>
+    <symbol id="icon-approval" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M9 8h6M9 12h4m1 4 2 2 5-6"/></symbol>
+    <symbol id="icon-flask" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6l-5.5 9.1A2 2 0 0 0 6.2 21h11.6a2 2 0 0 0 1.7-2.9L14 9V3M8 15h8"/></symbol>
+    <symbol id="icon-material-out" viewBox="0 0 24 24"><rect x="3" y="10" width="12" height="10" rx="1.5"/><path d="M3 14h12M9 10v10M18 4v11m-3-3 3 3 3-3"/></symbol>
+    <symbol id="icon-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18M8 14h3m3 0h2m-8 4h3"/></symbol>
+    <symbol id="icon-factory" viewBox="0 0 24 24"><path d="M3 21V11l6 3V9l6 3V5h6v16H3Z"/><path d="M7 18h2m3 0h2m3 0h2M17 8h2"/></symbol>
+    <symbol id="icon-cloud-down" viewBox="0 0 24 24"><path d="M7 18H6a4 4 0 0 1-.2-8A6.5 6.5 0 0 1 18 8.6 4.8 4.8 0 0 1 19 18h-2"/><path d="M12 12v9m-3-3 3 3 3-3"/></symbol>
+    <symbol id="icon-transfer" viewBox="0 0 24 24"><path d="M4 8h15m-3-3 3 3-3 3M20 16H5m3-3-3 3 3 3"/></symbol>
+    <symbol id="icon-chevron" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+  </svg>
   <a class="skip-link" href="#mainContent">Lewati ke konten utama</a>
   <header class="portal-header">
     <div class="header-inner">
@@ -29,23 +44,23 @@
         <p class="eyebrow"><span></span> RUANG KERJA TERPADU</p>
         <h1 id="pageTitle">Kendalikan operasi dari satu tempat.</h1>
         <p>Kelola alur SPK, material, jadwal, hasil produksi, dan serah terima melalui akses yang mengikuti tanggung jawab setiap pengguna.</p>
-        <div class="hero-meta"><span><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Akses berbasis wewenang</span><span><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i> Data operasional terhubung</span></div>
+        <div class="hero-meta"><span><svg class="portal-icon" aria-hidden="true" focusable="false"><use href="#icon-shield"></use></svg>Akses berbasis wewenang</span><span><svg class="portal-icon" aria-hidden="true" focusable="false"><use href="#icon-sync"></use></svg>Data operasional terhubung</span></div>
       </div>
       <div class="hero-summary" aria-label="Ringkasan portal">
-        <span class="summary-icon"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span>
+        <span class="summary-icon"><svg class="portal-icon" aria-hidden="true" focusable="false"><use href="#icon-layers"></use></svg></span>
         <strong id="availableCount">—</strong><span>modul tersedia untuk akun Anda</span><small id="currentUser">Memuat profil pengguna...</small>
       </div>
     </section>
     <section class="workspace" aria-labelledby="workspaceTitle">
       <header class="workspace-head">
         <div><p class="section-kicker">APLIKASI OPERASIONAL</p><h2 id="workspaceTitle">Pilih ruang kerja</h2><p>Gunakan pencarian atau buka modul sesuai pekerjaan yang akan dilakukan.</p></div>
-        <label class="search-box" for="portalSearch"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input id="portalSearch" type="search" placeholder="Cari modul..." autocomplete="off"><kbd>/</kbd></label>
+        <label class="search-box" for="portalSearch"><svg class="portal-icon" aria-hidden="true" focusable="false"><use href="#icon-search"></use></svg><input id="portalSearch" type="search" placeholder="Cari modul..." autocomplete="off"><kbd>/</kbd></label>
       </header>
       <div class="module-grid" id="moduleGrid" aria-live="polite"></div>
-      <div class="empty-state" id="emptyState" hidden><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><strong id="emptyTitle">Modul tidak ditemukan</strong><span id="emptyDescription">Coba gunakan kata pencarian lain.</span></div>
+      <div class="empty-state" id="emptyState" hidden><svg class="portal-icon" aria-hidden="true" focusable="false"><use href="#icon-search"></use></svg><strong id="emptyTitle">Modul tidak ditemukan</strong><span id="emptyDescription">Coba gunakan kata pencarian lain.</span></div>
     </section>
   </main>
   <footer class="portal-footer"><span>© Polyta Global Mandiri</span><span>Portal internal · aktivitas mengikuti wewenang akun</span></footer>
-  <script src="/assets/js/portal-home.js?v=20261003-3"></script>
+  <script src="/assets/js/portal-home.js?v=20261003-4"></script>
 </body>
 </html>

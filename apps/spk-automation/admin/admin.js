@@ -168,8 +168,8 @@
     var permissions=user&&user.permissions||{pages:{},menus:{},methods:{}};
     var pages=state.accessCatalog.pages||[],menus=state.accessCatalog.menus||[],methods=state.accessCatalog.methods||[];
     var html='<p class="permission-intro"><strong>Ikuti jabatan</strong> memakai izin standar sesuai peran. Gunakan <strong>Izinkan</strong> atau <strong>Blokir</strong> hanya sebagai pengecualian untuk pengguna ini.</p><div class="permission-legend"><span>Halaman = dapat membuka</span><span>Modul = tampil di portal</span><span>Data = tindakan di dalam aplikasi</span></div>';
-    html+=permissionGroup('Akses halaman','fa-window-maximize',pages.map(function(item){return permissionRow('pages',item,permissions.pages&&permissions.pages[item.key],(item.module||'Portal')+' · '+item.key);}).join(''),pages.length,true);
-    html+=permissionGroup('Modul di portal','fa-table-cells-large',menus.map(function(item){return permissionRow('menus',item,permissions.menus&&permissions.menus[item.key],item.path);}).join(''),menus.length,false);
+    html+=permissionGroup('Akses halaman','fa-house',pages.map(function(item){return permissionRow('pages',item,permissions.pages&&permissions.pages[item.key],(item.module||'Portal')+' · '+item.key);}).join(''),pages.length,true);
+    html+=permissionGroup('Modul di portal','fa-layer-group',menus.map(function(item){return permissionRow('menus',item,permissions.menus&&permissions.menus[item.key],item.path);}).join(''),menus.length,false);
     var modules={};methods.forEach(function(item){var module=item.module||'Operasional';(modules[module]||(modules[module]=[])).push(item);});
     Object.keys(modules).sort().forEach(function(module){var items=modules[module];var rows=items.map(function(item){return permissionRow('methods',item,permissions.methods&&permissions.methods[item.key],actionLabel(permissionAction(item.key,item)));}).join('');html+=permissionGroup('Data · '+module,'fa-database',rows,items.length,false);});
     $('permissionEditor').innerHTML=html;

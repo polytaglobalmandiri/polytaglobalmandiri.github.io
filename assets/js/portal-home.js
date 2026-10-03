@@ -7,9 +7,9 @@
     { key:'ppic:Bahan & Tinta', label:'Bahan & Tinta', description:'Kelola master material, komposisi, tinta, dan kebutuhan proses.', path:'/apps/spk-automation/material-management/', icon:'fa-flask-vial', group:'Material' },
     { key:'ppic:Keluar Bahan', label:'Keluar Bahan', description:'Catat kesiapan, jadwal pembelian, dan pengeluaran material.', path:'/apps/spk-automation/material-issue/', icon:'fa-dolly', group:'Material' },
     { key:'ppic:Schedule Produksi', label:'Jadwal Produksi', description:'Susun urutan kerja sebelum SPK dilepas menuju produksi.', path:'/apps/spk-automation/schedule/', icon:'fa-calendar-days', group:'Perencanaan' },
-    { key:'ppic:Produksi', label:'Hasil Produksi', description:'Input dan verifikasi hasil produksi pada setiap tahapan proses.', path:'/apps/spk-automation/production/', icon:'fa-industry', group:'Produksi' },
+    { key:'ppic:Produksi', label:'Hasil Produksi', description:'Input dan verifikasi hasil produksi pada setiap tahapan proses.', path:'/apps/spk-automation/production/', icon:'fa-gears', group:'Produksi' },
     { key:'ppic:Penarikan Data', label:'Penarikan Data', description:'Ambil serta sinkronkan data operasional yang dibutuhkan.', path:'/apps/spk-automation/data-retrieval/', icon:'fa-cloud-arrow-down', group:'Data' },
-    { key:'ppic:Serah Terima', label:'Serah Terima', description:'Dokumentasikan perpindahan SPK dan pekerjaan antarbagian.', path:'/apps/spk-automation/handover/', icon:'fa-people-arrows', group:'Distribusi' }
+    { key:'ppic:Serah Terima', label:'Serah Terima', description:'Dokumentasikan perpindahan SPK dan pekerjaan antarbagian.', path:'/apps/spk-automation/handover/', icon:'fa-arrows-left-right', group:'Distribusi' }
   ];
   var grid=document.getElementById('moduleGrid'),search=document.getElementById('portalSearch'),empty=document.getElementById('emptyState');
   function authData(){return window.POLYTA_PORTAL_AUTH&&window.POLYTA_PORTAL_AUTH.stored();}

@@ -15,6 +15,7 @@
 
     <link href="/assets/vendor/bootstrap/bootstrap-5.3.0.min.css" rel="stylesheet">
     <link href="/assets/vendor/datatables/dataTables.bootstrap5-1.13.6.min.css" rel="stylesheet">
+    <link href="/assets/vendor/inter/inter.css?v=20260827" rel="stylesheet">
     <link href="/assets/vendor/fontawesome/css/all.min.css?v=20260827" rel="stylesheet">
     <script src="/assets/vendor/sweetalert2/sweetalert2-11.26.25.all.min.js"></script>
     <script defer src="/assets/vendor/alpine/alpine-3.15.12.min.js"></script>
@@ -9852,6 +9853,7 @@
   }
 </style>
 
+<link rel="stylesheet" href="po-spk-navbar.css?v=20261003-1">
 </head>
 <body
     class="tw:min-h-screen tw:text-polyta-ink selection:tw:bg-polyta-brand-soft selection:tw:text-polyta-brand"
@@ -9901,18 +9903,18 @@
                 </div>
                 <div>
                     <span class="brand-name">POLYTA GLOBAL MANDIRI</span>
-                    <span class="brand-subtitle">Portal Akses Internal</span>
+                    <span class="brand-subtitle">Plastic Packaging Industry</span>
                 </div>
             </div>
 
-            <nav class="topnav" aria-label="Navigasi utama">
-                <a class="nav-link-app polyta-portal-home no-print" href="/" target="_top" title="Kembali ke portal utama">
-                  <i class="fa-solid fa-house" aria-hidden="true"></i><span>Portal Utama</span>
-                </a>
-<a class="nav-link-app polyta-portal-home polyta-portal-ppic no-print" href="/" target="_top" title="Kembali ke Portal Operasional">
-<i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>Portal Operasional</span>
-                </a>
-            </nav>
+            <div class="po-header-actions">
+                <nav class="topnav" aria-label="Navigasi utama">
+                    <a class="nav-link-app polyta-portal-home po-menu-link no-print" href="/" target="_top" aria-label="Kembali ke Menu">
+                        <svg class="po-menu-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span>Menu</span>
+                    </a>
+                </nav>
+                <div id="portalAccountSlot" class="po-account-slot" aria-label="Profil pengguna"></div>
+            </div>
         </div>
     </header>
 

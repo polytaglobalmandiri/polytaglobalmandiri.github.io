@@ -21,3 +21,5 @@
 .permission-copy small{font-size:9px;line-height:1.4;overflow-wrap:anywhere}
 .permission-row select{font-size:10px}
 @media(max-width:680px){.user-info p{white-space:normal;overflow-wrap:anywhere}.role-pill{max-width:190px}}
+.header-actions{display:flex;align-items:center;gap:10px}
+.portal-account-slot{min-width:44px;min-height:44px;display:grid;place-items:center}

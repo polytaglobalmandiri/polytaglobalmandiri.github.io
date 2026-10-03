@@ -179,7 +179,13 @@
 
     bar.appendChild(panel);
     bar.appendChild(trigger);
-    document.body.appendChild(bar);
+    var navbarSlot = document.querySelector('#portalAccountSlot');
+    if (navbarSlot) {
+      bar.classList.add('pgm-auth-bar--navbar');
+      navbarSlot.appendChild(bar);
+    } else {
+      document.body.appendChild(bar);
+    }
   }
   var style = document.createElement('style');
   style.textContent = [
@@ -217,7 +223,14 @@
     '.pgm-auth-actions small{margin-top:2px;color:#8b929c;font-size:10px}',
     '.pgm-auth-actions a>.pgm-auth-icon:last-child{width:15px;height:15px;color:#a7adb5}',
     '.pgm-auth-logout>.pgm-auth-icon{color:#b01930}',
+    '.pgm-auth-bar--navbar{position:relative;right:auto;bottom:auto;display:grid;place-items:center}',
+    '.pgm-auth-bar--navbar .pgm-auth-trigger{width:44px;height:44px;border-color:#090a0c;border-radius:11px;background:linear-gradient(#34373c,#1d1f23);box-shadow:inset 0 1px #ffffff2b,inset 0 -2px #08090b,0 2px 4px #0008}',
+    '.pgm-auth-bar--navbar .pgm-auth-trigger:hover{transform:translateY(-1px);box-shadow:inset 0 1px #ffffff35,inset 0 -2px #08090b,0 4px 7px #0009}',
+    '.pgm-auth-bar--navbar .pgm-auth-trigger:focus-visible{outline-color:#ffffff70;outline-offset:2px}',
+    '.pgm-auth-bar--navbar .pgm-auth-online{right:0;bottom:1px;border-color:#202226}',
+    '.pgm-auth-bar--navbar .pgm-auth-panel{top:calc(100% + 12px);right:0;bottom:auto;transform-origin:calc(100% - 22px) 0}',
     '@media(max-width:480px){.pgm-auth-bar{right:14px;bottom:14px}.pgm-auth-trigger{width:48px;height:48px;border-radius:15px}.pgm-auth-panel{width:min(320px,calc(100vw - 28px))}}',
+    '@media(max-width:480px){.pgm-auth-bar--navbar{right:auto;bottom:auto}.pgm-auth-bar--navbar .pgm-auth-trigger{width:42px;height:42px;border-radius:10px}.pgm-auth-bar--navbar .pgm-auth-panel{right:-1px}}',
     '@media(prefers-reduced-motion:reduce){.pgm-auth-trigger,.pgm-auth-actions a,.pgm-auth-actions button{transition-duration:.01ms}.pgm-auth-panel{animation-duration:.01ms}}'
   ].join('');
   document.head.appendChild(style);

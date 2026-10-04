@@ -601,7 +601,7 @@
     .source-file-search input {
       width: 100%;
       min-height: 34px;
-      padding: 7px 11px 7px 29px;
+      padding: 7px 58px 7px 29px;
       border: 1px solid #929598;
       border-top-color: #707376;
       border-left-color: #707376;
@@ -625,80 +625,82 @@
     }
 
     .source-file-filter-count {
-      flex: 0 0 auto;
-      color: #666b70;
-      font-size: .58rem;
+      position: absolute;
+      right: 9px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #72767b;
+      font-size: .55rem;
       font-weight: 780;
       white-space: nowrap;
-      text-shadow: 0 1px 0 #fff;
+      pointer-events: none;
     }
 
     .source-status-filter {
-      margin: 0 0 9px;
-      display: flex;
+      margin: 0;
+      display: inline-flex;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 6px;
+      gap: 3px;
+      flex: 0 0 auto;
+      padding: 2px;
+      border: 1px solid #a8aaad;
+      border-bottom-color: #888b8e;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #eaebe8, #dadbd7);
+      box-shadow: inset 0 1px 2px rgba(0,0,0,.14), 0 1px 0 #fff;
     }
 
     .source-status-filter-label {
-      margin-right: 2px;
-      color: #686d72;
-      font-size: .58rem;
-      font-weight: 820;
-      text-shadow: 0 1px 0 #fff;
+      display: none;
     }
 
     .source-status-filter-button {
       min-height: 27px;
-      padding: 4px 9px;
+      padding: 0 8px !important;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 5px;
-      border: 1px solid #96999c;
-      border-bottom-color: #777a7d;
-      border-radius: 999px;
-      background: linear-gradient(180deg, #fff, #d9dad7);
-      color: #5c6166;
-      box-shadow:
-        inset 0 1px 0 #fff,
-        0 1px 0 #888b8d;
-      font-size: .56rem;
+      gap: 5px !important;
+      border: 1px solid transparent !important;
+      border-radius: 999px !important;
+      background: transparent !important;
+      color: #55595f;
+      box-shadow: none !important;
+      font-size: .56rem !important;
       font-weight: 820;
       cursor: pointer;
-      transition: filter .15s ease, transform .15s ease;
+      white-space: nowrap;
+      transition: filter .15s ease, background .15s ease;
     }
 
-    .source-status-filter-button:hover {
-      filter: brightness(1.04);
-    }
-
-    .source-status-filter-button:active {
-      transform: translateY(1px);
+    .source-status-filter-button:hover:not(.is-active) {
+      background: rgba(255,255,255,.45) !important;
+      color: #33363a;
     }
 
     .source-status-filter-button.is-active {
-      border-color: #9e2020;
-      border-bottom-color: #681212;
-      background: linear-gradient(180deg, #e95757, #b92323 54%, #8a1515);
-      color: #fff;
+      border-color: #9e2020 !important;
+      border-bottom-color: #681212 !important;
+      background: linear-gradient(180deg, #e95757, #b92323 54%, #8a1515) !important;
+      color: #fff !important;
       box-shadow:
         inset 0 1px 0 rgba(255,255,255,.34),
-        0 2px 0 #651111;
+        0 1px 2px rgba(0,0,0,.22) !important;
       text-shadow: 0 -1px 0 rgba(0,0,0,.24);
     }
 
     .source-status-filter-count {
-      min-width: 18px;
-      padding: 1px 5px;
+      min-width: 16px;
+      padding: 1px 4px;
       border-radius: 999px;
-      background: rgba(0,0,0,.1);
+      background: rgba(0,0,0,.08);
+      font-size: .52rem;
       text-align: center;
     }
 
     .source-status-filter-button.is-active .source-status-filter-count {
-      background: rgba(255,255,255,.2);
+      background: rgba(255,255,255,.24);
+      color: #fff;
     }
 
     .database-status-warning {
@@ -1781,14 +1783,14 @@
     }
 
     .source-status-filter {
-      margin-bottom: 7px;
-      gap: 5px;
+      margin-bottom: 0;
+      gap: 3px;
     }
 
     .source-status-filter-button {
       min-height: 24px;
-      padding: 3px 7px;
-      font-size: .52rem;
+      padding: 0 6px !important;
+      font-size: .52rem !important;
     }
 
     .source-file-item {
@@ -2488,7 +2490,6 @@
         search.appendChild(searchInput);
         toolbar.appendChild(search);
         toolbar.appendChild(filterCount);
-        fileSection.appendChild(toolbar);
 
         const statusFilter = document.createElement('div');
         statusFilter.className = 'source-status-filter';
@@ -2510,7 +2511,7 @@
         const statusOptions = [
           { value: 'all', label: 'Semua', count: sourceFiles.length },
           { value: 'pending', label: 'Belum ditarik', count: pendingCount },
-          { value: 'saved', label: 'Sudah tersimpan', count: savedCount }
+          { value: 'saved', label: 'Tersimpan', count: savedCount }
         ];
 
         statusOptions.forEach((option, index) => {
@@ -2544,7 +2545,8 @@
           statusFilter.appendChild(button);
         });
 
-        fileSection.appendChild(statusFilter);
+        toolbar.appendChild(statusFilter);
+        fileSection.appendChild(toolbar);
 
         if (databaseStatus && databaseStatus.available === false) {
           const warning = document.createElement('p');

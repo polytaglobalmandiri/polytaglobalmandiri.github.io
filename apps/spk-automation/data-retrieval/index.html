@@ -611,9 +611,14 @@
       letter-spacing: 0;
     }
 
+    .directory-section {
+      container-type: inline-size;
+    }
+
     .source-file-toolbar {
       margin-bottom: 9px;
-      display: flex;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
       align-items: center;
       gap: 8px;
     }
@@ -621,7 +626,6 @@
     .source-file-search {
       min-width: 0;
       position: relative;
-      flex: 1 1 auto;
     }
 
     .source-file-search i {
@@ -637,7 +641,7 @@
     .source-file-search input {
       width: 100%;
       min-height: 34px;
-      padding: 7px 58px 7px 29px;
+      padding: 6px 62px 6px 29px;
       border: 1px solid #929598;
       border-top-color: #707376;
       border-left-color: #707376;
@@ -662,12 +666,15 @@
 
     .source-file-filter-count {
       position: absolute;
-      right: 9px;
+      right: 7px;
       top: 50%;
       transform: translateY(-50%);
-      color: #72767b;
-      font-size: .55rem;
-      font-weight: 780;
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.78);
+      color: #666b70;
+      font-size: .52rem;
+      font-weight: 800;
       white-space: nowrap;
       pointer-events: none;
     }
@@ -675,68 +682,29 @@
     .source-status-filter {
       margin: 0;
       display: inline-flex;
-      align-items: center;
-      gap: 3px;
-      flex: 0 0 auto;
+      align-items: stretch;
+      gap: 2px;
+      min-height: 34px;
       padding: 2px;
-      border: 1px solid #a8aaad;
-      border-bottom-color: #888b8e;
-      border-radius: 999px;
-      background: linear-gradient(180deg, #eaebe8, #dadbd7);
-      box-shadow: inset 0 1px 2px rgba(0,0,0,.14), 0 1px 0 #fff;
+      border: 1px solid #a4a7aa;
+      border-bottom-color: #7c7f82;
+      border-radius: 8px;
+      background: linear-gradient(180deg, #f6f6f3, #e0e1dd);
+      box-shadow: inset 0 1px 0 #fff, 0 1px 0 #8c8f91;
     }
 
     .source-status-filter-label {
       display: none;
     }
 
-    .source-status-filter-button {
-      min-height: 27px;
-      padding: 0 8px !important;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 5px !important;
-      border: 1px solid transparent !important;
-      border-radius: 999px !important;
-      background: transparent !important;
-      color: #55595f;
-      box-shadow: none !important;
-      font-size: .56rem !important;
-      font-weight: 820;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: filter .15s ease, background .15s ease;
-    }
-
-    .source-status-filter-button:hover:not(.is-active) {
-      background: rgba(255,255,255,.45) !important;
-      color: #33363a;
-    }
-
-    .source-status-filter-button.is-active {
-      border-color: #9e2020 !important;
-      border-bottom-color: #681212 !important;
-      background: linear-gradient(180deg, #e95757, #b92323 54%, #8a1515) !important;
-      color: #fff !important;
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.34),
-        0 1px 2px rgba(0,0,0,.22) !important;
-      text-shadow: 0 -1px 0 rgba(0,0,0,.24);
-    }
-
     .source-status-filter-count {
-      min-width: 16px;
+      min-width: 15px;
       padding: 1px 4px;
       border-radius: 999px;
       background: rgba(0,0,0,.08);
-      font-size: .52rem;
+      font-size: .5rem;
+      line-height: 1.3;
       text-align: center;
-    }
-
-    .source-status-filter-button.is-active .source-status-filter-count {
-      background: rgba(255,255,255,.24);
-      color: #fff;
     }
 
     .database-status-warning {
@@ -1763,7 +1731,7 @@
     }
 
     .source-file-search input {
-      min-height: 30px;
+      min-height: 32px;
       padding-block: 5px;
       font-size: .59rem;
     }
@@ -1773,14 +1741,60 @@
     }
 
     .source-status-filter {
-      margin-bottom: 0;
-      gap: 3px;
+      min-height: 32px;
+      gap: 2px;
     }
 
-    .source-status-filter-button {
-      min-height: 24px;
-      padding: 0 6px !important;
-      font-size: .52rem !important;
+    body[data-page="penarikan-data"] .source-status-filter .source-status-filter-button {
+      flex: 0 0 auto;
+      min-height: 28px !important;
+      height: 28px !important;
+      padding: 0 9px !important;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px !important;
+      border: 0 !important;
+      border-radius: 6px !important;
+      background: transparent !important;
+      color: #4c5156 !important;
+      box-shadow: none !important;
+      font-size: .56rem !important;
+      font-weight: 820 !important;
+      line-height: 1 !important;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    body[data-page="penarikan-data"] .source-status-filter .source-status-filter-button:hover:not(.is-active) {
+      background: rgba(255,255,255,.7) !important;
+    }
+
+    body[data-page="penarikan-data"] .source-status-filter .source-status-filter-button.is-active {
+      background: linear-gradient(180deg, #e95757, #b41e1e) !important;
+      color: #fff !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.34), 0 1px 2px rgba(80,10,10,.28) !important;
+      text-shadow: 0 -1px 0 rgba(0,0,0,.22);
+    }
+
+    body[data-page="penarikan-data"] .source-status-filter .source-status-filter-button.is-active .source-status-filter-count {
+      background: rgba(255,255,255,.24);
+      color: #fff;
+    }
+
+    @container (max-width: 560px) {
+      .source-file-toolbar {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .source-status-filter {
+        width: 100%;
+      }
+
+      body[data-page="penarikan-data"] .source-status-filter .source-status-filter-button {
+        flex: 1 1 0;
+        padding-inline: 6px !important;
+      }
     }
 
     .source-file-item {
@@ -2395,8 +2409,8 @@
         filterCount.textContent = sourceFiles.length + ' dari ' + sourceFiles.length;
 
         search.appendChild(searchInput);
+        search.appendChild(filterCount);
         toolbar.appendChild(search);
-        toolbar.appendChild(filterCount);
 
         const statusFilter = document.createElement('div');
         statusFilter.className = 'source-status-filter';
@@ -2416,9 +2430,9 @@
           file.inDatabase === false
         )).length;
         const statusOptions = [
-          { value: 'all', label: 'Semua', count: sourceFiles.length },
-          { value: 'pending', label: 'Belum ditarik', count: pendingCount },
-          { value: 'saved', label: 'Tersimpan', count: savedCount }
+          { value: 'all', label: 'Semua', title: 'Semua berkas', count: sourceFiles.length },
+          { value: 'pending', label: 'Belum', title: 'Belum ditarik', count: pendingCount },
+          { value: 'saved', label: 'Tersimpan', title: 'Sudah tersimpan', count: savedCount }
         ];
 
         statusOptions.forEach((option, index) => {
@@ -2429,6 +2443,8 @@
             'source-status-filter-button' +
             (isActive ? ' is-active' : '');
           button.dataset.statusFilter = option.value;
+          button.title = option.title;
+          button.setAttribute('aria-label', option.title + ', ' + option.count + ' berkas');
           button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
           button.innerHTML =
             '<span>' + option.label + '</span>' +

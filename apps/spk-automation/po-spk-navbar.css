@@ -65,7 +65,7 @@ body[data-page="dashboard"] .topbar .brand-subtitle {
 .po-header-actions { margin-left: auto; display: flex; align-items: center; gap: 10px; }
 body[data-page="dashboard"] .po-header-actions .topnav { margin-left: 0 !important; }
 .po-account-slot { min-width: 44px; min-height: 44px; display: grid; place-items: center; }
-body[data-page="dashboard"] .po-header-actions .po-menu-link {
+body[data-page="dashboard"] .spk-simple-header .po-header-actions .topnav .po-menu-link {
   width: auto !important;
   min-width: 0 !important;
   min-height: 44px !important;
@@ -102,17 +102,23 @@ body[data-page="dashboard"] .spk-app-footer-inner { font-size: 10.24px; }
   body[data-page="dashboard"] .topbar-inner { padding: 0 14px !important; gap: 6px !important; }
   body[data-page="dashboard"] .topbar .brand-name { font-size: 12px !important; }
   .po-header-actions { gap: 7px; }
-  body[data-page="dashboard"] .po-header-actions .po-menu-link { padding: 0 8px !important; gap: 6px !important; }
+  body[data-page="dashboard"] .spk-simple-header .po-header-actions .topnav .po-menu-link { padding: 0 8px !important; gap: 6px !important; }
   body[data-page="dashboard"] .app-main { width: calc(100% - 28px) !important; }
   body[data-page="dashboard"] .spk-app-footer::before,
   body[data-page="dashboard"] .spk-app-footer-inner { width: calc(100% - 28px); }
   body[data-page="dashboard"] .spk-app-footer-inner { font-size: 9.6px; }
 }
+@media (max-width: 480px) {
+  body[data-page="dashboard"] .spk-simple-header .po-header-actions .topnav .po-menu-link {
+    min-height: 42px !important;
+    height: 42px !important;
+  }
+}
 @media (max-width: 420px) {
   body[data-page="dashboard"] .spk-simple-header .po-header-actions .po-menu-link > span { display: inline !important; }
 }
 @media (max-width: 350px) {
-  body[data-page="dashboard"] .po-header-actions .po-menu-link { width: 42px !important; padding: 0 !important; }
+  body[data-page="dashboard"] .spk-simple-header .po-header-actions .topnav .po-menu-link { width: 42px !important; padding: 0 !important; }
   body[data-page="dashboard"] .spk-simple-header .po-header-actions .po-menu-link > span { display: none !important; }
   body[data-page="dashboard"] .topbar .brand-subtitle { display: none !important; }
 }

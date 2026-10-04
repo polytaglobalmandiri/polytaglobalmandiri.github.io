@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="data-retrieval-page">
 <head>
   <meta charset="UTF-8">
   <script src="/assets/js/gas-rpc.js?v=20260926-2"></script>
@@ -13,7 +13,8 @@
   <link rel="stylesheet" href="/assets/css/status.css?v=20260814-4">
   <script src="/assets/js/status.js?v=20260815-1"></script>
   <script src="/assets/js/ui-labels.js?v=20260815-1" defer></script>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='22' fill='%23f4f4f1'/%3E%3Cpath fill='%23111216' d='M14 12h50v43h42v53h-8V63H64v45H14V55h42V20H14z'/%3E%3Crect x='15' y='22' width='41' height='12' rx='6' fill='%234563b3'/%3E%3Crect x='22' y='63' width='34' height='37' fill='%23ef2631'/%3E%3Crect x='84' y='64' width='11' height='44' rx='5.5' fill='%2340b84e'/%3E%3C/svg%3E">
+  <link rel="icon" href="/assets/img/logo-app.png" type="image/png">
+  <link rel="stylesheet" href="/assets/vendor/inter/inter.css?v=20260827">
 
   <script src="/assets/vendor/sweetalert2/sweetalert2-11.26.25.all.min.js"></script>
   <script defer src="/assets/vendor/alpine/alpine-3.15.12.min.js"></script>
@@ -1893,6 +1894,7 @@
     @media print { .polyta-portal-home { display: none !important; } }
   </style>
   <link rel="stylesheet" href="../responsive.css?v=20260913-1">
+  <link rel="stylesheet" href="data-retrieval-theme.css?v=20261004-1">
 
 </head>
 <body
@@ -1907,9 +1909,9 @@
 >
   <!-- Lapisan status dimuat dari /assets/css/status.css dan /assets/js/status.js. -->
 
-  <header class="app-topbar spk-simple-header">
+  <header class="app-topbar">
     <div class="app-topbar-inner">
-      <div class="app-brand">
+      <a class="app-brand" href="/" aria-label="Portal utama Polyta Global Mandiri">
         <div class="app-brand-mark" aria-hidden="true">
           <svg class="polyta-logo" viewBox="0 0 120 120" focusable="false">
             <defs>
@@ -1943,17 +1945,13 @@
         </div>
         <div>
           <span class="app-brand-name">POLYTA GLOBAL MANDIRI</span>
-          <span class="app-brand-subtitle">Portal Akses Internal</span>
+          <span class="app-brand-subtitle">Plastic Packaging Industry</span>
         </div>
+      </a>
+      <div class="retrieval-header-actions">
+        <a class="retrieval-menu-link no-print" href="/" target="_top" aria-label="Kembali ke Menu"><svg class="retrieval-menu-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span>Menu</span></a>
+        <div id="portalAccountSlot" class="retrieval-account-slot" aria-label="Profil pengguna"></div>
       </div>
-      <nav class="app-nav spk-simple-nav" aria-label="Navigasi utama">
-        <a class="app-nav-link polyta-portal-home no-print" href="/" target="_top" title="Kembali ke portal utama">
-          <i class="fa-solid fa-house" aria-hidden="true"></i><span>Portal Utama</span>
-        </a>
-<a class="app-nav-link polyta-portal-home polyta-portal-ppic no-print" href="/" target="_top" title="Kembali ke Portal Operasional">
-<i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>Portal Operasional</span>
-        </a>
-      </nav>
     </div>
   </header>
 
@@ -2026,7 +2024,7 @@
           <div id="breadcrumbArea" class="breadcrumb-well" aria-label="Lokasi direktori">
             <span>Menghubungkan ke Drive...</span>
           </div>
-          <div id="folderArea" class="folder-area" aria-live="polite"></div>
+          <div id="folderArea" class="folder-area" aria-live="polite"><div class="loader-state"><span class="retrieval-loader-ring" aria-hidden="true"></span><strong>Menghubungkan ke Drive</strong><span>Direktori sumber sedang disiapkan.</span></div></div>
         </div>
 
         <div class="action-area">
@@ -2221,8 +2219,9 @@
     function showFolderLoading() {
       document.getElementById('folderArea').innerHTML =
         '<div class="loader-state">' +
-          '<i class="fa-solid fa-gear loader-gear" aria-hidden="true"></i>' +
+          '<span class="retrieval-loader-ring" aria-hidden="true"></span>' +
           '<strong>Membaca direktori</strong>' +
+          '<span>Memuat folder dan berkas sumber.</span>' +
         '</div>';
     }
 
@@ -3398,7 +3397,6 @@
     <div class="spk-app-footer-inner">Dikembangkan dan dikelola oleh: <strong>Team POLYTA GLOBAL MANDIRI</strong></div>
   </footer>
   <script src="../modal-scroll-lock.js?v=20260812-1"></script>
-  <script src="../responsive-header.js?v=20260812-3"></script>
   <script src="../footer-reveal.js?v=20260813-1"></script>
 </body>
 </html>

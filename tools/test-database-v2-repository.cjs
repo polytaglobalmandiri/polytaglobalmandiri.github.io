@@ -83,4 +83,47 @@ assert.throws(
   () => context.commitDatabaseV2Candidates_(completeBuckets, ['A26.001']),
   /di luar transaksi SPK/
 );
+grids['SPK Master'][0] = schema.master.fields.map(field => field[0]);
+let liveValues = [['A26.001'], ['B26.001'], ['C26.001']];
+context.Sheets = { Spreadsheets: { Values: { get: (_id, range, options) => {
+  assert.equal(range, "'SPK Master'!A2:A");
+  assert.equal(options.valueRenderOption, 'FORMATTED_VALUE');
+  return { range, values: liveValues };
+} } } };
+assert.deepEqual(Array.from(context.readDatabaseV2MasterKeysFresh_(book)), [
+  'A26.001', 'B26.001', 'C26.001'
+]);
+assert.throws(
+  () => context.assertDatabaseV2CreateOnlyKeysAvailable_(book, ['A26.001']),
+  /SPK sudah ada/
+);
+assert.doesNotThrow(() => context.assertDatabaseV2CreateOnlyKeysAvailable_(book, ['D26.001']));
+let writes = 0;
+context.planDatabaseV2NativeWriteTarget_ = (_book, name, definition) => ({
+  sheet: definition.sheet,
+  inserts: name === 'master' ? [['A26.001']] : [],
+  updates: [], deletes: [], conflicts: [], unchanged: 0, preservedExternal: 0
+});
+context.applyDatabaseV2NativeWritePlan_ = () => { writes++; };
+context.appendDatabaseV2WriteAudit_ = () => {};
+context.Utilities = { getUuid: () => 'transaction-test' };
+let held = false;
+context.LockService = { getScriptLock: () => ({
+  tryLock: () => { held = true; return true; },
+  hasLock: () => held,
+  releaseLock: () => { held = false; }
+}) };
+const createBuckets = Object.fromEntries(Object.keys(schema).map(name => [name, []]));
+createBuckets.master.push({ SPK: 'A26.001' });
+assert.throws(
+  () => context.commitDatabaseV2Candidates_(createBuckets, ['A26.001'], 'TEST', { createOnly: true }),
+  /SPK sudah ada/
+);
+assert.equal(writes, 0, 'the independent live guard must reject a stale master plan before writing');
+assert.equal(held, false);
+context.Sheets = undefined;
+assert.throws(
+  () => context.assertDatabaseV2CreateOnlyKeysAvailable_(book, ['D26.001']),
+  /penulisan dibatalkan/
+);
 console.log('PASS: reordered headers, zero values, normalized IDs, routing order, native validation authority, missing SPK, references, duplicates, required fields');

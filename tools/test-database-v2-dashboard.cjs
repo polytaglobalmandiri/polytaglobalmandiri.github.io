@@ -18,7 +18,7 @@ context.readDatabaseV2Table_ = name => ({ records: ({
     Customer: 'CUSTOMER', Artikel: 'ITEM', 'Ukuran Blow': '50 X 0.03',
     'Ukuran Jadi': '10 X 20 X 0.03', Material: 'HDPE', 'Jumlah Order': 1000,
     'UOM Order': 'PCS', 'PCS/KG': 100, 'Keluar Bahan': 12, 'UOM KB': 'KG',
-    'Total BS': 0.02, Release: 'Tidak', Tracking: 'BL'
+    'Total BS': 0.02, Release: 'Tidak', Tracking: 'Q'
   }],
   routing: [{ SPK: 'A26.001', Urutan: 1, 'Kode Proses': 'cutting', 'Payload JSON': '{"values":{"finishing":"BOTTOM SEAL"}}' }],
   tracking: [{ SPK: 'A26.001', 'Kode Status': 'PR' }]

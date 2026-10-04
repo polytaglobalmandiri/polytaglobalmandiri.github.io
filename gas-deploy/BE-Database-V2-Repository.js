@@ -261,6 +261,54 @@ function getDatabaseV2SpkDirectory_() {
   };
 }
 
+// Baca langsung dari Sheets API pada saat lock transaksi sudah dipegang.
+// Snapshot SpreadsheetApp dapat tertinggal ketika batch ekstraksi bertumpang tindih.
+function readDatabaseV2MasterKeysFresh_(spreadsheet) {
+  if (typeof Sheets === 'undefined' || !Sheets.Spreadsheets ||
+      !Sheets.Spreadsheets.Values || !Sheets.Spreadsheets.Values.get) {
+    throw new Error('Pemeriksaan ID SPK langsung tidak tersedia; penulisan dibatalkan.');
+  }
+  const master = openDatabaseV2Table_('master', spreadsheet);
+  let column = master.columns.SPK;
+  let letter = '';
+  while (column > 0) {
+    column--;
+    letter = String.fromCharCode(65 + column % 26) + letter;
+    column = Math.floor(column / 26);
+  }
+  const sheetName = "'" + master.schema.sheet.replace(/'/g, "''") + "'!";
+  const range = sheetName + letter + (master.headerRow + 1) + ':' + letter;
+  const response = Sheets.Spreadsheets.Values.get(DB_SPREADSHEET_ID, range, {
+    valueRenderOption: 'FORMATTED_VALUE'
+  });
+  // Sheets API menghilangkan values saat range benar-benar kosong.
+  if (!response || !response.range ||
+      (response.values !== undefined && !Array.isArray(response.values))) {
+    throw new Error('Pemeriksaan ID SPK langsung gagal; penulisan dibatalkan.');
+  }
+  const existing = Object.create(null);
+  const keys = [];
+  (response.values || []).forEach(function(row) {
+    const key = normalizeDatabaseV2Key_(row && row[0]);
+    if (!key) return;
+    if (existing[key]) throw new Error('SPK Master sudah memiliki ID duplikat: ' + key);
+    existing[key] = true;
+    keys.push(key);
+  });
+  return keys;
+}
+
+function assertDatabaseV2CreateOnlyKeysAvailable_(spreadsheet, spks) {
+  const existing = readDatabaseV2MasterKeysFresh_(spreadsheet).reduce(function(index, key) {
+    index[key] = true;
+    return index;
+  }, Object.create(null));
+  const overlap = spks.filter(function(spk) { return existing[spk]; });
+  if (overlap.length) {
+    throw new Error('SPK sudah ada; mode create-only membatalkan penulisan: ' + overlap.join(', '));
+  }
+}
+
 function commitDatabaseV2Candidates_(candidates, managedSpks, reason, options) {
   const settings = options && typeof options === 'object' ? options : {};
   const buckets = candidates && typeof candidates === 'object' ? candidates : {};
@@ -283,8 +331,8 @@ function commitDatabaseV2Candidates_(candidates, managedSpks, reason, options) {
     if (candidateSpks.indexOf(spk) === -1) throw new Error('Transaksi tidak mempunyai kandidat untuk SPK ' + spk + '.');
   });
 
-  const lock = LockService.getScriptLock();
-  const ownsLock = !settings.lockHeld;
+  const lock = settings.lock || LockService.getScriptLock();
+  const ownsLock = !settings.lock;
   if (ownsLock && !lock.tryLock(45000)) throw new Error('Database V2 sedang dipakai transaksi lain.');
   if (!ownsLock && !lock.hasLock()) throw new Error('Commit internal V2 membutuhkan lock aktif.');
   const transactionId = Utilities.getUuid();
@@ -300,6 +348,7 @@ function commitDatabaseV2Candidates_(candidates, managedSpks, reason, options) {
       conflicts.push('SPK sudah dibuat transaksi lain; mode create-only membatalkan penimpaan.');
     }
     if (conflicts.length) throw new Error('Konflik commit native V2: ' + conflicts.join(' | '));
+    if (settings.createOnly) assertDatabaseV2CreateOnlyKeysAvailable_(spreadsheet, spks);
     plans.forEach(applyDatabaseV2NativeWritePlan_);
     SpreadsheetApp.flush();
     const result = {
@@ -486,7 +535,7 @@ function mutateDatabaseV2Spk_(spk, reason, mutator) {
       databaseV2AggregateToCandidates_(aggregate),
       [key],
       reason,
-      { lockHeld: true }
+      { lock: lock }
     );
     result.changed = true;
     return result;

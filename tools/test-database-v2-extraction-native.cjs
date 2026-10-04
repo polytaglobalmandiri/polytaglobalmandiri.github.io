@@ -102,7 +102,19 @@ assert.deepEqual(
 );
 let committedExtraction;
 context.getDatabaseV2SpkDirectory_ = () => ({ spks: [] });
+context.DB_SPREADSHEET_ID = 'test';
+context.SpreadsheetApp = { openById: () => ({}) };
+let liveMasterKeys = [];
+context.readDatabaseV2MasterKeysFresh_ = () => liveMasterKeys.slice();
+let lockHeld = false;
+context.LockService = { getScriptLock: () => ({
+  tryLock: () => { assert.equal(lockHeld, false); lockHeld = true; return true; },
+  hasLock: () => lockHeld,
+  releaseLock: () => { lockHeld = false; }
+}) };
 context.commitDatabaseV2Candidates_ = (candidates, spks, reason, options) => {
+  assert.equal(lockHeld, true, 'the fresh read and commit must share one lock');
+  assert.equal(options.lock.hasLock(), true, 'commit must receive the acquired lock object');
   committedExtraction = { candidates, spks, reason, options };
   return { status: 'COMMITTED', targets: [{ verifiedWrites: 6 }] };
 };
@@ -114,6 +126,32 @@ assert.equal(flushed.databaseV2.accuracyStatus, 'VERIFIED');
 assert.equal(committedExtraction.reason, 'EXTRACTION_IMPORT_NATIVE');
 assert.equal(committedExtraction.options.createOnly, true);
 assert.equal(extractionIndex.get('A26.9001'), true);
+assert.equal(lockHeld, false);
+liveMasterKeys = ['A26.9001'];
+committedExtraction = null;
+const overlappingBatch = context.flushExtractionRecords_([extractionRecord], new Map());
+assert.equal(overlappingBatch.created, 0);
+assert.equal(overlappingBatch.skipped, 1);
+assert.equal(committedExtraction, null, 'an overlapping resume must not write the SPK again');
+assert.equal(lockHeld, false);
+const nextExtractionRecord = Object.assign({}, extractionRecord, {
+  spk: 'A26.9002', core: ['A26.9002'].concat(extractionRecord.core.slice(1))
+});
+const mixedBatch = context.flushExtractionRecords_(
+  [extractionRecord, nextExtractionRecord], new Map()
+);
+assert.equal(mixedBatch.created, 1);
+assert.equal(mixedBatch.skipped, 1);
+assert.deepEqual(Array.from(committedExtraction.spks), ['A26.9002']);
+assert.equal(lockHeld, false);
+liveMasterKeys = [];
+const repeatedInOneBatch = context.flushExtractionRecords_(
+  [extractionRecord, extractionRecord], new Map()
+);
+assert.equal(repeatedInOneBatch.created, 1);
+assert.equal(repeatedInOneBatch.skipped, 1);
+assert.deepEqual(Array.from(committedExtraction.spks), ['A26.9001']);
+assert.equal(lockHeld, false);
 let mutated;
 context.mutateDatabaseV2Spk_ = (spk, reason, fn) => {
   mutated = {
@@ -232,8 +270,10 @@ assert.throws(() => context.normalizeDatabaseV2EtaSchedule_({
   entries: [{}, { eta: '2026-10-02', qty: 1, uom: 'KG' }, {}, {}, {}]
 }), /melompati/);
 context.mutateDatabaseV2Spk_ = (spk, reason, fn) => ({ status: 'COMMITTED', changed: fn(editAggregate) });
+editAggregate.master['Keluar Bahan'] = '';
+editAggregate.master['UOM KB'] = '';
 const materialUpdate = context.updateKeluarBahanByManager({ spk: 'A26.9001', keluarBahan: 75, uomKB: 'KG' });
-assert.equal(materialUpdate.status, 'success');
+assert.equal(materialUpdate.status, 'success', materialUpdate.message);
 assert.equal(editAggregate.master['Keluar Bahan'], 75);
 assert.equal(materialUpdate.data.rowNumber, 0);
 console.log('PASS: extraction maps directly to native master, routing, material, color, and delivery records');

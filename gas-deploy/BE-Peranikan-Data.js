@@ -2575,14 +2575,17 @@ function backfillDatabaseV2FromExtraction_(
 
 function flushExtractionRecords_(records, existingRowMap) {
   const newRecords = [];
+  const seen = Object.create(null);
   let skipped = 0;
 
   records.forEach(function(record) {
-    if (existingRowMap.has(record.spk)) {
+    const spk = normalizeDatabaseV2Key_(record.spk);
+    if (existingRowMap.has(spk) || seen[spk]) {
       skipped++;
       return;
     }
 
+    seen[spk] = true;
     newRecords.push(record);
   });
 
@@ -2590,12 +2593,17 @@ function flushExtractionRecords_(records, existingRowMap) {
     return { created: 0, updated: 0, skipped: skipped };
   }
 
-  const terbaru = getDatabaseV2SpkDirectory_().spks.reduce(function(index, spk) {
-    index[spk] = true;
-    return index;
-  }, Object.create(null));
-  const layakTulis = [];
-
+  // Cek ulang SPK dan commit di bawah lock yang sama. Dua permintaan resume
+  // dapat membawa snapshot awal yang sama; hanya satu yang boleh menulis.
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(45000)) throw new Error('Database V2 sedang dipakai transaksi lain.');
+  try {
+    const spreadsheet = SpreadsheetApp.openById(DB_SPREADSHEET_ID);
+    const terbaru = readDatabaseV2MasterKeysFresh_(spreadsheet).reduce(function(index, spk) {
+      index[spk] = true;
+      return index;
+    }, Object.create(null));
+    const layakTulis = [];
     newRecords.forEach(function(record) {
       const barisAda = terbaru[record.spk];
       if (barisAda) {
@@ -2621,7 +2629,7 @@ function flushExtractionRecords_(records, existingRowMap) {
     });
     const nativeWrite = commitDatabaseV2Candidates_(candidates, layakTulis.map(function(record) {
       return record.spk;
-    }), 'EXTRACTION_IMPORT_NATIVE', { createOnly: true });
+    }), 'EXTRACTION_IMPORT_NATIVE', { createOnly: true, lock: lock });
     nativeWrite.warnings = warnings;
 
     layakTulis.forEach(function(record, index) {
@@ -2634,6 +2642,9 @@ function flushExtractionRecords_(records, existingRowMap) {
       skipped: skipped,
       databaseV2: summarizeExtractionDatabaseV2_(nativeWrite, layakTulis.length)
     };
+  } finally {
+    if (lock.hasLock()) lock.releaseLock();
+  }
 }
 
 function summarizeExtractionDatabaseV2_(nativeWrite, requestedSpks) {

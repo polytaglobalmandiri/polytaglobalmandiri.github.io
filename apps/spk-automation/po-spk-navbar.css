@@ -116,6 +116,7 @@ body[data-page="dashboard"] .spk-app-footer-inner { font-size: 10.24px; }
   body[data-page="dashboard"] .spk-simple-header .po-header-actions .po-menu-link > span { display: none !important; }
   body[data-page="dashboard"] .topbar .brand-subtitle { display: none !important; }
 }
-@media (max-width: 480px) {
-  body[data-page="dashboard"] .pgm-auth-bar--navbar .pgm-auth-panel { right: -15px; }
+body[data-page="dashboard"] .pgm-auth-bar--navbar .pgm-auth-panel {
+  right: 0;
+  left: auto;
 }

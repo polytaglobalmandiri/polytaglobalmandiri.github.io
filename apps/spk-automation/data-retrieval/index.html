@@ -795,39 +795,52 @@
       display: grid;
       place-items: center;
       border: 1px solid #a0a3a5;
+      border-bottom-color: #777b7e;
       border-radius: 50%;
       background: linear-gradient(180deg, #fdfdfa, #e3e4e0);
-      box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgba(0,0,0,.1);
+      box-shadow: inset 0 1px 0 #fff, 0 2px 0 #85898b, 0 3px 5px rgba(0,0,0,.12);
       cursor: pointer;
+      transition: filter .15s ease, transform .15s ease;
     }
 
-    .source-file-item.is-selected .source-file-select { border-color: #a52626; }
+    .source-file-select:hover:not(:has(input:disabled)) { filter: brightness(1.05); }
+    .source-file-select:active:not(:has(input:disabled)) { transform: translateY(1px); }
+    .source-file-item.is-selected .source-file-select {
+      border-color: #a52626;
+      background: linear-gradient(180deg, #f6dbdb, #e9bcbc);
+      box-shadow: inset 0 2px 4px rgba(104,19,19,.2), 0 1px 0 #8b2020;
+    }
     .source-file-select:has(input:disabled) { opacity: .55; cursor: not-allowed; }
 
     .source-file-checkbox,
-    .source-selection-all input {
-      width: 15px;
-      height: 15px;
+    .source-selection-all input,
+    .mode-toggle input {
+      width: 16px;
+      height: 16px;
       margin: 0;
       appearance: none;
       display: grid;
       place-items: center;
-      border: 1.5px solid #858b8d;
+      border: 1px solid #868b8e;
+      border-bottom-color: #62696c;
       border-radius: 50%;
-      background: #fff;
-      box-shadow: inset 0 1px 2px rgba(0,0,0,.12);
+      background: linear-gradient(180deg, #fff, #d9dcdb);
+      box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgba(0,0,0,.16);
       cursor: pointer;
     }
 
     .source-file-checkbox:checked,
     .source-selection-all input:checked,
-    .source-selection-all input:indeterminate {
+    .source-selection-all input:indeterminate,
+    .mode-toggle input:checked {
       border-color: #9e2020;
       background: linear-gradient(180deg, #df4444, #a71c1c);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 1px 2px rgba(94,10,10,.25);
     }
 
     .source-file-checkbox:checked::after,
-    .source-selection-all input:checked::after {
+    .source-selection-all input:checked::after,
+    .mode-toggle input:checked::after {
       content: '';
       width: 7px;
       height: 4px;
@@ -845,7 +858,8 @@
     }
 
     .source-file-checkbox:focus-visible,
-    .source-selection-all input:focus-visible {
+    .source-selection-all input:focus-visible,
+    .mode-toggle input:focus-visible {
       outline: 2px solid #a52626;
       outline-offset: 2px;
     }
@@ -868,18 +882,50 @@
     }
 
     .source-selection-all {
+      min-height: 28px;
+      margin-left: auto;
+      padding: 4px 8px;
       display: inline-flex;
       align-items: center;
       gap: 8px;
+      border: 1px solid #a0a3a5;
+      border-bottom-color: #777b7e;
+      border-radius: 8px;
+      background: linear-gradient(180deg, #fff, #e0e2de);
       color: #3f444a;
-      font-size: .61rem;
+      box-shadow: inset 0 1px 0 #fff, 0 2px 0 #85898b;
+      font-size: .59rem;
       font-weight: 800;
       cursor: pointer;
+      transition: filter .15s ease, transform .15s ease;
     }
 
+    .source-selection-all:hover:not(:has(input:disabled)) { filter: brightness(1.04); }
+    .source-selection-all:active:not(:has(input:disabled)) { transform: translateY(1px); }
+    .source-selection-all:has(input:checked),
+    .source-selection-all:has(input:indeterminate) {
+      border-color: #a52626;
+      background: linear-gradient(180deg, #f7e1e1, #ebc8c8);
+      box-shadow: inset 0 2px 3px rgba(104,19,19,.15), 0 1px 0 #8b2020;
+    }
     .source-selection-all input:disabled { cursor: not-allowed; }
     .source-selection-all:has(input:disabled) { opacity: .5; cursor: not-allowed; }
-    .source-selection-count { margin-left: auto; color: #62686d; font-size: .58rem; font-weight: 750; white-space: nowrap; }
+    .source-selection-count {
+      padding: 4px 8px;
+      border: 1px solid #b7babc;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #fff, #e2e4e1);
+      color: #62686d;
+      box-shadow: inset 0 1px 0 #fff;
+      font-size: .58rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .source-selection-toolbar.has-selection .source-selection-count {
+      border-color: #b97b7b;
+      background: linear-gradient(180deg, #fff3f3, #efd7d7);
+      color: #8e1e1e;
+    }
 
     .source-file-icon {
       width: 32px;
@@ -1044,12 +1090,12 @@
     }
 
     .mode-toggle input {
-      margin-top: 2px;
-      width: 15px;
-      height: 15px;
-      flex: none;
-      accent-color: #8b1111;
-      cursor: pointer;
+      width: 21px;
+      height: 21px;
+      flex: 0 0 21px;
+      margin-top: 1px;
+      border-color: #a28657;
+      box-shadow: inset 0 1px 0 #fff, 0 2px 0 #a78959, 0 3px 4px rgba(82,54,11,.14);
     }
 
     .mode-toggle strong {
@@ -2463,11 +2509,11 @@
         const selectionToolbar = document.createElement('div');
         selectionToolbar.className = 'source-selection-toolbar';
         selectionToolbar.innerHTML =
+          '<span class="source-selection-count" aria-live="polite">0 dipilih</span>' +
           '<label class="source-selection-all" title="Pilih berkas yang tampil dan dapat ditarik">' +
-            '<input class="select-visible-files" type="checkbox" aria-label="Pilih semua berkas yang tampil">' +
             '<span>Pilih semua</span>' +
-          '</label>' +
-          '<span class="source-selection-count" aria-live="polite">0 dipilih</span>';
+            '<input class="select-visible-files" type="checkbox" aria-label="Pilih semua berkas yang tampil">' +
+          '</label>';
         selectionToolbar.querySelector('.select-visible-files').addEventListener('change', event => {
           if (event.target.checked) {
             fileSection.querySelectorAll('.source-file-item:not(.hidden) .source-file-checkbox:not(:disabled)').forEach(checkbox => {
@@ -2678,6 +2724,7 @@
       selectAll.disabled = busy || visibleCheckboxes.length === 0;
       selectAll.checked = visibleCheckboxes.length > 0 && visibleSelected === visibleCheckboxes.length;
       selectAll.indeterminate = visibleSelected > 0 && visibleSelected < visibleCheckboxes.length;
+      selectionToolbar.classList.toggle('has-selection', selectedExtractionFileIds.size > 0);
       selectionToolbar.querySelector('.source-selection-count').textContent =
         selectedExtractionFileIds.size + ' dipilih';
     }

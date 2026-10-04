@@ -71,5 +71,7 @@ for (const path of [
   assert.doesNotMatch(html, /clear-selected-files|Kosongkan pilihan/);
   assert.doesNotMatch(html, /className = 'source-file-action'|ekstrakDataFile\(/);
   assert.match(html, /item\.appendChild\(copy\);\s*item\.appendChild\(selectControl\);/);
+  assert.match(html, /'<span class="source-selection-count"[^\n]+\+\s*'<label class="source-selection-all"/);
+  assert.match(html, /\.source-selection-all input,\s*\.mode-toggle input/);
 }
 console.log('PASS: selected files, large selections, job cleanup, and both interfaces');

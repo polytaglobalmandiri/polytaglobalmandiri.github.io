@@ -69,5 +69,7 @@ for (const path of [
   assert.match(html, /selectedExtractionFileIds\.size/);
   assert.match(html, /selectedIds \|\| safeFileId \|\| null/);
   assert.doesNotMatch(html, /clear-selected-files|Kosongkan pilihan/);
+  assert.doesNotMatch(html, /className = 'source-file-action'|ekstrakDataFile\(/);
+  assert.match(html, /item\.appendChild\(copy\);\s*item\.appendChild\(selectControl\);/);
 }
 console.log('PASS: selected files, large selections, job cleanup, and both interfaces');

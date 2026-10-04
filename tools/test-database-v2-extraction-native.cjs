@@ -11,6 +11,16 @@ const context = vm.createContext({ console });
   'BE-Peranikan-Data.js'
 ].forEach(name => vm.runInContext(fs.readFileSync('gas-deploy/' + name, 'utf8'), context));
 
+assert.equal(context.normalizeSourceSpk_('A26.098 PLASTIK.xlsx'), 'A26.098');
+assert.equal(context.normalizeSourceSpk_('A26.098 B PLASTIK.xlsx'), 'A26.098B');
+assert.equal(context.normalizeSourceSpk_('A26.098B PLASTIK.xlsx'), 'A26.098B');
+assert.equal(context.normalizeSourceSpk_('A26.098 C PLASTIK.xlsx'), 'A26.098C');
+assert.equal(context.normalizeSourceSpk_('A26.098 D PLASTIK.xlsx'), 'A26.098D');
+assert.equal(context.normalizeDatabaseV2Key_(' a26.098 b '), 'A26.098B');
+assert.deepEqual(Array.from(context.findDuplicateSourceSpks_([
+  { spkHint: 'A26.098' }, { spkHint: 'A26.098B' }
+])), []);
+
 const orderComposition = new Array(28).fill('');
 orderComposition.splice(0, 6, 1000, 'PCS', 25, 'KG', 5, '2026-09-30');
 // AX:AZ = material, kg, percent; BA:BC = material, kg, percent.
@@ -151,6 +161,17 @@ const repeatedInOneBatch = context.flushExtractionRecords_(
 assert.equal(repeatedInOneBatch.created, 1);
 assert.equal(repeatedInOneBatch.skipped, 1);
 assert.deepEqual(Array.from(committedExtraction.spks), ['A26.9001']);
+assert.equal(lockHeld, false);
+liveMasterKeys = ['A26.098'];
+const additionalOrder = Object.assign({}, extractionRecord, {
+  spk: 'A26.098 B', core: ['A26.098 B'].concat(extractionRecord.core.slice(1))
+});
+const additionalResult = context.flushExtractionRecords_(
+  [additionalOrder], new Map([['A26.098', true]])
+);
+assert.equal(additionalResult.created, 1, 'additional order must be imported beside its base SPK');
+assert.deepEqual(Array.from(committedExtraction.spks), ['A26.098B']);
+assert.equal(committedExtraction.candidates.master[0].SPK, 'A26.098B');
 assert.equal(lockHeld, false);
 let mutated;
 context.mutateDatabaseV2Spk_ = (spk, reason, fn) => {

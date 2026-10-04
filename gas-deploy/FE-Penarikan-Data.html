@@ -2450,7 +2450,7 @@
         const statusOptions = [
           { value: 'all', label: 'Semua', count: sourceFiles.length },
           { value: 'pending', label: 'Belum ditarik', count: pendingCount },
-          { value: 'saved', label: 'Sudah ditarik', count: savedCount }
+          { value: 'saved', label: 'Sudah tersimpan', count: savedCount }
         ];
 
         statusOptions.forEach((option, index) => {
@@ -2530,7 +2530,8 @@
 
           const type = document.createElement('span');
           type.className = 'source-file-type';
-          type.textContent = getSourceFileTypeLabel_(file.mimeType);
+          type.textContent = getSourceFileTypeLabel_(file.mimeType) +
+            (file.spk ? ' · SPK ' + file.spk : '');
 
           const meta = document.createElement('span');
           meta.className = 'source-file-meta';
@@ -2542,7 +2543,7 @@
             status.classList.add('is-saved');
             status.innerHTML =
               '<i class="fa-solid fa-check" aria-hidden="true"></i>' +
-              '<span>Sudah ditarik</span>';
+              '<span>Sudah tersimpan</span>';
           } else if (file.inDatabase === false) {
             status.classList.add('is-pending');
             status.innerHTML =
@@ -2566,14 +2567,14 @@
           action.className = 'source-file-action';
           action.dataset.inDatabase = file.inDatabase === true ? 'true' : 'false';
           action.title = file.inDatabase === true
-            ? 'SPK ini sudah tersedia di Database'
+            ? 'SPK ' + file.spk + ' sudah tersimpan di Database'
             : 'Tarik data hanya dari ' + file.name;
           action.disabled = Boolean(currentExtractionJobId) ||
             (isBackfillMode_() ? file.inDatabase !== true : file.inDatabase === true);
           action.innerHTML = file.inDatabase === true
             ? (
               '<i class="fa-solid fa-database" aria-hidden="true"></i>' +
-              '<span>Sudah ada</span>'
+              '<span>Tersimpan</span>'
             )
             : (
               '<i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i>' +
@@ -2687,10 +2688,10 @@
             '<i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>' +
             '<span>Lengkapi</span>';
         } else if (inDatabase) {
-          button.title = 'SPK ini sudah tersedia di Database';
+          button.title = 'SPK ini sudah tersimpan di Database';
           button.innerHTML =
             '<i class="fa-solid fa-database" aria-hidden="true"></i>' +
-            '<span>Sudah ada</span>';
+            '<span>Tersimpan</span>';
         } else {
           button.title = 'Tarik data hanya dari file ini';
           button.innerHTML =
@@ -2727,7 +2728,7 @@
       if (created || skipped || errors) {
         caption +=
           ' · Baru ' + created +
-          ' · Dilewati ' + skipped +
+          ' · ' + (isBackfillMode_() ? 'Dilewati ' : 'Sudah tersimpan ') + skipped +
           (errors ? ' · Gagal ' + errors : '');
       }
 
@@ -3196,7 +3197,7 @@
               <strong class="extraction-report-stat-value">${created}</strong>
             </div>
             <div class="extraction-report-stat">
-              <span class="extraction-report-stat-label">Dilewati</span>
+              <span class="extraction-report-stat-label">${isBackfillMode_() ? 'Dilewati' : 'Sudah tersimpan'}</span>
               <strong class="extraction-report-stat-value">${skipped}</strong>
             </div>
             <div class="extraction-report-stat is-error">
@@ -3208,6 +3209,10 @@
               <strong class="extraction-report-stat-value">${warningCount}</strong>
             </div>
           </div>
+
+          ${skipped > 0 && !isBackfillMode_()
+            ? '<p class="extraction-report-meta">SPK yang sudah tersimpan tidak diimpor ulang. Nomor tambahan seperti A26.098B dihitung terpisah dari A26.098.</p>'
+            : ''}
 
           ${errorSection}
           ${warningSection}

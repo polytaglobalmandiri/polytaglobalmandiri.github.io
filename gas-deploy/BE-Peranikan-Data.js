@@ -2605,9 +2605,10 @@ function flushExtractionRecords_(records, existingRowMap) {
     }, Object.create(null));
     const layakTulis = [];
     newRecords.forEach(function(record) {
-      const barisAda = terbaru[record.spk];
+      const spk = normalizeDatabaseV2Key_(record.spk);
+      const barisAda = terbaru[spk];
       if (barisAda) {
-        existingRowMap.set(record.spk, true);
+        existingRowMap.set(spk, true);
         skipped++;
         return;
       }
@@ -2628,12 +2629,12 @@ function flushExtractionRecords_(records, existingRowMap) {
       warnings.push.apply(warnings, built.warnings);
     });
     const nativeWrite = commitDatabaseV2Candidates_(candidates, layakTulis.map(function(record) {
-      return record.spk;
+      return normalizeDatabaseV2Key_(record.spk);
     }), 'EXTRACTION_IMPORT_NATIVE', { createOnly: true, lock: lock });
     nativeWrite.warnings = warnings;
 
-    layakTulis.forEach(function(record, index) {
-      existingRowMap.set(record.spk, true);
+    layakTulis.forEach(function(record) {
+      existingRowMap.set(normalizeDatabaseV2Key_(record.spk), true);
     });
 
     return {
@@ -3320,12 +3321,12 @@ function extractData(targetFolderId, jobId, resumeIndex, resumeStats, targetFile
       message = countCreated > 0
         ? (
           'Penarikan selesai: ' + countCreated + ' SPK baru ditambahkan dan ' +
-          countSkipped + ' file dilewati karena SPK sudah ada. ' +
+          countSkipped + ' file sudah tersimpan sebelumnya. ' +
           'Data ditempatkan dan diverifikasi pada tabel Database V2.'
         )
         : (
           'Penarikan selesai: tidak ada SPK baru. ' +
-          countSkipped + ' file dilewati karena SPK sudah ada; data lama tidak diubah.'
+          countSkipped + ' file sudah tersimpan sebelumnya; data lama tidak diubah.'
         );
     }
 
@@ -3436,7 +3437,7 @@ function extractData(targetFolderId, jobId, resumeIndex, resumeStats, targetFile
           : (
             countCreated > 0
               ? 'SPK baru berhasil ditambahkan dan Database sudah diurutkan.'
-              : 'Tidak ada SPK baru; data yang sudah ada dilewati tanpa perubahan.'
+              : 'Tidak ada SPK baru; data yang sudah tersimpan tidak diimpor ulang.'
           ),
       nextIndex: processedFiles,
       resumeStats: paused ? finalResumeStats : null,

@@ -422,7 +422,10 @@ function normalizeDatabaseV2Header_(value) {
 }
 
 function normalizeDatabaseV2Key_(value) {
-  return String(value == null ? '' : value).trim().toUpperCase();
+  return String(value == null ? '' : value)
+    .trim()
+    .toUpperCase()
+    .replace(/([A-Z]\d{2}\.\d{3})\s+([B-Z])$/, '$1$2');
 }
 
 function uniqueDatabaseV2Values_(values) {

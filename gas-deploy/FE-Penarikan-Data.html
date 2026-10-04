@@ -767,30 +767,53 @@
     }
 
     .source-selection-toolbar {
-      margin: 0 0 9px;
+      margin: 0 0 8px;
+      padding: 7px 10px;
       display: flex;
       align-items: center;
       flex-wrap: wrap;
-      gap: 6px 9px;
+      gap: 6px 12px;
+      border: 1px solid #a8aaab;
+      border-radius: 8px;
+      background: linear-gradient(180deg, #f8f8f5, #e6e7e3);
+      box-shadow: inset 0 1px 0 #fff;
     }
 
-    .source-selection-button {
-      min-height: 28px;
-      padding: 4px 9px;
-      border: 1px solid #999da0;
-      border-bottom-color: #777b7e;
-      border-radius: 7px;
-      background: linear-gradient(180deg, #fff, #dedfdb);
-      color: #373b3f;
-      box-shadow: inset 0 1px 0 #fff, 0 2px 0 #8c8f91;
-      font: inherit;
-      font-size: .57rem;
+    .source-selection-all {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #3f444a;
+      font-size: .61rem;
       font-weight: 800;
       cursor: pointer;
     }
 
-    .source-selection-button:disabled { opacity: .5; cursor: not-allowed; }
-    .source-selection-count { color: #62686d; font-size: .58rem; font-weight: 750; }
+    .source-selection-all input {
+      width: 17px;
+      height: 17px;
+      margin: 0 2px 0 0;
+      accent-color: #b92323;
+      cursor: pointer;
+    }
+
+    .source-selection-all input:disabled { cursor: not-allowed; }
+    .source-selection-all:has(input:disabled) { opacity: .5; cursor: not-allowed; }
+    .source-selection-details { margin-left: auto; display: inline-flex; align-items: center; gap: 10px; }
+    .source-selection-count { color: #62686d; font-size: .58rem; font-weight: 750; white-space: nowrap; }
+    .source-selection-clear {
+      padding: 2px 0;
+      border: 0;
+      background: none;
+      color: #a52222;
+      font: inherit;
+      font-size: .58rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .source-selection-clear:hover { text-decoration: underline; }
+    .source-selection-clear:disabled { opacity: .5; cursor: not-allowed; }
+    .source-selection-clear[hidden] { display: none; }
 
     .source-file-icon {
       width: 32px;
@@ -2533,17 +2556,32 @@
 
         fileSection.appendChild(statusFilter);
 
+        if (databaseStatus && databaseStatus.available === false) {
+          const warning = document.createElement('p');
+          warning.className = 'database-status-warning';
+          warning.innerHTML =
+            '<i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>' +
+            '<span>Status Basis Data tidak dapat dibaca. Berkas tetap bisa ditarik dan akan diperiksa saat proses berjalan.</span>';
+          fileSection.appendChild(warning);
+        }
+
         const selectionToolbar = document.createElement('div');
         selectionToolbar.className = 'source-selection-toolbar';
         selectionToolbar.innerHTML =
-          '<button class="source-selection-button select-visible-files" type="button" title="Pilih berkas yang tampil dan dapat ditarik">Pilih semua</button>' +
-          '<button class="source-selection-button clear-selected-files" type="button">Kosongkan pilihan</button>' +
-          '<span class="source-selection-count" aria-live="polite">0 berkas dipilih</span>';
-        selectionToolbar.querySelector('.select-visible-files').addEventListener('click', () => {
+          '<label class="source-selection-all" title="Pilih berkas yang tampil dan dapat ditarik">' +
+            '<input class="select-visible-files" type="checkbox" aria-label="Pilih semua berkas yang tampil">' +
+            '<span>Pilih semua</span>' +
+          '</label>' +
+          '<span class="source-selection-details">' +
+            '<span class="source-selection-count" aria-live="polite">0 dipilih</span>' +
+            '<button class="source-selection-clear clear-selected-files" type="button" hidden>Kosongkan</button>' +
+          '</span>';
+        selectionToolbar.querySelector('.select-visible-files').addEventListener('change', event => {
           fileSection.querySelectorAll('.source-file-item:not(.hidden) .source-file-checkbox:not(:disabled)').forEach(checkbox => {
-            checkbox.checked = true;
-            selectedExtractionFileIds.add(checkbox.value);
-            checkbox.closest('.source-file-item').classList.add('is-selected');
+            checkbox.checked = event.target.checked;
+            if (event.target.checked) selectedExtractionFileIds.add(checkbox.value);
+            else selectedExtractionFileIds.delete(checkbox.value);
+            checkbox.closest('.source-file-item').classList.toggle('is-selected', checkbox.checked);
           });
           syncSelectionToolbar_();
         });
@@ -2556,15 +2594,6 @@
           syncSelectionToolbar_();
         });
         fileSection.appendChild(selectionToolbar);
-
-        if (databaseStatus && databaseStatus.available === false) {
-          const warning = document.createElement('p');
-          warning.className = 'database-status-warning';
-          warning.innerHTML =
-            '<i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>' +
-            '<span>Status Basis Data tidak dapat dibaca. Berkas tetap bisa ditarik dan akan diperiksa saat proses berjalan.</span>';
-          fileSection.appendChild(warning);
-        }
 
         const fileList = document.createElement('div');
         fileList.className = 'source-file-list';
@@ -2770,12 +2799,18 @@
 
       const selectionToolbar = document.querySelector('.source-selection-toolbar');
       if (!selectionToolbar) return;
-      const visibleEligible = selectionToolbar.closest('.directory-section')
-        .querySelectorAll('.source-file-item:not(.hidden) .source-file-checkbox:not(:disabled)').length;
-      selectionToolbar.querySelector('.select-visible-files').disabled = busy || visibleEligible === 0;
-      selectionToolbar.querySelector('.clear-selected-files').disabled = busy || selectedExtractionFileIds.size === 0;
+      const visibleCheckboxes = Array.from(selectionToolbar.closest('.directory-section')
+        .querySelectorAll('.source-file-item:not(.hidden) .source-file-checkbox:not(:disabled)'));
+      const visibleSelected = visibleCheckboxes.filter(checkbox => checkbox.checked).length;
+      const selectAll = selectionToolbar.querySelector('.select-visible-files');
+      selectAll.disabled = busy || visibleCheckboxes.length === 0;
+      selectAll.checked = visibleCheckboxes.length > 0 && visibleSelected === visibleCheckboxes.length;
+      selectAll.indeterminate = visibleSelected > 0 && visibleSelected < visibleCheckboxes.length;
+      const clearButton = selectionToolbar.querySelector('.clear-selected-files');
+      clearButton.hidden = selectedExtractionFileIds.size === 0;
+      clearButton.disabled = busy;
       selectionToolbar.querySelector('.source-selection-count').textContent =
-        selectedExtractionFileIds.size + ' berkas dipilih';
+        selectedExtractionFileIds.size + ' dipilih';
     }
 
     function syncExtractionControls_() {

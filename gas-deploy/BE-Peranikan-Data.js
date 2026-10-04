@@ -1810,7 +1810,7 @@ function classifyExtractionIssue_(message) {
   }
 
   if (normalized.indexOf('sheet') > -1) {
-    return 'Struktur sheet';
+    return 'Format berkas';
   }
 
   return 'Gagal memproses';
@@ -2006,10 +2006,10 @@ function cancelExtractionJob(jobId) {
     const currentProgress = getExtractionProgress(safeJobId) || {};
     updateExtractionProgress_(safeJobId, Object.assign({}, currentProgress, {
       status: 'cancelled',
-      message: 'Penarikan data dibatalkan. Menunggu batch aktif berhenti...'
+      message: 'Menghentikan proses setelah berkas saat ini selesai...'
     }));
 
-    return { status: 'success', message: 'Permintaan pembatalan diterima.' };
+    return { status: 'success', message: 'Proses sedang dihentikan.' };
   } catch (error) {
     return { status: 'error', message: error.message };
   }
@@ -3136,7 +3136,7 @@ function extractData(targetFolderId, jobId, resumeIndex, resumeStats, targetFile
           countWarning++;
           const warningReason =
             'Ditemukan ' + komposisiData.totalFound +
-            ' bahan. Database AX-BS hanya menyimpan sampai Bahan 8.';
+            ' bahan. Hanya 8 bahan pertama yang tersimpan; periksa kembali komposisinya.';
 
           if (detailWarning === '') {
             detailWarning = "File '" + fileName + "' => " + warningReason;
@@ -3304,68 +3304,25 @@ function extractData(targetFolderId, jobId, resumeIndex, resumeStats, targetFile
     else if (countWarning > 0) statusType = 'warning';
     else if (countV2Pending > 0) statusType = 'warning';
 
-    let message;
-    if (effectiveMode === 'backfill') {
-      message = countUpdated > 0
-        ? (
-          'Pelengkapan selesai: ' + countUpdated +
-          ' SPK lama dilengkapi (warna tinta, keterangan artikel, keterangan divisi). ' +
-          countSkipped + ' file dilewati karena tidak ada di Database atau datanya sudah terisi. ' +
-          'Kolom lain dan hasil edit manual tidak disentuh.'
-        )
-        : (
-          'Pelengkapan selesai: tidak ada SPK yang perlu dilengkapi. ' +
-          countSkipped + ' file dilewati.'
-        );
-    } else {
-      message = countCreated > 0
-        ? (
-          'Penarikan selesai: ' + countCreated + ' SPK baru ditambahkan dan ' +
-          countSkipped + ' file sudah tersimpan sebelumnya. ' +
-          'Data ditempatkan dan diverifikasi pada tabel Database V2.'
-        )
-        : (
-          'Penarikan selesai: tidak ada SPK baru. ' +
-          countSkipped + ' file sudah tersimpan sebelumnya; data lama tidak diubah.'
-        );
-    }
-
-    if (countV2Committed > 0) {
-      message +=
-        '\nDatabase V2: ' + countV2Committed +
-        ' SPK ditempatkan dan diverifikasi (' + countV2VerifiedRecords +
-        ' baris terstruktur).';
-    }
-
+    let message = effectiveMode === 'backfill'
+      ? (countUpdated > 0
+          ? 'Data SPK berhasil dilengkapi.'
+          : 'Tidak ada data SPK yang perlu dilengkapi.')
+      : (countCreated > 0
+          ? 'SPK baru berhasil disimpan.'
+          : (countSkipped > 0
+              ? 'SPK sudah tersimpan. Tidak ada data yang diubah.'
+              : 'Tidak ada berkas SPK yang dapat ditarik.'));
     if (countV2Pending > 0) {
-      message +=
-        '\nPERINGATAN DATABASE V2: ' + countV2Pending +
-        ' SPK menunggu sinkronisasi/perbaikan; data utama tetap tersimpan.';
+      message += '\nSebagian data perlu diperiksa sebelum digunakan.';
     }
-
-    if (countWarning > 0) {
-      message +=
-        '\nPERINGATAN ' + countWarning +
-        ' file memerlukan perhatian. Lihat rincian pada laporan.';
+    if (countWarning > 0 || countError > 0) {
+      message += '\nPeriksa rincian berkas yang memerlukan perhatian.';
     }
-
-    if (countError > 0) {
-      message +=
-        '\nGAGAL ' + countError +
-        ' file tidak dapat diproses. Lihat penyebab per file pada laporan.';
-    }
-
     if (cancelledByUser) {
-      const ringkasanBatal = effectiveMode === 'backfill'
-        ? countUpdated + ' SPK sempat dilengkapi'
-        : countCreated + ' SPK baru sempat ditambahkan';
-      message = 'Penarikan dibatalkan oleh pengguna. ' + ringkasanBatal +
-        ' dan ' + countSkipped + ' file dilewati sebelum pembatalan. ' +
-        'File yang belum diproses tidak diubah.';
-    }
-
-    if (paused) {
-      message += '\n\nProses dilanjutkan otomatis pada batch berikutnya.';
+      message = 'Penarikan dibatalkan. Data yang sudah tersimpan tetap tersedia.';
+    } else if (paused) {
+      message += '\nProses akan dilanjutkan otomatis.';
     }
 
     const finalResumeStats = {
@@ -3389,6 +3346,8 @@ function extractData(targetFolderId, jobId, resumeIndex, resumeStats, targetFile
     const result = {
       status: statusType,
       message: message,
+      mode: effectiveMode,
+      cancelled: cancelledByUser,
       created: countCreated,
       updated: countUpdated,
       skipped: countSkipped,
@@ -3436,8 +3395,10 @@ function extractData(targetFolderId, jobId, resumeIndex, resumeStats, targetFile
           ? 'Proses dijeda pada ' + processedFiles + ' dari ' + sourceFiles.length + ' file.'
           : (
             countCreated > 0
-              ? 'SPK baru berhasil ditambahkan dan Database sudah diurutkan.'
-              : 'Tidak ada SPK baru; data yang sudah tersimpan tidak diimpor ulang.'
+              ? 'SPK baru berhasil disimpan.'
+              : (countUpdated > 0
+                  ? 'Data SPK berhasil dilengkapi.'
+                  : 'Tidak ada data yang diubah.')
           ),
       nextIndex: processedFiles,
       resumeStats: paused ? finalResumeStats : null,

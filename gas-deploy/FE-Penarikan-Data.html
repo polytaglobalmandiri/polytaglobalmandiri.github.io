@@ -1173,7 +1173,7 @@
 
     .extraction-report-stats {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
       gap: 8px;
     }
 
@@ -2715,6 +2715,7 @@
       const total = Number(progress.total) || 0;
       const processed = Number(progress.processed) || 0;
       const created = Number(progress.created) || 0;
+      const updated = Number(progress.updated) || 0;
       const skipped = Number(progress.skipped) || 0;
       const errors = Number(progress.errors) || 0;
 
@@ -2724,13 +2725,13 @@
           ? percent + '% · ' + processed + '/' + total
           : percent + '%';
 
-      let caption = progress.message || 'Menyinkronkan data sumber ke Database.';
-      if (created || skipped || errors) {
-        caption +=
-          ' · Baru ' + created +
-          ' · ' + (isBackfillMode_() ? 'Dilewati ' : 'Sudah tersimpan ') + skipped +
-          (errors ? ' · Gagal ' + errors : '');
-      }
+      let caption = getReadableExtractionMessage_(progress.message || 'Memeriksa berkas SPK...');
+      const outcomes = [];
+      if (created) outcomes.push('SPK baru ' + created);
+      if (updated) outcomes.push('Dilengkapi ' + updated);
+      if (skipped) outcomes.push((isBackfillMode_() ? 'Tidak diubah ' : 'Sudah tersimpan ') + skipped);
+      if (errors) outcomes.push('Gagal ' + errors);
+      if (outcomes.length) caption += ' · ' + outcomes.join(' · ');
 
       document.getElementById('progressCaption').textContent = caption;
     }
@@ -2832,11 +2833,12 @@
           processed: result.processed || result.total || 0,
           total: result.total || result.processed || 0,
           created: result.created || 0,
+          updated: result.updated || 0,
           skipped: result.skipped || 0,
           errors: result.errors || 0,
-          message: result.created
-            ? 'SPK baru berhasil ditambahkan dan Database sudah diurutkan.'
-            : 'Tidak ada SPK baru; data lama dilewati tanpa perubahan.'
+          message: result.created || result.updated
+            ? 'Data SPK berhasil disimpan.'
+            : 'Tidak ada data yang diubah.'
         });
       }
     }
@@ -3093,9 +3095,37 @@
         .replace(/'/g, '&#039;');
     }
 
-    function formatReportMessage_(message) {
-      return escapeReportHtml_(message || 'Proses penarikan telah selesai.')
-        .replace(/\n/g, '<br>');
+    function getReadableExtractionMessage_(value) {
+      const message = String(value || '').trim();
+      if (/SPK Master.*duplikat|ID V2.*duplikat/i.test(message)) {
+        return 'Nomor SPK tercatat lebih dari sekali di database. Hubungi admin untuk memeriksanya.';
+      }
+      if (/berbeda dengan F7/i.test(message)) {
+        return 'Nomor SPK pada nama berkas berbeda dengan isi berkas (sel F7). Samakan keduanya lalu coba lagi.';
+      }
+      if (/F7 kosong/i.test(message)) {
+        return 'Nomor SPK di dalam berkas masih kosong (sel F7). Isi nomor lalu coba lagi.';
+      }
+      if (/SPK sudah ada.*create-only/i.test(message)) {
+        return 'SPK ini sudah tersimpan oleh proses lain. Muat ulang daftar berkas.';
+      }
+      if (/Database V2 sedang dipakai|lock aktif|transaksi lain/i.test(message)) {
+        return 'Database sedang digunakan. Coba lagi beberapa saat.';
+      }
+      if (/pemeriksaan ID SPK langsung|Konflik commit native V2/i.test(message)) {
+        return 'Penyimpanan belum berhasil. Muat ulang daftar berkas lalu coba lagi.';
+      }
+      if (/Header V2 tidak valid|Field V2 tidak tersedia|Tabel V2 tidak tersedia/i.test(message)) {
+        return 'Susunan database perlu diperiksa. Hubungi admin sebelum mencoba lagi.';
+      }
+      if (/quota exceeded|service invoked too many times/i.test(message)) {
+        return 'Layanan sedang sibuk. Coba lagi beberapa saat.';
+      }
+      return (message || 'Proses belum berhasil. Coba lagi beberapa saat.')
+        .replace(/Database V2/gi, 'database')
+        .replace(/\bnative V2\b/gi, 'database')
+        .replace(/\bV2\b/gi, '')
+        .replace(/\s{2,}/g, ' ');
     }
 
     function buildExtractionIssueSection_(options) {
@@ -3113,7 +3143,7 @@
         const file = escapeReportHtml_(source.file || 'File tanpa nama');
         const spk = escapeReportHtml_(source.spk || '');
         const category = escapeReportHtml_(source.category || options.fallbackCategory);
-        const reason = escapeReportHtml_(source.reason || 'Penyebab tidak diketahui.');
+        const reason = escapeReportHtml_(getReadableExtractionMessage_(source.reason));
 
         return `
           <article class="extraction-issue-item">
@@ -3139,7 +3169,7 @@
               <i class="fa-solid ${options.icon}" aria-hidden="true"></i>
               ${escapeReportHtml_(options.title)}
             </h3>
-            <span class="extraction-issue-count">${total} file</span>
+            <span class="extraction-issue-count">${total} berkas</span>
           </header>
           ${rows ? `<div class="extraction-issue-list">${rows}</div>` : ''}
           ${undisplayed > 0
@@ -3147,6 +3177,50 @@
             : ''}
         </section>
       `;
+    }
+
+    function getExtractionReportSummary_(result) {
+      const backfill = result.mode === 'backfill' || (!result.mode && isBackfillMode_());
+      const created = Math.max(0, Number(result.created) || 0);
+      const updated = Math.max(0, Number(result.updated) || 0);
+      const skipped = Math.max(0, Number(result.skipped) || 0);
+      const errors = Math.max(0, Number(result.errors) || 0);
+      const warnings = Math.max(0, Number(result.warnings) || 0);
+      const pending = Math.max(0, Number(result.databaseV2 && result.databaseV2.pendingSpks) || 0);
+
+      if (result.status === 'error') {
+        return { title: 'Penarikan belum berhasil', lead: getReadableExtractionMessage_(result.message), backfill: backfill };
+      }
+      if (result.cancelled) {
+        return { title: 'Penarikan dibatalkan', lead: 'Proses dihentikan. Data yang sudah tersimpan tetap tersedia.', backfill: backfill };
+      }
+      if (errors || warnings || pending) {
+        return {
+          title: errors ? 'Penarikan selesai dengan kendala' : 'Penarikan selesai dengan catatan',
+          lead: pending
+            ? pending + ' SPK belum dapat dipastikan lengkap. Periksa data sebelum digunakan.'
+            : 'Periksa rincian berkas yang memerlukan perhatian di bawah.',
+          backfill: backfill
+        };
+      }
+      if (backfill) {
+        if (updated && skipped) {
+          return { title: 'Pelengkapan data selesai', lead: 'Data yang kosong berhasil dilengkapi. Berkas lainnya tidak diubah.', backfill: true };
+        }
+        return updated
+          ? { title: 'Data SPK berhasil dilengkapi', lead: updated + ' SPK berhasil dilengkapi.', backfill: true }
+          : { title: 'Tidak ada data untuk dilengkapi', lead: 'Data SPK yang ada tidak berubah.', backfill: true };
+      }
+      if (created && skipped) {
+        return { title: 'Penarikan data selesai', lead: 'SPK baru disimpan. Berkas yang sudah ada tidak diubah.', backfill: false };
+      }
+      if (created) {
+        return { title: 'SPK berhasil disimpan', lead: created + ' SPK baru tersimpan di database.', backfill: false };
+      }
+      if (skipped) {
+        return { title: 'Tidak ada data baru', lead: skipped + ' berkas sudah tersimpan di database. Data tidak diubah.', backfill: false };
+      }
+      return { title: 'Tidak ada berkas SPK', lead: 'Tidak ada berkas SPK yang dapat ditarik dari direktori ini.', backfill: false };
     }
 
     function buildExtractionReportHtml_(result) {
@@ -3167,11 +3241,31 @@
       );
       const processed = Math.max(0, Number(result.processed) || 0);
       const total = Math.max(processed, Number(result.total) || 0);
+      const summary = getExtractionReportSummary_(result);
+      const pending = Math.max(0, Number(result.databaseV2 && result.databaseV2.pendingSpks) || 0);
+      const stats = [
+        { label: summary.backfill ? 'Dilengkapi' : 'SPK baru', value: summary.backfill ? Math.max(0, Number(result.updated) || 0) : created, kind: 'is-success' },
+        { label: summary.backfill ? 'Tidak diubah' : 'Sudah tersimpan', value: skipped, kind: '' },
+        { label: 'Gagal', value: errorCount, kind: 'is-error' },
+        { label: 'Perlu ditinjau', value: warningCount, kind: 'is-warning' },
+        { label: 'Belum lengkap', value: pending, kind: 'is-warning' }
+      ].filter(function(item) { return item.value > 0; });
+      const showStats = stats.length > 1 || (result.cancelled && stats.length > 0);
+      const statsHtml = showStats
+        ? '<div class="extraction-report-stats" aria-label="Ringkasan penarikan">' +
+            stats.map(function(item) {
+              return '<div class="extraction-report-stat ' + item.kind + '">' +
+                '<span class="extraction-report-stat-label">' + item.label + '</span>' +
+                '<strong class="extraction-report-stat-value">' + item.value + '</strong>' +
+              '</div>';
+            }).join('') +
+          '</div>'
+        : '';
 
       const errorSection = buildExtractionIssueSection_({
         kind: 'error',
         icon: 'fa-circle-xmark',
-        title: 'File gagal diproses',
+        title: 'Berkas gagal diproses',
         fallbackCategory: 'Gagal memproses',
         items: errors,
         omitted: report.omittedErrors,
@@ -3180,7 +3274,7 @@
       const warningSection = buildExtractionIssueSection_({
         kind: 'warning',
         icon: 'fa-triangle-exclamation',
-        title: 'File dengan peringatan',
+        title: 'Berkas perlu ditinjau',
         fallbackCategory: 'Perlu perhatian',
         items: warnings,
         omitted: report.omittedWarnings,
@@ -3189,54 +3283,21 @@
 
       return `
         <div class="extraction-report">
-          <div class="extraction-report-lead">${formatReportMessage_(result.message)}</div>
+          <div class="extraction-report-lead">${escapeReportHtml_(summary.lead)}</div>
 
-          <div class="extraction-report-stats" aria-label="Ringkasan penarikan">
-            <div class="extraction-report-stat is-success">
-              <span class="extraction-report-stat-label">SPK baru</span>
-              <strong class="extraction-report-stat-value">${created}</strong>
-            </div>
-            <div class="extraction-report-stat">
-              <span class="extraction-report-stat-label">${isBackfillMode_() ? 'Dilewati' : 'Sudah tersimpan'}</span>
-              <strong class="extraction-report-stat-value">${skipped}</strong>
-            </div>
-            <div class="extraction-report-stat is-error">
-              <span class="extraction-report-stat-label">Gagal</span>
-              <strong class="extraction-report-stat-value">${errorCount}</strong>
-            </div>
-            <div class="extraction-report-stat is-warning">
-              <span class="extraction-report-stat-label">Peringatan</span>
-              <strong class="extraction-report-stat-value">${warningCount}</strong>
-            </div>
-          </div>
-
-          ${skipped > 0 && !isBackfillMode_()
-            ? '<p class="extraction-report-meta">SPK yang sudah tersimpan tidak diimpor ulang. Nomor tambahan seperti A26.098B dihitung terpisah dari A26.098.</p>'
-            : ''}
+          ${statsHtml}
 
           ${errorSection}
           ${warningSection}
-          ${!errorSection && !warningSection
-            ? `
-              <div class="extraction-report-clean">
-                <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
-                Semua file yang memenuhi syarat selesai diproses tanpa error.
-              </div>
-            `
+          ${result.cancelled && total > 0
+            ? '<p class="extraction-report-meta">' + processed + ' dari ' + total + ' berkas sempat diperiksa.</p>'
             : ''}
-
-          <div class="extraction-report-meta">
-            ${total > 0 ? `${processed} dari ${total} file telah diperiksa` : 'Tidak ada file sumber yang diproses'}
-          </div>
         </div>
       `;
     }
 
     function getExtractionReportTitle_(result) {
-      if (result.status === 'error') return 'Penarikan tidak dapat diselesaikan';
-      if ((Number(result.errors) || 0) > 0) return 'Penarikan selesai dengan error';
-      if ((Number(result.warnings) || 0) > 0) return 'Penarikan selesai dengan catatan';
-      return 'Penarikan data selesai';
+      return getExtractionReportSummary_(result).title;
     }
 
     function handleExtractionResponse(res) {
@@ -3290,16 +3351,16 @@
           fetchFolder(completedFolderId, completedFolderName);
         }
 
-        const icon = res.status === 'success'
-          ? 'success'
-          : (res.status === 'error' ? 'error' : 'warning');
+        const icon = res.cancelled ? 'info'
+          : res.status === 'success' ? 'success'
+          : res.status === 'error' ? 'error' : 'warning';
 
         Swal.fire({
           icon: icon,
           title: getExtractionReportTitle_(res),
           html: buildExtractionReportHtml_(res),
           showCloseButton: true,
-          confirmButtonText: 'Tutup laporan',
+          confirmButtonText: 'Selesai',
           buttonsStyling: false,
           background: '#e2e3e0',
           customClass: {
@@ -3327,7 +3388,7 @@
       Swal.fire({
         icon: 'warning',
         title: 'Batalkan penarikan data?',
-        text: 'Proses berhenti setelah file yang sedang dibaca selesai. Data yang sudah masuk tetap tersimpan; file yang belum diproses tidak diubah.',
+        text: 'Proses akan berhenti setelah berkas saat ini selesai. Data yang sudah tersimpan tetap aman.',
         showCancelButton: true,
         confirmButtonText: 'Ya, batalkan',
         cancelButtonText: 'Lanjutkan proses',
@@ -3366,7 +3427,7 @@
               Swal.fire({
                 icon: 'info',
                 title: 'Penarikan dibatalkan',
-                text: 'Data yang sudah masuk tetap tersimpan. File yang belum diproses tidak diubah.',
+                text: 'Data yang sudah tersimpan tetap tersedia.',
                 confirmButtonColor: '#c92b2b',
                 background: '#e2e3e0',
                 customClass: { popup: 'metal-alert' }
@@ -3417,12 +3478,14 @@
     }
 
     function showError(message) {
-      setConnectionState('Koneksi bermasalah', false);
+      if (/koneksi|network|fetch|timeout|server/i.test(String(message || ''))) {
+        setConnectionState('Koneksi bermasalah', false);
+      }
       syncExtractionControls_();
       Swal.fire({
         icon: 'error',
-        title: 'Kesalahan Sistem',
-        text: message,
+        title: 'Proses belum dapat dilanjutkan',
+        text: getReadableExtractionMessage_(message),
         confirmButtonColor: '#c92b2b',
         background: '#e2e3e0',
         customClass: { popup: 'metal-alert' }

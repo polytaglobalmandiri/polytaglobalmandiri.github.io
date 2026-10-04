@@ -799,21 +799,7 @@
 
     .source-selection-all input:disabled { cursor: not-allowed; }
     .source-selection-all:has(input:disabled) { opacity: .5; cursor: not-allowed; }
-    .source-selection-details { margin-left: auto; display: inline-flex; align-items: center; gap: 10px; }
-    .source-selection-count { color: #62686d; font-size: .58rem; font-weight: 750; white-space: nowrap; }
-    .source-selection-clear {
-      padding: 2px 0;
-      border: 0;
-      background: none;
-      color: #a52222;
-      font: inherit;
-      font-size: .58rem;
-      font-weight: 800;
-      cursor: pointer;
-    }
-    .source-selection-clear:hover { text-decoration: underline; }
-    .source-selection-clear:disabled { opacity: .5; cursor: not-allowed; }
-    .source-selection-clear[hidden] { display: none; }
+    .source-selection-count { margin-left: auto; color: #62686d; font-size: .58rem; font-weight: 750; white-space: nowrap; }
 
     .source-file-icon {
       width: 32px;
@@ -2572,25 +2558,21 @@
             '<input class="select-visible-files" type="checkbox" aria-label="Pilih semua berkas yang tampil">' +
             '<span>Pilih semua</span>' +
           '</label>' +
-          '<span class="source-selection-details">' +
-            '<span class="source-selection-count" aria-live="polite">0 dipilih</span>' +
-            '<button class="source-selection-clear clear-selected-files" type="button" hidden>Kosongkan</button>' +
-          '</span>';
+          '<span class="source-selection-count" aria-live="polite">0 dipilih</span>';
         selectionToolbar.querySelector('.select-visible-files').addEventListener('change', event => {
-          fileSection.querySelectorAll('.source-file-item:not(.hidden) .source-file-checkbox:not(:disabled)').forEach(checkbox => {
-            checkbox.checked = event.target.checked;
-            if (event.target.checked) selectedExtractionFileIds.add(checkbox.value);
-            else selectedExtractionFileIds.delete(checkbox.value);
-            checkbox.closest('.source-file-item').classList.toggle('is-selected', checkbox.checked);
-          });
-          syncSelectionToolbar_();
-        });
-        selectionToolbar.querySelector('.clear-selected-files').addEventListener('click', () => {
-          selectedExtractionFileIds.clear();
-          fileSection.querySelectorAll('.source-file-checkbox').forEach(checkbox => {
-            checkbox.checked = false;
-            checkbox.closest('.source-file-item').classList.remove('is-selected');
-          });
+          if (event.target.checked) {
+            fileSection.querySelectorAll('.source-file-item:not(.hidden) .source-file-checkbox:not(:disabled)').forEach(checkbox => {
+              checkbox.checked = true;
+              selectedExtractionFileIds.add(checkbox.value);
+              checkbox.closest('.source-file-item').classList.add('is-selected');
+            });
+          } else {
+            selectedExtractionFileIds.clear();
+            fileSection.querySelectorAll('.source-file-checkbox').forEach(checkbox => {
+              checkbox.checked = false;
+              checkbox.closest('.source-file-item').classList.remove('is-selected');
+            });
+          }
           syncSelectionToolbar_();
         });
         fileSection.appendChild(selectionToolbar);
@@ -2806,9 +2788,6 @@
       selectAll.disabled = busy || visibleCheckboxes.length === 0;
       selectAll.checked = visibleCheckboxes.length > 0 && visibleSelected === visibleCheckboxes.length;
       selectAll.indeterminate = visibleSelected > 0 && visibleSelected < visibleCheckboxes.length;
-      const clearButton = selectionToolbar.querySelector('.clear-selected-files');
-      clearButton.hidden = selectedExtractionFileIds.size === 0;
-      clearButton.disabled = busy;
       selectionToolbar.querySelector('.source-selection-count').textContent =
         selectedExtractionFileIds.size + ' dipilih';
     }

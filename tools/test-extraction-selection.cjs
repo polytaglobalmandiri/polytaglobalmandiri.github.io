@@ -68,5 +68,6 @@ for (const path of [
   assert.match(html, /Pilih semua/);
   assert.match(html, /selectedExtractionFileIds\.size/);
   assert.match(html, /selectedIds \|\| safeFileId \|\| null/);
+  assert.doesNotMatch(html, /clear-selected-files|Kosongkan pilihan/);
 }
 console.log('PASS: selected files, large selections, job cleanup, and both interfaces');

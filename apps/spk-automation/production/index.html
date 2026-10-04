@@ -1,31 +1,96 @@
 <!doctype html>
-<html lang="id">
+<html lang="id" class="production-page">
 <head>
   <meta charset="utf-8">
   <script src="/assets/js/gas-rpc.js?v=20260926-2"></script>
-  <script src="/assets/js/portal-auth.js?v=20261003-2"></script><meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Produksi Mixer | Polyta</title>
-  <style>
-    :root{font-family:Inter,system-ui,sans-serif;color:#23292a;background:#e8ebe8}*{box-sizing:border-box}body{margin:0}main{max-width:1320px;margin:auto;padding:24px}
-    .top,.panel,.stat{background:#f8f9f7;border:1px solid #c6cbc7;border-radius:12px}.top{padding:20px;display:flex;justify-content:space-between;align-items:center;gap:16px}.top h1{margin:0;font-size:1.5rem}.top p{margin:5px 0 0;color:#68716b;font-size:.82rem}
-    .actions{display:flex;gap:8px;flex-wrap:wrap}.button{border:1px solid #951821;border-radius:7px;background:#ad1a25;color:#fff;padding:8px 12px;font:inherit;font-size:.78rem;font-weight:700;cursor:pointer}.button.secondary{background:#fff;color:#333a36;border-color:#b8c1bb}.button:disabled{opacity:.55;cursor:not-allowed}
-    .message{min-height:38px;padding:10px 0;font-size:.82rem}.message.error{color:#a3141f}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:15px}.stat{padding:14px}.stat small{display:block;color:#6e7671}.stat strong{display:block;margin-top:4px;font-size:1.3rem}
-    .panel{margin-bottom:16px;overflow:hidden}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 16px}.panel-head h2{margin:0;font-size:1rem}.panel-head input{max-width:280px;width:100%;padding:8px;border:1px solid #b9c2bb;border-radius:6px}
-    .table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:900px}th,td{padding:10px 12px;border-top:1px solid #dce0dc;text-align:left;font-size:.76rem}th{background:#303638;color:#fff;text-transform:uppercase;font-size:.69rem}td small{display:block;color:#727b75;margin-top:3px}.pill{border-radius:18px;padding:4px 8px;background:#e9e4c8;color:#665a08;font-size:.68rem;font-weight:700}.pill.verified{background:#d7ebde;color:#1d6534}
-    dialog{width:min(720px,calc(100% - 24px));max-height:90vh;overflow:auto;border:1px solid #bcc5be;border-radius:12px;padding:0;box-shadow:0 25px 65px #0005}dialog::backdrop{background:#18221b99}dialog form{padding:20px}dialog h2{margin:0 0 6px}.hint{color:#69716b;font-size:.78rem;margin:0 0 16px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:grid;gap:5px;font-size:.76rem;font-weight:700}.field.full{grid-column:1/-1}.field input,.field select,.field textarea{padding:9px;border:1px solid #b9c2bb;border-radius:6px;font:inherit;font-weight:400;min-width:0}.field textarea{min-height:58px}.subhead{grid-column:1/-1;margin:10px 0 0;font-size:.85rem}.line{display:grid;grid-template-columns:1.4fr 1fr .8fr .7fr auto;gap:6px;margin-top:6px}.line.down{grid-template-columns:1fr 1fr 1.5fr auto}.line input{min-width:0;padding:7px;border:1px solid #bdc5bf;border-radius:6px}.line button{border:1px solid #c4a2a5;background:#fff0f1;color:#9a1e27;border-radius:6px}.dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
-    @media(max-width:720px){main{padding:12px}.top{align-items:flex-start;flex-direction:column}.stats{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}.field.full,.subhead{grid-column:auto}.line,.line.down{grid-template-columns:1fr 1fr}}
-  </style>
-
+  <script src="/assets/js/portal-auth.js?v=20261003-2"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#202126">
+  <meta name="description" content="Pencatatan dan verifikasi hasil produksi Mixer Polyta Global Mandiri.">
+  <title>Hasil Produksi Mixer | Polyta Global Mandiri</title>
+  <link rel="icon" href="/assets/img/logo-app.png" type="image/png">
+  <link rel="stylesheet" href="/assets/vendor/inter/inter.css?v=20260827">
+  <link rel="stylesheet" href="/assets/vendor/fontawesome/css/all.min.css?v=20260827">
+  <link rel="stylesheet" href="production.css?v=20261004-1">
 </head>
-<body>
-<main>
-  <header class="top"><div><h1>Produksi Mixer</h1><p>Catat hasil per shift dari jadwal yang sudah dirilis. Hasil menunggu verifikasi leader.</p></div><div class="actions"><a class="button secondary" href="/apps/spk-automation/schedule/">Schedule</a><a class="button secondary" href="/apps/spk-automation/approval/">Login</a><button id="refresh" class="button secondary" type="button">Muat ulang</button></div></header>
-  <div id="message" class="message" role="status">Memeriksa sesi...</div>
-  <section class="stats"><div class="stat"><small>Jadwal Mixer</small><strong id="total">0</strong></div><div class="stat"><small>Sudah ada hasil</small><strong id="started">0</strong></div><div class="stat"><small>Menunggu verifikasi</small><strong id="pending">0</strong></div><div class="stat"><small>Hasil terverifikasi</small><strong id="verified">0 KG</strong></div></section>
-  <section class="panel"><div class="panel-head"><h2>Pekerjaan terjadwal</h2><input id="search" type="search" placeholder="Cari SPK, mesin..." aria-label="Cari pekerjaan"></div><div class="table-wrap"><table><thead><tr><th>SPK / Routing</th><th>Mesin</th><th>Rencana</th><th>Target</th><th>Hasil tercatat</th><th>Hasil terverifikasi</th><th>Aksi</th></tr></thead><tbody id="workRows"><tr><td colspan="7">Belum ada jadwal Mixer dirilis.</td></tr></tbody></table></div></section>
-  <section class="panel"><div class="panel-head"><h2>Entri hasil</h2></div><div class="table-wrap"><table><thead><tr><th>Tanggal / shift</th><th>SPK / mesin</th><th>Operator</th><th>Hasil</th><th>BS</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="entryRows"><tr><td colspan="7">Belum ada entri.</td></tr></tbody></table></div></section>
-</main>
-<dialog id="editor"><form id="entryForm"><h2 id="dialogTitle">Input hasil Mixer</h2><p class="hint" id="dialogHint"></p><div class="grid"><label class="field">Tanggal<input id="date" type="date" required></label><label class="field">Shift<select id="shift"><option>1</option><option>2</option><option>3</option></select></label><label class="field">Operator<input id="operator" required maxlength="100"></label><label class="field">Hasil baik (KG)<input id="result" type="number" min="0" step="any" required></label><label class="field">Mulai aktual<input id="start" type="datetime-local" required></label><label class="field">Selesai aktual<input id="finish" type="datetime-local" required></label><label class="field">BS (KG)<input id="bs" type="number" min="0" step="any" value="0" required></label><label class="field">Alasan jika melebihi target<input id="overrun" maxlength="500"></label><div class="field full"><strong>Pemakaian bahan</strong><div id="materials"></div><button id="addMaterial" class="button secondary" type="button">+ Bahan</button></div><div class="field full"><strong>Downtime</strong><div id="downtimes"></div><button id="addDowntime" class="button secondary" type="button">+ Downtime</button></div><label class="field full">Catatan<textarea id="note" maxlength="1000"></textarea></label></div><div class="dialog-actions"><button id="cancel" class="button secondary" type="button">Batal</button><button id="save" class="button" type="submit">Kirim hasil</button></div></form></dialog>
+<body data-page="hasil-produksi">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/" aria-label="Portal utama Polyta Global Mandiri">
+        <span class="brand-mark" aria-hidden="true">
+          <svg class="polyta-logo" viewBox="0 0 120 120" focusable="false">
+            <defs>
+              <linearGradient id="productionLogoMetal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4b4e54"/><stop offset=".42" stop-color="#111216"/><stop offset="1" stop-color="#020304"/></linearGradient>
+              <linearGradient id="productionLogoBlue" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6f8fe0"/><stop offset=".48" stop-color="#4563b3"/><stop offset="1" stop-color="#293f87"/></linearGradient>
+              <linearGradient id="productionLogoRed" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff5660"/><stop offset=".5" stop-color="#ef2631"/><stop offset="1" stop-color="#b90f1d"/></linearGradient>
+              <linearGradient id="productionLogoGreen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#72d77b"/><stop offset=".48" stop-color="#40b84e"/><stop offset="1" stop-color="#168d2d"/></linearGradient>
+            </defs>
+            <path d="M14 12h50v43h42v53h-8V63H64v45H14V55h42V20H14z" fill="url(#productionLogoMetal)"/>
+            <rect x="15" y="22" width="41" height="12" rx="6" fill="url(#productionLogoBlue)"/>
+            <rect x="22" y="63" width="34" height="37" fill="url(#productionLogoRed)"/>
+            <rect x="84" y="64" width="11" height="44" rx="5.5" fill="url(#productionLogoGreen)"/>
+            <path d="M17 15h43M24 66h30M86.5 67v35" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="2" opacity=".36"/>
+          </svg>
+        </span>
+        <span><strong class="brand-name">POLYTA GLOBAL MANDIRI</strong><small class="brand-subtitle">Plastic Packaging Industry</small></span>
+      </a>
+      <div class="production-header-actions">
+        <a class="production-menu-link no-print" href="/" target="_top" aria-label="Kembali ke Menu"><svg class="production-menu-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span>Menu</span></a>
+        <div id="portalAccountSlot" class="production-account-slot" aria-label="Profil pengguna"></div>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <section class="page-heading" aria-labelledby="pageTitle">
+      <div class="heading-group">
+        <span class="heading-icon" aria-hidden="true"><i class="fa-solid fa-gears"></i></span>
+        <div><p class="eyebrow">PELAKSANAAN PRODUKSI</p><h1 id="pageTitle">Hasil Produksi <span class="scope-badge">Mixer</span></h1><p>Catat hasil per shift dari jadwal yang dirilis dan verifikasi laporan operator.</p></div>
+      </div>
+      <a class="button secondary heading-link" href="/apps/spk-automation/schedule/"><i class="fa-solid fa-calendar-days" aria-hidden="true"></i> Lihat Jadwal</a>
+    </section>
+
+    <section class="stats" aria-label="Ringkasan hasil produksi Mixer">
+      <article class="stat"><span class="stat-icon red" aria-hidden="true"><i class="fa-solid fa-list-check"></i></span><div><small>Jadwal Mixer</small><strong id="total">0</strong><span>pekerjaan terjadwal</span></div></article>
+      <article class="stat"><span class="stat-icon blue" aria-hidden="true"><i class="fa-solid fa-clipboard-list"></i></span><div><small>Sudah ada hasil</small><strong id="started">0</strong><span>pekerjaan dengan laporan</span></div></article>
+      <article class="stat"><span class="stat-icon amber" aria-hidden="true"><i class="fa-solid fa-clock-rotate-left"></i></span><div><small>Menunggu verifikasi</small><strong id="pending">0</strong><span>laporan perlu ditinjau</span></div></article>
+      <article class="stat"><span class="stat-icon green" aria-hidden="true"><i class="fa-solid fa-circle-check"></i></span><div><small>Hasil terverifikasi</small><strong id="verified">0 KG</strong><span>hasil baik Mixer</span></div></article>
+    </section>
+
+    <section class="panel" aria-labelledby="workTitle">
+      <header class="panel-head"><div><h2 id="workTitle">Pekerjaan Terjadwal</h2><p id="message" class="message" role="status" aria-live="polite">Menghubungkan ke basis data...</p></div></header>
+      <div class="panel-toolbar">
+        <label class="search-box"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input id="search" type="search" placeholder="Cari SPK atau mesin..." aria-label="Cari pekerjaan"></label>
+        <button id="refresh" class="button secondary" type="button"><i class="fa-solid fa-rotate-right" aria-hidden="true"></i> Muat ulang</button>
+      </div>
+      <div id="workLoader" class="loading-state" role="status" aria-live="polite"><span class="loader-ring" aria-hidden="true"></span><strong>Menghubungkan ke basis data</strong><span>Pekerjaan produksi sedang disiapkan. Mohon tunggu sebentar.</span></div>
+      <div id="workTableWrap" class="table-wrap" hidden><table><thead><tr><th>SPK / Routing</th><th>Mesin</th><th>Rencana</th><th>Target</th><th>Hasil tercatat</th><th>Hasil terverifikasi</th><th>Aksi</th></tr></thead><tbody id="workRows"><tr><td colspan="7">Belum ada jadwal Mixer dirilis.</td></tr></tbody></table></div>
+    </section>
+    <section class="panel" aria-labelledby="entryTitle">
+      <header class="panel-head"><div><h2 id="entryTitle">Entri Hasil</h2><p class="message">Laporan hasil produksi Mixer per shift.</p></div></header>
+      <div id="entryLoader" class="loading-state compact" role="status" aria-live="polite"><span class="loader-ring" aria-hidden="true"></span><strong>Memuat entri hasil</strong></div>
+      <div id="entryTableWrap" class="table-wrap" hidden><table><thead><tr><th>Tanggal / shift</th><th>SPK / mesin</th><th>Operator</th><th>Hasil</th><th>BS</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="entryRows"><tr><td colspan="7">Belum ada entri.</td></tr></tbody></table></div>
+    </section>
+  </main>
+  <footer class="spk-app-footer no-print"><div class="spk-app-footer-inner">Dikembangkan dan dikelola oleh: <strong>Team POLYTA GLOBAL MANDIRI</strong></div></footer>
+
+  <dialog id="editor"><form id="entryForm">
+    <h2 id="dialogTitle">Input hasil Mixer</h2><p class="hint" id="dialogHint"></p>
+    <div class="grid">
+      <label class="field">Tanggal<input id="date" type="date" required></label>
+      <label class="field">Shift<select id="shift"><option>1</option><option>2</option><option>3</option></select></label>
+      <label class="field">Operator<input id="operator" required maxlength="100"></label>
+      <label class="field">Hasil baik (KG)<input id="result" type="number" min="0" step="any" required></label>
+      <label class="field">Mulai aktual<input id="start" type="datetime-local" required></label>
+      <label class="field">Selesai aktual<input id="finish" type="datetime-local" required></label>
+      <label class="field">BS (KG)<input id="bs" type="number" min="0" step="any" value="0" required></label>
+      <label class="field">Alasan jika melebihi target<input id="overrun" maxlength="500"></label>
+      <div class="field full field-group"><strong>Pemakaian bahan</strong><div id="materials"></div><button id="addMaterial" class="button secondary" type="button"><i class="fa-solid fa-plus" aria-hidden="true"></i> Bahan</button></div>
+      <div class="field full field-group"><strong>Downtime</strong><div id="downtimes"></div><button id="addDowntime" class="button secondary" type="button"><i class="fa-solid fa-plus" aria-hidden="true"></i> Downtime</button></div>
+      <label class="field full">Catatan<textarea id="note" maxlength="1000"></textarea></label>
+    </div>
+    <div class="dialog-actions"><button id="cancel" class="button secondary" type="button">Batal</button><button id="save" class="button" type="submit">Kirim hasil</button></div>
+  </form></dialog>
 
 <script>
 (() => {
@@ -53,10 +118,30 @@
     $('entryRows').innerHTML=state.entries.filter(row=>/MIX/.test(row.proses.toUpperCase())).sort((a,b)=>b.mulai.localeCompare(a.mulai)).map(row=>`<tr><td>${escape(row.tanggal)}<small>Shift ${escape(row.shift)}</small></td><td>${escape(row.spk)}<small>${escape(row.mesin)}</small></td><td>${escape(row.operator)}</td><td>${fmt(row.hasilBaik)} ${escape(row.uom)}</td><td>${fmt(row.bs)} ${escape(row.uom)}</td><td><span class="pill ${row.status==='VERIFIED'?'verified':''}" title="${escape(row.alasanStatus||'')}">${escape(row.status)}</span></td><td>${row.status==='SUBMITTED'&&canVerify?`<button class="button secondary" data-verify="${escape(row.entryId)}" type="button">Verifikasi</button> <button class="button secondary" data-reject="${escape(row.entryId)}" type="button">Kembalikan</button>`:'—'}</td></tr>`).join('')||'<tr><td colspan="7">Belum ada entri hasil.</td></tr>';
     $('total').textContent=schedules.length;
     $('started').textContent=schedules.filter(item=>state.entries.some(row=>row.scheduleId===item.scheduleId)).length;
-    $('pending').textContent=state.entries.filter(row=>row.status==='SUBMITTED').length;
+    $('pending').textContent=state.entries.filter(row=>row.status==='SUBMITTED'&&/MIX/.test(row.proses.toUpperCase())).length;
     $('verified').textContent=fmt(state.entries.filter(row=>row.status==='VERIFIED'&&/MIX/.test(row.proses.toUpperCase())).reduce((sum,row)=>sum+row.hasilBaik,0))+' KG';
   }
-  async function load(){const credentials=auth();if(!credentials){status('Login melalui halaman Persetujuan SPK untuk membuka pekerjaan produksi.',true);return;}state.token=credentials.token;state.user=credentials.user;status('Memuat pekerjaan produksi...');try{const result=await rpc('getProductionWorkData',state.token);if(!result||result.status!=='success')throw new Error(result&&result.message||'Gagal memuat pekerjaan.');state.schedules=result.schedules||[];state.entries=result.entries||[];render();status('Data produksi terbaru dimuat.');}catch(error){status(error&&error.message||'Gagal menghubungi server.',true);}}
+  function setLoading(loading){
+    $('workLoader').hidden=!loading;
+    $('entryLoader').hidden=!loading;
+    $('workTableWrap').hidden=loading;
+    $('entryTableWrap').hidden=loading;
+    $('refresh').disabled=loading;
+  }
+  async function load(){
+    setLoading(true);
+    const credentials=auth();
+    if(!credentials){status('Sesi portal tidak tersedia. Silakan masuk kembali.',true);$('workRows').innerHTML='<tr><td colspan="7">Sesi portal tidak tersedia.</td></tr>';$('entryRows').innerHTML='<tr><td colspan="7">Sesi portal tidak tersedia.</td></tr>';setLoading(false);return;}
+    state.token=credentials.token;state.user=credentials.user;
+    status('Memuat hasil produksi...');
+    try{
+      const result=await rpc('getProductionWorkData',state.token);
+      if(!result||result.status!=='success')throw new Error(result&&result.message||'Gagal memuat pekerjaan.');
+      state.schedules=result.schedules||[];state.entries=result.entries||[];
+      render();status('Data produksi terbaru dimuat.');
+    }catch(error){status(error&&error.message||'Gagal menghubungi server.',true);if(!state.schedules.length&&!state.entries.length){$('workRows').innerHTML='<tr><td colspan="7">Pekerjaan belum dapat dimuat.</td></tr>';$('entryRows').innerHTML='<tr><td colspan="7">Entri hasil belum dapat dimuat.</td></tr>';}}
+    finally{setLoading(false);}
+  }
   function addMaterial(){const row=document.createElement('div');row.className='line';row.innerHTML='<input data-field="nama" placeholder="Nama bahan" required><input data-field="resin" placeholder="Jenis resin"><input data-field="kode" placeholder="Kode bahan"><input data-field="kg" type="number" min="0.001" step="any" placeholder="KG" required><button type="button" aria-label="Hapus bahan">×</button>';row.querySelector('button').onclick=()=>row.remove();$('materials').appendChild(row);}
   function addDowntime(){const row=document.createElement('div');row.className='line down';row.innerHTML='<input data-field="mulai" type="datetime-local" aria-label="Mulai downtime" required><input data-field="selesai" type="datetime-local" aria-label="Selesai downtime" required><input data-field="alasan" placeholder="Alasan downtime" required><button type="button" aria-label="Hapus downtime">×</button>';row.querySelector('button').onclick=()=>row.remove();$('downtimes').appendChild(row);}
   function readLines(container,fields){return [...$(container).querySelectorAll('.line')].map(row=>Object.fromEntries(fields.map(field=>[field,row.querySelector(`[data-field="${field}"]`).value.trim()])));}
@@ -68,5 +153,6 @@
   $('addMaterial').onclick=addMaterial;$('addDowntime').onclick=addDowntime;$('cancel').onclick=()=>$('editor').close();$('refresh').onclick=load;$('search').oninput=render;load();
 })();
 </script>
+<script src="../footer-reveal.js?v=20260813-1"></script>
 </body>
 </html>

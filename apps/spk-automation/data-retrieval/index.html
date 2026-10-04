@@ -852,6 +852,7 @@
     .source-selection-toolbar {
       margin: 0 0 8px;
       padding: 7px 10px;
+      padding-right: 8px;
       display: flex;
       align-items: center;
       flex-wrap: wrap;
@@ -871,6 +872,14 @@
       font-size: .61rem;
       font-weight: 800;
       cursor: pointer;
+    }
+
+    .source-selection-check {
+      width: 28px;
+      height: 28px;
+      flex: 0 0 28px;
+      display: grid;
+      place-items: center;
     }
 
     .source-selection-all input:disabled { cursor: not-allowed; }
@@ -2462,7 +2471,9 @@
           '<span class="source-selection-count" aria-live="polite">0 dipilih</span>' +
           '<label class="source-selection-all" title="Pilih berkas yang tampil dan dapat ditarik">' +
             '<span>Pilih semua</span>' +
-            '<input class="select-visible-files" type="checkbox" aria-label="Pilih semua berkas yang tampil">' +
+            '<span class="source-selection-check">' +
+              '<input class="select-visible-files" type="checkbox" aria-label="Pilih semua berkas yang tampil">' +
+            '</span>' +
           '</label>';
         selectionToolbar.querySelector('.select-visible-files').addEventListener('change', event => {
           if (event.target.checked) {

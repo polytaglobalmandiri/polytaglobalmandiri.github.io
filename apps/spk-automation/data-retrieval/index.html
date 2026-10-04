@@ -783,6 +783,51 @@
         0 3px 6px rgba(0,0,0,.12);
     }
 
+    .source-file-item.is-selected {
+      outline: 2px solid #a52626;
+      outline-offset: -3px;
+    }
+
+    .source-file-checkbox {
+      width: 17px;
+      height: 17px;
+      flex: 0 0 17px;
+      margin: 0 2px 0 0;
+      accent-color: #b92323;
+      cursor: pointer;
+    }
+
+    .source-file-checkbox:disabled {
+      cursor: not-allowed;
+      opacity: .45;
+    }
+
+    .source-selection-toolbar {
+      margin: 0 0 9px;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px 9px;
+    }
+
+    .source-selection-button {
+      min-height: 28px;
+      padding: 4px 9px;
+      border: 1px solid #999da0;
+      border-bottom-color: #777b7e;
+      border-radius: 7px;
+      background: linear-gradient(180deg, #fff, #dedfdb);
+      color: #373b3f;
+      box-shadow: inset 0 1px 0 #fff, 0 2px 0 #8c8f91;
+      font: inherit;
+      font-size: .57rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .source-selection-button:disabled { opacity: .5; cursor: not-allowed; }
+    .source-selection-count { color: #62686d; font-size: .58rem; font-weight: 750; }
+
     .source-file-icon {
       width: 32px;
       height: 32px;
@@ -2000,7 +2045,7 @@
             <span class="guide-number">03</span>
             <div>
               <strong>Mulai penarikan</strong>
-              <span>Tarik semua berkas dalam direktori atau gunakan tombol Tarik pada satu berkas SPK.</span>
+              <span>Tandai berkas yang diperlukan, lalu tarik pilihan. Anda juga bisa menarik satu berkas langsung.</span>
             </div>
           </div>
         </div>
@@ -2053,7 +2098,7 @@
           </label>
           <button id="btnTarik" class="action-button" type="button" onclick="ekstrakDataFolder()" disabled>
             <i class="fa-solid fa-file-import"></i>
-            Tarik semua berkas dari direktori ini
+            Pilih berkas untuk ditarik
           </button>
         </div>
       </section>
@@ -2071,6 +2116,7 @@
     let extractionRequestInFlight = false;
     let extractionResumeScheduled = false;
     let extractionRecoveryAttempts = 0;
+    const selectedExtractionFileIds = new Set();
     const mockExtractedFileIds = new Set(['root-sheet-preview']);
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -2261,6 +2307,7 @@
     function renderFolders(folders, sourceFiles, databaseStatus) {
       const container = document.getElementById('folderArea');
       container.innerHTML = '';
+      selectedExtractionFileIds.clear();
 
       if (!folders.length && !sourceFiles.length) {
         container.innerHTML =
@@ -2393,6 +2440,30 @@
 
         fileSection.appendChild(statusFilter);
 
+        const selectionToolbar = document.createElement('div');
+        selectionToolbar.className = 'source-selection-toolbar';
+        selectionToolbar.innerHTML =
+          '<button class="source-selection-button select-visible-files" type="button" title="Pilih berkas yang tampil dan dapat ditarik">Pilih semua</button>' +
+          '<button class="source-selection-button clear-selected-files" type="button">Kosongkan pilihan</button>' +
+          '<span class="source-selection-count" aria-live="polite">0 berkas dipilih</span>';
+        selectionToolbar.querySelector('.select-visible-files').addEventListener('click', () => {
+          fileSection.querySelectorAll('.source-file-item:not(.hidden) .source-file-checkbox:not(:disabled)').forEach(checkbox => {
+            checkbox.checked = true;
+            selectedExtractionFileIds.add(checkbox.value);
+            checkbox.closest('.source-file-item').classList.add('is-selected');
+          });
+          syncSelectionToolbar_();
+        });
+        selectionToolbar.querySelector('.clear-selected-files').addEventListener('click', () => {
+          selectedExtractionFileIds.clear();
+          fileSection.querySelectorAll('.source-file-checkbox').forEach(checkbox => {
+            checkbox.checked = false;
+            checkbox.closest('.source-file-item').classList.remove('is-selected');
+          });
+          syncSelectionToolbar_();
+        });
+        fileSection.appendChild(selectionToolbar);
+
         if (databaseStatus && databaseStatus.available === false) {
           const warning = document.createElement('p');
           warning.className = 'database-status-warning';
@@ -2420,6 +2491,19 @@
           if (file.inDatabase === true) {
             item.classList.add('is-in-database');
           }
+
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.className = 'source-file-checkbox';
+          checkbox.value = file.id;
+          checkbox.dataset.inDatabase = file.inDatabase === true ? 'true' : 'false';
+          checkbox.setAttribute('aria-label', 'Pilih berkas ' + file.name);
+          checkbox.addEventListener('change', () => {
+            if (checkbox.checked) selectedExtractionFileIds.add(file.id);
+            else selectedExtractionFileIds.delete(file.id);
+            item.classList.toggle('is-selected', checkbox.checked);
+            syncSelectionToolbar_();
+          });
 
           const icon = document.createElement('span');
           icon.className = 'source-file-icon';
@@ -2495,6 +2579,7 @@
           meta.appendChild(type);
           meta.appendChild(status);
           copy.appendChild(meta);
+          item.appendChild(checkbox);
           item.appendChild(icon);
           item.appendChild(copy);
           item.appendChild(action);
@@ -2549,6 +2634,7 @@
       const emptyFilter = fileSection.querySelector('.source-file-empty-filter');
       filterCount.textContent = visibleCount + ' dari ' + items.length;
       emptyFilter.classList.toggle('hidden', visibleCount !== 0);
+      syncSelectionToolbar_();
     }
 
     function createDirectorySectionHeader_(label, count, iconClass) {
@@ -2579,11 +2665,39 @@
       return Boolean(toggle && toggle.checked);
     }
 
-    function syncExtractionControls_() {
+    function syncSelectionToolbar_() {
       const busy = Boolean(currentExtractionJobId);
       const backfill = isBackfillMode_();
       const folderButton = document.getElementById('btnTarik');
-      folderButton.disabled = busy || pathHistory.length === 0;
+      folderButton.disabled = busy || selectedExtractionFileIds.size === 0;
+      folderButton.innerHTML = '<i class="fa-solid fa-file-import"></i> ' +
+        (selectedExtractionFileIds.size
+          ? (backfill ? 'Lengkapi ' : 'Tarik ') + selectedExtractionFileIds.size + ' berkas terpilih'
+          : (backfill ? 'Pilih berkas untuk dilengkapi' : 'Pilih berkas untuk ditarik'));
+
+      const selectionToolbar = document.querySelector('.source-selection-toolbar');
+      if (!selectionToolbar) return;
+      const visibleEligible = selectionToolbar.closest('.directory-section')
+        .querySelectorAll('.source-file-item:not(.hidden) .source-file-checkbox:not(:disabled)').length;
+      selectionToolbar.querySelector('.select-visible-files').disabled = busy || visibleEligible === 0;
+      selectionToolbar.querySelector('.clear-selected-files').disabled = busy || selectedExtractionFileIds.size === 0;
+      selectionToolbar.querySelector('.source-selection-count').textContent =
+        selectedExtractionFileIds.size + ' berkas dipilih';
+    }
+
+    function syncExtractionControls_() {
+      const busy = Boolean(currentExtractionJobId);
+      const backfill = isBackfillMode_();
+      document.querySelectorAll('.source-file-checkbox').forEach(checkbox => {
+        const eligible = backfill === (checkbox.dataset.inDatabase === 'true');
+        checkbox.disabled = busy || !eligible;
+        if (!eligible) {
+          checkbox.checked = false;
+          selectedExtractionFileIds.delete(checkbox.value);
+          checkbox.closest('.source-file-item').classList.remove('is-selected');
+        }
+      });
+      syncSelectionToolbar_();
 
       document.querySelectorAll('.source-file-action').forEach(button => {
         const inDatabase = button.dataset.inDatabase === 'true';
@@ -2751,7 +2865,8 @@
     }
 
     function ekstrakDataFolder() {
-      beginExtraction_('', '');
+      if (!selectedExtractionFileIds.size) return;
+      beginExtraction_(Array.from(selectedExtractionFileIds), selectedExtractionFileIds.size + ' berkas terpilih');
     }
 
     function ekstrakDataFile(fileId, fileName) {
@@ -2765,8 +2880,9 @@
       if (!pathHistory.length) return;
 
       const currentFolderId = pathHistory[pathHistory.length - 1].id;
-      const safeFileId = String(targetFileId || '').trim();
-      const safeFileName = safeFileId
+      const selectedIds = Array.isArray(targetFileId) ? targetFileId.slice() : null;
+      const safeFileId = selectedIds ? '' : String(targetFileId || '').trim();
+      const safeFileName = safeFileId || selectedIds
         ? String(targetFileName || 'Berkas SPK')
         : '';
 
@@ -2790,7 +2906,9 @@
         skipped: 0,
         errors: 0,
         currentFile: safeFileName,
-        message: safeFileId
+        message: selectedIds
+          ? 'Mendaftarkan ' + selectedIds.length + ' berkas pilihan...'
+          : safeFileId
           ? 'Mendaftarkan penarikan berkas ' + safeFileName + '...'
           : 'Mendaftarkan penarikan seluruh direktori...'
       });
@@ -2825,23 +2943,23 @@
           .beginExtractionJob(
             currentFolderId,
             requestedJobId,
-            safeFileId || null,
+            selectedIds || safeFileId || null,
             isBackfillMode_() ? 'backfill' : 'sync'
           );
       } else {
         startProgress(currentExtractionJobId);
         window.setTimeout(() => {
-          if (safeFileId) {
-            mockExtractedFileIds.add(safeFileId);
+          if (safeFileId || selectedIds) {
+            (selectedIds || [safeFileId]).forEach(id => mockExtractedFileIds.add(id));
             handleExtractionResponse({
               status: 'success',
-              message: 'Pratinjau lokal: satu berkas SPK berhasil diproses.',
-              created: 1,
+              message: 'Pratinjau lokal: berkas SPK berhasil diproses.',
+              created: selectedIds ? selectedIds.length : 1,
               skipped: 0,
               errors: 0,
               warnings: 0,
-              processed: 1,
-              total: 1,
+              processed: selectedIds ? selectedIds.length : 1,
+              total: selectedIds ? selectedIds.length : 1,
               report: {
                 errors: [],
                 warnings: [],

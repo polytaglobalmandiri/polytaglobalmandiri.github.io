@@ -747,6 +747,51 @@
         0 3px 6px rgba(0,0,0,.12);
     }
 
+    .source-file-item.is-selected {
+      outline: 2px solid #a52626;
+      outline-offset: -3px;
+    }
+
+    .source-file-checkbox {
+      width: 17px;
+      height: 17px;
+      flex: 0 0 17px;
+      margin: 0 2px 0 0;
+      accent-color: #b92323;
+      cursor: pointer;
+    }
+
+    .source-file-checkbox:disabled {
+      cursor: not-allowed;
+      opacity: .45;
+    }
+
+    .source-selection-toolbar {
+      margin: 0 0 9px;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px 9px;
+    }
+
+    .source-selection-button {
+      min-height: 28px;
+      padding: 4px 9px;
+      border: 1px solid #999da0;
+      border-bottom-color: #777b7e;
+      border-radius: 7px;
+      background: linear-gradient(180deg, #fff, #dedfdb);
+      color: #373b3f;
+      box-shadow: inset 0 1px 0 #fff, 0 2px 0 #8c8f91;
+      font: inherit;
+      font-size: .57rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .source-selection-button:disabled { opacity: .5; cursor: not-allowed; }
+    .source-selection-count { color: #62686d; font-size: .58rem; font-weight: 750; }
+
     .source-file-icon {
       width: 32px;
       height: 32px;
@@ -2009,7 +2054,7 @@
             <span class="guide-number">03</span>
             <div>
               <strong>Mulai penarikan</strong>
-              <span>Tarik semua file dalam folder atau gunakan tombol Tarik pada satu file SPK.</span>
+              <span>Tandai berkas yang diperlukan, lalu tarik pilihan. Anda juga bisa menarik satu berkas langsung.</span>
             </div>
           </div>
         </div>
@@ -2062,7 +2107,7 @@
           </label>
           <button id="btnTarik" class="action-button" type="button" onclick="ekstrakDataFolder()" disabled>
             <i class="fa-solid fa-file-import"></i>
-            Tarik semua file dari direktori ini
+            Pilih berkas untuk ditarik
           </button>
         </div>
       </section>
@@ -2080,6 +2125,7 @@
     let extractionRequestInFlight = false;
     let extractionResumeScheduled = false;
     let extractionRecoveryAttempts = 0;
+    const selectedExtractionFileIds = new Set();
     const mockExtractedFileIds = new Set(['root-sheet-preview']);
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -2354,13 +2400,14 @@
     function renderFolders(folders, sourceFiles, databaseStatus) {
       const container = document.getElementById('folderArea');
       container.innerHTML = '';
+      selectedExtractionFileIds.clear();
 
       if (!folders.length && !sourceFiles.length) {
         container.innerHTML =
           '<div class="empty-state">' +
             '<div class="empty-icon"><i class="fa-regular fa-folder-open" aria-hidden="true"></i></div>' +
             '<strong>Tidak ada sumber SPK</strong>' +
-            '<span>Folder ini tidak memiliki subfolder atau file Google Sheets/Excel yang didukung.</span>' +
+            '<span>Direktori ini tidak memiliki subdirektori atau berkas Google Sheets/Excel yang didukung.</span>' +
           '</div>';
         return;
       }
@@ -2369,7 +2416,7 @@
         const folderSection = document.createElement('section');
         folderSection.className = 'directory-section';
         folderSection.appendChild(
-          createDirectorySectionHeader_('Folder', folders.length, 'fa-folder')
+          createDirectorySectionHeader_('Direktori', folders.length, 'fa-folder')
         );
 
         const grid = document.createElement('div');
@@ -2403,7 +2450,7 @@
         const fileSection = document.createElement('section');
         fileSection.className = 'directory-section';
         fileSection.appendChild(
-          createDirectorySectionHeader_('File SPK', sourceFiles.length, 'fa-file-excel')
+          createDirectorySectionHeader_('Berkas SPK', sourceFiles.length, 'fa-file-excel')
         );
 
         const toolbar = document.createElement('div');
@@ -2417,8 +2464,8 @@
         const searchInput = document.createElement('input');
         searchInput.id = 'spkSearchInput';
         searchInput.type = 'search';
-        searchInput.placeholder = 'Cari nomor SPK atau nama file...';
-        searchInput.setAttribute('aria-label', 'Cari nomor SPK atau nama file');
+        searchInput.placeholder = 'Cari nomor SPK atau nama berkas...';
+        searchInput.setAttribute('aria-label', 'Cari nomor SPK atau nama berkas');
         searchInput.autocomplete = 'off';
 
         const filterCount = document.createElement('span');
@@ -2433,7 +2480,7 @@
         const statusFilter = document.createElement('div');
         statusFilter.className = 'source-status-filter';
         statusFilter.setAttribute('role', 'group');
-        statusFilter.setAttribute('aria-label', 'Filter status penarikan');
+        statusFilter.setAttribute('aria-label', 'Penyaring status penarikan');
         fileSection.dataset.statusFilter = 'all';
 
         const statusFilterLabel = document.createElement('span');
@@ -2486,12 +2533,36 @@
 
         fileSection.appendChild(statusFilter);
 
+        const selectionToolbar = document.createElement('div');
+        selectionToolbar.className = 'source-selection-toolbar';
+        selectionToolbar.innerHTML =
+          '<button class="source-selection-button select-visible-files" type="button" title="Pilih berkas yang tampil dan dapat ditarik">Pilih semua</button>' +
+          '<button class="source-selection-button clear-selected-files" type="button">Kosongkan pilihan</button>' +
+          '<span class="source-selection-count" aria-live="polite">0 berkas dipilih</span>';
+        selectionToolbar.querySelector('.select-visible-files').addEventListener('click', () => {
+          fileSection.querySelectorAll('.source-file-item:not(.hidden) .source-file-checkbox:not(:disabled)').forEach(checkbox => {
+            checkbox.checked = true;
+            selectedExtractionFileIds.add(checkbox.value);
+            checkbox.closest('.source-file-item').classList.add('is-selected');
+          });
+          syncSelectionToolbar_();
+        });
+        selectionToolbar.querySelector('.clear-selected-files').addEventListener('click', () => {
+          selectedExtractionFileIds.clear();
+          fileSection.querySelectorAll('.source-file-checkbox').forEach(checkbox => {
+            checkbox.checked = false;
+            checkbox.closest('.source-file-item').classList.remove('is-selected');
+          });
+          syncSelectionToolbar_();
+        });
+        fileSection.appendChild(selectionToolbar);
+
         if (databaseStatus && databaseStatus.available === false) {
           const warning = document.createElement('p');
           warning.className = 'database-status-warning';
           warning.innerHTML =
             '<i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>' +
-            '<span>Status Database tidak dapat dibaca. File tetap bisa ditarik dan akan diperiksa saat proses berjalan.</span>';
+            '<span>Status Basis Data tidak dapat dibaca. Berkas tetap bisa ditarik dan akan diperiksa saat proses berjalan.</span>';
           fileSection.appendChild(warning);
         }
 
@@ -2513,6 +2584,19 @@
           if (file.inDatabase === true) {
             item.classList.add('is-in-database');
           }
+
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.className = 'source-file-checkbox';
+          checkbox.value = file.id;
+          checkbox.dataset.inDatabase = file.inDatabase === true ? 'true' : 'false';
+          checkbox.setAttribute('aria-label', 'Pilih berkas ' + file.name);
+          checkbox.addEventListener('change', () => {
+            if (checkbox.checked) selectedExtractionFileIds.add(file.id);
+            else selectedExtractionFileIds.delete(file.id);
+            item.classList.toggle('is-selected', checkbox.checked);
+            syncSelectionToolbar_();
+          });
 
           const icon = document.createElement('span');
           icon.className = 'source-file-icon';
@@ -2567,8 +2651,8 @@
           action.className = 'source-file-action';
           action.dataset.inDatabase = file.inDatabase === true ? 'true' : 'false';
           action.title = file.inDatabase === true
-            ? 'SPK ' + file.spk + ' sudah tersimpan di Database'
-            : 'Tarik data hanya dari ' + file.name;
+            ? 'SPK ' + file.spk + ' sudah tersimpan di Basis Data'
+            : 'Tarik data hanya dari berkas ' + file.name;
           action.disabled = Boolean(currentExtractionJobId) ||
             (isBackfillMode_() ? file.inDatabase !== true : file.inDatabase === true);
           action.innerHTML = file.inDatabase === true
@@ -2588,6 +2672,7 @@
           meta.appendChild(type);
           meta.appendChild(status);
           copy.appendChild(meta);
+          item.appendChild(checkbox);
           item.appendChild(icon);
           item.appendChild(copy);
           item.appendChild(action);
@@ -2598,7 +2683,7 @@
         emptyFilter.className = 'source-file-empty-filter hidden';
         emptyFilter.innerHTML =
           '<i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> ' +
-          'Tidak ada file yang cocok dengan pencarian.';
+          'Tidak ada berkas yang cocok dengan pencarian.';
 
         fileSection.appendChild(fileList);
         fileSection.appendChild(emptyFilter);
@@ -2642,6 +2727,7 @@
       const emptyFilter = fileSection.querySelector('.source-file-empty-filter');
       filterCount.textContent = visibleCount + ' dari ' + items.length;
       emptyFilter.classList.toggle('hidden', visibleCount !== 0);
+      syncSelectionToolbar_();
     }
 
     function createDirectorySectionHeader_(label, count, iconClass) {
@@ -2672,11 +2758,39 @@
       return Boolean(toggle && toggle.checked);
     }
 
-    function syncExtractionControls_() {
+    function syncSelectionToolbar_() {
       const busy = Boolean(currentExtractionJobId);
       const backfill = isBackfillMode_();
       const folderButton = document.getElementById('btnTarik');
-      folderButton.disabled = busy || pathHistory.length === 0;
+      folderButton.disabled = busy || selectedExtractionFileIds.size === 0;
+      folderButton.innerHTML = '<i class="fa-solid fa-file-import"></i> ' +
+        (selectedExtractionFileIds.size
+          ? (backfill ? 'Lengkapi ' : 'Tarik ') + selectedExtractionFileIds.size + ' berkas terpilih'
+          : (backfill ? 'Pilih berkas untuk dilengkapi' : 'Pilih berkas untuk ditarik'));
+
+      const selectionToolbar = document.querySelector('.source-selection-toolbar');
+      if (!selectionToolbar) return;
+      const visibleEligible = selectionToolbar.closest('.directory-section')
+        .querySelectorAll('.source-file-item:not(.hidden) .source-file-checkbox:not(:disabled)').length;
+      selectionToolbar.querySelector('.select-visible-files').disabled = busy || visibleEligible === 0;
+      selectionToolbar.querySelector('.clear-selected-files').disabled = busy || selectedExtractionFileIds.size === 0;
+      selectionToolbar.querySelector('.source-selection-count').textContent =
+        selectedExtractionFileIds.size + ' berkas dipilih';
+    }
+
+    function syncExtractionControls_() {
+      const busy = Boolean(currentExtractionJobId);
+      const backfill = isBackfillMode_();
+      document.querySelectorAll('.source-file-checkbox').forEach(checkbox => {
+        const eligible = backfill === (checkbox.dataset.inDatabase === 'true');
+        checkbox.disabled = busy || !eligible;
+        if (!eligible) {
+          checkbox.checked = false;
+          selectedExtractionFileIds.delete(checkbox.value);
+          checkbox.closest('.source-file-item').classList.remove('is-selected');
+        }
+      });
+      syncSelectionToolbar_();
 
       document.querySelectorAll('.source-file-action').forEach(button => {
         const inDatabase = button.dataset.inDatabase === 'true';
@@ -2688,12 +2802,12 @@
             '<i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>' +
             '<span>Lengkapi</span>';
         } else if (inDatabase) {
-          button.title = 'SPK ini sudah tersimpan di Database';
+          button.title = 'SPK ini sudah tersimpan di Basis Data';
           button.innerHTML =
             '<i class="fa-solid fa-database" aria-hidden="true"></i>' +
             '<span>Tersimpan</span>';
         } else {
-          button.title = 'Tarik data hanya dari file ini';
+          button.title = 'Tarik data hanya dari berkas ini';
           button.innerHTML =
             '<i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i>' +
             '<span>Tarik</span>';
@@ -2844,23 +2958,25 @@
     }
 
     function ekstrakDataFolder() {
-      beginExtraction_('', '');
+      if (!selectedExtractionFileIds.size) return;
+      beginExtraction_(Array.from(selectedExtractionFileIds), selectedExtractionFileIds.size + ' berkas terpilih');
     }
 
     function ekstrakDataFile(fileId, fileName) {
       const safeFileId = String(fileId || '').trim();
       if (!safeFileId) return;
 
-      beginExtraction_(safeFileId, String(fileName || 'File SPK'));
+      beginExtraction_(safeFileId, String(fileName || 'Berkas SPK'));
     }
 
     function beginExtraction_(targetFileId, targetFileName) {
       if (!pathHistory.length) return;
 
       const currentFolderId = pathHistory[pathHistory.length - 1].id;
-      const safeFileId = String(targetFileId || '').trim();
-      const safeFileName = safeFileId
-        ? String(targetFileName || 'File SPK')
+      const selectedIds = Array.isArray(targetFileId) ? targetFileId.slice() : null;
+      const safeFileId = selectedIds ? '' : String(targetFileId || '').trim();
+      const safeFileName = safeFileId || selectedIds
+        ? String(targetFileName || 'Berkas SPK')
         : '';
 
       currentExtractionJobId = createExtractionJobId();
@@ -2883,9 +2999,11 @@
         skipped: 0,
         errors: 0,
         currentFile: safeFileName,
-        message: safeFileId
-          ? 'Mendaftarkan penarikan file ' + safeFileName + '...'
-          : 'Mendaftarkan penarikan seluruh folder...'
+        message: selectedIds
+          ? 'Mendaftarkan ' + selectedIds.length + ' berkas pilihan...'
+          : safeFileId
+          ? 'Mendaftarkan penarikan berkas ' + safeFileName + '...'
+          : 'Mendaftarkan penarikan seluruh direktori...'
       });
 
       if (isGasEnvironment()) {
@@ -2918,23 +3036,23 @@
           .beginExtractionJob(
             currentFolderId,
             requestedJobId,
-            safeFileId || null,
+            selectedIds || safeFileId || null,
             isBackfillMode_() ? 'backfill' : 'sync'
           );
       } else {
         startProgress(currentExtractionJobId);
         window.setTimeout(() => {
-          if (safeFileId) {
-            mockExtractedFileIds.add(safeFileId);
+          if (safeFileId || selectedIds) {
+            (selectedIds || [safeFileId]).forEach(id => mockExtractedFileIds.add(id));
             handleExtractionResponse({
               status: 'success',
-              message: 'Pratinjau lokal: satu file SPK berhasil diproses.',
-              created: 1,
+              message: 'Pratinjau lokal: berkas SPK berhasil diproses.',
+              created: selectedIds ? selectedIds.length : 1,
               skipped: 0,
               errors: 0,
               warnings: 0,
-              processed: 1,
-              total: 1,
+              processed: selectedIds ? selectedIds.length : 1,
+              total: selectedIds ? selectedIds.length : 1,
               report: {
                 errors: [],
                 warnings: [],
@@ -2947,7 +3065,7 @@
 
           handleExtractionResponse({
             status: 'warning',
-            message: 'Pratinjau lokal selesai. Beberapa file memerlukan perhatian sebelum ditarik ulang.',
+            message: 'Pratinjau lokal selesai. Beberapa berkas memerlukan perhatian sebelum ditarik ulang.',
             created: 2,
             skipped: 3,
             errors: 14,
@@ -2960,7 +3078,7 @@
                   file: 'G26.041 - SPK Produksi.xlsx',
                   spk: 'G26.041',
                   category: 'Duplikat SPK',
-                  reason: 'Ada lebih dari satu file sumber untuk SPK G26.041. Sisakan satu file yang paling baru.'
+                  reason: 'Ada lebih dari satu berkas sumber untuk SPK G26.041. Sisakan satu berkas yang paling baru.'
                 },
                 {
                   file: 'SPK Customer Baru.xlsx',
@@ -2973,8 +3091,8 @@
                 spk: `G26.${String(index + 60).padStart(3, '0')}`,
                 category: index % 2 === 0 ? 'Duplikat SPK' : 'SPK tidak cocok',
                 reason: index % 2 === 0
-                  ? 'Terdapat file sumber lain dengan nomor SPK yang sama.'
-                  : 'Nomor SPK pada nama file berbeda dengan nilai yang ditemukan pada sel F7.'
+                  ? 'Terdapat berkas sumber lain dengan nomor SPK yang sama.'
+                  : 'Nomor SPK pada nama berkas berbeda dengan nilai yang ditemukan pada sel F7.'
               }))),
               warnings: [
                 {

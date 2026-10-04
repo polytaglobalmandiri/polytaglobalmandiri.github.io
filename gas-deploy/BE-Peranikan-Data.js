@@ -1771,6 +1771,7 @@ const EXTRACTION_WRITE_BATCH_SIZE = 50;
 const EXTRACTION_PROGRESS_TTL_SECONDS = 600;
 const EXTRACTION_PROGRESS_PREFIX = 'spk-extraction:';
 const EXTRACTION_ACTIVE_JOB_PROPERTY = 'spk-active-extraction-job';
+const EXTRACTION_SELECTION_PROPERTY_PREFIX = 'spk-extraction-selection-';
 const EXTRACTION_ACTIVE_JOB_STALE_MS = 5 * 60 * 1000;
 const EXTRACTION_CHUNK_BUDGET_MS = 180 * 1000;
 const EXTRACTION_FINISHED_JOB_RETENTION_MS = 15 * 60 * 1000;
@@ -1963,9 +1964,54 @@ function deleteActiveExtractionJob_(jobId) {
   if (!current) return;
   if (safeJobId && current.jobId !== safeJobId) return;
 
-  PropertiesService
-    .getScriptProperties()
-    .deleteProperty(EXTRACTION_ACTIVE_JOB_PROPERTY);
+  const properties = PropertiesService.getScriptProperties();
+  properties.deleteProperty(EXTRACTION_ACTIVE_JOB_PROPERTY);
+  for (let index = 0; index < (Number(current.selectionChunks) || 0); index++) {
+    properties.deleteProperty(EXTRACTION_SELECTION_PROPERTY_PREFIX + current.jobId + '-' + index);
+  }
+}
+
+function normalizeExtractionSelection_(targetFileId) {
+  if (!Array.isArray(targetFileId)) return null;
+  const ids = targetFileId.map(function(id) { return String(id || '').trim(); });
+  if (!ids.length || ids.some(function(id) { return !id; }) ||
+      new Set(ids).size !== ids.length) {
+    throw new Error('Pilih setidaknya satu berkas SPK yang berbeda.');
+  }
+  return ids;
+}
+
+function saveExtractionSelection_(jobId, ids) {
+  const properties = PropertiesService.getScriptProperties();
+  const chunks = [];
+  let current = [];
+  ids.forEach(function(id) {
+    if (current.length && JSON.stringify(current.concat(id)).length > 7000) {
+      chunks.push(current);
+      current = [];
+    }
+    current.push(id);
+  });
+  if (current.length) chunks.push(current);
+  const values = {};
+  chunks.forEach(function(chunk, index) {
+    values[EXTRACTION_SELECTION_PROPERTY_PREFIX + jobId + '-' + index] = JSON.stringify(chunk);
+  });
+  properties.setProperties(values);
+  return chunks.length;
+}
+
+function readExtractionSelection_(job) {
+  const count = Number(job.selectionChunks) || 0;
+  if (!count) throw new Error('Pilihan berkas tidak tersedia. Mulai kembali penarikan.');
+  const properties = PropertiesService.getScriptProperties();
+  const ids = [];
+  for (let index = 0; index < count; index++) {
+    const raw = properties.getProperty(EXTRACTION_SELECTION_PROPERTY_PREFIX + job.jobId + '-' + index);
+    if (!raw) throw new Error('Pilihan berkas tidak tersedia. Mulai kembali penarikan.');
+    ids.push.apply(ids, JSON.parse(raw));
+  }
+  return ids;
 }
 
 function isExtractionJobTerminal_(status) {
@@ -2097,7 +2143,8 @@ function beginExtractionJob(targetFolderId, requestedJobId, targetFileId, extrac
   try {
     const folderId = String(targetFolderId || '').trim();
     const jobId = normalizeExtractionJobId_(requestedJobId);
-    const fileId = String(targetFileId || '').trim();
+    const selectedIds = normalizeExtractionSelection_(targetFileId);
+    const fileId = selectedIds ? '' : String(targetFileId || '').trim();
     const mode = String(extractionMode || '').trim() === 'backfill' ? 'backfill' : 'sync';
 
     if (folderId === '') throw new Error('ID Folder tidak ditemukan.');
@@ -2138,14 +2185,23 @@ function beginExtractionJob(targetFolderId, requestedJobId, targetFileId, extrac
     }
 
     const folder = DriveApp.getFolderById(folderId);
-    const selectedSources = selectExtractionSourceFiles_(folder, fileId);
+    const selectedSources = selectExtractionSourceFiles_(folder, selectedIds || fileId);
     const selectedFile = fileId === '' ? null : selectedSources[0];
     const nowIso = new Date().toISOString();
+    if (recheckedResponse.active && recheckedResponse.job &&
+        isExtractionJobTerminal_(recheckedResponse.job.status)) {
+      deleteActiveExtractionJob_(recheckedResponse.job.jobId);
+    }
+    const selectionChunks = selectedIds
+      ? saveExtractionSelection_(jobId, selectedSources.map(function(file) { return file.id; }))
+      : 0;
     const job = saveActiveExtractionJob_({
       jobId: jobId,
       folderId: folderId,
       folderName: folder.getName(),
-      sourceMode: selectedFile ? 'file' : 'folder',
+      sourceMode: selectedIds ? 'selection' : (selectedFile ? 'file' : 'folder'),
+      selectionChunks: selectionChunks,
+      selectionCount: selectedIds ? selectedSources.length : 0,
       extractionMode: mode,
       fileId: selectedFile ? selectedFile.id : '',
       fileName: selectedFile ? selectedFile.name : '',
@@ -2169,7 +2225,9 @@ function beginExtractionJob(targetFolderId, requestedJobId, targetFileId, extrac
       currentFile: selectedFile ? selectedFile.name : '',
       message: selectedFile
         ? 'Menyiapkan file ' + selectedFile.name + '...'
-        : 'Memindai file sumber...'
+        : (selectedIds
+            ? 'Menyiapkan ' + selectedSources.length + ' berkas pilihan...'
+            : 'Memindai file sumber...')
     };
 
     updateExtractionProgress_(jobId, initialProgress);
@@ -2327,6 +2385,20 @@ function listExtractionSourceFiles_(folder) {
 
 function selectExtractionSourceFiles_(folder, targetFileId) {
   const sourceFiles = listExtractionSourceFiles_(folder);
+  if (Array.isArray(targetFileId)) {
+    const ids = normalizeExtractionSelection_(targetFileId);
+    const requested = new Set(ids);
+    const found = new Set();
+    const selected = sourceFiles.filter(function(file) {
+      if (!requested.has(file.id) || found.has(file.id)) return false;
+      found.add(file.id);
+      return true;
+    });
+    if (found.size !== requested.size) {
+      throw new Error('Sebagian berkas pilihan tidak ada di direktori ini. Muat ulang daftar berkas.');
+    }
+    return selected;
+  }
   const safeFileId = String(targetFileId || '').trim();
 
   if (safeFileId === '') return sourceFiles;
@@ -2732,12 +2804,16 @@ function extractData(targetFolderId, jobId, resumeIndex, resumeStats, targetFile
     }
 
     const folder = DriveApp.getFolderById(targetFolderId);
-    const sourceFiles = selectExtractionSourceFiles_(folder, effectiveFileId);
+    const selectedIds = registeredJob && registeredJob.jobId === safeJobId &&
+      registeredJob.sourceMode === 'selection'
+      ? readExtractionSelection_(registeredJob)
+      : null;
+    const sourceFiles = selectExtractionSourceFiles_(folder, selectedIds || effectiveFileId);
     const selectedFile = effectiveFileId === '' ? null : sourceFiles[0];
     updateActiveExtractionJob_(safeJobId, {
       folderId: String(targetFolderId),
       folderName: folder.getName(),
-      sourceMode: selectedFile ? 'file' : 'folder',
+      sourceMode: selectedIds ? 'selection' : (selectedFile ? 'file' : 'folder'),
       fileId: selectedFile ? selectedFile.id : '',
       fileName: selectedFile ? selectedFile.name : '',
       status: 'running',

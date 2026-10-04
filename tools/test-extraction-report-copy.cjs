@@ -27,6 +27,9 @@ for (const relativePath of [
   assert.match(savedHtml, /1 berkas sudah tersimpan di database/);
   assert.doesNotMatch(savedHtml, /extraction-report-stats|Semua berkas|A26\.098B|V2|>0<|1 dari 1/);
 
+  assert.equal(context.getExtractionReportTitle_({ status: 'success', total: 1 }), 'Tidak ada perubahan');
+  assert.equal(context.getExtractionReportTitle_({ status: 'success', total: 0 }), 'Tidak ada berkas SPK');
+
   const newSpk = {
     status: 'success', mode: 'sync', created: 1, skipped: 0,
     errors: 0, warnings: 0, processed: 1, total: 1
@@ -70,6 +73,7 @@ for (const relativePath of [
   assert.equal(context.getExtractionReportTitle_(fatal), 'Penarikan belum berhasil');
   assert.match(context.buildExtractionReportHtml_(fatal), /Database sedang digunakan/);
   assert.doesNotMatch(context.buildExtractionReportHtml_(fatal), /V2/);
+  assert.match(context.getReadableExtractionMessage_('Layanan Drive API belum aktif.'), /Akses Google Drive belum tersedia/);
 
   const cancelled = { status: 'success', mode: 'sync', cancelled: true, processed: 1, total: 5 };
   assert.equal(context.getExtractionReportTitle_(cancelled), 'Penarikan dibatalkan');

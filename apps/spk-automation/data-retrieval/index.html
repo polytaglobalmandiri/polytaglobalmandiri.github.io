@@ -2037,7 +2037,7 @@
               <div id="progressBar" class="progress-bar"></div>
             </div>
             <p id="progressCaption" class="progress-caption">Menyiapkan sinkronisasi data.</p>
-            <p class="progress-caption"><i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i> Progres tersimpan di server. Halaman boleh ditutup dan dibuka kembali.</p>
+            <p class="progress-caption"><i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i> Proses tetap tersimpan jika halaman ditutup. Anda bisa membukanya kembali.</p>
             <button id="btnBatal" class="action-button cancel-button" type="button" onclick="batalkanTarikData()">
               <i class="fa-solid fa-ban"></i>
               Batalkan penarikan
@@ -2888,7 +2888,7 @@
                   file: 'G26.052 - Kantong HDPE.xlsx',
                   spk: 'G26.052',
                   category: 'Komposisi bahan',
-                  reason: 'Ditemukan 10 bahan. Basis Data AW-BR hanya menyimpan sampai Bahan 8.'
+                  reason: 'Ditemukan 10 bahan. Hanya 8 bahan pertama yang tersimpan; periksa kembali komposisinya.'
                 }
               ],
               omittedErrors: 0,
@@ -2932,7 +2932,7 @@
     function recoverExtractionAfterRpcFailure_(error) {
       const fallbackMessage = error && error.message
         ? error.message
-        : 'Proses ekstraksi gagal.';
+        : 'Penarikan belum berhasil.';
 
       if (!currentExtractionJobId || extractionRecoveryAttempts >= 3) {
         handleExtractionFailure(fallbackMessage);
@@ -3027,6 +3027,12 @@
       }
       if (/quota exceeded|service invoked too many times/i.test(message)) {
         return 'Layanan sedang sibuk. Coba lagi beberapa saat.';
+      }
+      if (/Drive API belum aktif|Drive API belum tersedia/i.test(message)) {
+        return 'Akses Google Drive belum tersedia. Hubungi admin untuk memeriksa sambungannya.';
+      }
+      if (/tanggapan.*tidak dikenali/i.test(message)) {
+        return 'Layanan belum memberi tanggapan yang dapat dibaca. Coba lagi.';
       }
       return (message || 'Proses belum berhasil. Coba lagi beberapa saat.')
         .replace(/Database V2/gi, 'database')
@@ -3127,7 +3133,9 @@
       if (skipped) {
         return { title: 'Tidak ada data baru', lead: skipped + ' berkas sudah tersimpan di database. Data tidak diubah.', backfill: false };
       }
-      return { title: 'Tidak ada berkas SPK', lead: 'Tidak ada berkas SPK yang dapat ditarik dari direktori ini.', backfill: false };
+      return Number(result.total) > 0
+        ? { title: 'Tidak ada perubahan', lead: 'Tidak ada data baru dari berkas yang diperiksa.', backfill: false }
+        : { title: 'Tidak ada berkas SPK', lead: 'Tidak ada berkas SPK yang dapat ditarik dari direktori ini.', backfill: false };
     }
 
     function buildExtractionReportHtml_(result) {

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="handover-page">
 <head>
   <base target="_top">
   <meta charset="UTF-8">
@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#202226">
   <meta name="description" content="Pencatatan serah terima SPK dengan bukti foto, tanda tangan digital, dan nama penerima.">
-  <title>Serah Terima | PPIC</title>
+  <title>Serah Terima SPK | Polyta Global Mandiri</title>
   <link rel="stylesheet" href="/assets/css/status.css?v=20260814-4">
   <script src="/assets/js/status.js?v=20260815-1"></script>
   <script src="/assets/js/ui-labels.js?v=20260815-1" defer></script>
@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="/assets/vendor/fontawesome/css/all.min.css?v=20260827">
   <link rel="stylesheet" href="handover.css?v=20260815-5">
   <link rel="stylesheet" href="../responsive.css?v=20260913-1">
+  <link rel="stylesheet" href="handover-theme.css?v=20261004-1">
 
 
 </head>
@@ -25,26 +26,33 @@
        formulir justru menolak disimpan saat luring, bukan menunda.
        Pita bakunya sekarang datang dari assets/js/status.js. -->
 
-  <header class="app-header spk-simple-header">
+  <header class="app-header">
     <div class="header-inner">
-      <div class="brand">
+      <a class="brand" href="/" aria-label="Portal utama Polyta Global Mandiri">
         <span class="brand-mark" aria-hidden="true">
-          <img class="polyta-logo" src="/assets/img/logo-spk.svg" alt="" width="48" height="48">
+          <svg class="polyta-logo" viewBox="0 0 120 120" focusable="false">
+            <defs>
+              <linearGradient id="handoverLogoMetal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4b4e54"/><stop offset=".42" stop-color="#111216"/><stop offset="1" stop-color="#020304"/></linearGradient>
+              <linearGradient id="handoverLogoBlue" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6f8fe0"/><stop offset=".48" stop-color="#4563b3"/><stop offset="1" stop-color="#293f87"/></linearGradient>
+              <linearGradient id="handoverLogoRed" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff5660"/><stop offset=".5" stop-color="#ef2631"/><stop offset="1" stop-color="#b90f1d"/></linearGradient>
+              <linearGradient id="handoverLogoGreen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#72d77b"/><stop offset=".48" stop-color="#40b84e"/><stop offset="1" stop-color="#168d2d"/></linearGradient>
+            </defs>
+            <path d="M14 12h50v43h42v53h-8V63H64v45H14V55h42V20H14z" fill="url(#handoverLogoMetal)"/>
+            <rect x="15" y="22" width="41" height="12" rx="6" fill="url(#handoverLogoBlue)"/>
+            <rect x="22" y="63" width="34" height="37" fill="url(#handoverLogoRed)"/>
+            <rect x="84" y="64" width="11" height="44" rx="5.5" fill="url(#handoverLogoGreen)"/>
+            <path d="M17 15h43M24 66h30M86.5 67v35" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="2" opacity=".36"/>
+          </svg>
         </span>
         <span class="brand-copy">
           <strong class="brand-name">POLYTA GLOBAL MANDIRI</strong>
-          <span class="brand-subtitle">Portal Akses Internal</span>
+          <span class="brand-subtitle">Plastic Packaging Industry</span>
         </span>
+      </a>
+      <div class="handover-header-actions">
+        <a class="handover-menu-link no-print" href="/" target="_top" aria-label="Kembali ke Menu"><svg class="handover-menu-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span>Menu</span></a>
+        <div id="portalAccountSlot" class="handover-account-slot" aria-label="Profil pengguna"></div>
       </div>
-
-      <nav class="topnav spk-simple-nav" aria-label="Navigasi utama">
-        <a class="nav-link polyta-portal-home no-print" href="/" target="_top" title="Kembali ke portal utama">
-          <i class="fa-solid fa-house" aria-hidden="true"></i><span>Portal Utama</span>
-        </a>
-<a class="nav-link polyta-portal-home polyta-portal-ppic no-print" href="/" target="_top" title="Kembali ke Portal Operasional">
-<i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>Portal Operasional</span>
-        </a>
-      </nav>
     </div>
   </header>
 
@@ -53,7 +61,7 @@
       <div class="heading-group">
         <span class="heading-icon" aria-hidden="true"><i class="fa-solid fa-clipboard-check"></i></span>
         <div>
-          <p class="eyebrow">PPIC</p>
+          <p class="eyebrow">DISTRIBUSI SPK</p>
           <h1 id="pageTitle">Serah Terima SPK</h1>
           <p class="page-description">Pindai QR SPK, lalu lengkapi penerima dan bukti pada setiap routing.</p>
         </div>
@@ -209,7 +217,6 @@
 
   <script src="/assets/js/jsqr.min.js?v=1.4.0"></script>
   <script src="handover.js?v=20260815-4"></script>
-  <script src="../responsive-header.js?v=20260812-3"></script>
   <script src="../footer-reveal.js?v=20260813-1"></script>
 </body>
 </html>

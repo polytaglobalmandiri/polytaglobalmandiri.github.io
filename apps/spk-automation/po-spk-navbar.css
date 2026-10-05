@@ -92,6 +92,9 @@ body[data-page="dashboard"] .po-header-actions .po-menu-link:hover {
 }
 body[data-page="dashboard"] .po-header-actions .po-menu-link:focus-visible { outline: 3px solid #ffffff70 !important; outline-offset: 2px; }
 .po-menu-icon { width: 17px; height: 17px; display: block; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+body[data-page="dashboard"] .pgm-auth-bar--navbar .pgm-auth-panel {
+  top: calc(100% + 20px);
+}
 
 body[data-page="dashboard"] .app-main { width: min(1600px, calc(100% - 32px)) !important; }
 body[data-page="dashboard"] .spk-app-footer::before,

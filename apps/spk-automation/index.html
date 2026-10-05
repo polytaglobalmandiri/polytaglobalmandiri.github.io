@@ -11869,6 +11869,8 @@
     <script src="/assets/vendor/bootstrap/bootstrap-5.3.0.bundle.min.js"></script>
     <script src="/assets/vendor/datatables/jquery.dataTables-1.13.6.min.js"></script>
     <script src="/assets/vendor/datatables/dataTables.bootstrap5-1.13.6.min.js"></script>
+    <link rel="stylesheet" href="spk-documents.css?v=20261005-1">
+    <script src="spk-documents.js?v=20261005-1"></script>
 
     <script>
         var dashboardTable = null;
@@ -12715,7 +12717,7 @@
             });
 
             $('#dataTable tbody').on('click', 'tr', function (event) {
-                if ($(event.target).closest('.manage-button').length) return;
+                if ($(event.target).closest('.manage-button, .spk-documents-button').length) return;
                 var row = dashboardTable.row(this).data();
                 if (row) showDetailModal(row);
             });
@@ -14140,9 +14142,12 @@
         function renderManageButton(data, type, row) {
             if (type !== 'display') return '';
             var spk = row && row[TABLE_COL.SPK] ? String(row[TABLE_COL.SPK]) : '';
-            return '<button type="button" class="manage-button" aria-label="Kelola SPK ' +
+            return '<div class="spk-row-actions"><button type="button" class="manage-button" aria-label="Kelola SPK ' +
                 escapeHtml(spk) + '" title="Kelola cetak SPK">' +
-                '<i class="fa-solid fa-sliders" aria-hidden="true"></i><span>Kelola</span></button>';
+                '<i class="fa-solid fa-sliders" aria-hidden="true"></i><span>Kelola</span></button>' +
+                '<button type="button" class="spk-documents-button" data-spk="' + escapeHtml(spk) +
+                '" aria-label="Upload Dokumen SPK ' + escapeHtml(spk) + '" title="Upload Dokumen PO, PHJ, TDS">' +
+                '<i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i></button></div>';
         }
 
         function getEtdStatus(value) {

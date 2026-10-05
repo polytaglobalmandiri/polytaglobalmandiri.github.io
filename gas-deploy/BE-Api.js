@@ -24,6 +24,8 @@ var SPK_RPC_METHODS_ = {
   getSpkApprovalStatus: getSpkApprovalStatus,
   getSpkApprovalSignatures: getSpkApprovalSignatures,
   getSpkEditData: getSpkEditData,
+  getSpkDocuments: getSpkDocuments,
+  saveSpkDocument: saveSpkDocument,
   updateSpkFromDashboard: updateSpkFromDashboard,
   getMasterFormOptions: getMasterFormOptions,
   saveCustomerMaster: saveCustomerMaster,
@@ -149,6 +151,8 @@ assignSpkRpcRoles_([
   'extractData', 'acknowledgeExtractionJob', 'cancelExtractionJob'
 ], SPK_RPC_PPIC_);
 assignSpkRpcRoles_(['getSpkPrintData'], SPK_RPC_PPIC_);
+assignSpkRpcRoles_(['getSpkDocuments'], SPK_RPC_PPIC_.concat(SPK_RPC_MANAGEMENT_));
+assignSpkRpcRoles_(['saveSpkDocument'], SPK_RPC_PPIC_);
 assignSpkRpcRoles_(['markSpkReleasedForPrint', 'listApprovalUsers', 'saveApprovalUser'], ['admin_ppic']);
 assignSpkRpcRoles_(['getApprovalQueue', 'approveSpk'], null);
 assignSpkRpcRoles_([

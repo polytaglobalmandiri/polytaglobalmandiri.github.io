@@ -14,6 +14,33 @@ Portal utama dapat dibuka tanpa login. Login diperlukan pada halaman Persetujuan
 
 Backend hanya menerima nama fungsi yang dicantumkan dalam allowlist `SPK_RPC_METHODS_` pada `BE-Api.js`. Fungsi lain ditolak.
 
+## Dokumen PO, PHJ, dan TDS
+
+Pada halaman PO & SPK, tombol ikon upload di kolom **Kelola** membuka dokumen untuk
+SPK pada baris tersebut. Setiap kategori PO, PHJ, dan TDS dapat memiliki beberapa
+file. Pilih kategori, pilih satu atau beberapa file, lalu klik **Upload Dokumen**.
+Format yang didukung: PDF, JPG/JPEG, PNG, DOC/DOCX, dan XLS/XLSX; setiap file harus
+berisi data dan berukuran maksimal 10 MiB (10.485.760 byte).
+
+Backend `BE-Spk-Documents.js` memvalidasi sesi, izin tindakan, keberadaan SPK,
+ekstensi, header isi file, dan ukuran sebelum menyimpan. Folder Drive
+`1uRVimiSIL990zmofshKCZ2rwjpKa8fmq` menggunakan susunan `<nomor SPK>/<PO|PHJ|TDS>/`.
+Metadata pengunggah serta ID upload tersimpan pada deskripsi file, bukan kolom
+Database SPK. Jangan mengubah metadata ini secara manual. Akun deployment Apps
+Script harus memiliki izin membuat folder dan file di folder tujuan. File tidak
+diubah menjadi publik; pembukaan tautan dokumen mengikuti izin Google Drive.
+
+PPIC dapat mengunggah dan membaca; manajemen dapat membaca. Override izin dari
+akun master tetap berlaku untuk `getSpkDocuments` dan `saveSpkDocument`. Jika
+sebagian upload gagal, file yang berhasil tetap tersimpan. Klik upload lagi tanpa
+memilih ulang file untuk mencoba sisanya; ID yang sama mencegah duplikasi jika
+respons sebelumnya terputus. Upload berjalan berurutan dan modal tidak bisa
+ditutup selama proses berlangsung.
+
+Frontend dokumen dibagikan oleh halaman statis dan GAS melalui
+`spk-documents.js`/`spk-documents.css`. Perubahan backend perlu `clasp push` serta
+pembaruan versi deployment web app, bukan hanya push GitHub Pages.
+
 POST mengirim JSON dengan `Content-Type: text/plain;charset=UTF-8` agar tidak memerlukan
 preflight. Password dan token tetap berada dalam badan POST, bukan URL. Operasi simpan
 tidak dicoba ulang otomatis: jika respons terputus, periksa hasil transaksi sebelum

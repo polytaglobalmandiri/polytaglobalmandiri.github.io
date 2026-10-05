@@ -1,0 +1,58 @@
+.spk-row-actions { display: flex; justify-content: center; gap: 6px; }
+.spk-documents-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 8px;
+  border: 1px solid #d8dde5;
+  border-radius: 10px;
+  background: #fff;
+  color: #3569a8;
+}
+.spk-documents-button:hover { background: #eef5ff; border-color: #3569a8; }
+.spk-documents-button:focus-visible { outline: 3px solid #3569a8; outline-offset: 2px; }
+#spkDocumentsModal { padding-inline: 0 !important; }
+#spkDocumentsModal .modal-dialog {
+  width: calc(100% - 24px) !important;
+  max-width: 780px !important;
+  margin: 12px auto !important;
+  height: calc(100% - 24px);
+  min-height: calc(100% - 24px);
+}
+#spkDocumentsModal .modal-content {
+  max-height: calc(100vh - 24px) !important;
+  max-height: calc(100dvh - 24px) !important;
+  border-radius: 18px;
+  overflow: hidden;
+}
+#spkDocumentsModal .modal-body { padding: 22px; }
+#spkDocumentsModal .modal-subtitle { margin: 6px 0 0; color: #6d7689; }
+.spk-doc-upload { padding: 18px; border: 1px solid #d8dde5; border-radius: 14px; background: #f5f6f8; }
+.spk-doc-upload-fields { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 14px; }
+.spk-doc-upload label { display: block; margin-bottom: 6px; font-weight: 700; font-size: 13px; }
+.spk-doc-help { margin: 12px 0; color: #6d7689; font-size: 12px; line-height: 1.6; }
+.spk-doc-queue { list-style: none; padding: 0; margin: 0 0 12px; }
+.spk-doc-queue li { padding: 6px 0; overflow-wrap: anywhere; font-size: 13px; }
+.spk-doc-queue .is-saved { color: #16835d; }
+.spk-doc-queue .is-failed { color: #c72c41; }
+.spk-doc-status { margin-top: 12px; font-size: 13px; overflow-wrap: anywhere; }
+.spk-doc-status.is-error { color: #c72c41; }
+.spk-doc-status.is-success { color: #16835d; }
+.spk-doc-list-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 24px 0 14px; }
+.spk-doc-list-heading h3 { margin: 0; font-size: 16px; }
+.spk-doc-category { margin-top: 16px; }
+.spk-doc-category h4 { font-size: 13px; font-weight: 800; color: #6d7689; }
+.spk-doc-empty { margin: 8px 0; color: #6d7689; font-size: 13px; }
+.spk-doc-file { display: flex; align-items: center; gap: 12px; padding: 12px; margin-top: 8px; border: 1px solid #edf0f4; border-radius: 12px; }
+.spk-doc-file > i { color: #3569a8; font-size: 20px; }
+.spk-doc-file > div { min-width: 0; flex: 1; }
+.spk-doc-file a { font-size: 14px; font-weight: 700; color: #253047; overflow-wrap: anywhere; }
+.spk-doc-file small { display: block; margin-top: 4px; color: #6d7689; overflow-wrap: anywhere; }
+#spkDocumentsModal button:disabled { cursor: default; }
+@media (max-width: 480px) {
+  #spkDocumentsModal .modal-body { padding: 16px; }
+  .spk-doc-upload { padding: 14px; }
+  .spk-doc-upload-fields { grid-template-columns: minmax(0, 1fr); }
+}

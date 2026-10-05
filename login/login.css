@@ -272,7 +272,7 @@ h1 { margin: 0; color: #202329; font-size: clamp(31px, 3vw, 40px); font-weight: 
 .submit:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 13px 25px #bd183035, inset 0 1px #ffffff3c; }
 .submit:active:not(:disabled) { transform: translateY(0); }
 .submit:focus-visible { outline: 3px solid #c8102e55; outline-offset: 3px; }
-.submit:disabled { cursor: wait; opacity: .78; box-shadow: none; }
+.submit:disabled { cursor: default; opacity: .78; box-shadow: none; }
 .submit::after {
   position: absolute;
   inset: 0;

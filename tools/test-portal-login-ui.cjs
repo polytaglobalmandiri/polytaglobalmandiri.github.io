@@ -4,6 +4,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const source = fs.readFileSync(path.join(__dirname, '../login/login.js'), 'utf8');
+const css = fs.readFileSync(path.join(__dirname, '../login/login.css'), 'utf8');
 const key = 'pgm:spk-auth-v1';
 
 function harness(search) {
@@ -48,6 +49,8 @@ function harness(search) {
 }
 
 (async function () {
+  assert.match(css, /\.submit:disabled\s*\{[^}]*cursor:\s*default\s*;/);
+  assert.match(css, /\.submit\.is-loading::before\s*\{[^}]*animation:\s*spin\b/);
   const app = harness('?next=%2F');
   app.nodes.togglePassword.listeners.click();
   assert.equal(app.nodes.password.type, 'text');
@@ -60,7 +63,10 @@ function harness(search) {
 
   app.nodes.email.value = 'test@example.invalid';
   app.nodes.password.value = 'wrong';
-  await app.nodes.loginForm.listeners.submit({ preventDefault() {} });
+  const pendingLogin = app.nodes.loginForm.listeners.submit({ preventDefault() {} });
+  assert.equal(app.nodes.submit.disabled, true);
+  assert.equal(app.nodes.submitLabel.textContent, 'Memeriksa akun...');
+  await pendingLogin;
   assert.equal(app.nodes.message.textContent, 'Email atau password tidak sesuai.');
   assert.equal(app.nodes.submit.disabled, false);
   assert.equal(app.nodes.password.attributes['aria-invalid'], 'true');

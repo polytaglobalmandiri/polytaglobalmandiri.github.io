@@ -6,7 +6,7 @@ Antarmuka Otomasi SPK diterbitkan melalui GitHub Pages pada `/apps/spk-automatio
 
 - Frontend: halaman-halaman statis SPK, termasuk Serah Terima, di folder ini.
 - Transport: `assets/js/gas-rpc.js` menyesuaikan pemanggilan `google.script.run` melalui JSONP untuk pembacaan publik serta POST JSON tanpa iframe untuk operasi lainnya; respons dashboard dapat dikompresi.
-- Backend: project GAS `1X4f-lJts_2H_rQBP6Q7G61FVeAPOuO5O0SLw_HvWUlP2UE9ePputw156`, deployment Versi 64 (6 Oktober 2026).
+- Backend: project GAS `1X4f-lJts_2H_rQBP6Q7G61FVeAPOuO5O0SLw_HvWUlP2UE9ePputw156`, deployment Versi 65 (6 Oktober 2026).
 - Endpoint: https://script.google.com/macros/s/AKfycbwgMIuKAdI8PpXyrTgXaNbbpoCi6JXlxCTxuScwEShcv2fCkIjv8NhmVio1tikASSYg/exec.
 - Database: `1bvyTfFQ1vvzw5ZVj-QUn-XGiyWifjK0lG-GPd0FO9Aw`.
 

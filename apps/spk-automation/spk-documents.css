@@ -1,18 +1,14 @@
-.spk-row-actions { display: flex; justify-content: center; gap: 6px; }
-.spk-documents-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 36px;
-  min-height: 36px;
-  padding: 8px;
-  border: 1px solid #d8dde5;
-  border-radius: 10px;
-  background: #fff;
-  color: #3569a8;
+#manageModal .manage-choice-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+#manageModal .manage-choice { min-width: 0; padding: 18px; display: flex; flex-direction: column; align-items: flex-start; }
+#manageModal .manage-choice strong { font-size: 15px; margin-bottom: 8px; }
+#manageModal .manage-choice p { font-size: 12px; line-height: 1.65; }
+#manageModal .manage-choice:focus-visible { outline: 3px solid #3569a8; outline-offset: 3px; }
+#manageModal .manage-choice-documents .manage-choice-icon {
+  color: #245f71;
+  background: linear-gradient(180deg, #eef9fc, #badbe4);
 }
-.spk-documents-button:hover { background: #eef5ff; border-color: #3569a8; }
-.spk-documents-button:focus-visible { outline: 3px solid #3569a8; outline-offset: 2px; }
+.manage-document-tags { display: flex; gap: 6px; margin-top: 12px; }
+.manage-document-tags > span { padding: 3px 8px; border: 1px solid #b8ced5; border-radius: 6px; background: #eef9fc; color: #245f71; font-size: 10px; font-weight: 800; }
 #spkDocumentsModal { padding-inline: 0 !important; }
 #spkDocumentsModal .modal-dialog {
   width: calc(100% - 24px) !important;
@@ -52,6 +48,8 @@
 .spk-doc-file small { display: block; margin-top: 4px; color: #6d7689; overflow-wrap: anywhere; }
 #spkDocumentsModal button:disabled { cursor: default; }
 @media (max-width: 480px) {
+  #manageModal .manage-choice-grid { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  #manageModal .manage-choice { padding: 16px; }
   #spkDocumentsModal .modal-body { padding: 16px; }
   .spk-doc-upload { padding: 14px; }
   .spk-doc-upload-fields { grid-template-columns: minmax(0, 1fr); }

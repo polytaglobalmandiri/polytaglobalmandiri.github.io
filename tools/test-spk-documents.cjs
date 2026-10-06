@@ -127,7 +127,10 @@ const gas = fs.readFileSync(path.join(__dirname, '..', 'gas-deploy', 'FE-Dashboa
 for (const source of [html, gas]) {
   assert.match(source, /spk-documents\.js\?v=/);
   assert.match(source, /spk-documents\.css\?v=/);
-  assert.match(source, /data-spk="' \+ escapeHtml\(spk\)/);
-  assert.match(source, /\.manage-button, \.spk-documents-button/);
+  assert.match(source, /id="manageDocumentsButton" class="manage-choice manage-choice-documents"/);
+  assert.match(source, /getElementById\('manageDocumentsButton'\)\.dataset\.spk = spk/);
+  const renderer = source.slice(source.indexOf('function renderManageButton('), source.indexOf('function getEtdStatus('));
+  assert.doesNotMatch(renderer, /spk-documents-button|manageDocumentsButton/);
+  assert.match(renderer, /<span>Kelola<\/span>/);
 }
 console.log('PASS: SPK document authorization, formats, exact 10 MiB boundary, multi-file categories, metadata, idempotent retry, error propagation, and both page integrations');

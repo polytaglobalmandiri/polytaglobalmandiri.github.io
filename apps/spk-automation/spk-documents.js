@@ -8,6 +8,7 @@
   var queue = [];
   var modalElement;
   var modal;
+  var returnToManage = false;
 
   function element(id) { return document.getElementById(id); }
   function rpc(method) {
@@ -214,7 +215,7 @@
       '<button id="spkDocRefresh" type="button" class="button"><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i> Segarkan</button></div>' +
       '<p class="spk-doc-help">Dokumen dibuka di Google Drive. Akses file mengikuti izin folder Drive; upload tidak mengubah izin berbagi.</p>' +
       '<div id="spkDocList"></div></div><div class="modal-footer">' +
-      '<button type="button" class="button" data-bs-dismiss="modal">Tutup</button></div></div></div>';
+      '<button id="spkDocBack" type="button" class="button" data-bs-dismiss="modal">Kembali ke Kelola SPK</button></div></div></div>';
     document.body.appendChild(modalElement);
     modal = bootstrap.Modal.getOrCreateInstance(modalElement);
     element('spkDocFiles').addEventListener('change', selectFiles);
@@ -225,6 +226,15 @@
       if (busy) { event.preventDefault(); return; }
       sequence++;
     });
+    modalElement.addEventListener('hidden.bs.modal', function () {
+      if (!returnToManage) return;
+      returnToManage = false;
+      var manageElement = element('manageModal');
+      manageElement.addEventListener('shown.bs.modal', function () {
+        element('manageDocumentsButton').focus();
+      }, { once: true });
+      bootstrap.Modal.getOrCreateInstance(manageElement).show();
+    });
   }
   function open(spk) {
     if (busy) return;
@@ -232,6 +242,7 @@
       throw new Error('Komponen dialog belum tersedia. Muat ulang halaman.');
     }
     init();
+    element('spkDocBack').textContent = returnToManage ? 'Kembali ke Kelola SPK' : 'Tutup';
     currentSpk = String(spk || '').trim();
     queue = [];
     element('spkDocSpk').textContent = currentSpk;
@@ -244,11 +255,20 @@
     refresh();
   }
   document.addEventListener('click', function (event) {
-    var button = event.target.closest('.spk-documents-button');
+    var button = event.target.closest('#manageDocumentsButton');
     if (!button) return;
     event.preventDefault();
     event.stopPropagation();
-    open(button.dataset.spk);
+    if (busy || button.disabled) return;
+    var manageElement = element('manageModal');
+    var spk = button.dataset.spk;
+    button.disabled = true;
+    manageElement.addEventListener('hidden.bs.modal', function () {
+      button.disabled = false;
+      returnToManage = true;
+      open(spk);
+    }, { once: true });
+    bootstrap.Modal.getOrCreateInstance(manageElement).hide();
   }, true);
   window.addEventListener('beforeunload', function (event) {
     if (busy) { event.preventDefault(); event.returnValue = ''; }

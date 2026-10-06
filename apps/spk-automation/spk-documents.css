@@ -55,8 +55,16 @@
 .spk-doc-upload-fields { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 14px; }
 .spk-doc-upload label { display: block; margin-bottom: 6px; font-weight: 700; font-size: 13px; }
 #spkDocumentsModal :is(.form-select, .form-control) { min-height: 44px; border: 1px solid #cbd2dc; border-radius: 8px; background-color: #fff; box-shadow: none; color: #253047; font-size: 13px; }
-#spkDocumentsModal input[type="file"] { padding: 0; line-height: 42px; }
-#spkDocumentsModal input[type="file"]::file-selector-button { margin: 0 12px 0 0; padding: 0 14px; height: 42px; border: 0; border-right: 1px solid #cbd2dc; background: #edf0f4; color: #253047; font: inherit; font-weight: 700; cursor: pointer; }
+.spk-doc-field-label { display: block; margin-bottom: 6px; font-weight: 700; font-size: 13px; }
+#spkDocumentsModal .spk-doc-add { min-height: 44px; width: 100%; border-style: dashed; color: #3569a8; }
+.spk-doc-queue-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.spk-doc-preview { margin: 16px 0; padding: 12px; border: 1px solid #d8dde5; border-radius: 10px; background: #f8fafc; }
+.spk-doc-preview-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+.spk-doc-preview-heading strong { min-width: 0; overflow-wrap: anywhere; font-size: 13px; }
+#spkDocPreviewContent iframe { width: 100%; height: 400px; border: 1px solid #d8dde5; border-radius: 8px; background: #fff; }
+#spkDocPreviewContent img { display: block; max-width: 100%; max-height: 400px; margin: 0 auto; object-fit: contain; }
+#spkDocPreviewContent p { font-size: 13px; line-height: 1.7; overflow-wrap: anywhere; }
+#spkDocPreviewContent a { margin-top: 12px; }
 #spkDocumentsModal :is(input, select, button, a):focus-visible { outline: 3px solid #3569a8; outline-offset: 2px; }
 .spk-doc-help { margin: 12px 0; color: #6d7689; font-size: 12px; line-height: 1.6; }
 .spk-doc-queue { list-style: none; padding: 0; margin: 0 0 12px; }

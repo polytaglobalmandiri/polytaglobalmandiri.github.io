@@ -26,7 +26,13 @@ Modal dokumen memisahkan area upload dan daftar tersimpan. Setiap kategori memil
 jumlah file, ikon sesuai format, serta rincian ukuran, waktu, dan pengunggah.
 Antrean upload menampilkan nama file dan status pada baris terpisah.
 Setiap kategori PO, PHJ, dan TDS dapat memiliki beberapa
-file. Pilih kategori, pilih satu atau beberapa file, lalu klik **Upload Dokumen**.
+file. Pilih kategori lalu klik **Tambah File**; ulangi untuk kategori lain tanpa
+menghilangkan antrean sebelumnya. Klik **Preview** untuk memeriksa PDF/gambar
+secara lokal sebelum diunggah. Word/Excel menampilkan informasi file dan tautan
+unduh untuk dibuka lewat aplikasi perangkat; isi tidak dikirim ke layanan preview
+eksternal. Tombol **Hapus** hanya membuang file yang belum tersimpan dari antrean.
+Klik **Simpan Semua** sekali untuk mengunggah antrean PO/PHJ/TDS secara berurutan,
+bukan transaksi atomik: file berhasil tetap tersimpan apabila file lain gagal.
 Format yang didukung: PDF, JPG/JPEG, PNG, DOC/DOCX, dan XLS/XLSX; setiap file harus
 berisi data dan berukuran maksimal 10 MiB (10.485.760 byte).
 

@@ -65,6 +65,10 @@ per PDF, dan maksimal 30 halaman OCR per proses. OCR memerlukan koneksi pertama
 kali untuk memuat aset aplikasi/model lokal. Hasil OCR tetap perlu ditinjau
 manual; kualitas scan, tabel kompleks, dan format pemasok yang belum dikenal
 dapat menurunkan akurasi.
+Panel Baca Dokumen menampilkan status pembacaan per file serta kemajuan OCR;
+dialog tinjau menampilkan sumber, peringatan, dan jumlah field terpilih.
+Notifikasi setelah penerapan membedakan hasil lengkap, data yang dilewati,
+dan kegagalan pembacaan. Animasi mengikuti preferensi pengurangan gerak perangkat.
 
 Backend `BE-Spk-Documents.js` memvalidasi sesi, izin tindakan, keberadaan SPK,
 ekstensi, header isi file, dan ukuran sebelum menyimpan. Folder Drive

@@ -11,7 +11,7 @@
   var MAX_FILES = 5;
   var MAX_PAGES_PER_FILE = 30;
   var PDFJS_VERSION = '3.11.174';
-  var ASSET_VERSION = '20261007-2';
+  var ASSET_VERSION = '20261007-3';
   var OCR_MAX_PAGES_PER_IMPORT = 30;
   var FIELDS = [
     { id: 'customer', label: 'Pelanggan', priority: ['PO', 'PHJ', 'TDS'] },
@@ -32,6 +32,24 @@
   var installed = false;
   var ocrWorkerPromise = null;
   var ocrTaskLabel = '';
+
+  function updateReadingStatus(label, percent) {
+    if (!window.Swal) return;
+    var popup = window.Swal.getPopup();
+    if (!popup || !popup.classList.contains('spk-import-progress-popup')) return;
+    var detail = popup.querySelector('.spk-import-progress-detail');
+    var fill = popup.querySelector('.spk-import-progress-fill');
+    var progress = popup.querySelector('.spk-import-progress-track');
+    if (detail) detail.textContent = label;
+    if (fill) {
+      fill.style.width = percent == null ? '34%' : percent + '%';
+      fill.classList.toggle('is-scanning', percent == null);
+    }
+    if (progress) {
+      if (percent == null) progress.removeAttribute('aria-valuenow');
+      else progress.setAttribute('aria-valuenow', String(percent));
+    }
+  }
 
   function normalizeText(value) {
     return String(value || '').replace(/\u00a0/g, ' ').replace(/\s+/g, ' ').trim();
@@ -404,7 +422,7 @@
         logger: function (message) {
           if (message.status === 'recognizing text' && window.Swal && ocrTaskLabel) {
             var percent = Math.max(0, Math.min(100, Math.round((message.progress || 0) * 100)));
-            window.Swal.update({ text: ocrTaskLabel + ' · OCR lokal ' + percent + '%' });
+            updateReadingStatus(ocrTaskLabel + ' · OCR lokal ' + percent + '%', percent);
           }
         }
       });
@@ -515,22 +533,32 @@
         ? '<span class="spk-import-warning">Sumber utama ' + escapeHtml(field.preferredSource) +
           ' tidak terbaca untuk field ini; nilai berasal dari ' + escapeHtml(field.source) + '. Periksa sebelum memilih.</span>'
         : '';
-      return '<label class="spk-import-field' + (field.conflict ? ' has-conflict' : '') + '">' +
-        '<input type="checkbox" data-import-selected="' + escapeHtml(field.id) + '"' + (defaultChecked ? ' checked' : '') + '>' +
+      return '<div class="spk-import-field' + (field.conflict || field.needsReview ? ' has-conflict' : '') + '">' +
+        '<label class="spk-import-field-select"><input type="checkbox" data-import-selected="' + escapeHtml(field.id) + '"' + (defaultChecked ? ' checked' : '') + '>' +
         '<span class="spk-import-field-copy"><strong>' + escapeHtml(field.label) + '</strong>' +
         '<small>Sumber utama: ' + escapeHtml(field.source) + ' · ' + escapeHtml(field.page) + '</small>' +
-        conflict + fallback + '</span><input class="spk-import-value" type="text" data-import-value="' + escapeHtml(field.id) +
-        '" value="' + escapeHtml(field.value) + '" aria-label="Nilai ' + escapeHtml(field.label) + '"></label>';
+        conflict + fallback + '</span></label><input class="spk-import-value" type="text" data-import-value="' + escapeHtml(field.id) +
+        '" value="' + escapeHtml(field.value) + '" aria-label="Nilai ' + escapeHtml(field.label) + '"></div>';
     }).join('');
     var issues = result.issues.length
       ? '<div class="spk-import-issues"><strong>Perlu diperiksa</strong><ul>' +
         result.issues.map(function (issue) { return '<li>' + escapeHtml(issue) + '</li>'; }).join('') + '</ul></div>'
       : '';
-    return '<div class="spk-import-review"><p class="spk-import-privacy">Dokumen diproses di browser ini dan tidak diunggah ke server. OCR memuat model lokal Bahasa Indonesia/Inggris dari aset aplikasi.</p>' +
-      '<div class="spk-import-sources">' + summary + '</div>' + issues +
-      (rows ? '<div class="spk-import-fields">' + rows + '</div>' :
+    return '<div class="spk-import-review"><div class="spk-import-review-intro"><span class="spk-import-eyebrow">HASIL PEMBACAAN</span>' +
+      '<strong>' + result.pages.length + ' halaman diperiksa · ' + result.fields.length + ' field ditemukan</strong>' +
+      '<p>Bandingkan dengan dokumen asli. Centang data yang ingin dipindahkan dan koreksi nilainya bila perlu.</p></div>' +
+      '<div class="spk-import-privacy"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i>' +
+      '<span>Diproses di browser Anda. Dokumen tidak diunggah ke server; model OCR dimuat dari aset aplikasi.</span></div>' +
+      '<div class="spk-import-section-label">Dokumen terbaca</div><div class="spk-import-sources">' + summary + '</div>' + issues +
+      (rows ? '<div class="spk-import-section-heading"><span class="spk-import-section-label">Data untuk form</span>' +
+        '<span class="spk-import-selected-count" aria-live="polite"></span></div><div class="spk-import-fields">' + rows + '</div>' :
         '<div class="spk-import-empty">Belum ada field yang bisa dipetakan dari dokumen. Pastikan halaman terbaca dan tinjau teks hasil OCR.</div>') +
       '<p class="spk-import-footnote">Nilai hanya diterapkan ke kolom form yang Anda centang. Konflik tidak dicentang otomatis.</p></div>';
+  }
+
+  function updateSelectionCount(popup) {
+    var count = popup.querySelector('.spk-import-selected-count');
+    if (count) count.textContent = popup.querySelectorAll('[data-import-selected]:checked').length + ' dipilih';
   }
 
   function applySelection(popup, result) {
@@ -606,17 +634,19 @@
     try {
       for (var index = 0; index < files.length; index++) {
         var file = files[index];
+        updateReadingStatus('Dokumen ' + (index + 1) + '/' + files.length + ' · ' + file.name);
         if (!file.size || file.size > MAX_FILE_BYTES) {
           throw new Error(file.name + ' harus berisi data dan maksimal 20 MB.');
         }
         if (/\.pdf$/i.test(file.name || '') || file.type === 'application/pdf') {
           allPages = allPages.concat(await readPdf(file, getWorker, function (label) {
             ocrTaskLabel = label;
-            if (window.Swal) window.Swal.update({ text: label + ' · menyiapkan OCR lokal…' });
+            updateReadingStatus(label + ' · menyiapkan OCR lokal…');
           }));
         } else if (/^image\/(?:png|jpeg)$/i.test(file.type || '') || /\.(?:png|jpe?g)$/i.test(file.name || '')) {
           var imageWorker = await getWorker();
           ocrTaskLabel = file.name;
+          updateReadingStatus(file.name + ' · menyiapkan OCR lokal…');
           var imageText = await recognizeImage(file, imageWorker);
           allPages.push({
             source: file.name,
@@ -656,22 +686,36 @@
         throw new Error('Dialog tinjau tidak tersedia. Muat ulang halaman lalu coba kembali.');
       }
       window.Swal.fire({
-        title: 'Membaca dokumen secara lokal',
-        text: 'Dokumen diproses di browser ini. File tidak diunggah ke server.',
+        title: 'Membaca dokumen',
+        html: '<div class="spk-import-progress"><div class="spk-import-progress-visual" aria-hidden="true">' +
+          '<i class="fa-solid fa-file-lines"></i><span></span><i class="fa-solid fa-wand-magic-sparkles"></i></div>' +
+          '<p class="spk-import-progress-lead">Mengambil data dari PO, PHJ, dan TDS</p>' +
+          '<p class="spk-import-progress-detail" role="status" aria-live="polite">Menyiapkan ' + files.length + ' dokumen…</p>' +
+          '<div class="spk-import-progress-track" role="progressbar" aria-label="Kemajuan OCR" aria-valuemin="0" aria-valuemax="100">' +
+          '<span class="spk-import-progress-fill is-scanning"></span></div>' +
+          '<small>Proses berlangsung di perangkat ini. Jangan tutup halaman sampai selesai.</small></div>',
+        showConfirmButton: false,
         allowOutsideClick: false,
         allowEscapeKey: false,
-        didOpen: function () { window.Swal.showLoading(); }
+        customClass: { popup: 'spk-import-progress-popup' }
       });
       try {
         var result = await importFiles(files);
         var review = await window.Swal.fire({
           title: 'Tinjau draft SPK',
           html: buildReviewHtml(result),
-          width: 820,
+          width: 860,
           showCancelButton: true,
           confirmButtonText: 'Terapkan pilihan ke form',
-          cancelButtonText: 'Batal',
+          cancelButtonText: 'Kembali ke form',
           focusConfirm: false,
+          customClass: { popup: 'spk-import-review-popup', confirmButton: 'spk-import-confirm' },
+          didOpen: function (popup) {
+            updateSelectionCount(popup);
+            popup.addEventListener('change', function (event) {
+              if (event.target.matches('[data-import-selected]')) updateSelectionCount(popup);
+            });
+          },
           preConfirm: function () {
             return applySelection(window.Swal.getPopup(), result);
           }
@@ -679,19 +723,27 @@
         if (review.isConfirmed) {
           var summary = review.value;
           await window.Swal.fire({
-            icon: summary.applied.length ? 'success' : 'info',
-            title: summary.applied.length ? 'Draft diterapkan' : 'Tidak ada nilai yang diterapkan',
+            icon: summary.skipped.length ? 'warning' : summary.applied.length ? 'success' : 'info',
+            title: summary.skipped.length ? 'Sebagian data perlu diperiksa' :
+              summary.applied.length ? 'Draft siap diperiksa' : 'Belum ada data yang diterapkan',
             text: summary.applied.length
               ? summary.applied.length + ' field diisi. Periksa kembali seluruh form sebelum menyimpan.' +
                 (summary.skipped.length ? ' Tidak diterapkan: ' + summary.skipped.join(', ') + '.' : '')
-              : 'Pilih setidaknya satu field yang nilainya tersedia dan valid.'
+              : summary.skipped.length
+                ? 'Tidak diterapkan: ' + summary.skipped.join(', ') + '. Periksa nilai lalu coba kembali.'
+                : 'Tidak ada field dipilih. Form belum berubah.',
+            confirmButtonText: 'Mengerti',
+            customClass: { popup: 'spk-import-notice-popup' }
           });
         }
       } catch (error) {
         window.Swal.fire({
           icon: 'error',
           title: 'Dokumen belum dapat dibaca',
-          text: error.message || 'Terjadi kesalahan saat membaca PDF.'
+          text: error.message || 'Terjadi kesalahan saat membaca dokumen.',
+          footer: 'Periksa format, ukuran, dan kualitas file, lalu coba lagi.',
+          confirmButtonText: 'Mengerti',
+          customClass: { popup: 'spk-import-notice-popup' }
         });
       }
     });
@@ -704,8 +756,11 @@
     if (!root || !fields || root.querySelector('.spk-import-launcher')) return;
     var launcher = document.createElement('section');
     launcher.className = 'spk-import-launcher';
-    launcher.innerHTML = '<div><strong>Buat draft SPK dari dokumen</strong><p>Pilih PDF, PNG, atau JPEG PO/PHJ/TDS. File tetap di perangkat; hasil hanya diterapkan setelah ditinjau.</p></div>' +
-      '<button type="button" class="spk-import-open"><i class="fa-solid fa-file-arrow-up" aria-hidden="true"></i> Baca Dokumen</button>';
+    launcher.innerHTML = '<div class="spk-import-launcher-icon" aria-hidden="true"><i class="fa-solid fa-file-lines"></i></div>' +
+      '<div class="spk-import-launcher-copy"><span class="spk-import-eyebrow">ASISTEN DOKUMEN · OCR LOKAL</span>' +
+      '<strong>Buat draft SPK dari dokumen</strong><p>Baca PO, PHJ, dan TDS dari PDF atau gambar. Tinjau hasil sebelum mengisi form.</p>' +
+      '<span class="spk-import-launcher-meta"><i class="fa-solid fa-lock" aria-hidden="true"></i> File tetap di perangkat · PDF / PNG / JPEG</span></div>' +
+      '<button type="button" class="spk-import-open"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Baca Dokumen <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>';
     fields.parentNode.insertBefore(launcher, fields);
   }
 
@@ -737,6 +792,7 @@
   }
 
   return {
+    buildReviewHtml: buildReviewHtml,
     classifyPage: classifyPage,
     extractDraft: extractDraft,
     groupTextLines: groupTextLines,

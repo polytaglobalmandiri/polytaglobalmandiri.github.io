@@ -85,6 +85,15 @@ assert.equal(field('toleransi').value, '10');
 assert.equal(field('jumlahOrder').needsReview, false);
 assert.equal(draft.fields.some(item => item.id === 'tanggalKirim'), false);
 assert.equal(draft.issues.length, 0);
+global.document = { getElementById: () => null };
+const reviewHtml = importer.buildReviewHtml(draft);
+delete global.document;
+assert.match(reviewHtml, /13 field ditemukan/);
+assert.match(reviewHtml, /spk-import-field-select/);
+assert.match(reviewHtml, /spk-import-selected-count/);
+assert.match(reviewHtml, /data-import-selected="customer" checked/);
+assert.match(reviewHtml, /data-import-value="customer"/);
+assert.match(reviewHtml, /Dokumen tidak diunggah ke server/);
 
 const conflict = importer.extractDraft([
   { source: 'po.pdf · halaman 1', lines: ['PURCHASE ORDER', 'PT. CUSTOMER A', 'Nomor : PO-1'] },
@@ -94,6 +103,12 @@ assert.equal(fieldFrom(conflict, 'customer').value, 'PT. CUSTOMER A');
 assert.equal(fieldFrom(conflict, 'customer').source, 'PO');
 assert.equal(fieldFrom(conflict, 'customer').conflict, true);
 assert.equal(fieldFrom(conflict, 'customer').alternatives[0].value, 'PT. CUSTOMER B');
+global.document = { getElementById: () => null };
+const conflictHtml = importer.buildReviewHtml(conflict);
+delete global.document;
+assert.match(conflictHtml, /class="spk-import-field has-conflict"/);
+assert.doesNotMatch(conflictHtml, /data-import-selected="customer" checked/);
+assert.match(conflictHtml, /Perbedaan ditemukan/);
 
 const multiItem = importer.extractDraft([
   {

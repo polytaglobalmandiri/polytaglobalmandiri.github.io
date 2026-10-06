@@ -8,7 +8,6 @@
   var queue = [];
   var modalElement;
   var modal;
-  var returnToManage = false;
 
   function element(id) { return document.getElementById(id); }
   function rpc(method) {
@@ -215,7 +214,7 @@
       '<button id="spkDocRefresh" type="button" class="button"><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i> Segarkan</button></div>' +
       '<p class="spk-doc-help">Dokumen dibuka di Google Drive. Akses file mengikuti izin folder Drive; upload tidak mengubah izin berbagi.</p>' +
       '<div id="spkDocList"></div></div><div class="modal-footer">' +
-      '<button id="spkDocBack" type="button" class="button" data-bs-dismiss="modal">Kembali ke Kelola SPK</button></div></div></div>';
+      '<button type="button" class="button" data-bs-dismiss="modal">Tutup</button></div></div></div>';
     document.body.appendChild(modalElement);
     modal = bootstrap.Modal.getOrCreateInstance(modalElement);
     element('spkDocFiles').addEventListener('change', selectFiles);
@@ -226,15 +225,6 @@
       if (busy) { event.preventDefault(); return; }
       sequence++;
     });
-    modalElement.addEventListener('hidden.bs.modal', function () {
-      if (!returnToManage) return;
-      returnToManage = false;
-      var manageElement = element('manageModal');
-      manageElement.addEventListener('shown.bs.modal', function () {
-        element('manageDocumentsButton').focus();
-      }, { once: true });
-      bootstrap.Modal.getOrCreateInstance(manageElement).show();
-    });
   }
   function open(spk) {
     if (busy) return;
@@ -242,7 +232,6 @@
       throw new Error('Komponen dialog belum tersedia. Muat ulang halaman.');
     }
     init();
-    element('spkDocBack').textContent = returnToManage ? 'Kembali ke Kelola SPK' : 'Tutup';
     currentSpk = String(spk || '').trim();
     queue = [];
     element('spkDocSpk').textContent = currentSpk;
@@ -265,7 +254,6 @@
     button.disabled = true;
     manageElement.addEventListener('hidden.bs.modal', function () {
       button.disabled = false;
-      returnToManage = true;
       open(spk);
     }, { once: true });
     bootstrap.Modal.getOrCreateInstance(manageElement).hide();

@@ -133,4 +133,9 @@ for (const source of [html, gas]) {
   assert.doesNotMatch(renderer, /spk-documents-button|manageDocumentsButton/);
   assert.match(renderer, /<span>Kelola<\/span>/);
 }
-console.log('PASS: SPK document authorization, formats, exact 10 MiB boundary, multi-file categories, metadata, idempotent retry, error propagation, and both page integrations');
+const documentUi = fs.readFileSync(path.join(__dirname, '..', 'apps', 'spk-automation', 'spk-documents.js'), 'utf8');
+assert.doesNotMatch(documentUi, /returnToManage|Kembali ke Kelola SPK/);
+assert.doesNotMatch(documentUi, /getOrCreateInstance\(manageElement\)\.show\(\)/);
+assert.match(documentUi, /data-bs-dismiss="modal">Tutup<\/button>/);
+assert.match(documentUi, /if \(busy\) \{ event\.preventDefault\(\); return; \}/);
+console.log('PASS: SPK document authorization, formats, exact 10 MiB boundary, multi-file categories, metadata, idempotent retry, error propagation, both page integrations, and close without reopening management');

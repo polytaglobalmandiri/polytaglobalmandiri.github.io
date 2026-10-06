@@ -1,14 +1,30 @@
-#manageModal .manage-choice-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-#manageModal .manage-choice { min-width: 0; padding: 18px; display: flex; flex-direction: column; align-items: flex-start; }
-#manageModal .manage-choice strong { font-size: 15px; margin-bottom: 8px; }
-#manageModal .manage-choice p { font-size: 12px; line-height: 1.65; }
+#manageModal .manage-choice-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+#manageModal .manage-choice {
+  min-width: 0;
+  min-height: 92px;
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+#manageModal .manage-choice-icon { width: 32px; height: 32px; margin-bottom: 8px; font-size: 14px; }
+#manageModal .manage-choice strong { font-size: 12px; line-height: 1.4; margin: 0; }
+#manageModal .manage-choice p {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 #manageModal .manage-choice:focus-visible { outline: 3px solid #3569a8; outline-offset: 3px; }
 #manageModal .manage-choice-documents .manage-choice-icon {
   color: #245f71;
   background: linear-gradient(180deg, #eef9fc, #badbe4);
 }
-.manage-document-tags { display: flex; gap: 6px; margin-top: 12px; }
-.manage-document-tags > span { padding: 3px 8px; border: 1px solid #b8ced5; border-radius: 6px; background: #eef9fc; color: #245f71; font-size: 10px; font-weight: 800; }
+.manage-document-tags { display: none; }
 #spkDocumentsModal { padding-inline: 0 !important; }
 #spkDocumentsModal .modal-dialog {
   width: calc(100% - 24px) !important;
@@ -48,8 +64,9 @@
 .spk-doc-file small { display: block; margin-top: 4px; color: #6d7689; overflow-wrap: anywhere; }
 #spkDocumentsModal button:disabled { cursor: default; }
 @media (max-width: 480px) {
-  #manageModal .manage-choice-grid { grid-template-columns: minmax(0, 1fr); gap: 12px; }
-  #manageModal .manage-choice { padding: 16px; }
+  #manageModal .manage-choice-grid { gap: 6px; }
+  #manageModal .manage-choice { min-height: 88px; padding: 10px 4px; }
+  #manageModal .manage-choice strong { font-size: 11px; }
   #spkDocumentsModal .modal-body { padding: 16px; }
   .spk-doc-upload { padding: 14px; }
   .spk-doc-upload-fields { grid-template-columns: minmax(0, 1fr); }

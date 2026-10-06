@@ -18,8 +18,8 @@ Backend hanya menerima nama fungsi yang dicantumkan dalam allowlist `SPK_RPC_MET
 
 Pada halaman PO & SPK, klik **Kelola** pada baris SPK, lalu pilih **Dokumen SPK**
 untuk upload dan membuka lampiran. Menu Kelola menampilkan empat kartu: Cetak SPK,
-Lihat Saja, Sunting Data, dan Dokumen SPK; dua kolom di desktop dan satu kolom di
-ponsel. Dialog dokumen dibuka setelah dialog Kelola selesai ditutup, sehingga
+Lihat Saja, Sunting Data, dan Dokumen SPK; empat tombol ringkas berjajar dalam satu
+baris, termasuk di ponsel. Dialog dokumen dibuka setelah dialog Kelola selesai ditutup, sehingga
 tidak ada dialog bertumpuk. Menutup dokumen mengembalikan pengguna ke Kelola SPK.
 Setiap kategori PO, PHJ, dan TDS dapat memiliki beberapa
 file. Pilih kategori, pilih satu atau beberapa file, lalu klik **Upload Dokumen**.

@@ -134,6 +134,8 @@ for (const source of [html, gas]) {
   assert.match(renderer, /<span>Kelola<\/span>/);
 }
 const documentUi = fs.readFileSync(path.join(__dirname, '..', 'apps', 'spk-automation', 'spk-documents.js'), 'utf8');
+const documentCss = fs.readFileSync(path.join(__dirname, '..', 'apps', 'spk-automation', 'spk-documents.css'), 'utf8');
+assert.match(documentCss, /#manageRelease \.release-indicator \{ display: inline-flex; align-items: center; justify-content: center; \}/);
 assert.doesNotMatch(documentUi, /returnToManage|Kembali ke Kelola SPK/);
 assert.doesNotMatch(documentUi, /getOrCreateInstance\(manageElement\)\.show\(\)/);
 assert.match(documentUi, /data-bs-dismiss="modal">Tutup<\/button>/);

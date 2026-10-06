@@ -1,3 +1,5 @@
+#manageRelease { display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+#manageRelease .release-indicator { display: inline-flex; align-items: center; justify-content: center; }
 #manageModal .manage-choice-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
 #manageModal .manage-choice {
   min-width: 0;

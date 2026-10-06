@@ -26,8 +26,11 @@ Modal dokumen memisahkan area upload dan daftar tersimpan. Setiap kategori memil
 jumlah file, ikon sesuai format, serta rincian ukuran, waktu, dan pengunggah.
 Antrean upload menampilkan nama file dan status pada baris terpisah.
 Setiap kategori PO, PHJ, dan TDS dapat memiliki beberapa
-file. Pilih kategori lalu klik **Tambah File**; ulangi untuk kategori lain tanpa
-menghilangkan antrean sebelumnya. Klik **Preview** untuk memeriksa PDF/gambar
+file. Klik tombol **+ PO**, **+ PHJ**, atau **+ TDS** untuk memilih berkas langsung
+pada kategori yang tepat tanpa dropdown; antrean kategori lain tetap tersimpan.
+Satu tombol **Simpan Semua** yang selalu berada di footer menunjukkan jumlah file
+yang belum disimpan. Baris antrean ringkas hanya menampilkan nama, kategori,
+ukuran/status, Preview, dan Hapus. Klik **Preview** untuk memeriksa PDF/gambar
 secara lokal sebelum diunggah. Word/Excel menampilkan informasi file dan tautan
 unduh untuk dibuka lewat aplikasi perangkat; isi tidak dikirim ke layanan preview
 eksternal. Tombol **Hapus** hanya membuang file yang belum tersimpan dari antrean.

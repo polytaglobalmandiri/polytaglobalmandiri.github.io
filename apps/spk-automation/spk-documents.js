@@ -9,6 +9,7 @@
   var modalElement;
   var modal;
   var previewUrl = '';
+  var selectedType = 'PO';
 
   function element(id) { return document.getElementById(id); }
   function rpc(method) {
@@ -45,37 +46,51 @@
     modalElement.querySelectorAll('button, input, select').forEach(function (control) {
       control.disabled = value;
     });
-    element('spkDocSave').disabled = value || !queue.some(function (item) { return !item.saved; });
+    var pending = queue.filter(function (item) { return !item.saved; }).length;
+    element('spkDocSave').disabled = value || pending === 0;
     element('spkDocSave').innerHTML = value
       ? '<span class="spinner-border spinner-border-sm" aria-hidden="true"></span> Mengunggah...'
-      : '<i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i> Simpan Semua';
+      : '<i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i> Simpan Semua' +
+        (pending ? ' <span class="spk-doc-save-count">' + pending + '</span>' : '');
+    element('spkDocQueueCount').textContent = pending ? pending + ' belum disimpan' : 'Tidak ada file baru';
+    ['PO', 'PHJ', 'TDS'].forEach(function (type) {
+      var count = queue.filter(function (item) { return item.type === type && !item.saved; }).length;
+      element('spkDocCount' + type).textContent = count || '';
+      element('spkDocAdd' + type).setAttribute('aria-label', 'Tambah file ' + type + (count ? ', ' + count + ' belum disimpan' : ''));
+    });
   }
   function renderQueue() {
     var list = element('spkDocQueue');
     list.replaceChildren();
     queue.forEach(function (item) {
       var row = document.createElement('li');
-      row.className = item.saved ? 'is-saved' : item.error ? 'is-failed' : '';
+      row.className = 'spk-doc-queue-item' + (item.saved ? ' is-saved' : item.error ? ' is-failed' : '');
+      var identity = document.createElement('div');
+      identity.className = 'spk-doc-queue-identity';
       var name = document.createElement('strong');
       name.textContent = item.file.name;
       var detail = document.createElement('small');
       detail.textContent = item.type + ' · ' + formatSize(item.file.size) + ' · ' +
         (item.saved ? 'Tersimpan' : item.error || 'Siap diunggah');
-      row.append(name, detail);
+      identity.append(name, detail);
       var actions = document.createElement('div');
       actions.className = 'spk-doc-queue-actions';
       var preview = document.createElement('button');
       preview.type = 'button';
-      preview.className = 'button';
-      preview.textContent = 'Preview';
+      preview.className = 'spk-doc-icon-action';
+      preview.setAttribute('aria-label', 'Preview ' + item.file.name);
+      preview.title = 'Preview ' + item.file.name;
+      preview.innerHTML = '<i class="fa-solid fa-eye" aria-hidden="true"></i>';
       preview.disabled = busy;
       preview.addEventListener('click', function () { showPreview(item); });
       actions.appendChild(preview);
       if (!item.saved) {
         var remove = document.createElement('button');
         remove.type = 'button';
-        remove.className = 'button';
-        remove.textContent = 'Hapus';
+        remove.className = 'spk-doc-icon-action';
+        remove.setAttribute('aria-label', 'Hapus ' + item.file.name + ' dari antrean');
+        remove.title = 'Hapus dari antrean';
+        remove.innerHTML = '<i class="fa-solid fa-xmark" aria-hidden="true"></i>';
         remove.disabled = busy;
         remove.addEventListener('click', function () {
           if (busy) return;
@@ -87,7 +102,7 @@
         });
         actions.appendChild(remove);
       }
-      row.appendChild(actions);
+      row.append(identity, actions);
       list.appendChild(row);
     });
   }
@@ -132,7 +147,7 @@
     download.textContent = 'Unduh / Buka di Perangkat';
     content.appendChild(download);
     element('spkDocPreview').hidden = false;
-    element('spkDocPreview').scrollIntoView({ block: 'nearest' });
+    element('spkDocPreview').hidden = false;
   }
   function formatSize(bytes) {
     return bytes >= 1024 * 1024
@@ -216,7 +231,7 @@
   function selectFiles() {
     if (busy) return;
     var files = Array.from(element('spkDocFiles').files);
-    var type = element('spkDocType').value;
+    var type = selectedType;
     try {
       files.forEach(function (file) {
         if (!FORMATS.test(file.name)) throw new Error('Format file tidak didukung: ' + file.name);
@@ -226,8 +241,20 @@
       var additions = files.map(function (file) {
         return { file: file, type: type, uploadId: crypto.randomUUID(), saved: false, error: '' };
       });
-      queue = queue.concat(additions);
-      status(files.length ? files.length + ' file ' + type + ' ditambahkan. Tambahkan kategori lain atau klik Simpan Semua.' : '');
+      var duplicateCount = additions.filter(function (addition) {
+        return queue.some(function (item) {
+          return item.type === addition.type && item.file.name === addition.file.name &&
+            item.file.size === addition.file.size && item.file.lastModified === addition.file.lastModified;
+        });
+      }).length;
+      queue = queue.concat(additions.filter(function (addition) {
+        return !queue.some(function (item) {
+          return item.type === addition.type && item.file.name === addition.file.name &&
+            item.file.size === addition.file.size && item.file.lastModified === addition.file.lastModified;
+        });
+      }));
+      if (duplicateCount) status(duplicateCount + ' file duplikat dilewati; file yang sudah ada tetap di antrean.', 'error');
+      else status(files.length ? files.length + ' file ' + type + ' ditambahkan ke antrean.' : '');
     } catch (error) {
       status(error.message, 'error');
     }
@@ -268,6 +295,7 @@
       : queue.length + ' file berhasil disimpan.', failed ? 'error' : 'success');
     await refresh(true);
     setBusy(false);
+    renderQueue();
   }
   function init() {
     if (modalElement) return;
@@ -287,29 +315,37 @@
       '<div class="modal-body"><section class="spk-doc-upload" aria-labelledby="spkDocUploadTitle">' +
       '<div class="spk-doc-section-heading"><div><h3 id="spkDocUploadTitle">Upload dokumen</h3>' +
       '<p>Tambahkan file PO, PHJ, dan TDS, periksa preview, lalu simpan sekaligus.</p></div><span class="spk-doc-limit">Maks. 10 MB / file</span></div>' +
-      '<div class="spk-doc-upload-fields"><div><label for="spkDocType">Jenis dokumen</label>' +
-      '<select id="spkDocType" class="form-select"><option>PO</option><option>PHJ</option><option>TDS</option></select></div>' +
-      '<div><span class="spk-doc-field-label">Lampiran</span><button id="spkDocAdd" type="button" class="button spk-doc-add">' +
-      '<i class="fa-solid fa-plus" aria-hidden="true"></i> Tambah File</button>' +
-      '<input id="spkDocFiles" type="file" hidden multiple aria-label="Tambah file dokumen" aria-describedby="spkDocFormats" ' +
+      '<div class="spk-doc-upload-fields"><div><span class="spk-doc-field-label">Tambah file ke kategori</span>' +
+      '<div class="spk-doc-add-group" role="group" aria-label="Pilih kategori dokumen">' +
+      '<button id="spkDocAddPO" type="button" class="spk-doc-add"><i class="fa-solid fa-plus" aria-hidden="true"></i> PO <span id="spkDocCountPO"></span></button>' +
+      '<button id="spkDocAddPHJ" type="button" class="spk-doc-add"><i class="fa-solid fa-plus" aria-hidden="true"></i> PHJ <span id="spkDocCountPHJ"></span></button>' +
+      '<button id="spkDocAddTDS" type="button" class="spk-doc-add"><i class="fa-solid fa-plus" aria-hidden="true"></i> TDS <span id="spkDocCountTDS"></span></button>' +
+      '</div><input id="spkDocFiles" type="file" hidden multiple aria-label="Tambah file dokumen" aria-describedby="spkDocFormats" ' +
       'accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx"></div></div>' +
       '<p id="spkDocFormats" class="spk-doc-help">PDF, JPG/PNG, Word, atau Excel. Bisa pilih beberapa file sekaligus.</p>' +
+      '<div class="spk-doc-queue-heading"><strong>Antrean upload</strong><span id="spkDocQueueCount">Tidak ada file baru</span></div>' +
       '<ul id="spkDocQueue" class="spk-doc-queue"></ul>' +
       '<section id="spkDocPreview" class="spk-doc-preview" hidden aria-labelledby="spkDocPreviewTitle">' +
       '<div class="spk-doc-preview-heading"><strong id="spkDocPreviewTitle"></strong>' +
       '<button id="spkDocPreviewClose" type="button" class="button" aria-label="Tutup preview">Tutup Preview</button></div>' +
       '<div id="spkDocPreviewContent"></div></section>' +
-      '<button id="spkDocSave" type="button" class="button button-primary" disabled>Simpan Semua</button>' +
       '<div id="spkDocStatus" class="spk-doc-status" role="status" aria-live="polite"></div></section>' +
       '<div class="spk-doc-list-heading"><h3>Dokumen tersimpan</h3>' +
       '<button id="spkDocRefresh" type="button" class="button"><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i> Segarkan</button></div>' +
       '<div id="spkDocList" aria-live="polite"></div></div><div class="modal-footer">' +
       '<span class="spk-doc-footer-note"><i class="fa-solid fa-lock" aria-hidden="true"></i> Akses file mengikuti izin Google Drive.</span>' +
-      '<button type="button" class="button" data-bs-dismiss="modal">Tutup</button></div></div></div>';
+      '<button type="button" class="button" data-bs-dismiss="modal">Tutup</button>' +
+      '<button id="spkDocSave" type="button" class="button button-primary" disabled><i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i> Simpan Semua</button>' +
+      '</div></div></div>';
     document.body.appendChild(modalElement);
     modal = bootstrap.Modal.getOrCreateInstance(modalElement);
     element('spkDocFiles').addEventListener('change', selectFiles);
-    element('spkDocAdd').addEventListener('click', function () { element('spkDocFiles').click(); });
+    ['PO', 'PHJ', 'TDS'].forEach(function (type) {
+      element('spkDocAdd' + type).addEventListener('click', function () {
+        selectedType = type;
+        element('spkDocFiles').click();
+      });
+    });
     element('spkDocPreviewClose').addEventListener('click', clearPreview);
     element('spkDocSave').addEventListener('click', upload);
     element('spkDocRefresh').addEventListener('click', function () { refresh(false); });
@@ -330,9 +366,10 @@
     queue = [];
     element('spkDocSpk').textContent = 'SPK ' + currentSpk + ' · PO / PHJ / TDS';
     element('spkDocFiles').value = '';
-    element('spkDocType').value = 'PO';
-    renderQueue();
+    selectedType = 'PO';
+    element('spkDocPreview').hidden = true;
     status('');
+    renderQueue();
     setBusy(false);
     modal.show();
     refresh();

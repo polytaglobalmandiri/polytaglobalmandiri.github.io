@@ -69,6 +69,8 @@ Panel Baca Dokumen menampilkan status pembacaan per file serta kemajuan OCR;
 dialog tinjau menampilkan sumber, peringatan, dan jumlah field terpilih.
 Notifikasi setelah penerapan membedakan hasil lengkap, data yang dilewati,
 dan kegagalan pembacaan. Animasi mengikuti preferensi pengurangan gerak perangkat.
+Warna panel dan dialog mengikuti tema industrial Input SPK: permukaan abu-abu
+metallic, tombol arang, dan aksen merah; hijau/kuning tetap dipakai untuk status.
 
 Backend `BE-Spk-Documents.js` memvalidasi sesi, izin tindakan, keberadaan SPK,
 ekstensi, header isi file, dan ukuran sebelum menyimpan. Folder Drive

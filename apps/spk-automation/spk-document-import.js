@@ -11,7 +11,7 @@
   var MAX_FILES = 5;
   var MAX_PAGES_PER_FILE = 30;
   var PDFJS_VERSION = '3.11.174';
-  var ASSET_VERSION = '20261007-3';
+  var ASSET_VERSION = '20261007-4';
   var OCR_MAX_PAGES_PER_IMPORT = 30;
   var FIELDS = [
     { id: 'customer', label: 'Pelanggan', priority: ['PO', 'PHJ', 'TDS'] },

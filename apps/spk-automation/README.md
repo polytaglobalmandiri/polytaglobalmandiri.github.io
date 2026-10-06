@@ -24,18 +24,18 @@ tidak ada dialog bertumpuk. Tombol X atau Tutup menutup dokumen tanpa membuka
 kembali Kelola SPK. Penutupan tetap ditahan selama upload berlangsung.
 Modal dokumen memisahkan area upload dan daftar tersimpan. Setiap kategori memiliki
 jumlah file, ikon sesuai format, serta rincian ukuran, waktu, dan pengunggah.
-Antrean upload menampilkan nama file dan status pada baris terpisah.
-Setiap kategori PO, PHJ, dan TDS dapat memiliki beberapa
-file. Klik tombol **+ PO**, **+ PHJ**, atau **+ TDS** untuk memilih berkas langsung
-pada kategori yang tepat tanpa dropdown; antrean kategori lain tetap tersimpan.
+Setiap kategori PO, PHJ, dan TDS dapat memiliki beberapa file. Klik tombol
+**+ PO**, **+ PHJ**, atau **+ TDS** untuk memilih berkas langsung pada kategori
+yang tepat tanpa dropdown. Berkas yang dipilih langsung menjadi preview aktif;
+memilih berkas berikutnya menampilkan berkas terbaru. Identitas kategori, nama,
+status, dan posisi preview mengikuti berkas yang sedang dilihat. Gunakan tombol
+panah atau geser preview kiri/kanan untuk berpindah berkas. PDF dan gambar
+ditampilkan secara lokal; Word/Excel menampilkan informasi file tanpa tombol
+unduh/buka. Tombol **Hapus** hanya menghapus pilihan lokal yang belum disimpan,
+dan tidak menghapus dokumen dari Google Drive.
 Satu tombol **Simpan Semua** yang selalu berada di footer menunjukkan jumlah file
-yang belum disimpan. Baris antrean ringkas hanya menampilkan nama, kategori,
-ukuran/status, Preview, dan Hapus. Klik **Preview** untuk memeriksa PDF/gambar
-secara lokal sebelum diunggah. Word/Excel menampilkan informasi file dan tautan
-unduh untuk dibuka lewat aplikasi perangkat; isi tidak dikirim ke layanan preview
-eksternal. Tombol **Hapus** hanya membuang file yang belum tersimpan dari antrean.
-Klik **Simpan Semua** sekali untuk mengunggah antrean PO/PHJ/TDS secara berurutan,
-bukan transaksi atomik: file berhasil tetap tersimpan apabila file lain gagal.
+yang belum disimpan dan mengunggah pilihan PO/PHJ/TDS secara berurutan, bukan
+transaksi atomik: file berhasil tetap tersimpan apabila file lain gagal.
 Format yang didukung: PDF, JPG/JPEG, PNG, DOC/DOCX, dan XLS/XLSX; setiap file harus
 berisi data dan berukuran maksimal 10 MiB (10.485.760 byte).
 

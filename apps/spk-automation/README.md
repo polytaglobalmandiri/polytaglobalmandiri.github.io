@@ -39,6 +39,33 @@ transaksi atomik: file berhasil tetap tersimpan apabila file lain gagal.
 Format yang didukung: PDF, JPG/JPEG, PNG, DOC/DOCX, dan XLS/XLSX; setiap file harus
 berisi data dan berukuran maksimal 10 MiB (10.485.760 byte).
 
+### Draft SPK dari PDF (prototipe lokal)
+
+Form Pembuatan SPK menyediakan **Baca PDF** untuk membaca PDF PO, PHJ, dan TDS
+di browser. File tidak dikirim ke Apps Script atau layanan cloud. Hasil muncul
+sebagai draft yang dapat dikoreksi; hanya field yang dicentang pengguna yang
+diterapkan ke form, dan konflik antardokumen tidak dipilih otomatis.
+PO menjadi sumber utama pelanggan, nomor/tanggal PO, jumlah, dan satuan;
+TDS diprioritaskan untuk identitas serta ukuran produk; PHJ menjadi referensi
+internal dan fallback. PO dengan beberapa baris item tidak mengisi jumlah otomatis,
+karena setiap item perlu dibuat sebagai SPK tersendiri.
+
+Prototipe membaca lapisan teks PDF dan menjalankan OCR Bahasa Indonesia/Inggris
+secara lokal untuk halaman scan serta gambar PNG/JPEG. OCR menggunakan aset
+Tesseract.js dan model bahasa yang di-host bersama aplikasi; isi dokumen tidak
+dikirim ke server atau layanan cloud. Model diunduh ketika OCR pertama kali
+dibutuhkan dan disimpan pada cache lokal browser.
+Contoh `XAVA039-PLMR-09-26_revisi.pdf` berhasil dibaca: sistem mengenali nomor
+PO, tanggal PO masuk, tanggal kirim, pelanggan, dan jumlah dari halaman scan,
+serta artikel/kode/ukuran dari TDS. Nilai yang berselisih antara PHJ dan TDS
+ditandai, bukan dipilih diam-diam. PO dengan beberapa item tidak mengisi jumlah
+otomatis; buat satu SPK per item dan periksa hasil ekstraksi sebelum menyimpan.
+Setiap file dibatasi 20 MiB, maksimal lima file per proses, maksimal 30 halaman
+per PDF, dan maksimal 30 halaman OCR per proses. OCR memerlukan koneksi pertama
+kali untuk memuat aset aplikasi/model lokal. Hasil OCR tetap perlu ditinjau
+manual; kualitas scan, tabel kompleks, dan format pemasok yang belum dikenal
+dapat menurunkan akurasi.
+
 Backend `BE-Spk-Documents.js` memvalidasi sesi, izin tindakan, keberadaan SPK,
 ekstensi, header isi file, dan ukuran sebelum menyimpan. Folder Drive
 `1uRVimiSIL990zmofshKCZ2rwjpKa8fmq` menggunakan susunan `<nomor SPK>/<PO|PHJ|TDS>/`.

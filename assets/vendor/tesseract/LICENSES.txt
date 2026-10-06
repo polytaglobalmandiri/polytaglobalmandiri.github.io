@@ -1,0 +1,14 @@
+Local browser OCR bundles:
+
+- Tesseract.js 6.0.1: Apache-2.0. See LICENSE.md.
+- Tesseract.js core 6.1.2: Apache-2.0. See core/LICENSE.
+- English and Indonesian best_int traineddata from @tesseract.js-data/eng
+  and @tesseract.js-data/ind 1.0.0: source package license MIT; traineddata
+  originates from the Tesseract tessdata project. See
+  https://github.com/naptha/tessdata and
+  https://github.com/tesseract-ocr/tessdata_fast.
+- Browser bundle third-party notices: see tesseract.min.js.LICENSE.txt and
+  worker.min.js.LICENSE.txt.
+
+OCR is executed in the user's browser. The worker and models are served as
+static application assets; selected document contents are not uploaded.

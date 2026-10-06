@@ -41,29 +41,51 @@
   border-radius: 18px;
   overflow: hidden;
 }
-#spkDocumentsModal .modal-body { padding: 22px; }
-#spkDocumentsModal .modal-subtitle { margin: 6px 0 0; color: #6d7689; }
-.spk-doc-upload { padding: 18px; border: 1px solid #d8dde5; border-radius: 14px; background: #f5f6f8; }
-.spk-doc-upload-fields { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 14px; }
+#spkDocumentsModal .modal-header { padding: 20px 22px; }
+#spkDocumentsModal .modal-body { padding: 22px; background: #f5f6f8; }
+#spkDocumentsModal .modal-title { font-size: 18px; }
+#spkDocumentsModal .modal-subtitle { margin: 6px 0 0; color: #c8cdd5; font-size: 12px; overflow-wrap: anywhere; }
+.spk-doc-header-copy { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.spk-doc-header-icon { display: grid; place-items: center; width: 42px; height: 42px; flex-shrink: 0; border: 1px solid #ffffff30; border-radius: 11px; background: #ffffff12; color: #fff; }
+.spk-doc-upload { padding: 20px; border: 1px solid #d8dde5; border-radius: 14px; background: #fff; box-shadow: 0 2px 6px #17203306; }
+.spk-doc-section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+.spk-doc-section-heading h3 { margin: 0; color: #253047; font-size: 15px; font-weight: 800; }
+.spk-doc-section-heading p { margin: 6px 0 0; color: #6d7689; font-size: 12px; line-height: 1.6; }
+.spk-doc-limit { flex-shrink: 0; padding: 5px 8px; border-radius: 6px; background: #eef5ff; color: #3569a8; font-size: 11px; font-weight: 700; }
+.spk-doc-upload-fields { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 14px; }
 .spk-doc-upload label { display: block; margin-bottom: 6px; font-weight: 700; font-size: 13px; }
+#spkDocumentsModal :is(.form-select, .form-control) { min-height: 44px; border: 1px solid #cbd2dc; border-radius: 8px; background-color: #fff; box-shadow: none; color: #253047; font-size: 13px; }
+#spkDocumentsModal input[type="file"] { padding: 0; line-height: 42px; }
+#spkDocumentsModal input[type="file"]::file-selector-button { margin: 0 12px 0 0; padding: 0 14px; height: 42px; border: 0; border-right: 1px solid #cbd2dc; background: #edf0f4; color: #253047; font: inherit; font-weight: 700; cursor: pointer; }
+#spkDocumentsModal :is(input, select, button, a):focus-visible { outline: 3px solid #3569a8; outline-offset: 2px; }
 .spk-doc-help { margin: 12px 0; color: #6d7689; font-size: 12px; line-height: 1.6; }
 .spk-doc-queue { list-style: none; padding: 0; margin: 0 0 12px; }
-.spk-doc-queue li { padding: 6px 0; overflow-wrap: anywhere; font-size: 13px; }
+.spk-doc-queue:empty { display: none; }
+.spk-doc-queue li { padding: 10px 12px; margin-top: 8px; border: 1px solid #edf0f4; border-radius: 8px; background: #f8fafc; overflow-wrap: anywhere; font-size: 13px; }
+.spk-doc-queue strong, .spk-doc-queue small { display: block; }
+.spk-doc-queue small { margin-top: 4px; line-height: 1.6; }
 .spk-doc-queue .is-saved { color: #16835d; }
 .spk-doc-queue .is-failed { color: #c72c41; }
-.spk-doc-status { margin-top: 12px; font-size: 13px; overflow-wrap: anywhere; }
+.spk-doc-status { margin-top: 12px; padding: 10px 12px; border-radius: 8px; background: #f5f6f8; font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; }
+.spk-doc-status:empty { display: none; }
+.spk-doc-status.is-error { background: #fff0f2; }
+.spk-doc-status.is-success { background: #e9f7f1; }
 .spk-doc-status.is-error { color: #c72c41; }
 .spk-doc-status.is-success { color: #16835d; }
-.spk-doc-list-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 24px 0 14px; }
-.spk-doc-list-heading h3 { margin: 0; font-size: 16px; }
-.spk-doc-category { margin-top: 16px; }
-.spk-doc-category h4 { font-size: 13px; font-weight: 800; color: #6d7689; }
-.spk-doc-empty { margin: 8px 0; color: #6d7689; font-size: 13px; }
-.spk-doc-file { display: flex; align-items: center; gap: 12px; padding: 12px; margin-top: 8px; border: 1px solid #edf0f4; border-radius: 12px; }
-.spk-doc-file > i { color: #3569a8; font-size: 20px; }
+.spk-doc-list-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 22px 0 12px; }
+.spk-doc-list-heading h3 { margin: 0; font-size: 15px; font-weight: 800; }
+#spkDocList { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; align-items: start; }
+.spk-doc-category { min-width: 0; }
+.spk-doc-category { margin-top: 10px; padding: 14px; border: 1px solid #d8dde5; border-radius: 12px; background: #fff; }
+.spk-doc-category h4 { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 0 10px; font-size: 13px; font-weight: 800; color: #253047; }
+.spk-doc-count { padding: 3px 8px; border-radius: 6px; background: #edf0f4; color: #6d7689; font-size: 11px; font-weight: 600; }
+.spk-doc-empty { margin: 0; padding: 10px 12px; border-radius: 8px; background: #f8fafc; color: #6d7689; font-size: 12px; }
+.spk-doc-file { display: flex; align-items: center; gap: 12px; padding: 12px; margin-top: 8px; border: 1px solid #edf0f4; border-radius: 8px; }
+.spk-doc-file > i { display: grid; place-items: center; width: 36px; height: 40px; flex-shrink: 0; border-radius: 8px; background: #eef5ff; color: #3569a8; font-size: 18px; }
 .spk-doc-file > div { min-width: 0; flex: 1; }
 .spk-doc-file a { font-size: 14px; font-weight: 700; color: #253047; overflow-wrap: anywhere; }
-.spk-doc-file small { display: block; margin-top: 4px; color: #6d7689; overflow-wrap: anywhere; }
+.spk-doc-file small { display: block; margin-top: 4px; color: #6d7689; font-size: 11px; line-height: 1.6; overflow-wrap: anywhere; }
+.spk-doc-footer-note { display: flex; align-items: center; gap: 8px; margin-right: auto; color: #6d7689; font-size: 11px; }
 #spkDocumentsModal button:disabled { cursor: default; }
 @media (max-width: 480px) {
   #manageModal .manage-choice-grid { gap: 6px; }
@@ -72,4 +94,10 @@
   #spkDocumentsModal .modal-body { padding: 16px; }
   .spk-doc-upload { padding: 14px; }
   .spk-doc-upload-fields { grid-template-columns: minmax(0, 1fr); }
+  .spk-doc-section-heading { flex-direction: column; gap: 8px; }
+  .spk-doc-footer-note { flex-basis: 100%; }
+  .spk-doc-header-icon { width: 34px; height: 34px; }
+}
+@media (max-width: 640px) {
+  #spkDocList { grid-template-columns: minmax(0, 1fr); gap: 0; }
 }

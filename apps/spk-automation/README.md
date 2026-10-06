@@ -22,6 +22,9 @@ Lihat Saja, Sunting Data, dan Dokumen SPK; empat tombol ringkas berjajar dalam s
 baris, termasuk di ponsel. Dialog dokumen dibuka setelah dialog Kelola selesai ditutup, sehingga
 tidak ada dialog bertumpuk. Tombol X atau Tutup menutup dokumen tanpa membuka
 kembali Kelola SPK. Penutupan tetap ditahan selama upload berlangsung.
+Modal dokumen memisahkan area upload dan daftar tersimpan. Setiap kategori memiliki
+jumlah file, ikon sesuai format, serta rincian ukuran, waktu, dan pengunggah.
+Antrean upload menampilkan nama file dan status pada baris terpisah.
 Setiap kategori PO, PHJ, dan TDS dapat memiliki beberapa
 file. Pilih kategori, pilih satu atau beberapa file, lalu klik **Upload Dokumen**.
 Format yang didukung: PDF, JPG/JPEG, PNG, DOC/DOCX, dan XLS/XLSX; setiap file harus

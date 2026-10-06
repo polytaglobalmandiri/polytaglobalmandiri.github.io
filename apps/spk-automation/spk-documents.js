@@ -55,8 +55,12 @@
     queue.forEach(function (item) {
       var row = document.createElement('li');
       row.className = item.saved ? 'is-saved' : item.error ? 'is-failed' : '';
-      row.textContent = item.type + ' - ' + item.file.name + ' (' + formatSize(item.file.size) + ')' +
-        (item.saved ? ' - Tersimpan' : item.error ? ' - ' + item.error : ' - Siap diunggah');
+      var name = document.createElement('strong');
+      name.textContent = item.file.name;
+      var detail = document.createElement('small');
+      detail.textContent = item.type + ' · ' + formatSize(item.file.size) + ' · ' +
+        (item.saved ? 'Tersimpan' : item.error || 'Siap diunggah');
+      row.append(name, detail);
       list.appendChild(row);
     });
   }
@@ -82,7 +86,11 @@
       section.className = 'spk-doc-category';
       var heading = document.createElement('h4');
       var files = documents.filter(function (file) { return file.type === type; });
-      heading.textContent = type + ' (' + files.length + ')';
+      heading.textContent = type;
+      var count = document.createElement('span');
+      count.className = 'spk-doc-count';
+      count.textContent = files.length + ' file';
+      heading.appendChild(count);
       section.appendChild(heading);
       if (!files.length) {
         var empty = document.createElement('p');
@@ -94,7 +102,9 @@
         var row = document.createElement('div');
         row.className = 'spk-doc-file';
         var icon = document.createElement('i');
-        icon.className = 'fa-solid fa-file-lines';
+        icon.className = /\.pdf$/i.test(file.name) ? 'fa-solid fa-file-pdf' :
+          /\.docx?$/i.test(file.name) ? 'fa-solid fa-file-word' :
+          /\.xlsx?$/i.test(file.name) ? 'fa-solid fa-file-excel' : 'fa-solid fa-file-image';
         icon.setAttribute('aria-hidden', 'true');
         var copy = document.createElement('div');
         var link = document.createElement('a');
@@ -104,9 +114,10 @@
         link.rel = 'noopener noreferrer';
         link.textContent = file.name;
         var meta = document.createElement('small');
-        meta.textContent = formatSize(file.size) + ' - ' +
-          new Date(file.uploadedAt).toLocaleString('id-ID') + ' - ' + file.uploadedBy;
-        copy.append(link, meta);
+        meta.textContent = formatSize(file.size) + ' · ' + new Date(file.uploadedAt).toLocaleString('id-ID');
+        var uploader = document.createElement('small');
+        uploader.textContent = 'Diunggah oleh ' + file.uploadedBy;
+        copy.append(link, meta, uploader);
         row.append(icon, copy);
         section.appendChild(row);
       });
@@ -198,22 +209,26 @@
     modalElement.setAttribute('aria-hidden', 'true');
     modalElement.innerHTML =
       '<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"><div class="modal-content">' +
-      '<div class="modal-header"><div><h2 class="modal-title" id="spkDocTitle">Dokumen SPK</h2>' +
+      '<div class="modal-header"><div class="spk-doc-header-copy"><span class="spk-doc-header-icon" aria-hidden="true">' +
+      '<i class="fa-solid fa-folder-open"></i></span><div><h2 class="modal-title" id="spkDocTitle">Dokumen SPK</h2>' +
       '<p class="modal-subtitle" id="spkDocSpk"></p></div>' +
+      '</div>' +
       '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button></div>' +
-      '<div class="modal-body"><div class="spk-doc-upload">' +
+      '<div class="modal-body"><section class="spk-doc-upload" aria-labelledby="spkDocUploadTitle">' +
+      '<div class="spk-doc-section-heading"><div><h3 id="spkDocUploadTitle">Upload dokumen</h3>' +
+      '<p>Pilih kategori dan lampirkan file pendukung SPK.</p></div><span class="spk-doc-limit">Maks. 10 MB / file</span></div>' +
       '<div class="spk-doc-upload-fields"><div><label for="spkDocType">Jenis dokumen</label>' +
       '<select id="spkDocType" class="form-select"><option>PO</option><option>PHJ</option><option>TDS</option></select></div>' +
-      '<div><label for="spkDocFiles">Pilih file</label><input id="spkDocFiles" class="form-control" type="file" multiple ' +
+      '<div><label for="spkDocFiles">Pilih file</label><input id="spkDocFiles" class="form-control" type="file" multiple aria-describedby="spkDocFormats" ' +
       'accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx"></div></div>' +
-      '<p class="spk-doc-help">PDF, JPG/PNG, Word (DOC/DOCX), Excel (XLS/XLSX). Maksimal 10 MB per file. Bisa pilih beberapa file sekaligus.</p>' +
+      '<p id="spkDocFormats" class="spk-doc-help">PDF, JPG/PNG, Word, atau Excel. Bisa pilih beberapa file sekaligus.</p>' +
       '<ul id="spkDocQueue" class="spk-doc-queue"></ul>' +
       '<button id="spkDocSave" type="button" class="button button-primary" disabled>Upload Dokumen</button>' +
-      '<div id="spkDocStatus" class="spk-doc-status" role="status" aria-live="polite"></div></div>' +
+      '<div id="spkDocStatus" class="spk-doc-status" role="status" aria-live="polite"></div></section>' +
       '<div class="spk-doc-list-heading"><h3>Dokumen tersimpan</h3>' +
       '<button id="spkDocRefresh" type="button" class="button"><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i> Segarkan</button></div>' +
-      '<p class="spk-doc-help">Dokumen dibuka di Google Drive. Akses file mengikuti izin folder Drive; upload tidak mengubah izin berbagi.</p>' +
-      '<div id="spkDocList"></div></div><div class="modal-footer">' +
+      '<div id="spkDocList" aria-live="polite"></div></div><div class="modal-footer">' +
+      '<span class="spk-doc-footer-note"><i class="fa-solid fa-lock" aria-hidden="true"></i> Akses file mengikuti izin Google Drive.</span>' +
       '<button type="button" class="button" data-bs-dismiss="modal">Tutup</button></div></div></div>';
     document.body.appendChild(modalElement);
     modal = bootstrap.Modal.getOrCreateInstance(modalElement);
@@ -234,7 +249,7 @@
     init();
     currentSpk = String(spk || '').trim();
     queue = [];
-    element('spkDocSpk').textContent = currentSpk;
+    element('spkDocSpk').textContent = 'SPK ' + currentSpk + ' · PO / PHJ / TDS';
     element('spkDocFiles').value = '';
     element('spkDocType').value = 'PO';
     renderQueue();

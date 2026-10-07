@@ -11877,7 +11877,7 @@
     <script src="/assets/vendor/datatables/dataTables.bootstrap5-1.13.6.min.js"></script>
     <link rel="stylesheet" href="spk-documents.css?v=20261006-8">
     <script src="spk-documents.js?v=20261006-8"></script>
-    <script src="/apps/spk-automation/spk-document-import.js?v=20261007-4"></script>
+    <script src="/apps/spk-automation/spk-document-import.js?v=20261007-5"></script>
 
     <script>
         var dashboardTable = null;
@@ -14703,6 +14703,7 @@
       const root = document.getElementById('spkInputRoot');
       if (!root || spkInputPristineMarkup === null) return;
 
+      document.dispatchEvent(new Event('spk:input-reset'));
       root.classList.remove('dialog-open');
       root.innerHTML = spkInputPristineMarkup;
 
@@ -18931,6 +18932,7 @@
       overlay.hidden = false;
       const root = document.getElementById('spkInputRoot');
       if (root) root.classList.add('dialog-open');
+      document.dispatchEvent(new CustomEvent('spk:input-saved', { detail: { spk: spk } }));
       if (typeof window.onSpkInputSaved === 'function') window.onSpkInputSaved(spk);
 
       window.setTimeout(() => {

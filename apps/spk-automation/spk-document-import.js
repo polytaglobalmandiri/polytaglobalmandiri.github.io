@@ -11,7 +11,7 @@
   var MAX_FILES = 5;
   var MAX_PAGES_PER_FILE = 30;
   var PDFJS_VERSION = '3.11.174';
-  var ASSET_VERSION = '20261007-4';
+  var ASSET_VERSION = '20261007-5';
   var OCR_MAX_PAGES_PER_IMPORT = 30;
   var FIELDS = [
     { id: 'customer', label: 'Pelanggan', priority: ['PO', 'PHJ', 'TDS'] },
@@ -32,6 +32,13 @@
   var installed = false;
   var ocrWorkerPromise = null;
   var ocrTaskLabel = '';
+  var stagedDocuments = [];
+  var savedSpk = '';
+  var savingDocuments = false;
+  var documentsDialog = null;
+  var previewUrl = '';
+  var documentTypes = ['PO', 'PHJ', 'TDS'];
+  var SAVE_MAX_BYTES = 10 * 1024 * 1024;
 
   function updateReadingStatus(label, percent) {
     if (!window.Swal) return;
@@ -289,6 +296,7 @@
       var text = page.text || (page.lines || []).join('\n');
       return {
         source: page.source || ('Dokumen · halaman ' + (page.page || index + 1)),
+        fileIndex: page.fileIndex,
         type: page.type || classifyPage(text),
         text: text,
         lines: page.lines || null,
@@ -352,6 +360,7 @@
       pages: classifiedPages.map(function (page) {
         return {
           source: page.source,
+          fileIndex: page.fileIndex,
           type: page.type,
           hasText: Boolean(normalizeText(page.text || (page.lines || []).join(' '))),
           ocr: page.ocr
@@ -514,7 +523,7 @@
     return target ? String(target.value || '').trim() : '';
   }
 
-  function buildReviewHtml(result) {
+  function buildReviewHtml(result, files) {
     var summary = result.pages.map(function (page) {
       var typeLabel = page.type === 'UNKNOWN' ? (page.hasText ? 'belum dikenali' : 'tanpa teks / scan') : page.type;
       return '<span class="spk-import-file-chip">' + escapeHtml(page.source) + ' · ' + escapeHtml(typeLabel) +
@@ -544,12 +553,23 @@
       ? '<div class="spk-import-issues"><strong>Perlu diperiksa</strong><ul>' +
         result.issues.map(function (issue) { return '<li>' + escapeHtml(issue) + '</li>'; }).join('') + '</ul></div>'
       : '';
+    var attachments = files && files.length ? '<div class="spk-import-section-label">Simpan bersama SPK</div>' +
+      '<p class="spk-import-footnote">File tersimpan setelah SPK berhasil dibuat. Pilih kategori yang sesuai; PDF gabungan boleh masuk lebih dari satu kategori.</p>' +
+      '<div class="spk-import-attachments">' + files.map(function (file, index) {
+        var detected = result.pages.filter(function (page) { return page.fileIndex === index; })
+          .map(function (page) { return page.type; });
+        return '<div class="spk-import-attachment"><strong>' + escapeHtml(file.name) + '</strong>' +
+          '<span>' + documentTypes.map(function (type) {
+            return '<label><input type="checkbox" data-import-file="' + index + '" data-import-type="' + type + '"' +
+              (detected.indexOf(type) !== -1 ? ' checked' : '') + '> ' + type + '</label>';
+          }).join('') + '</span></div>';
+      }).join('') + '</div>' : '';
     return '<div class="spk-import-review"><div class="spk-import-review-intro"><span class="spk-import-eyebrow">HASIL PEMBACAAN</span>' +
       '<strong>' + result.pages.length + ' halaman diperiksa · ' + result.fields.length + ' field ditemukan</strong>' +
       '<p>Bandingkan dengan dokumen asli. Centang data yang ingin dipindahkan dan koreksi nilainya bila perlu.</p></div>' +
       '<div class="spk-import-privacy"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i>' +
-      '<span>Diproses di browser Anda. Dokumen tidak diunggah ke server; model OCR dimuat dari aset aplikasi.</span></div>' +
-      '<div class="spk-import-section-label">Dokumen terbaca</div><div class="spk-import-sources">' + summary + '</div>' + issues +
+      '<span>OCR diproses di browser. File yang dipilih akan disimpan ke Google Drive setelah SPK berhasil dibuat.</span></div>' +
+      '<div class="spk-import-section-label">Dokumen terbaca</div><div class="spk-import-sources">' + summary + '</div>' + issues + attachments +
       (rows ? '<div class="spk-import-section-heading"><span class="spk-import-section-label">Data untuk form</span>' +
         '<span class="spk-import-selected-count" aria-live="polite"></span></div><div class="spk-import-fields">' + rows + '</div>' :
         '<div class="spk-import-empty">Belum ada field yang bisa dipetakan dari dokumen. Pastikan halaman terbaca dan tinjau teks hasil OCR.</div>') +
@@ -559,6 +579,219 @@
   function updateSelectionCount(popup) {
     var count = popup.querySelector('.spk-import-selected-count');
     if (count) count.textContent = popup.querySelectorAll('[data-import-selected]:checked').length + ' dipilih';
+  }
+
+  function collectAttachments(popup, files) {
+    return files.map(function (file, index) {
+      var types = documentTypes.filter(function (type) {
+        return Boolean(popup.querySelector('[data-import-file="' + index + '"][data-import-type="' + type + '"]:checked'));
+      });
+      if (!types.length) throw new Error('Pilih minimal satu kategori PO, PHJ, atau TDS untuk ' + file.name + '.');
+      return { file: file, types: types };
+    });
+  }
+
+  function updateDocumentButtons() {
+    var buttons = document.querySelectorAll('.spk-import-document-buttons');
+    buttons.forEach(function (container) {
+      container.replaceChildren();
+      documentTypes.forEach(function (type) {
+        var count = stagedDocuments.filter(function (item) { return item.type === type; }).length;
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'spk-import-category';
+        button.dataset.importCategory = type;
+        button.textContent = type + (count ? ' · ' + count : '');
+        button.disabled = !count || savingDocuments;
+        button.title = count ? 'Lihat dokumen ' + type : 'Belum ada dokumen ' + type;
+        container.appendChild(button);
+      });
+    });
+  }
+
+  function fileAsBase64(file) {
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function () { resolve(String(reader.result).split(',')[1]); };
+      reader.onerror = function () { reject(new Error('File gagal dibaca: ' + file.name)); };
+      reader.onabort = function () { reject(new Error('Pembacaan file dibatalkan: ' + file.name)); };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function documentToken() {
+    var auth = window.POLYTA_PORTAL_AUTH && window.POLYTA_PORTAL_AUTH.stored();
+    if (!auth || !auth.token) {
+      var stored = window.sessionStorage.getItem('pgm:spk-auth-v1') ||
+        window.localStorage.getItem('pgm:spk-auth-v1');
+      if (stored) auth = JSON.parse(stored);
+    }
+    if (!auth || !auth.token) throw new Error('Sesi login tidak tersedia. Masuk kembali untuk menyimpan dokumen.');
+    return auth.token;
+  }
+
+  function saveDocumentRpc(authToken, spk, payload) {
+    return new Promise(function (resolve, reject) {
+      if (!window.google || !window.google.script || !window.google.script.run) {
+        reject(new Error('Layanan dokumen tidak tersedia. Buka halaman melalui portal.'));
+        return;
+      }
+      window.google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)
+        .saveSpkDocument(authToken, spk, payload);
+    });
+  }
+
+  function updateSaveStatus(message, kind) {
+    var status = document.querySelector('.spk-import-save-status');
+    if (!status) return;
+    status.textContent = message;
+    status.className = 'spk-import-save-status' + (kind ? ' is-' + kind : '');
+  }
+
+  function updateRetryButton() {
+    var button = document.querySelector('.spk-import-retry');
+    if (button) button.hidden = savingDocuments || !stagedDocuments.some(function (item) { return !item.saved; });
+  }
+
+  async function saveStagedDocuments() {
+    if (savingDocuments || !savedSpk || !stagedDocuments.some(function (item) { return !item.saved; })) return;
+    savingDocuments = true;
+    updateDocumentButtons();
+    updateRetryButton();
+    var overlay = document.getElementById('saveSuccessOverlay');
+    var actions = overlay ? overlay.querySelectorAll('#saveSuccessCloseBtn, #printSpkLink') : [];
+    actions.forEach(function (action) { action.style.pointerEvents = 'none'; action.setAttribute('aria-disabled', 'true'); });
+    var authToken;
+    try { authToken = documentToken(); }
+    catch (error) {
+      stagedDocuments.forEach(function (item) { if (!item.saved) item.error = error.message; });
+    }
+    if (authToken) {
+      for (var index = 0; index < stagedDocuments.length; index++) {
+        var item = stagedDocuments[index];
+        if (item.saved) continue;
+        try {
+          updateSaveStatus('Menyimpan ' + (index + 1) + '/' + stagedDocuments.length + ': ' + item.type + ' · ' + item.file.name);
+          var response = await saveDocumentRpc(authToken, savedSpk, {
+            type: item.type, name: item.file.name, uploadId: item.uploadId,
+            base64: await fileAsBase64(item.file)
+          });
+          if (!response || response.status !== 'success' || !response.document) {
+            throw new Error(response && response.message || 'Penyimpanan dokumen belum terkonfirmasi.');
+          }
+          item.document = response.document;
+          item.saved = true;
+          item.error = '';
+        } catch (error) {
+          item.error = error && error.message || 'Penyimpanan dokumen gagal.';
+          console.error('Dokumen SPK gagal disimpan', error);
+        }
+      }
+    }
+    savingDocuments = false;
+    actions.forEach(function (action) { action.style.pointerEvents = ''; action.removeAttribute('aria-disabled'); });
+    var pending = stagedDocuments.filter(function (item) { return !item.saved; });
+    var saved = stagedDocuments.length - pending.length;
+    updateSaveStatus(pending.length
+      ? saved + ' dokumen tersimpan, ' + pending.length + ' belum berhasil: ' +
+        pending.map(function (item) { return item.type + ' · ' + item.file.name + ' (' + item.error + ')'; }).join('; ') +
+        '. Klik Coba lagi atau buka Kelola SPK untuk mengunggah ulang.'
+      : saved + ' dokumen berhasil disimpan pada SPK ' + savedSpk + '.', pending.length ? 'error' : 'success');
+    updateDocumentButtons();
+    updateRetryButton();
+  }
+
+  function ensureSaveControls() {
+    var overlay = document.getElementById('saveSuccessOverlay');
+    if (!overlay || overlay.querySelector('.spk-import-save-controls')) return;
+    var controls = document.createElement('div');
+    controls.className = 'spk-import-save-controls';
+    controls.innerHTML = '<p class="spk-import-save-status" role="status" aria-live="polite"></p>' +
+      '<div class="spk-import-document-buttons" role="group" aria-label="Lihat dokumen yang disimpan"></div>' +
+      '<button class="spk-import-retry" type="button" hidden>Coba lagi simpan dokumen</button>';
+    overlay.querySelector('.save-success-reference').after(controls);
+    updateDocumentButtons();
+  }
+
+  function closeDocumentDialog() {
+    if (!documentsDialog) return;
+    documentsDialog.close();
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    previewUrl = '';
+  }
+
+  function showDocument(type) {
+    if (savingDocuments) return;
+    var documents = stagedDocuments.filter(function (item) { return item.type === type; });
+    if (!documents.length) return;
+    if (!documentsDialog) {
+      documentsDialog = document.createElement('dialog');
+      documentsDialog.className = 'spk-import-document-dialog';
+      documentsDialog.setAttribute('aria-label', 'Dokumen SPK');
+      documentsDialog.innerHTML = '<div class="spk-import-document-head"><strong></strong>' +
+        '<button type="button" class="spk-import-document-close" aria-label="Tutup dokumen">Tutup</button></div>' +
+        '<div class="spk-import-document-tabs"></div><div class="spk-import-document-content"></div>' +
+        '<p class="spk-import-document-state"></p><button type="button" class="spk-import-document-remove">Hapus dari pilihan</button>';
+      documentsDialog.querySelector('.spk-import-document-close').addEventListener('click', closeDocumentDialog);
+      documentsDialog.addEventListener('close', function () {
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+        previewUrl = '';
+      });
+      document.body.appendChild(documentsDialog);
+    }
+    documentsDialog.querySelector('.spk-import-document-head strong').textContent = 'Dokumen ' + type;
+    var tabs = documentsDialog.querySelector('.spk-import-document-tabs');
+    tabs.replaceChildren();
+    function select(item, tab) {
+      tabs.querySelectorAll('button').forEach(function (button) { button.setAttribute('aria-pressed', String(button === tab)); });
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      previewUrl = '';
+      var content = documentsDialog.querySelector('.spk-import-document-content');
+      content.replaceChildren();
+      var isPdf = /\.pdf$/i.test(item.file.name);
+      var isImage = /\.(?:png|jpe?g)$/i.test(item.file.name);
+      if (item.saved && item.document && item.document.fileId) {
+        var frame = document.createElement('iframe');
+        frame.title = 'Preview ' + item.file.name;
+        frame.src = 'https://drive.google.com/file/d/' + encodeURIComponent(item.document.fileId) + '/preview';
+        content.appendChild(frame);
+        var link = document.createElement('a');
+        link.href = item.document.url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = 'Buka di Google Drive jika preview tidak tampil';
+        if (!/^https:\/\/drive\.google\.com\//.test(link.href)) throw new Error('Tautan dokumen tidak valid.');
+        content.appendChild(link);
+      } else if (isPdf || isImage) {
+        previewUrl = URL.createObjectURL(item.file);
+        var preview = document.createElement(isPdf ? 'iframe' : 'img');
+        if (isPdf) preview.title = 'Preview ' + item.file.name;
+        else preview.alt = item.file.name;
+        preview.src = previewUrl;
+        content.appendChild(preview);
+      }
+      documentsDialog.querySelector('.spk-import-document-state').textContent =
+        item.file.name + ' · ' + (item.saved ? 'Tersimpan di Google Drive' :
+          item.error ? 'Belum tersimpan: ' + item.error : 'Preview lokal · belum disimpan');
+      var remove = documentsDialog.querySelector('.spk-import-document-remove');
+      remove.hidden = item.saved;
+      remove.onclick = function () {
+        if (item.saved) return;
+        stagedDocuments.splice(stagedDocuments.indexOf(item), 1);
+        updateDocumentButtons();
+        closeDocumentDialog();
+        if (stagedDocuments.some(function (entry) { return entry.type === type; })) showDocument(type);
+      };
+    }
+    documents.forEach(function (item, index) {
+      var tab = document.createElement('button');
+      tab.type = 'button';
+      tab.textContent = item.file.name;
+      tab.addEventListener('click', function () { select(item, tab); });
+      tabs.appendChild(tab);
+      if (!index) select(item, tab);
+    });
+    documentsDialog.showModal();
   }
 
   function applySelection(popup, result) {
@@ -639,10 +872,12 @@
           throw new Error(file.name + ' harus berisi data dan maksimal 20 MB.');
         }
         if (/\.pdf$/i.test(file.name || '') || file.type === 'application/pdf') {
-          allPages = allPages.concat(await readPdf(file, getWorker, function (label) {
+          var pdfPages = await readPdf(file, getWorker, function (label) {
             ocrTaskLabel = label;
             updateReadingStatus(label + ' · menyiapkan OCR lokal…');
-          }));
+          });
+          pdfPages.forEach(function (page) { page.fileIndex = index; });
+          allPages = allPages.concat(pdfPages);
         } else if (/^image\/(?:png|jpeg)$/i.test(file.type || '') || /\.(?:png|jpe?g)$/i.test(file.name || '')) {
           var imageWorker = await getWorker();
           ocrTaskLabel = file.name;
@@ -650,6 +885,7 @@
           var imageText = await recognizeImage(file, imageWorker);
           allPages.push({
             source: file.name,
+            fileIndex: index,
             type: classifyPage(imageText),
             text: imageText,
             lines: imageText.split(/\r?\n/).map(normalizeText).filter(Boolean),
@@ -685,6 +921,12 @@
       if (!window.Swal) {
         throw new Error('Dialog tinjau tidak tersedia. Muat ulang halaman lalu coba kembali.');
       }
+      var oversize = files.find(function (file) { return file.size > SAVE_MAX_BYTES; });
+      if (oversize) {
+        window.Swal.fire({ icon: 'warning', title: 'File terlalu besar',
+          text: oversize.name + ' melebihi batas penyimpanan 10 MB per file. Pilih file yang lebih kecil.' });
+        return;
+      }
       window.Swal.fire({
         title: 'Membaca dokumen',
         html: '<div class="spk-import-progress"><div class="spk-import-progress-visual" aria-hidden="true">' +
@@ -693,7 +935,7 @@
           '<p class="spk-import-progress-detail" role="status" aria-live="polite">Menyiapkan ' + files.length + ' dokumen…</p>' +
           '<div class="spk-import-progress-track" role="progressbar" aria-label="Kemajuan OCR" aria-valuemin="0" aria-valuemax="100">' +
           '<span class="spk-import-progress-fill is-scanning"></span></div>' +
-          '<small>Proses berlangsung di perangkat ini. Jangan tutup halaman sampai selesai.</small></div>',
+          '<small>OCR berlangsung di perangkat ini. File baru diunggah setelah SPK berhasil dibuat.</small></div>',
         showConfirmButton: false,
         allowOutsideClick: false,
         allowEscapeKey: false,
@@ -703,7 +945,7 @@
         var result = await importFiles(files);
         var review = await window.Swal.fire({
           title: 'Tinjau draft SPK',
-          html: buildReviewHtml(result),
+          html: buildReviewHtml(result, files),
           width: 860,
           showCancelButton: true,
           confirmButtonText: 'Terapkan pilihan ke form',
@@ -717,21 +959,40 @@
             });
           },
           preConfirm: function () {
-            return applySelection(window.Swal.getPopup(), result);
+            var popup = window.Swal.getPopup();
+            var attachments;
+            try { attachments = collectAttachments(popup, files); }
+            catch (error) {
+              window.Swal.showValidationMessage(error.message);
+              return false;
+            }
+            return { fields: applySelection(popup, result), attachments: attachments };
           }
         });
         if (review.isConfirmed) {
-          var summary = review.value;
+          var summary = review.value.fields;
+          var additions = review.value.attachments.flatMap(function (attachment) {
+            return attachment.types.map(function (type) {
+              return { file: attachment.file, type: type, uploadId: crypto.randomUUID(), saved: false, error: '', document: null };
+            });
+          });
+          additions.forEach(function (item) {
+            if (!stagedDocuments.some(function (existing) {
+              return existing.type === item.type && existing.file.name === item.file.name &&
+                existing.file.size === item.file.size && existing.file.lastModified === item.file.lastModified;
+            })) stagedDocuments.push(item);
+          });
+          updateDocumentButtons();
           await window.Swal.fire({
             icon: summary.skipped.length ? 'warning' : summary.applied.length ? 'success' : 'info',
             title: summary.skipped.length ? 'Sebagian data perlu diperiksa' :
               summary.applied.length ? 'Draft siap diperiksa' : 'Belum ada data yang diterapkan',
             text: summary.applied.length
-              ? summary.applied.length + ' field diisi. Periksa kembali seluruh form sebelum menyimpan.' +
+              ? summary.applied.length + ' field diisi; ' + stagedDocuments.length + ' dokumen siap disimpan bersama SPK. Periksa kembali form sebelum menyimpan.' +
                 (summary.skipped.length ? ' Tidak diterapkan: ' + summary.skipped.join(', ') + '.' : '')
               : summary.skipped.length
                 ? 'Tidak diterapkan: ' + summary.skipped.join(', ') + '. Periksa nilai lalu coba kembali.'
-                : 'Tidak ada field dipilih. Form belum berubah.',
+                : stagedDocuments.length + ' dokumen siap disimpan bersama SPK. Form belum berubah.',
             confirmButtonText: 'Mengerti',
             customClass: { popup: 'spk-import-notice-popup' }
           });
@@ -759,9 +1020,11 @@
     launcher.innerHTML = '<div class="spk-import-launcher-icon" aria-hidden="true"><i class="fa-solid fa-file-lines"></i></div>' +
       '<div class="spk-import-launcher-copy"><span class="spk-import-eyebrow">ASISTEN DOKUMEN · OCR LOKAL</span>' +
       '<strong>Buat draft SPK dari dokumen</strong><p>Baca PO, PHJ, dan TDS dari PDF atau gambar. Tinjau hasil sebelum mengisi form.</p>' +
-      '<span class="spk-import-launcher-meta"><i class="fa-solid fa-lock" aria-hidden="true"></i> File tetap di perangkat · PDF / PNG / JPEG</span></div>' +
+      '<span class="spk-import-launcher-meta"><i class="fa-solid fa-lock" aria-hidden="true"></i> OCR lokal · File disimpan hanya setelah SPK dibuat</span>' +
+      '<div class="spk-import-document-buttons" role="group" aria-label="Lihat dokumen SPK"></div></div>' +
       '<button type="button" class="spk-import-open"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Baca Dokumen <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>';
     fields.parentNode.insertBefore(launcher, fields);
+    updateDocumentButtons();
   }
 
   function install(browserWindow) {
@@ -775,11 +1038,43 @@
     stylesheet.href = new URL('spk-document-import.css?v=' + ASSET_VERSION, SCRIPT_URL || browserWindow.location.href).href;
     doc.head.appendChild(stylesheet);
     doc.addEventListener('click', function (event) {
+      var category = event.target.closest('[data-import-category]');
+      if (category) {
+        showDocument(category.dataset.importCategory);
+        return;
+      }
+      if (event.target.closest('.spk-import-retry')) {
+        saveStagedDocuments();
+        return;
+      }
       var button = event.target.closest('.spk-import-open');
       if (!button) return;
       chooseDocuments().catch(function (error) {
         if (window.Swal) window.Swal.fire({ icon: 'error', title: 'Tidak dapat membuka dokumen', text: error.message });
         else console.error('Pembacaan dokumen gagal', error);
+      });
+      doc.addEventListener('click', function (event) {
+        if (savingDocuments && event.target.closest('#saveSuccessCloseBtn, #printSpkLink')) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+        }
+      }, true);
+      doc.addEventListener('spk:input-saved', function (event) {
+        savedSpk = String(event.detail && event.detail.spk || '').trim();
+        if (!stagedDocuments.length) return;
+        ensureSaveControls();
+        updateSaveStatus('Menyiapkan penyimpanan ' + stagedDocuments.length + ' dokumen…');
+        saveStagedDocuments();
+      });
+      doc.addEventListener('spk:input-reset', function () {
+        if (savingDocuments) return;
+        stagedDocuments = [];
+        savedSpk = '';
+        if (documentsDialog && documentsDialog.open) closeDocumentDialog();
+        updateDocumentButtons();
+      });
+      browserWindow.addEventListener('beforeunload', function (event) {
+        if (savingDocuments) { event.preventDefault(); event.returnValue = ''; }
       });
     });
     function observeRoot() {
@@ -794,6 +1089,7 @@
   return {
     buildReviewHtml: buildReviewHtml,
     classifyPage: classifyPage,
+    collectAttachments: collectAttachments,
     extractDraft: extractDraft,
     groupTextLines: groupTextLines,
     install: install,

@@ -41,8 +41,9 @@ berisi data dan berukuran maksimal 10 MiB (10.485.760 byte).
 
 ### Draft SPK dari PDF (prototipe lokal)
 
-Form Pembuatan SPK menyediakan **Baca PDF** untuk membaca PDF PO, PHJ, dan TDS
-di browser. File tidak dikirim ke Apps Script atau layanan cloud. Hasil muncul
+Form Pembuatan SPK menyediakan **Baca Dokumen** untuk membaca PDF PO, PHJ, dan TDS
+di browser. OCR diproses lokal, sedangkan file yang dipilih diunggah ke Google
+Drive setelah SPK berhasil dibuat. Hasil pembacaan muncul
 sebagai draft yang dapat dikoreksi; hanya field yang dicentang pengguna yang
 diterapkan ke form, dan konflik antardokumen tidak dipilih otomatis.
 PO menjadi sumber utama pelanggan, nomor/tanggal PO, jumlah, dan satuan;
@@ -53,14 +54,15 @@ karena setiap item perlu dibuat sebagai SPK tersendiri.
 Prototipe membaca lapisan teks PDF dan menjalankan OCR Bahasa Indonesia/Inggris
 secara lokal untuk halaman scan serta gambar PNG/JPEG. OCR menggunakan aset
 Tesseract.js dan model bahasa yang di-host bersama aplikasi; isi dokumen tidak
-dikirim ke server atau layanan cloud. Model diunduh ketika OCR pertama kali
+diunggah selama pembacaan. Model diunduh ketika OCR pertama kali
 dibutuhkan dan disimpan pada cache lokal browser.
 Contoh `XAVA039-PLMR-09-26_revisi.pdf` berhasil dibaca: sistem mengenali nomor
 PO, tanggal PO masuk, tanggal kirim, pelanggan, dan jumlah dari halaman scan,
 serta artikel/kode/ukuran dari TDS. Nilai yang berselisih antara PHJ dan TDS
 ditandai, bukan dipilih diam-diam. PO dengan beberapa item tidak mengisi jumlah
 otomatis; buat satu SPK per item dan periksa hasil ekstraksi sebelum menyimpan.
-Setiap file dibatasi 20 MiB, maksimal lima file per proses, maksimal 30 halaman
+Setiap file dibatasi 10 MiB agar sesuai batas penyimpanan dokumen SPK,
+maksimal lima file per proses, maksimal 30 halaman
 per PDF, dan maksimal 30 halaman OCR per proses. OCR memerlukan koneksi pertama
 kali untuk memuat aset aplikasi/model lokal. Hasil OCR tetap perlu ditinjau
 manual; kualitas scan, tabel kompleks, dan format pemasok yang belum dikenal
@@ -71,6 +73,14 @@ Notifikasi setelah penerapan membedakan hasil lengkap, data yang dilewati,
 dan kegagalan pembacaan. Animasi mengikuti preferensi pengurangan gerak perangkat.
 Warna panel dan dialog mengikuti tema industrial Input SPK: permukaan abu-abu
 metallic, tombol arang, dan aksen merah; hijau/kuning tetap dipakai untuk status.
+Saat meninjau hasil OCR, pilih kategori PO/PHJ/TDS untuk setiap file; PDF
+gabungan dapat dicentang dalam beberapa kategori dan disimpan sebagai salinan
+di masing-masing folder. File tidak dikenal harus diberi kategori secara manual.
+Setelah SPK berhasil dibuat, tombol PO/PHJ/TDS dapat membuka preview file lokal
+atau dokumen yang sudah disimpan. Status upload dan tombol coba lagi muncul
+pada konfirmasi sukses jika ada file yang gagal; ID upload tetap sama saat
+mencoba kembali untuk mencegah duplikasi. Jangan tinggalkan halaman sebelum
+upload selesai. Dokumen tersimpan juga dapat dilihat melalui Kelola SPK.
 
 Backend `BE-Spk-Documents.js` memvalidasi sesi, izin tindakan, keberadaan SPK,
 ekstensi, header isi file, dan ukuran sebelum menyimpan. Folder Drive

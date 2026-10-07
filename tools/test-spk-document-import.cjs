@@ -18,6 +18,19 @@ assert.match(importSource, /workerPath:\s*workerPath/);
 assert.match(importSource, /langPath:\s*langPath/);
 assert.match(importSource, /worker\.recognize\(file\)/);
 assert.doesNotMatch(importSource, /cdn\.jsdelivr\.net|generativelanguage|documentai\.googleapis/);
+assert.match(importSource, /saveSpkDocument\(authToken, spk, payload\)/);
+assert.match(importSource, /spk:input-saved/);
+assert.match(importSource, /spk:input-reset/);
+for (const page of [
+  'apps/spk-automation/create-spk/index.html',
+  'apps/spk-automation/index.html',
+  'gas-deploy/FE-SPK-Wizard-Script.html'
+]) {
+  const html = fs.readFileSync(path.join(__dirname, '..', page), 'utf8');
+  assert.match(html, /dispatchEvent\(new CustomEvent\('spk:input-saved'/);
+  assert.match(html, /dispatchEvent\(new Event\('spk:input-reset'\)/);
+  assert.match(html, /spk-document-import\.js\?v=20261007-5/);
+}
 
 assert.equal(importer.classifyPage('PURCHASE ORDER\nPO Number: PO-12345'), 'PO');
 assert.equal(importer.classifyPage('PERHITUNGAN HARGA JUAL'), 'PHJ');
@@ -93,7 +106,36 @@ assert.match(reviewHtml, /spk-import-field-select/);
 assert.match(reviewHtml, /spk-import-selected-count/);
 assert.match(reviewHtml, /data-import-selected="customer" checked/);
 assert.match(reviewHtml, /data-import-value="customer"/);
-assert.match(reviewHtml, /Dokumen tidak diunggah ke server/);
+assert.match(reviewHtml, /disimpan ke Google Drive setelah SPK berhasil dibuat/);
+const combinedFile = { name: 'gabungan.pdf', size: 1024 };
+const combined = importer.extractDraft([
+  { source: 'gabungan.pdf · halaman 1', fileIndex: 0, lines: ['PURCHASE ORDER', 'PO Number: PO-2026-001'] },
+  { source: 'gabungan.pdf · halaman 2', fileIndex: 0, lines: ['PERHITUNGAN HARGA JUAL'] },
+  { source: 'gabungan.pdf · halaman 3', fileIndex: 0, lines: ['TEHNIKAL DATA SHEET (TDS)'] }
+]);
+assert.deepEqual(combined.pages.map(page => page.fileIndex), [0, 0, 0]);
+global.document = { getElementById: () => null };
+const combinedHtml = importer.buildReviewHtml(combined, [combinedFile]);
+delete global.document;
+assert.match(combinedHtml, /data-import-file="0" data-import-type="PO" checked/);
+assert.match(combinedHtml, /data-import-file="0" data-import-type="PHJ" checked/);
+assert.match(combinedHtml, /data-import-file="0" data-import-type="TDS" checked/);
+const chosenTypes = new Set(['PO', 'PHJ', 'TDS']);
+const attachments = importer.collectAttachments({
+  querySelector: selector => {
+    const type = selector.match(/data-import-type="(PO|PHJ|TDS)"/)[1];
+    return chosenTypes.has(type) ? {} : null;
+  }
+}, [combinedFile]);
+assert.deepEqual(attachments[0].types, ['PO', 'PHJ', 'TDS']);
+assert.throws(() => importer.collectAttachments({ querySelector: () => null }, [combinedFile]), /Pilih minimal satu kategori/);
+const unknown = importer.extractDraft([
+  { source: 'gambar.png', fileIndex: 0, lines: ['teks tidak dikenali'] }
+]);
+global.document = { getElementById: () => null };
+const unknownHtml = importer.buildReviewHtml(unknown, [{ name: 'gambar.png' }]);
+delete global.document;
+assert.doesNotMatch(unknownHtml, /data-import-type="PO" checked/);
 
 const conflict = importer.extractDraft([
   { source: 'po.pdf · halaman 1', lines: ['PURCHASE ORDER', 'PT. CUSTOMER A', 'Nomor : PO-1'] },

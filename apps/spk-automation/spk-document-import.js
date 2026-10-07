@@ -11,7 +11,7 @@
   var MAX_FILES = 5;
   var MAX_PAGES_PER_FILE = 30;
   var PDFJS_VERSION = '3.11.174';
-  var ASSET_VERSION = '20261007-5';
+  var ASSET_VERSION = '20261007-6';
   var OCR_MAX_PAGES_PER_IMPORT = 30;
   var FIELDS = [
     { id: 'customer', label: 'Pelanggan', priority: ['PO', 'PHJ', 'TDS'] },
@@ -82,9 +82,10 @@
     if (/[,.]/.test(numberText)) {
       var lastSeparator = Math.max(numberText.lastIndexOf(','), numberText.lastIndexOf('.'));
       var decimals = numberText.length - lastSeparator - 1;
-      number = decimals === 3
+      number = decimals === 3 && /^\d{1,3}(?:[.,]\d{3})+$/.test(numberText)
         ? Number(numberText.replace(/[,.]/g, ''))
-        : Number(numberText.replace(/\./g, '').replace(',', '.'));
+        : Number(numberText.slice(0, lastSeparator).replace(/[,.]/g, '') + '.' +
+          numberText.slice(lastSeparator + 1));
     } else {
       number = Number(numberText);
     }
@@ -125,13 +126,72 @@
     return candidates[0] || '';
   }
 
-  function extractPONumberRows(lines) {
-    return lines.filter(function (line) {
-      return /^\d+\s+(?:\[[^\]]+\]|[A-Z0-9][A-Z0-9._/-]{3,})\s/i.test(normalizeText(line)) &&
-        /\b(?:PCS|P\.?C\.?S?\.?|KG|KGS|ROLLS?)\b/i.test(line);
-    }).map(function (line) {
-      return extractNumberAndUnit(line);
+  function extractPoItems(lines, source) {
+    return lines.map(function (line) {
+      var match = normalizeText(line).match(/^(\d+)\s+(?:\[([^\]]+)\]|([A-Z0-9][A-Z0-9._/-]{3,}))\s+(.+?)\s+(\d[\d.,]*\s*(?:PCS|P\.?C\.?S?\.?|KG|KGS|ROLLS?))\b/i);
+      if (!match) return null;
+      var amount = extractNumberAndUnit(match[5]);
+      if (!amount) return null;
+      return {
+        code: normalizeText(match[2] || match[3]),
+        name: normalizeText(match[4]),
+        quantity: amount.quantity,
+        unit: amount.unit,
+        source: source,
+        type: 'PO'
+      };
     }).filter(Boolean);
+  }
+
+  function phjCodes(lines) {
+    var row = lines.find(function (line) { return /^NO\s+(?:CODE|KODE)\b/i.test(line); });
+    return row ? (normalizeText(row).replace(/^NO\s+(?:CODE|KODE)\s*:?\s*/i, '')
+      .match(/\b[A-Z0-9][A-Z0-9._/-]{3,}\b/gi) || []) : [];
+  }
+
+  function phjColumns(page, codes) {
+    if (!Array.isArray(page.layout) || page.layout.length === 0) return [];
+    var codeCells = page.layout.filter(function (cell) {
+      return codes.some(function (code) { return normalizeComparable(cell.text) === normalizeComparable(code); });
+    }).sort(function (a, b) { return a.x - b.x; });
+    if (codeCells.length !== codes.length) return [];
+    var rows = [];
+    page.layout.forEach(function (cell) {
+      var row = rows.find(function (entry) { return Math.abs(entry.y - cell.y) <= 2.5; });
+      if (!row) { row = { y: cell.y, cells: [] }; rows.push(row); }
+      row.cells.push(cell);
+    });
+    return codeCells.map(function (codeCell, index) {
+      var extracted = ['PERHITUNGAN HARGA JUAL'];
+      rows.sort(function (a, b) { return b.y - a.y; }).forEach(function (row) {
+        var cells = row.cells.sort(function (a, b) { return a.x - b.x; });
+        var label = cells.find(function (cell) { return cell.x < codeCells[0].x - 40; });
+        if (!label || !/^(?:NO\s+(?:CODE|KODE)|NAMA\s+CUSTOMER|NAMA\s+ITEM|BAHAN|UKURAN|MODEL\s+KANTONG|PRINTING|JUMLAH\s+ORDER|TOLERANSI\s+KIRIM|DELIVERY\s+DATE)\b/i.test(label.text)) return;
+        var values = cells.filter(function (cell) {
+          if (cell === label || cell.x < codeCells[0].x - 40) return false;
+          var nearest = codeCells.reduce(function (best, candidate, candidateIndex) {
+            return Math.abs(cell.x - candidate.x) < Math.abs(cell.x - codeCells[best].x) ? candidateIndex : best;
+          }, 0);
+          return nearest === index;
+        }).map(function (cell) { return cell.text; });
+        if (values.length) extracted.push(label.text + ' ' + values.join(' '));
+      });
+      return { code: normalizeText(codeCell.text), lines: extracted, source: page.source };
+    });
+  }
+
+  function tdsSections(page) {
+    var lines = (page.lines || page.text.split('\n')).map(normalizeText);
+    var starts = [];
+    lines.forEach(function (line, index) {
+      if (/^NO\s*\.?\s*ARTIKEL\b/i.test(line)) starts.push(index);
+    });
+    if (starts.length <= 1) return [page];
+    return starts.map(function (start, index) {
+      var section = ['TEHNIKAL DATA SHEET (TDS)'].concat(lines.slice(start, starts[index + 1] || lines.length));
+      return Object.assign({}, page, { source: page.source + ' · item ' + (index + 1),
+        lines: section, text: section.join('\n') });
+    });
   }
 
   function findLabeledValue(text, labelPattern, followingPattern) {
@@ -208,7 +268,7 @@
       if (deliveryDate) addCandidate('etd', deliveryDate, page);
       var company = extractCompany(lines);
       if (company) addCandidate('customer', company, page);
-      var orderRows = extractPONumberRows(lines);
+      var orderRows = extractPoItems(lines, page.source);
       if (orderRows.length === 1) {
         addCandidate('jumlahOrder', orderRows[0].quantity, page);
         addCandidate('uomOrder', orderRows[0].unit, page);
@@ -230,8 +290,7 @@
     }
 
     if (type === 'PHJ') {
-      var codeRow = lines.find(function (line) { return /^NO\s+CODE\b/i.test(line); });
-      var codeCount = codeRow ? (codeRow.match(/\b[A-Z]\d{2}\.\d{3}\b|\b[A-Z]{2,}[A-Z0-9-]{3,}\b/gi) || []).length : 0;
+      var codeCount = phjCodes(lines).length;
       if (codeCount > 1) {
         issues.push(page.source + ': PHJ memuat beberapa kode item; nilai spesifikasi perlu dipilih per item.');
         return;
@@ -289,7 +348,7 @@
     }
   }
 
-  function extractDraft(pages) {
+  function extractDraft(pages, selectedCode) {
     var candidates = Object.create(null);
     var issues = [];
     var classifiedPages = (pages || []).map(function (page, index) {
@@ -300,9 +359,57 @@
         type: page.type || classifyPage(text),
         text: text,
         lines: page.lines || null,
+        layout: page.layout || null,
         ocr: Boolean(page.ocr)
       };
     });
+    var itemsByType = { PO: [], PHJ: [], TDS: [] };
+    function addItem(item) {
+      var group = itemsByType[item.type];
+      var existing = group.find(function (candidate) {
+        return normalizeComparable(candidate.code) === normalizeComparable(item.code);
+      });
+      if (!existing) group.push(item);
+    }
+    classifiedPages.forEach(function (page) {
+      var lines = (page.lines || page.text.split('\n')).map(normalizeText);
+      if (page.type === 'PO' && !/KATEGORI\s+PO\s*:?\s*RAW\s+MATERIAL\s+PURCHASE/i.test(page.text)) {
+        extractPoItems(lines, page.source).forEach(addItem);
+      } else if (page.type === 'PHJ') {
+        var codes = phjCodes(lines);
+        if (codes.length > 1) {
+          var columns = phjColumns(page, codes);
+          codes.forEach(function (code) {
+            var column = columns.find(function (entry) {
+              return normalizeComparable(entry.code) === normalizeComparable(code);
+            });
+            addItem({ code: code, name: column &&
+              findLabeledValue(column.lines.join('\n'), 'NAMA\\s+ITEM', 'BAHAN|UKURAN') || code,
+              source: page.source, type: 'PHJ' });
+          });
+        } else if (codes.length === 1) {
+          addItem({ code: codes[0], name: findLabeledValue(lines.join('\n'), 'NAMA\\s+ITEM', 'BAHAN|UKURAN') || codes[0],
+            source: page.source, type: 'PHJ' });
+        }
+      } else if (page.type === 'TDS') {
+        tdsSections(page).forEach(function (section) {
+          var sectionLines = section.lines || lines;
+          var tdsCode = findTdsLabelValue(sectionLines, 'NO\\s*\\.\\s*ARTIKEL');
+          if (tdsCode) addItem({ code: tdsCode, name: findTdsLabelValue(sectionLines, 'ARTIKEL') || tdsCode,
+            source: section.source, type: 'TDS' });
+        });
+      }
+    });
+    var items = itemsByType.PO.length > 1 ? itemsByType.PO :
+      itemsByType.PHJ.length > 1 ? itemsByType.PHJ :
+      itemsByType.TDS.length > 1 ? itemsByType.TDS :
+      itemsByType.PO.length ? itemsByType.PO :
+      itemsByType.PHJ.length ? itemsByType.PHJ : itemsByType.TDS;
+    var multiItem = items.length > 1;
+    var selected = multiItem && selectedCode ? items.find(function (item) {
+      return normalizeComparable(item.code) === normalizeComparable(selectedCode);
+    }) : null;
+    if (multiItem && selectedCode && !selected) throw new Error('Item yang dipilih tidak ditemukan di dokumen.');
     function addCandidate(field, value, page) {
       var normalized = normalizeText(value);
       if (!normalized) return;
@@ -320,12 +427,69 @@
     var hasMultiItemOrder = false;
     classifiedPages.forEach(function (page) {
       if (page.type === 'PO') {
-        var lineItems = extractPONumberRows((page.lines || String(page.text || '').split('\n')).map(normalizeText));
+        var lineItems = extractPoItems((page.lines || String(page.text || '').split('\n')).map(normalizeText), page.source);
         if (lineItems.length > 1) hasMultiItemOrder = true;
+        if (multiItem && selected) {
+          var chosen = lineItems.find(function (item) {
+            return normalizeComparable(item.code) === normalizeComparable(selected.code);
+          });
+          var sharedLines = (page.lines || page.text.split('\n')).filter(function (line) {
+            return !/^\d+\s+(?:\[[^\]]+\]|[A-Z0-9][A-Z0-9._/-]{3,})\s/i.test(normalizeText(line));
+          });
+          parsePage(Object.assign({}, page, { lines: sharedLines, text: sharedLines.join('\n') }), addCandidate, issues);
+          if (chosen) {
+            addCandidate('kodeItem', chosen.code, page);
+            addCandidate('artikel', chosen.name, page);
+            addCandidate('jumlahOrder', chosen.quantity, page);
+            addCandidate('uomOrder', chosen.unit, page);
+          }
+          return;
+        }
+      }
+      if (multiItem && page.type === 'PHJ') {
+        var codes = phjCodes((page.lines || page.text.split('\n')).map(normalizeText));
+        if (selected && !codes.length) {
+          issues.push(page.source + ': kode item PHJ tidak terbaca; spesifikasi PHJ tidak dipakai. Periksa secara manual.');
+          return;
+        }
+        if (!selected || !codes.some(function (code) {
+          return normalizeComparable(code) === normalizeComparable(selected.code);
+        })) return;
+        if (codes.length > 1) {
+          var column = phjColumns(page, codes).find(function (item) {
+            return normalizeComparable(item.code) === normalizeComparable(selected.code);
+          });
+          if (!column) {
+            issues.push(page.source + ': kolom PHJ tidak dapat dipasangkan dengan ' + selected.code + '; isi spesifikasi secara manual.');
+            return;
+          }
+          parsePage(Object.assign({}, page, { lines: column.lines, text: column.lines.join('\n') }), addCandidate, issues);
+          return;
+        }
+      }
+      if (multiItem && page.type === 'TDS') {
+        if (!selected) return;
+        if (!tdsSections(page).some(function (entry) {
+          return findTdsLabelValue(entry.lines || entry.text.split('\n'), 'NO\\s*\\.\\s*ARTIKEL');
+        })) {
+          issues.push(page.source + ': kode item TDS tidak terbaca; spesifikasi TDS tidak dipakai. Periksa secara manual.');
+          return;
+        }
+        var section = tdsSections(page).find(function (entry) {
+          return normalizeComparable(findTdsLabelValue(entry.lines || entry.text.split('\n'),
+            'NO\\s*\\.\\s*ARTIKEL')) === normalizeComparable(selected.code);
+        });
+        if (section) parsePage(section, addCandidate, issues);
+        return;
       }
       parsePage(page, addCandidate, issues);
     });
-    if (hasMultiItemOrder) {
+    if (multiItem && !selected) {
+      Object.keys(candidates).forEach(function (id) {
+        if (['customer', 'nomorPO', 'poMasukDisplay', 'etd'].indexOf(id) === -1) delete candidates[id];
+      });
+      issues.push('Dokumen memuat beberapa item. Pilih satu item sebelum menerapkan data ke SPK.');
+    } else if (hasMultiItemOrder && !selected) {
       delete candidates.jumlahOrder;
       delete candidates.uomOrder;
     }
@@ -356,6 +520,8 @@
     }).filter(Boolean);
     return {
       fields: fields,
+      items: items,
+      selectedItem: selected ? selected.code : '',
       issues: Array.from(new Set(issues)),
       pages: classifiedPages.map(function (page) {
         return {
@@ -498,6 +664,10 @@
           source: file.name + ' · halaman ' + pageNumber,
           page: pageNumber,
           lines: lines,
+          layout: content.items.map(function (item) {
+            return { x: Number(item.transform && item.transform[4]) || 0,
+              y: Number(item.transform && item.transform[5]) || 0, text: String(item.str || '') };
+          }).filter(function (item) { return item.text.trim(); }),
           text: text,
           ocr: usedOcr
         });
@@ -532,7 +702,7 @@
     var rows = result.fields.map(function (field) {
       var targetValue = getTargetValue(field.id);
       var defaultChecked = !targetValue && !field.conflict;
-      defaultChecked = defaultChecked && !field.needsReview;
+      defaultChecked = defaultChecked && (!field.needsReview || Boolean(result.selectedItem));
       var conflict = field.conflict
         ? '<span class="spk-import-warning">Perbedaan ditemukan: ' + field.alternatives.map(function (item) {
           return escapeHtml(item.value + ' (' + item.source + ')');
@@ -566,7 +736,8 @@
       }).join('') + '</div>' : '';
     return '<div class="spk-import-review"><div class="spk-import-review-intro"><span class="spk-import-eyebrow">HASIL PEMBACAAN</span>' +
       '<strong>' + result.pages.length + ' halaman diperiksa · ' + result.fields.length + ' field ditemukan</strong>' +
-      '<p>Bandingkan dengan dokumen asli. Centang data yang ingin dipindahkan dan koreksi nilainya bila perlu.</p></div>' +
+      '<p>' + (result.selectedItem ? 'Item ' + escapeHtml(result.selectedItem) + ' · ' : '') +
+      'Bandingkan dengan dokumen asli. Centang data yang ingin dipindahkan dan koreksi nilainya bila perlu.</p></div>' +
       '<div class="spk-import-privacy"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i>' +
       '<span>OCR diproses di browser. File yang dipilih akan disimpan ke Google Drive setelah SPK berhasil dibuat.</span></div>' +
       '<div class="spk-import-section-label">Dokumen terbaca</div><div class="spk-import-sources">' + summary + '</div>' + issues + attachments +
@@ -895,7 +1066,9 @@
           throw new Error('Format belum didukung untuk ekstraksi lokal: ' + file.name + '. Pilih PDF, PNG, atau JPEG.');
         }
       }
-      return extractDraft(allPages);
+      var draft = extractDraft(allPages);
+      draft.sourcePages = allPages;
+      return draft;
     } finally {
       var workerPromise = ocrWorkerPromise;
       ocrWorkerPromise = null;
@@ -943,32 +1116,63 @@
       });
       try {
         var result = await importFiles(files);
-        var review = await window.Swal.fire({
-          title: 'Tinjau draft SPK',
-          html: buildReviewHtml(result, files),
-          width: 860,
-          showCancelButton: true,
-          confirmButtonText: 'Terapkan pilihan ke form',
-          cancelButtonText: 'Kembali ke form',
-          focusConfirm: false,
-          customClass: { popup: 'spk-import-review-popup', confirmButton: 'spk-import-confirm' },
-          didOpen: function (popup) {
-            updateSelectionCount(popup);
-            popup.addEventListener('change', function (event) {
-              if (event.target.matches('[data-import-selected]')) updateSelectionCount(popup);
+        var sourcePages = result.sourcePages;
+        var review;
+        while (true) {
+          if (result.items.length > 1) {
+            var choices = {};
+            result.items.forEach(function (item) {
+              choices[item.code] = item.code + ' · ' + item.name +
+                (item.quantity ? ' · ' + item.quantity + ' ' + item.unit : '');
             });
-          },
-          preConfirm: function () {
-            var popup = window.Swal.getPopup();
-            var attachments;
-            try { attachments = collectAttachments(popup, files); }
-            catch (error) {
-              window.Swal.showValidationMessage(error.message);
-              return false;
-            }
-            return { fields: applySelection(popup, result), attachments: attachments };
+            var chosen = await window.Swal.fire({
+              title: 'Pilih satu item untuk SPK ini',
+              text: result.items.length + ' item ditemukan. Satu SPK hanya untuk satu item; dokumen yang sama dapat dibaca lagi untuk SPK berikutnya.',
+              input: 'select',
+              inputOptions: choices,
+              inputPlaceholder: 'Pilih kode item',
+              inputValidator: function (value) { return value ? null : 'Pilih satu item terlebih dahulu.'; },
+              showCancelButton: true,
+              confirmButtonText: 'Tinjau item',
+              cancelButtonText: 'Batal',
+              customClass: { popup: 'spk-import-notice-popup' }
+            });
+            if (!chosen.isConfirmed) return;
+            result = extractDraft(sourcePages, chosen.value);
+            result.sourcePages = sourcePages;
           }
-        });
+          review = await window.Swal.fire({
+            title: 'Tinjau draft SPK',
+            html: buildReviewHtml(result, files),
+            width: 860,
+            showCancelButton: true,
+            showDenyButton: result.items.length > 1,
+            denyButtonText: 'Pilih item lain',
+            confirmButtonText: 'Terapkan pilihan ke form',
+            cancelButtonText: 'Kembali ke form',
+            focusConfirm: false,
+            customClass: { popup: 'spk-import-review-popup', confirmButton: 'spk-import-confirm' },
+            didOpen: function (popup) {
+              updateSelectionCount(popup);
+              popup.addEventListener('change', function (event) {
+                if (event.target.matches('[data-import-selected]')) updateSelectionCount(popup);
+              });
+            },
+            preConfirm: function () {
+              var popup = window.Swal.getPopup();
+              var attachments;
+              try { attachments = collectAttachments(popup, files); }
+              catch (error) {
+                window.Swal.showValidationMessage(error.message);
+                return false;
+              }
+              return { fields: applySelection(popup, result), attachments: attachments };
+            }
+          });
+          if (!review.isDenied) break;
+          result = extractDraft(sourcePages);
+          result.sourcePages = sourcePages;
+        }
         if (review.isConfirmed) {
           var summary = review.value.fields;
           var additions = review.value.attachments.flatMap(function (attachment) {

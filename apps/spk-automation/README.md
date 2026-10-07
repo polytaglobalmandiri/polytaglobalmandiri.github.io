@@ -48,8 +48,12 @@ sebagai draft yang dapat dikoreksi; hanya field yang dicentang pengguna yang
 diterapkan ke form, dan konflik antardokumen tidak dipilih otomatis.
 PO menjadi sumber utama pelanggan, nomor/tanggal PO, jumlah, dan satuan;
 TDS diprioritaskan untuk identitas serta ukuran produk; PHJ menjadi referensi
-internal dan fallback. PO dengan beberapa baris item tidak mengisi jumlah otomatis,
-karena setiap item perlu dibuat sebagai SPK tersendiri.
+internal dan fallback. Jika ada beberapa item, pilih satu kode item dahulu
+sebelum meninjau draft; satu SPK hanya memuat satu item. Jumlah diambil dari
+baris PO yang dipilih dan spesifikasi PHJ/TDS hanya digunakan jika kodenya
+cocok. PHJ berkode dalam beberapa kolom serta TDS berkode di beberapa halaman
+atau blok juga didukung. Jika OCR tidak membaca kode/kolom dengan jelas, nilai
+item tidak dipasangkan otomatis dan harus diisi setelah memeriksa dokumen asli.
 
 Prototipe membaca lapisan teks PDF dan menjalankan OCR Bahasa Indonesia/Inggris
 secara lokal untuk halaman scan serta gambar PNG/JPEG. OCR menggunakan aset
@@ -59,8 +63,9 @@ dibutuhkan dan disimpan pada cache lokal browser.
 Contoh `XAVA039-PLMR-09-26_revisi.pdf` berhasil dibaca: sistem mengenali nomor
 PO, tanggal PO masuk, tanggal kirim, pelanggan, dan jumlah dari halaman scan,
 serta artikel/kode/ukuran dari TDS. Nilai yang berselisih antara PHJ dan TDS
-ditandai, bukan dipilih diam-diam. PO dengan beberapa item tidak mengisi jumlah
-otomatis; buat satu SPK per item dan periksa hasil ekstraksi sebelum menyimpan.
+ditandai, bukan dipilih diam-diam. Buat satu SPK per item dan periksa hasil
+ekstraksi sebelum menyimpan; untuk item selanjutnya, baca lagi dokumen yang
+sama dan pilih kode item berikutnya.
 Setiap file dibatasi 10 MiB agar sesuai batas penyimpanan dokumen SPK,
 maksimal lima file per proses, maksimal 30 halaman
 per PDF, dan maksimal 30 halaman OCR per proses. OCR memerlukan koneksi pertama

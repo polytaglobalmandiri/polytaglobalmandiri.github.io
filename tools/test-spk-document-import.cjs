@@ -29,7 +29,7 @@ for (const page of [
   const html = fs.readFileSync(path.join(__dirname, '..', page), 'utf8');
   assert.match(html, /dispatchEvent\(new CustomEvent\('spk:input-saved'/);
   assert.match(html, /dispatchEvent\(new Event\('spk:input-reset'\)/);
-  assert.match(html, /spk-document-import\.js\?v=20261007-5/);
+  assert.match(html, /spk-document-import\.js\?v=20261007-6/);
 }
 
 assert.equal(importer.classifyPage('PURCHASE ORDER\nPO Number: PO-12345'), 'PO');
@@ -168,6 +168,84 @@ const multiItem = importer.extractDraft([
 assert.equal(fieldFrom(multiItem, 'jumlahOrder'), undefined);
 assert.equal(fieldFrom(multiItem, 'uomOrder'), undefined);
 assert.match(multiItem.issues.join(' '), /Pilih satu item per SPK/);
+assert.equal(multiItem.items.length, 2);
+assert.equal(fieldFrom(multiItem, 'artikel'), undefined);
+const chosenPo = importer.extractDraft([
+  {
+    source: 'multi-po.pdf · halaman 1',
+    lines: [
+      'PURCHASE ORDER', 'PT. CUSTOMER A', 'PO Number : PO-2',
+      '1 [ITEM-1] Plastik Satu 300 Kg (100 Pcs)',
+      '2 [ITEM-2] Plastik Dua 400 Kg (80 Pcs)'
+    ]
+  }
+], 'ITEM-2');
+assert.equal(fieldFrom(chosenPo, 'jumlahOrder').value, '400');
+assert.equal(fieldFrom(chosenPo, 'uomOrder').value, 'KG');
+assert.equal(fieldFrom(chosenPo, 'kodeItem').value, 'ITEM-2');
+assert.equal(fieldFrom(chosenPo, 'artikel').value, 'Plastik Dua');
+assert.equal(chosenPo.selectedItem, 'ITEM-2');
+const decimalPo = importer.extractDraft([{
+  source: 'decimal-po.pdf', lines: ['PURCHASE ORDER', '1 [ITEM-1] Plastik Satu 300.00 Kg',
+    '2 [ITEM-2] Plastik Dua 1.250,50 Kg']
+}], 'ITEM-1');
+assert.equal(fieldFrom(decimalPo, 'jumlahOrder').value, '300');
+assert.equal(fieldFrom(importer.extractDraft([{
+  source: 'decimal-po.pdf', lines: ['PURCHASE ORDER', '1 [ITEM-1] Plastik Satu 300.00 Kg',
+    '2 [ITEM-2] Plastik Dua 1.250,50 Kg']
+}], 'ITEM-2'), 'jumlahOrder').value, '1250.5');
+assert.throws(() => importer.extractDraft([
+  { source: 'multi-po.pdf', lines: ['PURCHASE ORDER', '1 [ITEM-1] Satu 300 Kg', '2 [ITEM-2] Dua 400 Kg'] }
+], 'UNKNOWN'), /tidak ditemukan/);
+
+function phjRow(y, label, first, second) {
+  return [{ x: 27, y, text: label }, { x: label === 'NO CODE' ? 183 : 158, y, text: first },
+    { x: label === 'NO CODE' ? 284 : 262, y, text: second }];
+}
+const phjLayout = [
+  ...phjRow(300, 'NO CODE', 'ITEM-1', 'ITEM-2'),
+  ...phjRow(290, 'NAMA ITEM', 'Plastik Satu', 'Plastik Dua'),
+  ...phjRow(280, 'BAHAN', 'OPP', 'PP'),
+  ...phjRow(270, 'UKURAN', '12 X 20 CM', '45 X 60 CM'),
+  ...phjRow(260, 'MODEL KANTONG', 'SIDE SEAL', 'BOTTOM SEAL'),
+  ...phjRow(250, 'JUMLAH ORDER', '300 KG', '400 KG')
+];
+const phjPage = {
+  source: 'multi-phj.pdf · halaman 2',
+  lines: ['PERHITUNGAN HARGA JUAL', 'NO CODE ITEM-1 ITEM-2', 'NAMA ITEM Plastik Satu Plastik Dua',
+    'BAHAN OPP PP', 'UKURAN 12 X 20 CM 45 X 60 CM',
+    'MODEL KANTONG SIDE SEAL BOTTOM SEAL', 'JUMLAH ORDER 300 KG 400 KG'],
+  layout: phjLayout
+};
+const poPage = {
+  source: 'multi-po.pdf · halaman 1',
+  lines: ['PURCHASE ORDER', 'PT. CUSTOMER A', 'PO Number : PO-2',
+    '1 [ITEM-1] Plastik Satu 300 Kg', '2 [ITEM-2] Plastik Dua 400 Kg']
+};
+const firstItem = importer.extractDraft([poPage, phjPage], 'ITEM-1');
+const secondItem = importer.extractDraft([poPage, phjPage], 'ITEM-2');
+assert.equal(firstItem.items.length, 2);
+assert.equal(fieldFrom(firstItem, 'ukuranJadi').value, '12 X 20 CM');
+assert.equal(fieldFrom(secondItem, 'ukuranJadi').value, '45 X 60 CM');
+assert.equal(fieldFrom(secondItem, 'modelKantong').value, 'BOTTOM SEAL');
+assert.equal(fieldFrom(secondItem, 'jumlahOrder').value, '400');
+global.document = { getElementById: () => null };
+const secondReview = importer.buildReviewHtml(secondItem);
+delete global.document;
+assert.match(secondReview, /data-import-selected="kodeItem" checked/);
+assert.match(secondReview, /data-import-selected="ukuranJadi" checked/);
+const noLayout = importer.extractDraft([poPage, { ...phjPage, layout: null }], 'ITEM-2');
+assert.equal(fieldFrom(noLayout, 'ukuranJadi'), undefined);
+assert.match(noLayout.issues.join(' '), /kolom PHJ tidak dapat dipasangkan/);
+
+const multiTds = importer.extractDraft([{
+  source: 'spec.pdf · halaman 1',
+  lines: ['TEHNIKAL DATA SHEET (TDS)', 'No.Artikel : CODE-1', 'Artikel : Satu',
+    'Ukuran Jadi : 12 X 20', 'No.Artikel : CODE-2', 'Artikel : Dua', 'Ukuran Jadi : 45 X 60']
+}], 'CODE-2');
+assert.equal(multiTds.items.length, 2);
+assert.equal(fieldFrom(multiTds, 'kodeItem').value, 'CODE-2');
+assert.equal(fieldFrom(multiTds, 'ukuranJadi').value, '45 X 60');
 
 const scanned = importer.extractDraft([
   { source: 'scan.pdf · halaman 1', type: 'UNKNOWN', text: '' }

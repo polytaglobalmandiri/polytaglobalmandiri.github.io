@@ -11,7 +11,7 @@
   var MAX_FILES = 5;
   var MAX_PAGES_PER_FILE = 30;
   var PDFJS_VERSION = '3.11.174';
-  var ASSET_VERSION = '20261007-7';
+  var ASSET_VERSION = '20261007-8';
   var OCR_MAX_PAGES_PER_IMPORT = 30;
   var FIELDS = [
     { id: 'customer', label: 'Pelanggan', priority: ['PO', 'PHJ', 'TDS'] },
@@ -1082,6 +1082,21 @@
       await chooseMissingDraftFiles(batch);
       return;
     }
+    var otherItem = activeDraft && (activeDraft.batchId !== batchId || activeDraft.code !== code);
+    var priorFields = !activeDraft && ['customer', 'nomorPO', 'kodeItem', 'artikel', 'jumlahOrder'].some(getTargetValue);
+    if (otherItem || priorFields || (!activeDraft && stagedDocuments.length)) {
+      var switchItem = await window.Swal.fire({
+        icon: 'warning', title: 'Ganti item draft?',
+        text: 'Form SPK saat ini akan dikosongkan sebelum item lain dibuka.' +
+          (otherItem ? ' Simpan perubahan draft aktif terlebih dahulu jika ingin mempertahankannya.' : ''),
+        showCancelButton: true, confirmButtonText: 'Kosongkan dan buka item', cancelButtonText: 'Batal'
+      });
+      if (!switchItem.isConfirmed) return;
+      if (typeof window.resetSpkInputWizard_ !== 'function') {
+        throw new Error('Form SPK belum siap untuk berganti draft. Muat ulang halaman.');
+      }
+      window.resetSpkInputWizard_();
+    }
     var result = { pages: batch.files.map(function (file) {
       return { source: file.name, type: file.types.join('/'), hasText: true };
     }), fields: item.fields, issues: item.issues || [], selectedItem: item.code, fromSavedDraft: true };
@@ -1469,6 +1484,11 @@
   }
 
   async function chooseDocuments() {
+    if (activeDraft) {
+      await window.Swal.fire({ icon: 'warning', title: 'Item draft masih aktif',
+        text: 'Selesaikan atau simpan draft item ini dahulu. Kosongkan form sebelum membaca dokumen untuk SPK yang berbeda.' });
+      return;
+    }
     var input = document.createElement('input');
     input.type = 'file';
     input.accept = '.pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg';

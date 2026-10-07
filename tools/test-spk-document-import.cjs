@@ -29,7 +29,9 @@ for (const page of [
   const html = fs.readFileSync(path.join(__dirname, '..', page), 'utf8');
   assert.match(html, /dispatchEvent\(new CustomEvent\('spk:input-saved'/);
   assert.match(html, /dispatchEvent\(new Event\('spk:input-reset'\)/);
-  assert.match(html, /spk-document-import\.js\?v=20261007-6/);
+  assert.match(html, /spk-document-import\.js\?v=20261007-7/);
+  assert.match(html, /POLYTA_SPK_IMPORT\.saveCurrentDraft\(\)/);
+  assert.doesNotMatch(html, /Draft Belum Aktif|Draf Belum Aktif/);
 }
 
 assert.equal(importer.classifyPage('PURCHASE ORDER\nPO Number: PO-12345'), 'PO');
@@ -225,6 +227,18 @@ const poPage = {
 const firstItem = importer.extractDraft([poPage, phjPage], 'ITEM-1');
 const secondItem = importer.extractDraft([poPage, phjPage], 'ITEM-2');
 assert.equal(firstItem.items.length, 2);
+const batchPreview = importer.extractDraft([poPage, phjPage]);
+batchPreview.sourcePages = [poPage, phjPage];
+const allDraftItems = importer.makeDraftItems(batchPreview);
+assert.deepEqual(allDraftItems.map(item => item.code), ['ITEM-1', 'ITEM-2']);
+assert.equal(allDraftItems[0].fields.find(field => field.id === 'jumlahOrder').value, '300');
+assert.equal(allDraftItems[1].fields.find(field => field.id === 'jumlahOrder').value, '400');
+assert.equal(allDraftItems[1].fields.find(field => field.id === 'ukuranJadi').value, '45 X 60 CM');
+assert.deepEqual(allDraftItems.map(item => item.fields.find(field => field.id === 'kodeItem').value),
+  ['ITEM-1', 'ITEM-2']);
+const taggedPreview = importer.extractDraft([{ ...poPage, fileIndex: 0 }, { ...phjPage, fileIndex: 1 }]);
+assert.deepEqual(importer.draftFileDescriptors(taggedPreview, [{ name: 'po.pdf' }, { name: 'phj.pdf' }]),
+  [{ index: 0, name: 'po.pdf', types: ['PO'] }, { index: 1, name: 'phj.pdf', types: ['PHJ'] }]);
 assert.equal(fieldFrom(firstItem, 'ukuranJadi').value, '12 X 20 CM');
 assert.equal(fieldFrom(secondItem, 'ukuranJadi').value, '45 X 60 CM');
 assert.equal(fieldFrom(secondItem, 'modelKantong').value, 'BOTTOM SEAL');

@@ -1,4 +1,4 @@
-<script src="https://polytaglobalmandiri.github.io/apps/spk-automation/spk-document-import.js?v=20261007-6"></script>
+<script src="https://polytaglobalmandiri.github.io/apps/spk-automation/spk-document-import.js?v=20261007-7"></script>
 <script>
   // Logika wizard Input SPK. Dipakai bersama oleh halaman Input SPK
   // dan modal Input SPK di Dashboard.
@@ -392,23 +392,17 @@
       repeatLookupState.loadedSpk = '';
     }
 
-    // Penyimpanan draft belum punya tempat penyimpanan yang disepakati,
-    // jadi tombolnya sengaja berterus terang alih-alih diam-diam tidak
-    // menyimpan apa pun.
     function bindDraftButton_() {
       const button = document.getElementById('btnDraft');
       if (!button) return;
 
       button.addEventListener('click', function () {
-        Swal.fire({
-          icon: 'info',
-          title: 'Draft Belum Aktif',
-          text: 'Tombolnya sudah tersedia, tetapi penyimpanan draft belum '
-            + 'dijalankan. Tidak ada data yang tersimpan saat tombol ini ditekan.',
-          confirmButtonColor: '#202020',
-          background: '#e0e5ec',
-          customClass: { popup: 'swal2-popup-neumorphic' }
-        });
+        if (!window.POLYTA_SPK_IMPORT) {
+          Swal.fire({ icon: 'error', title: 'Penyimpanan draft tidak tersedia',
+            text: 'Muat ulang halaman dan coba kembali.' });
+          return;
+        }
+        window.POLYTA_SPK_IMPORT.saveCurrentDraft();
       });
     }
 

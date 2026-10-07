@@ -11,7 +11,7 @@
   var MAX_FILES = 5;
   var MAX_PAGES_PER_FILE = 30;
   var PDFJS_VERSION = '3.11.174';
-  var ASSET_VERSION = '20261007-6';
+  var ASSET_VERSION = '20261007-7';
   var OCR_MAX_PAGES_PER_IMPORT = 30;
   var FIELDS = [
     { id: 'customer', label: 'Pelanggan', priority: ['PO', 'PHJ', 'TDS'] },
@@ -39,6 +39,10 @@
   var previewUrl = '';
   var documentTypes = ['PO', 'PHJ', 'TDS'];
   var SAVE_MAX_BYTES = 10 * 1024 * 1024;
+  var draftBatches = [];
+  var activeDraft = null;
+  var activeDraftFields = null;
+  var savingDraft = false;
 
   function updateReadingStatus(label, percent) {
     if (!window.Swal) return;
@@ -739,7 +743,10 @@
       '<p>' + (result.selectedItem ? 'Item ' + escapeHtml(result.selectedItem) + ' · ' : '') +
       'Bandingkan dengan dokumen asli. Centang data yang ingin dipindahkan dan koreksi nilainya bila perlu.</p></div>' +
       '<div class="spk-import-privacy"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i>' +
-      '<span>OCR diproses di browser. File yang dipilih akan disimpan ke Google Drive setelah SPK berhasil dibuat.</span></div>' +
+      '<span>' + (result.fromSavedDraft
+        ? 'Dokumen sumber draft telah tersimpan privat; setelah SPK dibuat dokumen dipasangkan ke SPK ini.'
+        : 'OCR diproses di browser. File yang dipilih akan disimpan ke Google Drive setelah SPK berhasil dibuat.') +
+      '</span></div>' +
       '<div class="spk-import-section-label">Dokumen terbaca</div><div class="spk-import-sources">' + summary + '</div>' + issues + attachments +
       (rows ? '<div class="spk-import-section-heading"><span class="spk-import-section-label">Data untuk form</span>' +
         '<span class="spk-import-selected-count" aria-live="polite"></span></div><div class="spk-import-fields">' + rows + '</div>' :
@@ -812,6 +819,347 @@
     });
   }
 
+  function draftRpc(method) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    return new Promise(function (resolve, reject) {
+      if (!window.google || !window.google.script || !window.google.script.run) {
+        reject(new Error('Layanan draft tidak tersedia. Buka halaman melalui portal.'));
+        return;
+      }
+      var runner = window.google.script.run.withSuccessHandler(resolve).withFailureHandler(reject);
+      runner[method].apply(runner, args);
+    });
+  }
+
+  function requireDraftResponse(response, property) {
+    if (!response || response.status !== 'success' || (property && !response[property])) {
+      throw new Error(response && response.message || 'Respons penyimpanan draft tidak dapat dikonfirmasi.');
+    }
+    return response;
+  }
+
+  function makeDraftItems(result) {
+    if (!result.items || result.items.length < 2 || !result.sourcePages) {
+      throw new Error('Tidak ada beberapa item yang dapat dibuat menjadi draft.');
+    }
+    if (result.items.length > 30) throw new Error('Maksimal 30 item per kelompok draft. Pisahkan dokumen menjadi beberapa kelompok.');
+    return result.items.map(function (item) {
+      var draft = extractDraft(result.sourcePages, item.code);
+      return {
+        code: item.code,
+        name: item.name,
+        fields: draft.fields.map(function (field) {
+          return { id: field.id, label: field.label, value: field.value, source: field.source,
+            page: field.page, conflict: field.conflict, needsReview: field.needsReview,
+            preferredSource: field.preferredSource, alternatives: field.alternatives };
+        }),
+        issues: draft.issues
+      };
+    });
+  }
+
+  function draftFileDescriptors(result, files) {
+    return files.map(function (file, index) {
+      var types = documentTypes.filter(function (type) {
+        return result.pages.some(function (page) { return page.fileIndex === index && page.type === type; });
+      });
+      return { index: index, name: file.name, types: types };
+    });
+  }
+
+  function updateDraftButton() {
+    document.querySelectorAll('.spk-import-drafts-open').forEach(function (button) {
+      var pending = draftBatches.reduce(function (count, batch) {
+        return count + batch.items.filter(function (item) { return item.status !== 'completed'; }).length;
+      }, 0);
+      button.textContent = 'Draft Saya' + (pending ? ' · ' + pending : '');
+    });
+  }
+
+  async function refreshDraftBatches() {
+    var response = requireDraftResponse(await draftRpc('listSpkImportDrafts', documentToken()), 'batches');
+    if (!Array.isArray(response.batches)) throw new Error('Daftar draft tidak valid.');
+    draftBatches = response.batches;
+    updateDraftButton();
+    return draftBatches;
+  }
+
+  async function saveMultiDraft(result, files) {
+    var items = makeDraftItems(result);
+    var descriptors = await Promise.all(draftFileDescriptors(result, files).map(async function (entry) {
+      var file = files[entry.index];
+      var digest = new Uint8Array(await crypto.subtle.digest('SHA-256', await file.arrayBuffer()));
+      return Object.assign({}, entry, { size: file.size,
+        hash: btoa(String.fromCharCode.apply(null, digest)) });
+    }));
+    var confirmation = await window.Swal.fire({
+      title: 'Simpan semua item sebagai draft?',
+      html: '<div class="spk-import-draft-summary"><p>' + items.length +
+        ' draft SPK terpisah akan disimpan untuk akun Anda. Dokumen sumber diunggah ke penyimpanan privat agar tersedia setelah login ulang.</p>' +
+        items.map(function (item) {
+          return '<div><strong>' + escapeHtml(item.code) + '</strong> · ' + escapeHtml(item.name) +
+            ' · ' + item.fields.length + ' field terbaca' +
+            (item.issues.length ? ' · ' + item.issues.length + ' perlu diperiksa' : '') + '</div>';
+        }).join('') + '<p>Satu item dapat ditinjau dan disimpan sebagai SPK secara terpisah. Belum ada SPK yang dibuat.</p>' +
+        '<strong>Kategori dokumen sumber</strong>' + descriptors.map(function (file) {
+          return '<div class="spk-import-draft-file"><span>' + escapeHtml(file.name) + '</span>' +
+            documentTypes.map(function (type) {
+              return '<label><input type="checkbox" data-draft-file="' + file.index +
+                '" data-draft-type="' + type + '"' + (file.types.indexOf(type) !== -1 ? ' checked' : '') +
+                '> ' + type + '</label>';
+            }).join('') + '</div>';
+        }).join('') + '</div>',
+      showCancelButton: true,
+      confirmButtonText: 'Simpan semua draft',
+      cancelButtonText: 'Batal',
+      customClass: { popup: 'spk-import-review-popup' },
+      preConfirm: function () {
+        var popup = window.Swal.getPopup();
+        var chosen = descriptors.map(function (file) {
+          var types = documentTypes.filter(function (type) {
+            return Boolean(popup.querySelector('[data-draft-file="' + file.index +
+              '"][data-draft-type="' + type + '"]:checked'));
+          });
+          return Object.assign({}, file, { types: types });
+        });
+        var missing = chosen.find(function (file) { return !file.types.length; });
+        if (missing) {
+          window.Swal.showValidationMessage('Pilih minimal satu kategori untuk ' + missing.name + '.');
+          return false;
+        }
+        return chosen;
+      }
+    });
+    if (!confirmation.isConfirmed) return;
+    var selectedDescriptors = confirmation.value;
+    var batchId = crypto.randomUUID();
+    savingDraft = true;
+    try {
+      window.Swal.fire({ title: 'Menyimpan draft', text: 'Menyiapkan draft dan mengunggah dokumen sumber…',
+        allowEscapeKey: false, allowOutsideClick: false, showConfirmButton: false,
+        didOpen: function () { window.Swal.showLoading(); } });
+      requireDraftResponse(await draftRpc('createSpkImportDraft', documentToken(),
+        { batchId: batchId, items: items, files: selectedDescriptors }), 'batch');
+      await uploadPendingDraftFiles({ batchId: batchId, files: files, descriptors: selectedDescriptors });
+      await refreshDraftBatches();
+      await window.Swal.fire({ icon: 'success', title: 'Semua item menjadi draft',
+        text: items.length + ' draft disimpan. Buka Draft Saya untuk meninjau setiap item dan membuat SPK.',
+        confirmButtonText: 'Lihat draft', customClass: { popup: 'spk-import-notice-popup' } });
+      savingDraft = false;
+      await openDraftList();
+    } catch (error) {
+      console.error('Draft SPK gagal disimpan', error);
+      await window.Swal.fire({ icon: 'error', title: 'Draft belum lengkap',
+        text: error.message + ' Draft yang berhasil dibuat tetap tersimpan. Buka Draft Saya untuk melengkapi file yang belum terunggah.',
+        customClass: { popup: 'spk-import-notice-popup' } });
+      await refreshDraftBatches().catch(function (refreshError) {
+        console.error('Daftar draft tidak dapat dimuat setelah kegagalan penyimpanan', refreshError);
+      });
+    } finally {
+      savingDraft = false;
+    }
+  }
+
+  async function uploadPendingDraftFiles(pending) {
+    for (var index = 0; index < pending.descriptors.length; index++) {
+      var descriptor = pending.descriptors[index];
+      var file = pending.files[descriptor.index];
+      if (!file || file.name !== descriptor.name) throw new Error('File ' + descriptor.name + ' perlu dipilih ulang.');
+      if (window.Swal && window.Swal.getPopup()) {
+        window.Swal.update({ text: 'Mengunggah dokumen ' + (index + 1) + '/' + pending.descriptors.length + ': ' + file.name });
+      }
+      requireDraftResponse(await draftRpc('saveSpkImportDraftFile', documentToken(), pending.batchId, {
+        index: descriptor.index, name: descriptor.name, types: descriptor.types,
+        uploadId: pending.batchId + '-' + descriptor.index,
+        base64: await fileAsBase64(file)
+      }), 'batch');
+    }
+  }
+
+  async function openDraftList() {
+    var batches = await refreshDraftBatches();
+    var rows = batches.map(function (batch) {
+      return '<section class="spk-import-draft-batch"><strong>' + escapeHtml(batch.items.length + ' item · ' + batch.batchId) +
+        '</strong>' + batch.items.map(function (item) {
+          return '<button type="button" class="spk-import-draft-item" data-draft-batch="' +
+            escapeHtml(batch.batchId) + '" data-draft-code="' + escapeHtml(item.code) + '">' +
+            escapeHtml(item.code) + ' · ' + escapeHtml(item.name) +
+            ' <small>' + (item.status === 'completed' ? 'SPK ' + escapeHtml(item.spk || '') :
+              item.spk ? 'Lanjutkan lampiran SPK ' + escapeHtml(item.spk) :
+              batch.files.some(function (file) { return !file.saved; }) ? 'Dokumen belum lengkap' : 'Siap ditinjau') +
+            '</small></button>';
+        }).join('') + '</section>';
+    }).join('');
+    await window.Swal.fire({
+      title: 'Draft SPK Saya',
+      html: '<div class="spk-import-draft-list">' + (rows || '<p>Belum ada draft tersimpan.</p>') + '</div>',
+      width: 750,
+      showConfirmButton: false,
+      showCloseButton: true,
+      customClass: { popup: 'spk-import-review-popup' },
+      didOpen: function (popup) {
+        popup.querySelectorAll('[data-draft-batch]').forEach(function (button) {
+          button.addEventListener('click', function () {
+            var batchId = button.dataset.draftBatch;
+            var code = button.dataset.draftCode;
+            window.Swal.close();
+            openDraftItem(batchId, code).catch(function (error) {
+              console.error('Draft SPK gagal dibuka', error);
+              window.Swal.fire({ icon: 'error', title: 'Draft belum dapat dibuka', text: error.message });
+            });
+          });
+        });
+      }
+    });
+  }
+
+  async function chooseMissingDraftFiles(batch) {
+    var missing = batch.files.filter(function (file) { return !file.saved; });
+    var chosen = await window.Swal.fire({
+      title: 'Lengkapi dokumen draft',
+      text: 'Pilih ulang ' + missing.length + ' file yang belum terunggah. Nama harus sesuai dengan file sumber.',
+      input: 'file',
+      inputAttributes: { accept: '.pdf,.png,.jpg,.jpeg', multiple: true },
+      showCancelButton: true,
+      confirmButtonText: 'Unggah dokumen',
+      cancelButtonText: 'Batal',
+      customClass: { popup: 'spk-import-notice-popup' },
+      inputValidator: function (value) {
+        if (!value) return 'Pilih file yang belum terunggah.';
+        var files = value instanceof File ? [value] : Array.from(value);
+        if (!files.length) return 'Pilih file yang belum terunggah.';
+        return missing.every(function (item) { return files.some(function (file) { return file.name === item.name; }); })
+          ? null : 'Nama file tidak sesuai dengan dokumen draft yang belum lengkap.';
+      }
+    });
+    if (!chosen.isConfirmed) return;
+    var files = chosen.value instanceof File ? [chosen.value] : Array.from(chosen.value);
+    if (files.some(function (file) { return !file.size || file.size > SAVE_MAX_BYTES; })) {
+      throw new Error('Setiap file harus berisi data dan berukuran maksimal 10 MB.');
+    }
+    var restored = { batchId: batch.batchId, descriptors: missing,
+      files: [] };
+    missing.forEach(function (item) {
+      restored.files[item.index] = files.find(function (file) { return file.name === item.name; });
+    });
+    for (var descriptor of missing) {
+      var restoredFile = restored.files[descriptor.index];
+      if (restoredFile.size !== descriptor.size) throw new Error(descriptor.name + ' memiliki ukuran yang berbeda dari dokumen draft.');
+      var digest = new Uint8Array(await crypto.subtle.digest('SHA-256', await restoredFile.arrayBuffer()));
+      if (btoa(String.fromCharCode.apply(null, digest)) !== descriptor.hash) {
+        throw new Error(descriptor.name + ' bukan file yang sama dengan dokumen sumber draft.');
+      }
+    }
+    window.Swal.fire({ title: 'Melengkapi draft', text: 'Mengunggah dokumen…',
+      allowOutsideClick: false, allowEscapeKey: false, showConfirmButton: false,
+      didOpen: function () { window.Swal.showLoading(); } });
+    await uploadPendingDraftFiles(restored);
+    await refreshDraftBatches();
+    await window.Swal.fire({ icon: 'success', title: 'Dokumen draft lengkap', text: 'Draft siap ditinjau dan diterapkan.' });
+  }
+
+  async function openDraftItem(batchId, code) {
+    var batch = requireDraftResponse(await draftRpc('getSpkImportDraft', documentToken(), batchId), 'batch').batch;
+    var item = batch.items.find(function (entry) { return entry.code === code; });
+    if (!item) throw new Error('Item draft tidak ditemukan.');
+    if (item.status === 'completed') {
+      await window.Swal.fire({ icon: 'info', title: 'Item sudah menjadi SPK',
+        text: item.code + ' tersimpan sebagai SPK ' + item.spk + '. Buka Kelola SPK untuk melihat dokumen.' });
+      return;
+    }
+    if (item.spk) {
+      window.Swal.fire({ title: 'Melengkapi dokumen SPK', text: 'Mencoba melanjutkan pemasangan dokumen…',
+        showConfirmButton: false, allowOutsideClick: false,
+        didOpen: function () { window.Swal.showLoading(); } });
+      requireDraftResponse(await draftRpc('completeSpkImportDraftItem', documentToken(),
+        batchId, code, item.spk), 'batch');
+      await refreshDraftBatches();
+      await window.Swal.fire({ icon: 'success', title: 'Dokumen selesai dipasangkan',
+        text: item.code + ' tersedia di SPK ' + item.spk + '.' });
+      return;
+    }
+    if (batch.files.some(function (file) { return !file.saved; })) {
+      await chooseMissingDraftFiles(batch);
+      return;
+    }
+    var result = { pages: batch.files.map(function (file) {
+      return { source: file.name, type: file.types.join('/'), hasText: true };
+    }), fields: item.fields, issues: item.issues || [], selectedItem: item.code, fromSavedDraft: true };
+    await window.Swal.fire({
+      title: 'Tinjau draft · ' + item.code,
+      html: buildReviewHtml(result),
+      width: 860,
+      showCancelButton: true,
+      confirmButtonText: 'Terapkan item ke form',
+      cancelButtonText: 'Batal',
+      showLoaderOnConfirm: true,
+      allowOutsideClick: function () { return !window.Swal.isLoading(); },
+      focusConfirm: false,
+      customClass: { popup: 'spk-import-review-popup' },
+      didOpen: function (popup) {
+        updateSelectionCount(popup);
+        popup.addEventListener('change', function (event) {
+          if (event.target.matches('[data-import-selected]')) updateSelectionCount(popup);
+        });
+      },
+      preConfirm: async function () {
+        var popup = window.Swal.getPopup();
+        try {
+          var corrected = item.fields.map(function (field) {
+            var input = popup.querySelector('[data-import-value="' + field.id + '"]');
+            if (!input) throw new Error('Kolom ' + field.label + ' tidak tersedia untuk ditinjau.');
+            return Object.assign({}, field, { value: input.value.trim() });
+          });
+          requireDraftResponse(await draftRpc('updateSpkImportDraftItem', documentToken(),
+            batchId, code, corrected), 'batch');
+          activeDraft = { batchId: batchId, code: code };
+          activeDraftFields = corrected;
+          stagedDocuments = batch.files.flatMap(function (file) {
+            return file.types.map(function (type) {
+              return { type: type, file: { name: file.name }, fileIndex: file.index,
+                draftBatchId: batchId, saved: false, error: '' };
+            });
+          });
+          updateDocumentButtons();
+          return applySelection(popup, result);
+        } catch (error) {
+          window.Swal.showValidationMessage(error.message);
+          return false;
+        }
+      }
+    });
+  }
+
+  async function saveCurrentDraft() {
+    if (!activeDraft || !activeDraftFields) {
+      await window.Swal.fire({ icon: 'info', title: 'Belum ada item draft aktif',
+        text: 'Baca dokumen multi-item untuk membuat draft, lalu buka satu item dari Draft Saya sebelum menyimpan perubahan form.' });
+      return;
+    }
+    if (savingDraft || savingDocuments) {
+      await window.Swal.fire({ icon: 'info', title: 'Penyimpanan sedang berjalan',
+        text: 'Tunggu proses sebelumnya selesai, lalu coba kembali.' });
+      return;
+    }
+    savingDraft = true;
+    try {
+      var fields = activeDraftFields.map(function (field) {
+        var target = document.getElementById(field.id);
+        return Object.assign({}, field, { value: target ? String(target.value || '').trim() : field.value });
+      });
+      requireDraftResponse(await draftRpc('updateSpkImportDraftItem', documentToken(),
+        activeDraft.batchId, activeDraft.code, fields), 'batch');
+      activeDraftFields = fields;
+      await window.Swal.fire({ icon: 'success', title: 'Perubahan draft tersimpan',
+        text: activeDraft.code + ' dapat dilanjutkan dari Draft Saya setelah login ulang.' });
+    } catch (error) {
+      console.error('Perubahan draft gagal disimpan', error);
+      await window.Swal.fire({ icon: 'error', title: 'Draft belum tersimpan', text: error.message });
+    } finally {
+      savingDraft = false;
+    }
+  }
+
   function updateSaveStatus(message, kind) {
     var status = document.querySelector('.spk-import-save-status');
     if (!status) return;
@@ -832,6 +1180,28 @@
     var overlay = document.getElementById('saveSuccessOverlay');
     var actions = overlay ? overlay.querySelectorAll('#saveSuccessCloseBtn, #printSpkLink') : [];
     actions.forEach(function (action) { action.style.pointerEvents = 'none'; action.setAttribute('aria-disabled', 'true'); });
+    if (activeDraft) {
+      try {
+        updateSaveStatus('Memasangkan dokumen draft ' + activeDraft.code + ' ke SPK ' + savedSpk + '…');
+        requireDraftResponse(await draftRpc('completeSpkImportDraftItem', documentToken(),
+          activeDraft.batchId, activeDraft.code, savedSpk), 'batch');
+        stagedDocuments.forEach(function (item) { item.saved = true; item.error = ''; });
+        updateSaveStatus('Dokumen draft ' + activeDraft.code + ' berhasil dipasangkan ke SPK ' + savedSpk + '.', 'success');
+        try { await refreshDraftBatches(); }
+        catch (error) { console.error('Daftar draft gagal diperbarui setelah SPK tersimpan', error); }
+      } catch (error) {
+        console.error('Dokumen draft gagal dipasangkan ke SPK', error);
+        stagedDocuments.forEach(function (item) { item.error = error.message; });
+        updateSaveStatus('SPK ' + savedSpk + ' sudah dibuat, tetapi dokumennya belum lengkap: ' +
+          error.message + '. Klik Coba lagi di sini atau buka Draft Saya untuk melanjutkan.', 'error');
+      } finally {
+        savingDocuments = false;
+        actions.forEach(function (action) { action.style.pointerEvents = ''; action.removeAttribute('aria-disabled'); });
+        updateDocumentButtons();
+        updateRetryButton();
+      }
+      return;
+    }
     var authToken;
     try { authToken = documentToken(); }
     catch (error) {
@@ -913,7 +1283,7 @@
     documentsDialog.querySelector('.spk-import-document-head strong').textContent = 'Dokumen ' + type;
     var tabs = documentsDialog.querySelector('.spk-import-document-tabs');
     tabs.replaceChildren();
-    function select(item, tab) {
+    async function select(item, tab) {
       tabs.querySelectorAll('button').forEach(function (button) { button.setAttribute('aria-pressed', String(button === tab)); });
       if (previewUrl) URL.revokeObjectURL(previewUrl);
       previewUrl = '';
@@ -934,7 +1304,25 @@
         if (!/^https:\/\/drive\.google\.com\//.test(link.href)) throw new Error('Tautan dokumen tidak valid.');
         content.appendChild(link);
       } else if (isPdf || isImage) {
-        previewUrl = URL.createObjectURL(item.file);
+        if (item.draftBatchId) {
+          content.textContent = 'Memuat preview privat…';
+          try {
+            var response = requireDraftResponse(await draftRpc('getSpkImportDraftFile',
+              documentToken(), item.draftBatchId, item.fileIndex), 'base64');
+            if (!documentsDialog.open || tab.getAttribute('aria-pressed') !== 'true') return;
+            var binary = atob(response.base64);
+            var bytes = new Uint8Array(binary.length);
+            for (var byteIndex = 0; byteIndex < binary.length; byteIndex++) bytes[byteIndex] = binary.charCodeAt(byteIndex);
+            previewUrl = URL.createObjectURL(new Blob([bytes], { type: response.mimeType }));
+            content.replaceChildren();
+          } catch (error) {
+            console.error('Preview draft tidak dapat dimuat', error);
+            content.textContent = 'Preview tidak tersedia: ' + error.message;
+            return;
+          }
+        } else {
+          previewUrl = URL.createObjectURL(item.file);
+        }
         var preview = document.createElement(isPdf ? 'iframe' : 'img');
         if (isPdf) preview.title = 'Preview ' + item.file.name;
         else preview.alt = item.file.name;
@@ -942,10 +1330,10 @@
         content.appendChild(preview);
       }
       documentsDialog.querySelector('.spk-import-document-state').textContent =
-        item.file.name + ' · ' + (item.saved ? 'Tersimpan di Google Drive' :
+        item.file.name + ' · ' + (item.draftBatchId ? 'Draft privat tersimpan' : item.saved ? 'Tersimpan di Google Drive' :
           item.error ? 'Belum tersimpan: ' + item.error : 'Preview lokal · belum disimpan');
       var remove = documentsDialog.querySelector('.spk-import-document-remove');
-      remove.hidden = item.saved;
+      remove.hidden = item.saved || Boolean(item.draftBatchId);
       remove.onclick = function () {
         if (item.saved) return;
         stagedDocuments.splice(stagedDocuments.indexOf(item), 1);
@@ -1116,6 +1504,10 @@
       });
       try {
         var result = await importFiles(files);
+        if (result.items.length > 1) {
+          await saveMultiDraft(result, files);
+          return;
+        }
         var sourcePages = result.sourcePages;
         var review;
         while (true) {
@@ -1223,12 +1615,14 @@
     launcher.className = 'spk-import-launcher';
     launcher.innerHTML = '<div class="spk-import-launcher-icon" aria-hidden="true"><i class="fa-solid fa-file-lines"></i></div>' +
       '<div class="spk-import-launcher-copy"><span class="spk-import-eyebrow">ASISTEN DOKUMEN · OCR LOKAL</span>' +
-      '<strong>Buat draft SPK dari dokumen</strong><p>Baca PO, PHJ, dan TDS dari PDF atau gambar. Tinjau hasil sebelum mengisi form.</p>' +
-      '<span class="spk-import-launcher-meta"><i class="fa-solid fa-lock" aria-hidden="true"></i> OCR lokal · File disimpan hanya setelah SPK dibuat</span>' +
+      '<strong>Buat draft SPK dari dokumen</strong><p>Baca PO, PHJ, dan TDS dari PDF atau gambar. Setiap item dapat menjadi draft SPK terpisah.</p>' +
+      '<span class="spk-import-launcher-meta"><i class="fa-solid fa-lock" aria-hidden="true"></i> OCR lokal · Draft multi-item disimpan privat pada akun Anda</span>' +
       '<div class="spk-import-document-buttons" role="group" aria-label="Lihat dokumen SPK"></div></div>' +
+      '<button type="button" class="spk-import-drafts-open">Draft Saya</button>' +
       '<button type="button" class="spk-import-open"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Baca Dokumen <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>';
     fields.parentNode.insertBefore(launcher, fields);
     updateDocumentButtons();
+    updateDraftButton();
   }
 
   function install(browserWindow) {
@@ -1242,6 +1636,13 @@
     stylesheet.href = new URL('spk-document-import.css?v=' + ASSET_VERSION, SCRIPT_URL || browserWindow.location.href).href;
     doc.head.appendChild(stylesheet);
     doc.addEventListener('click', function (event) {
+      if (event.target.closest('.spk-import-drafts-open')) {
+        openDraftList().catch(function (error) {
+          console.error('Daftar draft SPK gagal dimuat', error);
+          if (window.Swal) window.Swal.fire({ icon: 'error', title: 'Draft belum dapat dimuat', text: error.message });
+        });
+        return;
+      }
       var category = event.target.closest('[data-import-category]');
       if (category) {
         showDocument(category.dataset.importCategory);
@@ -1257,29 +1658,31 @@
         if (window.Swal) window.Swal.fire({ icon: 'error', title: 'Tidak dapat membuka dokumen', text: error.message });
         else console.error('Pembacaan dokumen gagal', error);
       });
-      doc.addEventListener('click', function (event) {
-        if (savingDocuments && event.target.closest('#saveSuccessCloseBtn, #printSpkLink')) {
-          event.preventDefault();
-          event.stopImmediatePropagation();
-        }
-      }, true);
-      doc.addEventListener('spk:input-saved', function (event) {
-        savedSpk = String(event.detail && event.detail.spk || '').trim();
-        if (!stagedDocuments.length) return;
-        ensureSaveControls();
-        updateSaveStatus('Menyiapkan penyimpanan ' + stagedDocuments.length + ' dokumen…');
-        saveStagedDocuments();
-      });
-      doc.addEventListener('spk:input-reset', function () {
-        if (savingDocuments) return;
-        stagedDocuments = [];
-        savedSpk = '';
-        if (documentsDialog && documentsDialog.open) closeDocumentDialog();
-        updateDocumentButtons();
-      });
-      browserWindow.addEventListener('beforeunload', function (event) {
-        if (savingDocuments) { event.preventDefault(); event.returnValue = ''; }
-      });
+    });
+    doc.addEventListener('click', function (event) {
+      if (savingDocuments && event.target.closest('#saveSuccessCloseBtn, #printSpkLink')) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      }
+    }, true);
+    doc.addEventListener('spk:input-saved', function (event) {
+      savedSpk = String(event.detail && event.detail.spk || '').trim();
+      if (!stagedDocuments.length) return;
+      ensureSaveControls();
+      updateSaveStatus('Menyiapkan penyimpanan ' + stagedDocuments.length + ' dokumen…');
+      saveStagedDocuments();
+    });
+    doc.addEventListener('spk:input-reset', function () {
+      if (savingDocuments) return;
+      stagedDocuments = [];
+      savedSpk = '';
+      activeDraft = null;
+      activeDraftFields = null;
+      if (documentsDialog && documentsDialog.open) closeDocumentDialog();
+      updateDocumentButtons();
+    });
+    browserWindow.addEventListener('beforeunload', function (event) {
+      if (savingDocuments || savingDraft) { event.preventDefault(); event.returnValue = ''; }
     });
     function observeRoot() {
       addLauncher();
@@ -1294,10 +1697,14 @@
     buildReviewHtml: buildReviewHtml,
     classifyPage: classifyPage,
     collectAttachments: collectAttachments,
+    draftFileDescriptors: draftFileDescriptors,
     extractDraft: extractDraft,
     groupTextLines: groupTextLines,
     install: install,
     importFiles: importFiles,
+    makeDraftItems: makeDraftItems,
+    openDraftList: openDraftList,
+    saveCurrentDraft: saveCurrentDraft,
     readPdf: readPdf
   };
 });

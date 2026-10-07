@@ -39,17 +39,21 @@ transaksi atomik: file berhasil tetap tersimpan apabila file lain gagal.
 Format yang didukung: PDF, JPG/JPEG, PNG, DOC/DOCX, dan XLS/XLSX; setiap file harus
 berisi data dan berukuran maksimal 10 MiB (10.485.760 byte).
 
-### Draft SPK dari PDF (prototipe lokal)
+### Draft SPK dari dokumen
 
 Form Pembuatan SPK menyediakan **Baca Dokumen** untuk membaca PDF PO, PHJ, dan TDS
 di browser. OCR diproses lokal, sedangkan file yang dipilih diunggah ke Google
-Drive setelah SPK berhasil dibuat. Hasil pembacaan muncul
-sebagai draft yang dapat dikoreksi; hanya field yang dicentang pengguna yang
+Drive setelah SPK berhasil dibuat untuk dokumen satu item. Untuk dokumen
+multi-item, setiap item menjadi draft tersendiri milik pembuat; file sumber
+diunggah ke folder draft privat agar tetap tersedia setelah login ulang.
+Hasil pembacaan dapat dikoreksi; hanya field yang dicentang pengguna yang
 diterapkan ke form, dan konflik antardokumen tidak dipilih otomatis.
 PO menjadi sumber utama pelanggan, nomor/tanggal PO, jumlah, dan satuan;
 TDS diprioritaskan untuk identitas serta ukuran produk; PHJ menjadi referensi
-internal dan fallback. Jika ada beberapa item, pilih satu kode item dahulu
-sebelum meninjau draft; satu SPK hanya memuat satu item. Jumlah diambil dari
+internal dan fallback. Jika ada beberapa item, pilih **Simpan semua draft** untuk membuat satu draft
+per item, kemudian buka **Draft Saya** dan tinjau item satu per satu. Tombol
+**Simpan Draft** menyimpan perubahan form pada item draft yang sedang aktif;
+satu SPK tetap hanya memuat satu item. Jumlah diambil dari
 baris PO yang dipilih dan spesifikasi PHJ/TDS hanya digunakan jika kodenya
 cocok. PHJ berkode dalam beberapa kolom serta TDS berkode di beberapa halaman
 atau blok juga didukung. Jika OCR tidak membaca kode/kolom dengan jelas, nilai
@@ -64,8 +68,8 @@ Contoh `XAVA039-PLMR-09-26_revisi.pdf` berhasil dibaca: sistem mengenali nomor
 PO, tanggal PO masuk, tanggal kirim, pelanggan, dan jumlah dari halaman scan,
 serta artikel/kode/ukuran dari TDS. Nilai yang berselisih antara PHJ dan TDS
 ditandai, bukan dipilih diam-diam. Buat satu SPK per item dan periksa hasil
-ekstraksi sebelum menyimpan; untuk item selanjutnya, baca lagi dokumen yang
-sama dan pilih kode item berikutnya.
+ekstraksi sebelum menyimpan. Item selanjutnya tersedia di **Draft Saya** tanpa
+membaca ulang file.
 Setiap file dibatasi 10 MiB agar sesuai batas penyimpanan dokumen SPK,
 maksimal lima file per proses, maksimal 30 halaman
 per PDF, dan maksimal 30 halaman OCR per proses. OCR memerlukan koneksi pertama
@@ -86,6 +90,20 @@ atau dokumen yang sudah disimpan. Status upload dan tombol coba lagi muncul
 pada konfirmasi sukses jika ada file yang gagal; ID upload tetap sama saat
 mencoba kembali untuk mencegah duplikasi. Jangan tinggalkan halaman sebelum
 upload selesai. Dokumen tersimpan juga dapat dilihat melalui Kelola SPK.
+Draft multi-item hanya dapat dilihat pemilik akun Admin PPIC yang membuatnya.
+Dokumen sumber disimpan satu kali per kelompok draft di folder privat milik
+backend (tidak diberi tautan publik); saat sebuah item resmi menjadi SPK,
+dokumen sumber disalin ke kategori dokumen SPK tersebut. Jika lampiran belum
+selesai, Draft Saya menampilkan statusnya dan dapat melanjutkan pemasangan
+ke SPK yang sudah dibuat tanpa membuat SPK kedua.
+Jika upload draft terhenti, pilih ulang file sumber yang belum tersimpan;
+nama, ukuran, dan hash file harus cocok. Perubahan field di form pada item
+yang sudah dibuka disimpan ke server dengan **Simpan Draft** sebelum halaman
+ditutup. SPK dan dokumen tetap disimpan terpisah: draft belum menjadi SPK
+sampai pengguna menyimpan tiap item melalui form.
+Satu kelompok draft dibatasi 30 item dan lima file sumber. Dokumen tanpa
+kode item yang dapat dibaca perlu diperiksa dan diinput manual; draft tidak
+menggabungkan spesifikasi antaritem yang identitasnya tidak cocok.
 
 Backend `BE-Spk-Documents.js` memvalidasi sesi, izin tindakan, keberadaan SPK,
 ekstensi, header isi file, dan ukuran sebelum menyimpan. Folder Drive

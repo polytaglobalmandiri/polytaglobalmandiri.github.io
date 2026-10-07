@@ -26,6 +26,13 @@ var SPK_RPC_METHODS_ = {
   getSpkEditData: getSpkEditData,
   getSpkDocuments: getSpkDocuments,
   saveSpkDocument: saveSpkDocument,
+  createSpkImportDraft: createSpkImportDraft,
+  saveSpkImportDraftFile: saveSpkImportDraftFile,
+  listSpkImportDrafts: listSpkImportDrafts,
+  getSpkImportDraft: getSpkImportDraft,
+  getSpkImportDraftFile: getSpkImportDraftFile,
+  updateSpkImportDraftItem: updateSpkImportDraftItem,
+  completeSpkImportDraftItem: completeSpkImportDraftItem,
   updateSpkFromDashboard: updateSpkFromDashboard,
   getMasterFormOptions: getMasterFormOptions,
   saveCustomerMaster: saveCustomerMaster,
@@ -153,6 +160,11 @@ assignSpkRpcRoles_([
 assignSpkRpcRoles_(['getSpkPrintData'], SPK_RPC_PPIC_);
 assignSpkRpcRoles_(['getSpkDocuments'], SPK_RPC_PPIC_.concat(SPK_RPC_MANAGEMENT_));
 assignSpkRpcRoles_(['saveSpkDocument'], SPK_RPC_PPIC_);
+assignSpkRpcRoles_([
+  'createSpkImportDraft', 'saveSpkImportDraftFile', 'listSpkImportDrafts',
+  'getSpkImportDraft', 'getSpkImportDraftFile', 'updateSpkImportDraftItem',
+  'completeSpkImportDraftItem'
+], ['admin_ppic']);
 assignSpkRpcRoles_(['markSpkReleasedForPrint', 'listApprovalUsers', 'saveApprovalUser'], ['admin_ppic']);
 assignSpkRpcRoles_(['getApprovalQueue', 'approveSpk'], null);
 assignSpkRpcRoles_([

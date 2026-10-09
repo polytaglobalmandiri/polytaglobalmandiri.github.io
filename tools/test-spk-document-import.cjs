@@ -29,7 +29,7 @@ for (const page of [
   const html = fs.readFileSync(path.join(__dirname, '..', page), 'utf8');
   assert.match(html, /dispatchEvent\(new CustomEvent\('spk:input-saved'/);
   assert.match(html, /dispatchEvent\(new Event\('spk:input-reset'\)/);
-  assert.match(html, /spk-document-import\.js\?v=20261007-8/);
+  assert.match(html, /spk-document-import\.js\?v=20261007-9/);
   assert.match(html, /POLYTA_SPK_IMPORT\.saveCurrentDraft\(\)/);
   assert.doesNotMatch(html, /Draft Belum Aktif|Draf Belum Aktif/);
 }

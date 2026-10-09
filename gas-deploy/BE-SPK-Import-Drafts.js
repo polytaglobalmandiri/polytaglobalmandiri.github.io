@@ -160,9 +160,10 @@ function spkImportDraftOwned_(session, id) {
   return spkImportDraftLoad_(folder, session);
 }
 
-function spkImportDraftSave_(batch) {
+function spkImportDraftSave_(batch, summaryChanged) {
   batch.data.updatedAt = new Date().toISOString();
   batch.file.setContent(JSON.stringify(batch.data));
+  if (summaryChanged) spkImportDraftSyncIndex_(batch.data);
 }
 
 function spkImportDraftResult_(data) {
@@ -177,6 +178,54 @@ function spkImportDraftResult_(data) {
         size: file.size, hash: file.hash, saved: Boolean(file.uploaded) };
     })
   } };
+}
+
+function spkImportDraftSummary_(data) {
+  return {
+    batchId: data.batchId,
+    createdAt: data.createdAt,
+    items: data.items.map(function(item) {
+      return { code: item.code, name: item.name, status: item.status, spk: item.spk || '' };
+    }),
+    files: data.files.map(function(file) {
+      return { index: file.index, name: file.name, types: file.types.slice(), saved: Boolean(file.uploaded) };
+    })
+  };
+}
+
+function spkImportDraftSummaryResponse_(data) {
+  return { status: 'success', batch: spkImportDraftSummary_(data) };
+}
+
+function spkImportDraftIndexName_(userId) {
+  var digest = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, String(userId));
+  return 'owner-index-' + digest.map(function(byte) {
+    return ('0' + (byte & 255).toString(16)).slice(-2);
+  }).join('') + '.json';
+}
+
+function spkImportDraftIndexFile_(root, userId) {
+  var files = root.getFilesByName(spkImportDraftIndexName_(userId));
+  return files.hasNext() ? files.next() : null;
+}
+
+function spkImportDraftIndexData_(file, userId) {
+  var index = JSON.parse(file.getBlob().getDataAsString());
+  if (index.schema !== 'spk-import-owner-index-v1' || index.userId !== String(userId) ||
+      !Array.isArray(index.batches)) throw new Error('Indeks draft pembuat tidak valid.');
+  return index;
+}
+
+function spkImportDraftSyncIndex_(data) {
+  var root = spkImportDraftRoot_(false);
+  var file = root && spkImportDraftIndexFile_(root, data.userId);
+  if (!file) return;
+  var index = spkImportDraftIndexData_(file, data.userId);
+  var summary = spkImportDraftSummary_(data);
+  var position = index.batches.findIndex(function(batch) { return batch.batchId === data.batchId; });
+  if (position < 0) index.batches.push(summary);
+  else index.batches[position] = summary;
+  file.setContent(JSON.stringify(index));
 }
 
 function spkImportDraftCreationHash_(items, files) {
@@ -227,6 +276,7 @@ function createSpkImportDraft(authToken, payload) {
           spkImportDraftCreationHash_(existing.data.items, existing.data.files)) !== creationHash) {
         throw new Error('ID batch sudah digunakan untuk data berbeda.');
       }
+      spkImportDraftSyncIndex_(existing.data);
       return spkImportDraftResult_(existing.data);
     }
     var now = new Date().toISOString();
@@ -235,6 +285,7 @@ function createSpkImportDraft(authToken, payload) {
       createdAt: now, updatedAt: now, items: items, files: files };
     Drive.Files.create({ name: SPK_IMPORT_DRAFT_MANIFEST_, parents: [folder.getId()] },
       Utilities.newBlob(JSON.stringify(data), 'application/json', SPK_IMPORT_DRAFT_MANIFEST_), { fields: 'id' });
+    spkImportDraftSyncIndex_(data);
     return spkImportDraftResult_(data);
   } finally {
     lock.releaseLock();
@@ -244,26 +295,49 @@ function createSpkImportDraft(authToken, payload) {
 function listSpkImportDrafts(authToken) {
   var session = spkImportDraftSession_(authToken);
   var root = spkImportDraftRoot_(false);
-  var drafts = [];
-  if (root) {
-    var folders = root.getFolders();
-    while (folders.hasNext()) {
-      var folder = folders.next();
-      if (folder.isTrashed()) continue;
-      if (!folder.getFilesByName(SPK_IMPORT_DRAFT_MANIFEST_).hasNext()) continue;
-      var batch = spkImportDraftLoad_(folder);
-      if (batch.data.userId === String(session.userId)) drafts.push(batch.data);
+  if (!root) return { status: 'success', batches: [] };
+  var indexFile = spkImportDraftIndexFile_(root, session.userId);
+  if (!indexFile) {
+    var lock = LockService.getScriptLock();
+    lock.waitLock(30000);
+    try {
+      indexFile = spkImportDraftIndexFile_(root, session.userId);
+      if (!indexFile) {
+        var drafts = [];
+        var folders = root.getFolders();
+        while (folders.hasNext()) {
+          var folder = folders.next();
+          if (folder.isTrashed()) continue;
+          if (!folder.getFilesByName(SPK_IMPORT_DRAFT_MANIFEST_).hasNext()) continue;
+          var batch = spkImportDraftLoad_(folder);
+          if (batch.data.userId === String(session.userId)) drafts.push(batch.data);
+        }
+        drafts.sort(function(a, b) { return b.createdAt.localeCompare(a.createdAt); });
+        var data = { schema: 'spk-import-owner-index-v1', userId: String(session.userId),
+          batches: drafts.map(spkImportDraftSummary_) };
+        var created = Drive.Files.create({ name: spkImportDraftIndexName_(session.userId),
+          parents: [root.getId()] },
+          Utilities.newBlob(JSON.stringify(data), 'application/json', 'draft-index.json'), { fields: 'id' });
+        indexFile = DriveApp.getFileById(created.id);
+      }
+    } finally {
+      lock.releaseLock();
     }
   }
-  drafts.sort(function(a, b) { return b.createdAt.localeCompare(a.createdAt); });
-  return { status: 'success', batches: drafts.map(function(data) {
-    return spkImportDraftResult_(data).batch;
-  }) };
+  var index = spkImportDraftIndexData_(indexFile, session.userId);
+  index.batches.sort(function(a, b) { return b.createdAt.localeCompare(a.createdAt); });
+  return { status: 'success', batches: index.batches };
 }
 
-function getSpkImportDraft(authToken, batchId) {
-  return spkImportDraftResult_(spkImportDraftOwned_(spkImportDraftSession_(authToken),
-    spkImportDraftId_(batchId)).data);
+function getSpkImportDraft(authToken, batchId, code) {
+  var batch = spkImportDraftOwned_(spkImportDraftSession_(authToken), spkImportDraftId_(batchId));
+  if (code === undefined) return spkImportDraftResult_(batch.data);
+  var itemCode = spkImportDraftCode_(code);
+  var item = batch.data.items.find(function(entry) { return entry.code === itemCode; });
+  if (!item) throw new Error('Item draft tidak ditemukan.');
+  return spkImportDraftResult_({
+    batchId: batch.data.batchId, items: [item], files: batch.data.files
+  });
 }
 
 function updateSpkImportDraftItem(authToken, batchId, code, fields) {
@@ -283,7 +357,9 @@ function updateSpkImportDraftItem(authToken, batchId, code, fields) {
     }
     item.fields = validated;
     spkImportDraftSave_(batch);
-    return spkImportDraftResult_(batch.data);
+    return spkImportDraftResult_({
+      batchId: batch.data.batchId, items: [item], files: batch.data.files
+    });
   } finally {
     lock.releaseLock();
   }
@@ -340,9 +416,9 @@ function saveSpkImportDraftFile(authToken, batchId, payload) {
       descriptor.fileId = stored.file.getId();
       descriptor.size = decoded.size;
       descriptor.uploadId = decoded.uploadId;
-      spkImportDraftSave_(batch);
-    }
-    return spkImportDraftResult_(batch.data);
+      spkImportDraftSave_(batch, true);
+    } else spkImportDraftSyncIndex_(batch.data);
+    return spkImportDraftSummaryResponse_(batch.data);
   } finally {
     lock.releaseLock();
   }
@@ -382,14 +458,17 @@ function completeSpkImportDraftItem(authToken, batchId, code, spk) {
       throw new Error('Nomor SPK sudah digunakan oleh item lain dalam kelompok draft ini.');
     }
     if (!readDatabaseV2Spk_(key)) throw new Error('SPK tidak ditemukan di Database V2.');
-    if (item.status === 'completed') return spkImportDraftResult_(batch.data);
+    if (item.status === 'completed') {
+      spkImportDraftSyncIndex_(batch.data);
+      return spkImportDraftSummaryResponse_(batch.data);
+    }
     if (batch.data.files.some(function(file) { return !file.uploaded; })) {
       throw new Error('Unggah semua file draft sebelum menyelesaikan item.');
     }
     if (item.status !== 'attaching' || item.spk !== key) {
       item.spk = key;
       item.status = 'attaching';
-      spkImportDraftSave_(batch);
+      spkImportDraftSave_(batch, true);
     }
     var root = DriveApp.getFolderById(SPK_DOCUMENT_FOLDER_ID_);
     if (root.isTrashed()) throw new Error('Folder dokumen SPK sudah dihapus.');
@@ -419,8 +498,8 @@ function completeSpkImportDraftItem(authToken, batchId, code, spk) {
     });
     item.status = 'completed';
     item.completedAt = new Date().toISOString();
-    spkImportDraftSave_(batch);
-    return spkImportDraftResult_(batch.data);
+    spkImportDraftSave_(batch, true);
+    return spkImportDraftSummaryResponse_(batch.data);
   } finally {
     lock.releaseLock();
   }

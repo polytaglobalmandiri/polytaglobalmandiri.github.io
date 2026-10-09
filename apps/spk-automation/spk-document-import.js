@@ -11,7 +11,7 @@
   var MAX_FILES = 5;
   var MAX_PAGES_PER_FILE = 30;
   var PDFJS_VERSION = '3.11.174';
-  var ASSET_VERSION = '20261007-8';
+  var ASSET_VERSION = '20261007-9';
   var OCR_MAX_PAGES_PER_IMPORT = 30;
   var FIELDS = [
     { id: 'customer', label: 'Pelanggan', priority: ['PO', 'PHJ', 'TDS'] },
@@ -941,7 +941,6 @@
       requireDraftResponse(await draftRpc('createSpkImportDraft', documentToken(),
         { batchId: batchId, items: items, files: selectedDescriptors }), 'batch');
       await uploadPendingDraftFiles({ batchId: batchId, files: files, descriptors: selectedDescriptors });
-      await refreshDraftBatches();
       await window.Swal.fire({ icon: 'success', title: 'Semua item menjadi draft',
         text: items.length + ' draft disimpan. Buka Draft Saya untuk meninjau setiap item dan membuat SPK.',
         confirmButtonText: 'Lihat draft', customClass: { popup: 'spk-import-notice-popup' } });
@@ -977,6 +976,10 @@
   }
 
   async function openDraftList() {
+    window.Swal.fire({ title: 'Memuat draft', text: 'Menampilkan daftar draft milik Anda…',
+      showConfirmButton: false, allowOutsideClick: false,
+      didOpen: function () { window.Swal.showLoading(); },
+      customClass: { popup: 'spk-import-notice-popup' } });
     var batches = await refreshDraftBatches();
     var rows = batches.map(function (batch) {
       return '<section class="spk-import-draft-batch"><strong>' + escapeHtml(batch.items.length + ' item · ' + batch.batchId) +
@@ -1059,7 +1062,11 @@
   }
 
   async function openDraftItem(batchId, code) {
-    var batch = requireDraftResponse(await draftRpc('getSpkImportDraft', documentToken(), batchId), 'batch').batch;
+    window.Swal.fire({ title: 'Memuat item draft', text: 'Mengambil data item yang dipilih…',
+      showConfirmButton: false, allowOutsideClick: false,
+      didOpen: function () { window.Swal.showLoading(); },
+      customClass: { popup: 'spk-import-notice-popup' } });
+    var batch = requireDraftResponse(await draftRpc('getSpkImportDraft', documentToken(), batchId, code), 'batch').batch;
     var item = batch.items.find(function (entry) { return entry.code === code; });
     if (!item) throw new Error('Item draft tidak ditemukan.');
     if (item.status === 'completed') {
@@ -1125,8 +1132,10 @@
             if (!input) throw new Error('Kolom ' + field.label + ' tidak tersedia untuk ditinjau.');
             return Object.assign({}, field, { value: input.value.trim() });
           });
-          requireDraftResponse(await draftRpc('updateSpkImportDraftItem', documentToken(),
-            batchId, code, corrected), 'batch');
+          if (corrected.some(function (field, index) { return field.value !== item.fields[index].value; })) {
+            requireDraftResponse(await draftRpc('updateSpkImportDraftItem', documentToken(),
+              batchId, code, corrected), 'batch');
+          }
           activeDraft = { batchId: batchId, code: code };
           activeDraftFields = corrected;
           stagedDocuments = batch.files.flatMap(function (file) {
@@ -1162,8 +1171,10 @@
         var target = document.getElementById(field.id);
         return Object.assign({}, field, { value: target ? String(target.value || '').trim() : field.value });
       });
-      requireDraftResponse(await draftRpc('updateSpkImportDraftItem', documentToken(),
-        activeDraft.batchId, activeDraft.code, fields), 'batch');
+      if (fields.some(function (field, index) { return field.value !== activeDraftFields[index].value; })) {
+        requireDraftResponse(await draftRpc('updateSpkImportDraftItem', documentToken(),
+          activeDraft.batchId, activeDraft.code, fields), 'batch');
+      }
       activeDraftFields = fields;
       await window.Swal.fire({ icon: 'success', title: 'Perubahan draft tersimpan',
         text: activeDraft.code + ' dapat dilanjutkan dari Draft Saya setelah login ulang.' });

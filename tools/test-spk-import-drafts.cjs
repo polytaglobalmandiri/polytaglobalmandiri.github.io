@@ -8,6 +8,8 @@ let nextId = 0;
 let locked = false;
 let copies = 0;
 let failCopyAfter = -1;
+let rootScans = 0;
+let manifestReads = 0;
 const byId = new Map();
 const props = new Map();
 function iterator(values) {
@@ -24,7 +26,7 @@ class Folder {
   getId() { return this.id; }
   getName() { return this.name; }
   isTrashed() { return false; }
-  getFolders() { return iterator(this.folders); }
+  getFolders() { if (this === driveRoot) rootScans++; return iterator(this.folders); }
   getFoldersByName(name) { return iterator(this.folders.filter(f => f.name === name)); }
   createFolder(name) { assert(locked); const f = new Folder(name); this.folders.push(f); return f; }
   getFiles() { return iterator(this.files); }
@@ -44,7 +46,8 @@ function createFile(resource, content) {
   let data = content;
   const file = {
     getId: () => id, getName: () => resource.name, getDescription: () => resource.description || '',
-    getBlob: () => data, getMimeType: () => data.mime,
+    getBlob: () => { if (resource.name === 'batch.json') manifestReads++; return data; },
+    getMimeType: () => data.mime,
     isTrashed: () => false, setContent: text => { assert(locked); data = blob(text, 'application/json', resource.name); }
   };
   parent.files.push(file); byId.set(id, file);
@@ -117,9 +120,17 @@ assert.throws(() => context.createSpkImportDraft('alice', {
 assert.throws(() => context.getSpkImportDraft('bob', batchId), /pembuatnya/);
 assert.equal(context.listSpkImportDrafts('bob').batches.length, 0);
 assert.equal(context.listSpkImportDrafts('alice').batches[0].files[0].saved, false);
+const scansAfterBackfill = rootScans;
+const readsAfterBackfill = manifestReads;
+assert.equal(context.listSpkImportDrafts('alice').batches.length, 1);
+assert.equal(rootScans, scansAfterBackfill, 'Subsequent list loads must use creator index, not scan all users');
+assert.equal(manifestReads, readsAfterBackfill, 'Subsequent list loads must not read each batch manifest');
+assert.equal(context.listSpkImportDrafts('alice').batches[0].items[0].fields, undefined);
+assert.equal(context.listSpkImportDrafts('alice').batches[0].items[0].issues, undefined);
+assert.ok(JSON.stringify(context.listSpkImportDrafts('alice')).length <
+  JSON.stringify(context.getSpkImportDraft('alice', batchId)).length / 2,
+  'Draft list response must be less than half of detailed batch response');
 assert.equal(context.listSpkImportDrafts('alice').batches[0].items[0].spk, '');
-assert.deepEqual(JSON.parse(JSON.stringify(context.listSpkImportDrafts('alice').batches[0].items[0].issues)),
-  ['Periksa kuantitas PO.']);
 assert.throws(() => context.updateSpkImportDraftItem('guest', batchId, 'item-1', []), /Akses ditolak/);
 assert.throws(() => context.updateSpkImportDraftItem('bob', batchId, 'item-1', []), /pembuatnya/);
 assert.throws(() => context.updateSpkImportDraftItem('alice', batchId, 'missing', []), /tidak ditemukan/);
@@ -139,7 +150,14 @@ assert.deepEqual(Object.keys(updated.batch.files[0]).sort(), ['hash', 'index', '
 assert.deepEqual(JSON.parse(JSON.stringify(context.getSpkImportDraft('alice', batchId).batch.items[0].fields)), edited);
 assert.deepEqual(JSON.parse(JSON.stringify(context.getSpkImportDraft('alice', batchId).batch.items[0].issues)),
   ['Periksa kuantitas PO.']);
-assert.deepEqual(JSON.parse(JSON.stringify(context.listSpkImportDrafts('alice').batches[0].items[0].fields)), edited);
+assert.equal(context.listSpkImportDrafts('alice').batches[0].items[0].fields, undefined);
+assert.equal(rootScans, scansAfterBackfill, 'Updating an item must not trigger another all-user scan');
+assert.deepEqual(JSON.parse(JSON.stringify(context.getSpkImportDraft('alice', batchId, 'item-1').batch.items.map(item => item.code))),
+  ['item-1']);
+assert.ok(JSON.stringify(context.getSpkImportDraft('alice', batchId, 'item-1')).length <
+  JSON.stringify(context.getSpkImportDraft('alice', batchId)).length,
+  'Opening an item must transfer only that item, not the whole batch');
+assert.throws(() => context.getSpkImportDraft('alice', batchId, 'missing'), /tidak ditemukan/);
 assert.deepEqual(JSON.parse(JSON.stringify(context.createSpkImportDraft('alice', spec).batch.items[0].fields)), edited,
   'Retrying initial creation must preserve subsequent corrections');
 assert.throws(() => context.completeSpkImportDraftItem('alice', batchId, 'item-1', 'A26.001'), /Unggah semua/);

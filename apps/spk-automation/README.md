@@ -96,6 +96,11 @@ backend (tidak diberi tautan publik); saat sebuah item resmi menjadi SPK,
 dokumen sumber disalin ke kategori dokumen SPK tersebut. Jika lampiran belum
 selesai, Draft Saya menampilkan statusnya dan dapat melanjutkan pemasangan
 ke SPK yang sudah dibuat tanpa membuat SPK kedua.
+Daftar Draft Saya menggunakan indeks ringkas per pemilik dan hanya memuat
+rincian satu item saat dibuka. Draft yang dibuat sebelum indeks tersedia
+diindeks sekali pada pembukaan pertama, sehingga pembukaan pertama tersebut
+dapat lebih lama; berikutnya tidak perlu memindai seluruh draft pengguna lain.
+Meninjau item tanpa mengubah nilainya tidak menulis ulang draft ke Drive.
 Jika upload draft terhenti, pilih ulang file sumber yang belum tersimpan;
 nama, ukuran, dan hash file harus cocok. Perubahan field di form pada item
 yang sudah dibuka disimpan ke server dengan **Simpan Draft** sebelum halaman
